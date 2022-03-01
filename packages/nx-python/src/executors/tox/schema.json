@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "cli": "nx",
+  "title": "Tox executor",
+  "description": "",
+  "type": "object",
+  "properties": {
+    "silent": {
+      "type": "boolean",
+      "description": "Hide output text.",
+      "default": false
+    },
+    "args": {
+      "type": "string",
+      "description": "Tox custom args"
+    }
+  },
+  "required": []
+}

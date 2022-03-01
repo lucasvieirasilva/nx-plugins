@@ -1,0 +1,716 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`nx-python project generator should generate a python project into a different folder 1`] = `
+Object {
+  "projectType": "application",
+  "root": "apps/shared/test",
+  "sourceRoot": "apps/shared/test/shared_test",
+  "tags": Array [],
+  "targets": Object {
+    "add": Object {
+      "executor": "@nxlv/python:add",
+      "options": Object {},
+    },
+    "build": Object {
+      "executor": "@nxlv/python:build",
+      "options": Object {
+        "outputPath": "apps/shared/test/dist",
+        "publish": true,
+      },
+      "outputs": Array [
+        "apps/shared/test/dist",
+      ],
+    },
+    "install": Object {
+      "executor": "@nxlv/python:install",
+      "options": Object {
+        "args": "",
+        "cacheDir": ".cache/pypoetry",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
+    },
+    "lint": Object {
+      "executor": "@nxlv/python:flake8",
+      "options": Object {
+        "outputFile": "reports/apps/shared/test/pylint.txt",
+      },
+      "outputs": Array [
+        "reports/apps/shared/test/pylint.txt",
+      ],
+    },
+    "remove": Object {
+      "executor": "@nxlv/python:remove",
+      "options": Object {},
+    },
+    "test": Object {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": Object {
+        "command": "poetry run pytest tests/",
+        "cwd": "apps/shared/test",
+      },
+      "outputs": Array [
+        "reports/apps/shared/test/unittests",
+        "coverage/apps/shared/test",
+      ],
+    },
+    "tox": Object {
+      "executor": "@nxlv/python:tox",
+      "options": Object {
+        "args": "",
+        "silent": false,
+      },
+      "outputs": Array [
+        "reports/apps/shared/test/unittests",
+        "coverage/apps/shared/test",
+      ],
+    },
+    "update": Object {
+      "executor": "@nxlv/python:update",
+      "options": Object {},
+    },
+  },
+}
+`;
+
+exports[`nx-python project generator should generate a python project into a different folder 2`] = `
+"[tox]
+isolated_build = True
+envlist = py38
+
+[testenv]
+whitelist_externals =
+    poetry
+commands =
+    poetry install -vv --no-root
+    poetry run pytest {posargs} tests/
+"
+`;
+
+exports[`nx-python project generator should generate a python project into a different folder 3`] = `
+"# shared-test
+
+## About
+
+Project description here.
+
+## [Change log](CHANGELOG.md)
+"
+`;
+
+exports[`nx-python project generator should generate a python project into a different folder 4`] = `
+"[tool.coverage.run]
+branch = true
+source = [ \\"shared_test\\" ]
+
+[tool.coverage.report]
+exclude_lines = [ ]
+show_missing = true
+
+[tool.pytest.ini_options]
+addopts = \\"--cov --cov-report html:'../../../coverage/apps/shared/test/html' --cov-report xml:'../../../coverage/apps/shared/test/coverage.xml' --junitxml='../../../reports/apps/shared/test/unittests/junit.xml' --html='../../../reports/apps/shared/test/unittests/html/index.html'\\"
+
+[tool.poetry]
+name = \\"unittest-test-pkg-name\\"
+version = \\"1.0.0\\"
+description = \\"\\"
+authors = [ ]
+license = 'Proprietary'
+readme = 'README.md'
+
+  [[tool.poetry.packages]]
+  include = \\"shared_test\\"
+
+  [tool.poetry.dependencies]
+  python = \\"^3.8\\"
+
+  [tool.poetry.dev-dependencies]
+  pytest = \\"6.2.4\\"
+  pytest-cov = \\"2.11.1\\"
+  pytest-html = \\"3.1.1\\"
+  pytest-sugar = \\"0.9.4\\"
+  tox = \\"3.23.1\\"
+  flake8 = \\"4.0.1\\"
+  autopep8 = \\"1.5.7\\"
+
+[build-system]
+requires = [\\"poetry-core==1.0.3\\"]
+build-backend = \\"poetry.core.masonry.api\\"
+"
+`;
+
+exports[`nx-python project generator should generate a python project into a different folder 5`] = `
+"# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## Unreleased
+"
+`;
+
+exports[`nx-python project generator should generate a python project into a different folder 6`] = `
+"[flake8]
+exclude =
+	.git,
+	__pycache__,
+	build,
+	dist,
+	.tox,
+	venv,
+	.venv,
+	.pytest_cache
+max-line-length = 120
+"
+`;
+
+exports[`nx-python project generator should generate a python project into a different folder 7`] = `
+"
+def hello():
+    return \\"Hello shared-test\\"
+"
+`;
+
+exports[`nx-python project generator should generate a python project into a different folder 8`] = `
+"from shared_test import index
+
+
+def test_index():
+    assert index.hello() == \\"Hello shared-test\\"
+"
+`;
+
+exports[`nx-python project generator should generate a python project using custom source 1`] = `
+"[tool.coverage.run]
+branch = true
+source = [ \\"test\\" ]
+
+[tool.coverage.report]
+exclude_lines = [ ]
+show_missing = true
+
+[tool.pytest.ini_options]
+addopts = \\"--cov --cov-report html:'../../coverage/apps/test/html' --cov-report xml:'../../coverage/apps/test/coverage.xml' --junitxml='../../reports/apps/test/unittests/junit.xml' --html='../../reports/apps/test/unittests/html/index.html'\\"
+
+[tool.poetry]
+name = \\"unittest-test-pkg-name\\"
+version = \\"1.0.0\\"
+description = \\"\\"
+authors = [ ]
+license = \\"Proprietary\\"
+readme = \\"README.md\\"
+
+  [[tool.poetry.packages]]
+  include = \\"test\\"
+
+  [tool.poetry.dependencies]
+  python = \\"^3.8\\"
+
+  [tool.poetry.dev-dependencies]
+  pytest = \\"6.2.4\\"
+  pytest-cov = \\"2.11.1\\"
+  pytest-html = \\"3.1.1\\"
+  pytest-sugar = \\"0.9.4\\"
+  tox = \\"3.23.1\\"
+  flake8 = \\"4.0.1\\"
+  autopep8 = \\"1.5.7\\"
+
+  [[tool.poetry.source]]
+  name = \\"aws\\"
+  url = \\"https://custom.com\\"
+  secondary = true
+
+[build-system]
+requires = [ \\"poetry-core==1.0.3\\" ]
+build-backend = \\"poetry.core.masonry.api\\"
+"
+`;
+
+exports[`nx-python project generator should generate a python project using description option 1`] = `
+"[tool.coverage.run]
+branch = true
+source = [ \\"test\\" ]
+
+[tool.coverage.report]
+exclude_lines = [ ]
+show_missing = true
+
+[tool.pytest.ini_options]
+addopts = \\"--cov --cov-report html:'../../coverage/apps/test/html' --cov-report xml:'../../coverage/apps/test/coverage.xml' --junitxml='../../reports/apps/test/unittests/junit.xml' --html='../../reports/apps/test/unittests/html/index.html'\\"
+
+[tool.poetry]
+name = \\"unittest-test-pkg-name\\"
+version = \\"1.0.0\\"
+description = \\"My custom description\\"
+authors = [ ]
+license = 'Proprietary'
+readme = 'README.md'
+
+  [[tool.poetry.packages]]
+  include = \\"test\\"
+
+  [tool.poetry.dependencies]
+  python = \\"^3.8\\"
+
+  [tool.poetry.dev-dependencies]
+  pytest = \\"6.2.4\\"
+  pytest-cov = \\"2.11.1\\"
+  pytest-html = \\"3.1.1\\"
+  pytest-sugar = \\"0.9.4\\"
+  tox = \\"3.23.1\\"
+  flake8 = \\"4.0.1\\"
+  autopep8 = \\"1.5.7\\"
+
+[build-system]
+requires = [\\"poetry-core==1.0.3\\"]
+build-backend = \\"poetry.core.masonry.api\\"
+"
+`;
+
+exports[`nx-python project generator should generate a python project with tags 1`] = `
+Object {
+  "projectType": "application",
+  "root": "apps/test",
+  "sourceRoot": "apps/test/test",
+  "tags": Array [
+    "python-project",
+    "nx",
+    "poetry",
+    "tox",
+  ],
+  "targets": Object {
+    "add": Object {
+      "executor": "@nxlv/python:add",
+      "options": Object {},
+    },
+    "build": Object {
+      "executor": "@nxlv/python:build",
+      "options": Object {
+        "outputPath": "apps/test/dist",
+        "publish": true,
+      },
+      "outputs": Array [
+        "apps/test/dist",
+      ],
+    },
+    "install": Object {
+      "executor": "@nxlv/python:install",
+      "options": Object {
+        "args": "",
+        "cacheDir": ".cache/pypoetry",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
+    },
+    "lint": Object {
+      "executor": "@nxlv/python:flake8",
+      "options": Object {
+        "outputFile": "reports/apps/test/pylint.txt",
+      },
+      "outputs": Array [
+        "reports/apps/test/pylint.txt",
+      ],
+    },
+    "remove": Object {
+      "executor": "@nxlv/python:remove",
+      "options": Object {},
+    },
+    "test": Object {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": Object {
+        "command": "poetry run pytest tests/",
+        "cwd": "apps/test",
+      },
+      "outputs": Array [
+        "reports/apps/test/unittests",
+        "coverage/apps/test",
+      ],
+    },
+    "tox": Object {
+      "executor": "@nxlv/python:tox",
+      "options": Object {
+        "args": "",
+        "silent": false,
+      },
+      "outputs": Array [
+        "reports/apps/test/unittests",
+        "coverage/apps/test",
+      ],
+    },
+    "update": Object {
+      "executor": "@nxlv/python:update",
+      "options": Object {},
+    },
+  },
+}
+`;
+
+exports[`nx-python project generator should successfully generate a python library project 1`] = `
+Object {
+  "projectType": "library",
+  "root": "libs/test",
+  "sourceRoot": "libs/test/test",
+  "tags": Array [],
+  "targets": Object {
+    "add": Object {
+      "executor": "@nxlv/python:add",
+      "options": Object {},
+    },
+    "build": Object {
+      "executor": "@nxlv/python:build",
+      "options": Object {
+        "outputPath": "libs/test/dist",
+        "publish": true,
+      },
+      "outputs": Array [
+        "libs/test/dist",
+      ],
+    },
+    "install": Object {
+      "executor": "@nxlv/python:install",
+      "options": Object {
+        "args": "",
+        "cacheDir": ".cache/pypoetry",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
+    },
+    "lint": Object {
+      "executor": "@nxlv/python:flake8",
+      "options": Object {
+        "outputFile": "reports/libs/test/pylint.txt",
+      },
+      "outputs": Array [
+        "reports/libs/test/pylint.txt",
+      ],
+    },
+    "remove": Object {
+      "executor": "@nxlv/python:remove",
+      "options": Object {},
+    },
+    "test": Object {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": Object {
+        "command": "poetry run pytest tests/",
+        "cwd": "libs/test",
+      },
+      "outputs": Array [
+        "reports/libs/test/unittests",
+        "coverage/libs/test",
+      ],
+    },
+    "tox": Object {
+      "executor": "@nxlv/python:tox",
+      "options": Object {
+        "args": "",
+        "silent": false,
+      },
+      "outputs": Array [
+        "reports/libs/test/unittests",
+        "coverage/libs/test",
+      ],
+    },
+    "update": Object {
+      "executor": "@nxlv/python:update",
+      "options": Object {},
+    },
+  },
+}
+`;
+
+exports[`nx-python project generator should successfully generate a python library project 2`] = `
+"[tox]
+isolated_build = True
+envlist = py38
+
+[testenv]
+whitelist_externals =
+    poetry
+commands =
+    poetry install -vv --no-root
+    poetry run pytest {posargs} tests/
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python library project 3`] = `
+"# test
+
+## About
+
+Project description here.
+
+## [Change log](CHANGELOG.md)
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python library project 4`] = `
+"[tool.coverage.run]
+branch = true
+source = [ \\"test\\" ]
+
+[tool.coverage.report]
+exclude_lines = [ ]
+show_missing = true
+
+[tool.pytest.ini_options]
+addopts = \\"--cov --cov-report html:'../../coverage/libs/test/html' --cov-report xml:'../../coverage/libs/test/coverage.xml' --junitxml='../../reports/libs/test/unittests/junit.xml' --html='../../reports/libs/test/unittests/html/index.html'\\"
+
+[tool.poetry]
+name = \\"unittest-test-pkg-name\\"
+version = \\"1.0.0\\"
+description = \\"\\"
+authors = [ ]
+license = 'Proprietary'
+readme = 'README.md'
+
+  [[tool.poetry.packages]]
+  include = \\"test\\"
+
+  [tool.poetry.dependencies]
+  python = \\"^3.8\\"
+
+  [tool.poetry.dev-dependencies]
+  pytest = \\"6.2.4\\"
+  pytest-cov = \\"2.11.1\\"
+  pytest-html = \\"3.1.1\\"
+  pytest-sugar = \\"0.9.4\\"
+  tox = \\"3.23.1\\"
+  flake8 = \\"4.0.1\\"
+  autopep8 = \\"1.5.7\\"
+
+[build-system]
+requires = [\\"poetry-core==1.0.3\\"]
+build-backend = \\"poetry.core.masonry.api\\"
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python library project 5`] = `
+"# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## Unreleased
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python library project 6`] = `
+"[flake8]
+exclude =
+	.git,
+	__pycache__,
+	build,
+	dist,
+	.tox,
+	venv,
+	.venv,
+	.pytest_cache
+max-line-length = 120
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python library project 7`] = `
+"
+def hello():
+    return \\"Hello test\\"
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python library project 8`] = `
+"from test import index
+
+
+def test_index():
+    assert index.hello() == \\"Hello test\\"
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python project 1`] = `
+Object {
+  "projectType": "application",
+  "root": "apps/test",
+  "sourceRoot": "apps/test/test",
+  "tags": Array [],
+  "targets": Object {
+    "add": Object {
+      "executor": "@nxlv/python:add",
+      "options": Object {},
+    },
+    "build": Object {
+      "executor": "@nxlv/python:build",
+      "options": Object {
+        "outputPath": "apps/test/dist",
+        "publish": true,
+      },
+      "outputs": Array [
+        "apps/test/dist",
+      ],
+    },
+    "install": Object {
+      "executor": "@nxlv/python:install",
+      "options": Object {
+        "args": "",
+        "cacheDir": ".cache/pypoetry",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
+    },
+    "lint": Object {
+      "executor": "@nxlv/python:flake8",
+      "options": Object {
+        "outputFile": "reports/apps/test/pylint.txt",
+      },
+      "outputs": Array [
+        "reports/apps/test/pylint.txt",
+      ],
+    },
+    "remove": Object {
+      "executor": "@nxlv/python:remove",
+      "options": Object {},
+    },
+    "test": Object {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": Object {
+        "command": "poetry run pytest tests/",
+        "cwd": "apps/test",
+      },
+      "outputs": Array [
+        "reports/apps/test/unittests",
+        "coverage/apps/test",
+      ],
+    },
+    "tox": Object {
+      "executor": "@nxlv/python:tox",
+      "options": Object {
+        "args": "",
+        "silent": false,
+      },
+      "outputs": Array [
+        "reports/apps/test/unittests",
+        "coverage/apps/test",
+      ],
+    },
+    "update": Object {
+      "executor": "@nxlv/python:update",
+      "options": Object {},
+    },
+  },
+}
+`;
+
+exports[`nx-python project generator should successfully generate a python project 2`] = `
+"[tox]
+isolated_build = True
+envlist = py38
+
+[testenv]
+whitelist_externals =
+    poetry
+commands =
+    poetry install -vv --no-root
+    poetry run pytest {posargs} tests/
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python project 3`] = `
+"# test
+
+## About
+
+Project description here.
+
+## [Change log](CHANGELOG.md)
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python project 4`] = `
+"[tool.coverage.run]
+branch = true
+source = [ \\"test\\" ]
+
+[tool.coverage.report]
+exclude_lines = [ ]
+show_missing = true
+
+[tool.pytest.ini_options]
+addopts = \\"--cov --cov-report html:'../../coverage/apps/test/html' --cov-report xml:'../../coverage/apps/test/coverage.xml' --junitxml='../../reports/apps/test/unittests/junit.xml' --html='../../reports/apps/test/unittests/html/index.html'\\"
+
+[tool.poetry]
+name = \\"unittest-test-pkg-name\\"
+version = \\"1.0.0\\"
+description = \\"\\"
+authors = [ ]
+license = 'Proprietary'
+readme = 'README.md'
+
+  [[tool.poetry.packages]]
+  include = \\"test\\"
+
+  [tool.poetry.dependencies]
+  python = \\"^3.8\\"
+
+  [tool.poetry.dev-dependencies]
+  pytest = \\"6.2.4\\"
+  pytest-cov = \\"2.11.1\\"
+  pytest-html = \\"3.1.1\\"
+  pytest-sugar = \\"0.9.4\\"
+  tox = \\"3.23.1\\"
+  flake8 = \\"4.0.1\\"
+  autopep8 = \\"1.5.7\\"
+
+[build-system]
+requires = [\\"poetry-core==1.0.3\\"]
+build-backend = \\"poetry.core.masonry.api\\"
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python project 5`] = `
+"# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## Unreleased
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python project 6`] = `
+"[flake8]
+exclude =
+	.git,
+	__pycache__,
+	build,
+	dist,
+	.tox,
+	venv,
+	.venv,
+	.pytest_cache
+max-line-length = 120
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python project 7`] = `
+"
+def hello():
+    return \\"Hello test\\"
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python project 8`] = `
+"from test import index
+
+
+def test_index():
+    assert index.hello() == \\"Hello test\\"
+"
+`;

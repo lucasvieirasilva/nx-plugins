@@ -1,0 +1,11 @@
+{
+  "name": "@nxlv/python",
+  "version": "0.0.6",
+  "description": "Custom NX Plugin to support the Python language",
+  "main": "src/index.js",
+  "schematics": "./generators.json",
+  "executors": "./executors.json",
+  "dependencies": {
+    "@angular-devkit/schematics": "^13.2.5"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "cli": "nx",
+  "title": "Add executor",
+  "description": "",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Package name",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What is the Dependency name?"
+    },
+    "args": {
+      "type": "string",
+      "description": "Install additional arguments"
+    },
+    "local": {
+      "type": "boolean",
+      "description": "Local dependency",
+      "default": false
+    }
+  },
+  "required": ["name"]
+}

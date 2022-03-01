@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "NxPythonProject",
+  "title": "",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Project name",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What name would you like to use?"
+    },
+    "packageName": {
+      "type": "string",
+      "description": "Python package name",
+      "x-prompt": "What package name would you like to use?"
+    },
+    "publishable": {
+      "type": "boolean",
+      "description": "Project is publishable",
+      "default": true
+    },
+    "type": {
+      "type": "string",
+      "enum": ["application", "library"],
+      "description": "Project type application or library",
+      "default": "application",
+      "x-prompt": {
+        "message": "What project type would you like to use?",
+        "type": "list",
+        "items": [
+          {
+            "value": "application",
+            "label": "Application"
+          },
+          {
+            "value": "library",
+            "label": "Library"
+          }
+        ]
+      }
+    },
+    "description": {
+      "type": "string",
+      "description": "Project short description",
+      "x-prompt": "What description would you like to use?"
+    },
+    "tags": {
+      "type": "string",
+      "description": "Add tags to the project",
+      "alias": "t"
+    },
+    "directory": {
+      "type": "string",
+      "description": "The directory where the project is placed",
+      "alias": "d"
+    },
+    "customSource": {
+      "type": "boolean",
+      "description": "Specifies if the project uses custom PyPi registry",
+      "default": false
+    },
+    "sourceName": {
+      "type": "string",
+      "description": "Source name, required if the flag 'customSource' is true"
+    },
+    "sourceUrl": {
+      "type": "string",
+      "description": "Source URL, required if the flag 'customSource' is true"
+    },
+    "sourceSecondary": {
+      "type": "boolean",
+      "description": "Source secondary flag, required if the flag 'customSource' is true",
+      "default": true
+    }
+  },
+  "required": ["name", "packageName", "type"]
+}

@@ -1,0 +1,37 @@
+[tool.coverage.run]
+branch = true
+source = [ "<%= moduleName %>" ]
+
+[tool.coverage.report]
+exclude_lines = [ ]
+show_missing = true
+
+[tool.pytest.ini_options]
+addopts = "--cov --cov-report html:'<%= offsetFromRoot %>coverage/<%= projectRoot %>/html' --cov-report xml:'<%= offsetFromRoot %>coverage/<%= projectRoot %>/coverage.xml' --junitxml='<%= offsetFromRoot %>reports/<%= projectRoot %>/unittests/junit.xml' --html='<%= offsetFromRoot %>reports/<%= projectRoot %>/unittests/html/index.html'"
+
+[tool.poetry]
+name = "<%= packageName %>"
+version = "1.0.0"
+description = "<%= description %>"
+authors = [ ]
+license = 'Proprietary'
+readme = 'README.md'
+
+  [[tool.poetry.packages]]
+  include = "<%= moduleName %>"
+
+  [tool.poetry.dependencies]
+  python = "^3.8"
+
+  [tool.poetry.dev-dependencies]
+  pytest = "6.2.4"
+  pytest-cov = "2.11.1"
+  pytest-html = "3.1.1"
+  pytest-sugar = "0.9.4"
+  tox = "3.23.1"
+  flake8 = "4.0.1"
+  autopep8 = "1.5.7"
+
+[build-system]
+requires = ["poetry-core==1.0.3"]
+build-backend = "poetry.core.masonry.api"

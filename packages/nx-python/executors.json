@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "executors": {
+    "build": {
+      "implementation": "./src/executors/build/executor",
+      "schema": "./src/executors/build/schema.json",
+      "description": "build executor"
+    },
+    "add": {
+      "implementation": "./src/executors/add/executor",
+      "schema": "./src/executors/add/schema.json",
+      "description": "Add a dependency to the project"
+    },
+    "flake8": {
+      "implementation": "./src/executors/flake8/executor",
+      "schema": "./src/executors/flake8/schema.json",
+      "description": "Flake8 Linting Executor"
+    },
+    "tox": {
+      "implementation": "./src/executors/tox/executor",
+      "schema": "./src/executors/tox/schema.json",
+      "description": "Nx Python Tox Executor"
+    },
+    "install": {
+      "implementation": "./src/executors/install/executor",
+      "schema": "./src/executors/install/schema.json",
+      "description": "Nx Python Poetry Install"
+    },
+    "update": {
+      "implementation": "./src/executors/update/executor",
+      "schema": "./src/executors/update/schema.json",
+      "description": "Poetry Update Wrapper Executor"
+    },
+    "remove": {
+      "implementation": "./src/executors/remove/executor",
+      "schema": "./src/executors/remove/schema.json",
+      "description": "Poetry Remove Wrapper Executor"
+    }
+  }
+}

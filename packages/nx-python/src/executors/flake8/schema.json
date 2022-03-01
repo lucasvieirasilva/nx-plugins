@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "cli": "nx",
+  "title": "Flake8 executor",
+  "description": "",
+  "type": "object",
+  "properties": {
+    "outputFile": {
+      "type": "string",
+      "description": "Output pylint file path"
+    },
+    "silent": {
+      "type": "boolean",
+      "description": "Hide output text.",
+      "default": false
+    }
+  },
+  "required": ["outputFile"]
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "cli": "nx",
+  "title": "Update executor",
+  "description": "",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Package name"
+    },
+    "args": {
+      "type": "string",
+      "description": "Install additional arguments"
+    },
+    "local": {
+      "type": "boolean",
+      "description": "Local dependency",
+      "default": false
+    }
+  },
+  "required": []
+}
