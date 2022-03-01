@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "projects": {
+    "nx-python": "packages/nx-python",
+    "nx-python-e2e": "e2e/nx-python-e2e"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "name": "nx-python",
+  "version": "0.0.1",
+  "generators": {
+    "nx-python": {
+      "factory": "./src/generators/nx-python/generator",
+      "schema": "./src/generators/nx-python/schema.json",
+      "description": "nx-python generator"
+    }
+  }
+}
