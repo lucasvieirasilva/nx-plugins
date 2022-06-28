@@ -1,4 +1,4 @@
-import { execSyncMock } from '../../utils/mocks/child_process.mock';
+import { spawnSyncMock } from '../../utils/mocks/child_process.mock';
 import executor from './executor';
 import path from 'path'
 
@@ -10,7 +10,7 @@ describe('Install Executor', () => {
     projectName: 'app',
     workspace: {
       version: 2,
-      npmScope: '@lucasvieira',
+      npmScope: 'nxlv',
       projects: {
         app: {
           root: 'apps/app',
@@ -28,9 +28,10 @@ describe('Install Executor', () => {
     }
 
     const output = await executor(options, context);
-    expect(execSyncMock).toHaveBeenCalledWith(
-      'poetry install -v ', {
+    expect(spawnSyncMock).toHaveBeenCalledWith(
+      'poetry', ['install', '-v'], {
       stdio: 'inherit',
+      shell: false,
       cwd: 'apps/app'
     })
     expect(output.success).toBe(true);
@@ -45,9 +46,10 @@ describe('Install Executor', () => {
     }
 
     const output = await executor(options, context);
-    expect(execSyncMock).toHaveBeenCalledWith(
-      'poetry install -v --no-dev', {
+    expect(spawnSyncMock).toHaveBeenCalledWith(
+      'poetry', ['install', '-v', '--no-dev'], {
       stdio: 'inherit',
+      shell: false,
       cwd: 'apps/app'
     })
     expect(output.success).toBe(true);
@@ -61,9 +63,10 @@ describe('Install Executor', () => {
     }
 
     const output = await executor(options, context);
-    expect(execSyncMock).toHaveBeenCalledWith(
-      'poetry install -vv ', {
+    expect(spawnSyncMock).toHaveBeenCalledWith(
+      'poetry', ['install', '-vv'], {
       stdio: 'inherit',
+      shell: false,
       cwd: 'apps/app'
     })
     expect(output.success).toBe(true);
@@ -77,9 +80,10 @@ describe('Install Executor', () => {
     }
 
     const output = await executor(options, context);
-    expect(execSyncMock).toHaveBeenCalledWith(
-      'poetry install -vv ', {
+    expect(spawnSyncMock).toHaveBeenCalledWith(
+      'poetry', ['install','-vv'], {
       stdio: 'inherit',
+      shell: false,
       cwd: 'apps/app'
     })
     expect(output.success).toBe(true);
@@ -94,10 +98,11 @@ describe('Install Executor', () => {
     }
 
     const output = await executor(options, context);
-    expect(execSyncMock).toHaveBeenCalledWith(
-      'poetry install -v ', {
+    expect(spawnSyncMock).toHaveBeenCalledWith(
+      'poetry', ['install', '-v'], {
       stdio: 'inherit',
       cwd: 'apps/app',
+      shell: false,
       env: {
         ...process.env,
         POETRY_CACHE_DIR: path.resolve('apps/app/.cache/pypoetry')
@@ -107,7 +112,7 @@ describe('Install Executor', () => {
   });
 
   it('should not install when the command fail', async () => {
-    execSyncMock.mockImplementation(() => {
+    spawnSyncMock.mockImplementation(() => {
       throw new Error('fake')
     })
 
@@ -119,9 +124,10 @@ describe('Install Executor', () => {
     }
 
     const output = await executor(options, context);
-    expect(execSyncMock).toHaveBeenCalledWith(
-      'poetry install -v ', {
+    expect(spawnSyncMock).toHaveBeenCalledWith(
+      'poetry', ['install', '-v'], {
       stdio: 'inherit',
+      shell: false,
       cwd: 'apps/app'
     })
     expect(output.success).toBe(false);

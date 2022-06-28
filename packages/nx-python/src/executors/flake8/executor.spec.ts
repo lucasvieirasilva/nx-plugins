@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { execSyncMock } from '../../utils/mocks/child_process.mock';
+import { spawnSyncMock } from '../../utils/mocks/child_process.mock';
 import executor from './executor';
 import { tmpdir } from 'os';
 import { join } from 'path';
@@ -37,7 +37,7 @@ describe('Flake8 Executor', () => {
         projectName: 'app',
         workspace: {
           version: 2,
-          npmScope: '@lucasvieira',
+          npmScope: 'nxlv',
           projects: {
             app: {
               root: 'apps/app',
@@ -47,7 +47,7 @@ describe('Flake8 Executor', () => {
         },
       }
     );
-    expect(execSyncMock).toHaveBeenCalledTimes(1);
+    expect(spawnSyncMock).toHaveBeenCalledTimes(1);
     expect(output.success).toBe(true);
   });
 
@@ -67,7 +67,7 @@ describe('Flake8 Executor', () => {
         projectName: 'app',
         workspace: {
           version: 2,
-          npmScope: '@lucasvieira',
+          npmScope: 'nxlv',
           projects: {
             app: {
               root: 'apps/app',
@@ -77,12 +77,12 @@ describe('Flake8 Executor', () => {
         },
       }
     );
-    expect(execSyncMock).toHaveBeenCalledTimes(1);
+    expect(spawnSyncMock).toHaveBeenCalledTimes(1);
     expect(output.success).toBe(true);
   });
 
   it('should returns a error when run the flake8 CLI', async () => {
-    execSyncMock.mockImplementation(() => {
+    spawnSyncMock.mockImplementation(() => {
       throw new Error('Some error')
     })
 
@@ -98,7 +98,7 @@ describe('Flake8 Executor', () => {
         projectName: 'app',
         workspace: {
           version: 2,
-          npmScope: '@lucasvieira',
+          npmScope: 'nxlv',
           projects: {
             app: {
               root: 'apps/app',
@@ -108,7 +108,7 @@ describe('Flake8 Executor', () => {
         },
       }
     );
-    expect(execSyncMock).toHaveBeenCalledTimes(1);
+    expect(spawnSyncMock).toHaveBeenCalledTimes(1);
     expect(output.success).toBe(false);
   });
 });

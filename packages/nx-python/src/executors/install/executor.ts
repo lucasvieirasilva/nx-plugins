@@ -2,12 +2,12 @@ import { InstallExecutorSchema } from './schema';
 import { Logger } from '../utils/logger';
 import { ExecutorContext } from '@nrwl/devkit';
 import chalk from 'chalk';
-import { execSync, ExecSyncOptions } from 'child_process';
+import { spawnSync, SpawnSyncOptions } from 'child_process';
 import path from 'path'
 
 const logger = new Logger();
 
-export default async function runExecutor(
+export default async function executor(
   options: InstallExecutorSchema,
   context: ExecutorContext
 ) {
@@ -22,10 +22,13 @@ export default async function runExecutor(
       verboseArg = '-vv'
     }
 
-    const command = `poetry install ${verboseArg} ${options.args ?? ""}`
+    const executable = 'poetry'
+    const installArgs = ['install', verboseArg].concat(options.args ? options.args.split(' ') : [])
+    const command = `${executable} ${installArgs.join(' ')}`
     logger.info(chalk`\n  Running Command: {bold ${command}}\n`);
-    const execOpts: ExecSyncOptions = {
+    const execOpts: SpawnSyncOptions = {
       stdio: 'inherit',
+      shell: false,
       cwd: projectConfig.root
     }
 
@@ -36,7 +39,7 @@ export default async function runExecutor(
       }
     }
 
-    execSync(command, execOpts)
+    spawnSync(executable, installArgs, execOpts)
 
     return {
       success: true,

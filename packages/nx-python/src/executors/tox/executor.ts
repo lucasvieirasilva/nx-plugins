@@ -4,12 +4,12 @@ import buildExecutor from '../build/executor';
 import path from 'path';
 import chalk from 'chalk';
 import { Logger } from '../utils/logger';
-import { execSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import { readdirSync, existsSync } from 'fs-extra';
 
 const logger = new Logger();
 
-export default async function runExecutor(
+export default async function executor(
   options: ToxExecutorSchema,
   context: ExecutorContext
 ) {
@@ -24,6 +24,7 @@ export default async function runExecutor(
         keepBuildFolder: false,
         ignorePaths: ['.venv', '.tox', 'tests'],
         outputPath: distFolder,
+        devDependencies: true
       },
       context
     );
@@ -46,10 +47,13 @@ export default async function runExecutor(
 
     const packagePath = path.relative(projectConfig.root, path.join(distFolder, packageFile))
 
-    const command = `poetry run tox --installpkg ${packagePath} ${options.args ?? ""}`;
+    const executable = 'poetry'
+    const toxArgs = ['run', 'tox', '--installpkg', packagePath].concat(options.args ? options.args.split(' ') : [])
+    const command = `${executable} ${toxArgs.join(' ')}`;
     logger.info(chalk`\n  Running Command: {bold ${command}}\n`);
-    execSync(command, {
+    spawnSync(executable, toxArgs, {
       cwd: projectConfig.root,
+      shell: false,
       stdio: 'inherit',
     });
 

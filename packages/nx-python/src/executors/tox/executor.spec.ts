@@ -1,4 +1,4 @@
-import { execSyncMock } from '../../utils/mocks/child_process.mock';
+import { spawnSyncMock } from '../../utils/mocks/child_process.mock';
 
 const buildExecutorMock = jest.fn();
 
@@ -23,7 +23,7 @@ describe('Tox Executor', () => {
     projectName: 'app',
     workspace: {
       version: 2,
-      npmScope: '@lucasvieira',
+      npmScope: 'nxlv',
       projects: {
         app: {
           root: 'apps/app',
@@ -59,12 +59,14 @@ describe('Tox Executor', () => {
         keepBuildFolder: false,
         ignorePaths: ['.venv', '.tox', 'tests'],
         outputPath: 'apps/app/dist',
+        devDependencies: true
       },
       context
     );
-    expect(execSyncMock).toBeCalledWith(
-      'poetry run tox --installpkg dist/package.tar.gz ', {
+    expect(spawnSyncMock).toBeCalledWith(
+      'poetry', ['run', 'tox', '--installpkg', 'dist/package.tar.gz'], {
       cwd: 'apps/app',
+      shell: false,
       stdio: 'inherit',
     });
     expect(output.success).toBe(true);
@@ -90,12 +92,14 @@ describe('Tox Executor', () => {
         keepBuildFolder: false,
         ignorePaths: ['.venv', '.tox', 'tests'],
         outputPath: 'apps/app/dist',
+        devDependencies: true
       },
       context
     );
-    expect(execSyncMock).toBeCalledWith(
-      'poetry run tox --installpkg dist/package.tar.gz -e linters', {
+    expect(spawnSyncMock).toBeCalledWith(
+      'poetry', ['run', 'tox', '--installpkg', 'dist/package.tar.gz', '-e', 'linters'], {
       cwd: 'apps/app',
+      shell: false,
       stdio: 'inherit',
     });
     expect(output.success).toBe(true);
@@ -114,10 +118,11 @@ describe('Tox Executor', () => {
         keepBuildFolder: false,
         ignorePaths: ['.venv', '.tox', 'tests'],
         outputPath: 'apps/app/dist',
+        devDependencies: true
       },
       context
     );
-    expect(execSyncMock).not.toBeCalled();
+    expect(spawnSyncMock).not.toBeCalled();
     expect(output.success).toBe(false);
   });
 
@@ -134,10 +139,11 @@ describe('Tox Executor', () => {
         keepBuildFolder: false,
         ignorePaths: ['.venv', '.tox', 'tests'],
         outputPath: 'apps/app/dist',
+        devDependencies: true
       },
       context
     );
-    expect(execSyncMock).not.toBeCalled();
+    expect(spawnSyncMock).not.toBeCalled();
     expect(output.success).toBe(false);
   });
 
@@ -159,10 +165,11 @@ describe('Tox Executor', () => {
         keepBuildFolder: false,
         ignorePaths: ['.venv', '.tox', 'tests'],
         outputPath: 'apps/app/dist',
+        devDependencies: true
       },
       context
     );
-    expect(execSyncMock).not.toBeCalled();
+    expect(spawnSyncMock).not.toBeCalled();
     expect(output.success).toBe(false);
   });
 });

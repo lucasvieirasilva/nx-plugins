@@ -3,10 +3,10 @@ import chalk from 'chalk';
 import { UpdateExecutorSchema } from './schema';
 import path from 'path';
 import { addLocalProjectToPoetryProject, updateProject } from '../utils/poetry';
-import { execSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import { updateDependencyTree } from '../../dependency/update-dependency';
 
-export default async function runExecutor(
+export default async function executor(
   options: UpdateExecutorSchema,
   context: ExecutorContext
 ) {
@@ -27,14 +27,15 @@ export default async function runExecutor(
         console.log(chalk`\n  {bold Updating project dependencies...}\n`);
       }
 
-      const updateCommand = `poetry update ${options.name ?? ''} ${
-        options.args ?? ''
-      }`;
+      const executable = "poetry"
+      const updateArgs = ['update'].concat(options.name ? [options.name] : []).concat(options.args ? options.args.split(' ') : [])
+      const updateCommand = `${executable} ${updateArgs.join(" ")}`;
       console.log(
         chalk`{bold Running command}: ${updateCommand} at {bold ${projectConfig.root}} folder\n`
       );
-      execSync(updateCommand, {
+      spawnSync(executable, updateArgs, {
         cwd: projectConfig.root,
+        shell: false,
         stdio: 'inherit',
       });
     }

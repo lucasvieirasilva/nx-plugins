@@ -26,6 +26,11 @@
       "items": {
         "type": "string"
       }
+    },
+    "devDependencies": {
+      "type": "boolean",
+      "description": "Build with dev dependencies",
+      "default": false
     }
   },
   "required": ["outputPath"]

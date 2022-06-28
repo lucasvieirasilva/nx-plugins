@@ -1,6 +1,6 @@
 import { ExecutorContext } from '@nrwl/devkit';
 import chalk from 'chalk';
-import { execSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import { Logger } from '../utils/logger';
 import { Flake8ExecutorSchema } from './schema';
 import path from 'path'
@@ -11,7 +11,7 @@ import {
 
 const logger = new Logger();
 
-export default async function runExecutor(
+export default async function executor(
   options: Flake8ExecutorSchema,
   context: ExecutorContext
 ) {
@@ -30,9 +30,11 @@ export default async function runExecutor(
       mkdirsSync(reportFolder)
     }
 
-    const lintingCommand = `poetry run flake8 --output-file ${absPath}`;
-    execSync(lintingCommand, {
+    const executable = 'poetry'
+    const lintingArgs = ['run', 'flake8', '--output-file', absPath]
+    spawnSync(executable, lintingArgs, {
       cwd: cwd,
+      shell: false,
       stdio: 'inherit'
     });
 

@@ -1,4 +1,4 @@
-import { execSyncMock } from '../../utils/mocks/child_process.mock';
+import { spawnSyncMock } from '../../utils/mocks/child_process.mock';
 import chalk from 'chalk';
 import executor from './executor';
 import fsMock from 'mock-fs';
@@ -71,7 +71,7 @@ version = "1.0.0"
       projectName: 'lib1',
       workspace: {
         version: 2,
-        npmScope: '@lucasvieira',
+        npmScope: 'nxlv',
         projects: {
           app: {
             root: 'apps/app',
@@ -98,17 +98,20 @@ version = "1.0.0"
     };
 
     const output = await executor(options, context);
-    expect(execSyncMock).toHaveBeenCalledTimes(3);
-    expect(execSyncMock).toHaveBeenNthCalledWith(1, 'poetry remove shared1 ', {
+    expect(spawnSyncMock).toHaveBeenCalledTimes(3);
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(1, 'poetry', ['remove', 'shared1'], {
       cwd: 'libs/lib1',
+      shell: false,
       stdio: 'inherit',
     });
-    expect(execSyncMock).toHaveBeenNthCalledWith(2, 'poetry update lib1', {
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(2, 'poetry', ['update', 'lib1'], {
       cwd: 'apps/app',
+      shell: false,
       stdio: 'inherit',
     });
-    expect(execSyncMock).toHaveBeenNthCalledWith(3, 'poetry update lib1', {
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(3, 'poetry', ['update', 'lib1'], {
       cwd: 'apps/app1',
+      shell: false,
       stdio: 'inherit',
     });
     expect(output.success).toBe(true);
@@ -172,7 +175,7 @@ version = "1.0.0"
       projectName: 'shared1',
       workspace: {
         version: 2,
-        npmScope: '@lucasvieira',
+        npmScope: 'nxlv',
         projects: {
           app: {
             root: 'apps/app',
@@ -199,21 +202,25 @@ version = "1.0.0"
     };
 
     const output = await executor(options, context);
-    expect(execSyncMock).toHaveBeenCalledTimes(4);
-    expect(execSyncMock).toHaveBeenNthCalledWith(1, 'poetry remove numpy ', {
+    expect(spawnSyncMock).toHaveBeenCalledTimes(4);
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(1, 'poetry', ['remove', 'numpy'], {
       cwd: 'libs/shared1',
+      shell: false,
       stdio: 'inherit',
     });
-    expect(execSyncMock).toHaveBeenNthCalledWith(2, 'poetry update lib1', {
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(2, 'poetry', ['update', 'lib1'], {
       cwd: 'libs/lib1',
+      shell: false,
       stdio: 'inherit',
     });
-    expect(execSyncMock).toHaveBeenNthCalledWith(3, 'poetry update lib1', {
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(3, 'poetry', ['update', 'lib1'], {
       cwd: 'apps/app',
+      shell: false,
       stdio: 'inherit',
     });
-    expect(execSyncMock).toHaveBeenNthCalledWith(4, 'poetry update lib1', {
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(4, 'poetry', ['update', 'lib1'], {
       cwd: 'apps/app1',
+      shell: false,
       stdio: 'inherit',
     });
     expect(output.success).toBe(true);
@@ -245,7 +252,7 @@ version = "1.0.0"
       projectName: 'app',
       workspace: {
         version: 2,
-        npmScope: '@lucasvieira',
+        npmScope: 'nxlv',
         projects: {
           app: {
             root: 'apps/app',
@@ -256,12 +263,13 @@ version = "1.0.0"
     };
 
     const output = await executor(options, context);
-    expect(execSyncMock).toHaveBeenCalledTimes(1);
-    expect(execSyncMock).toHaveBeenNthCalledWith(
+    expect(spawnSyncMock).toHaveBeenCalledTimes(1);
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(
       1,
-      'poetry remove click -vvv',
+      'poetry', ['remove', 'click', '-vvv'],
       {
         cwd: 'apps/app',
+        shell: false,
         stdio: 'inherit',
       }
     );
@@ -269,7 +277,7 @@ version = "1.0.0"
   });
 
   it('should remove external dependency with error', async () => {
-    execSyncMock.mockImplementation(() => {
+    spawnSyncMock.mockImplementation(() => {
       throw new Error('fake error');
     });
 
@@ -297,7 +305,7 @@ version = "1.0.0"
       projectName: 'app',
       workspace: {
         version: 2,
-        npmScope: '@lucasvieira',
+        npmScope: 'nxlv',
         projects: {
           app: {
             root: 'apps/app',
@@ -308,12 +316,13 @@ version = "1.0.0"
     };
 
     const output = await executor(options, context);
-    expect(execSyncMock).toHaveBeenCalledTimes(1);
-    expect(execSyncMock).toHaveBeenNthCalledWith(
+    expect(spawnSyncMock).toHaveBeenCalledTimes(1);
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(
       1,
-      'poetry remove click ',
+      'poetry', ['remove', 'click'],
       {
         cwd: 'apps/app',
+        shell: false,
         stdio: 'inherit',
       }
     );

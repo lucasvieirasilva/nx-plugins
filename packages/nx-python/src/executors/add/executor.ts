@@ -1,11 +1,11 @@
 import { ExecutorContext } from '@nrwl/devkit';
-import { execSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import { AddExecutorSchema } from './schema';
 import chalk from 'chalk';
 import { updateDependencyTree } from '../../dependency/update-dependency';
 import { updateLocalProject } from '../update/executor';
 
-export default async function runExecutor(
+export default async function executor(
   options: AddExecutorSchema,
   context: ExecutorContext
 ) {
@@ -21,13 +21,16 @@ export default async function runExecutor(
       console.log(
         chalk`\n  {bold Adding {bgBlue  ${options.name} } dependency...}\n`
       );
-      const installCommand = `poetry add ${options.name} ${options.args ?? ''}`;
+      const executable = "poetry"
+      const installArgs = ['add', options.name].concat(options.args ? options.args.split(' ') : [])
+      const installCommand = `${executable} ${installArgs.join(" ")}`;
       console.log(
         chalk`{bold Running command}: ${installCommand} at {bold ${projectConfig.root}} folder\n`
       );
-      execSync(installCommand, {
+      spawnSync(executable, installArgs, {
         cwd: projectConfig.root,
-        stdio: 'inherit',
+        shell: false,
+        stdio: 'inherit'
       });
     }
 

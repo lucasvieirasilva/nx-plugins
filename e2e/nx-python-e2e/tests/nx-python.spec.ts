@@ -6,10 +6,10 @@ import {
   checkFilesExist,
 } from '@nrwl/nx-plugin/testing';
 describe('nx-python e2e', () => {
-  it('should create nx-python project', async (done) => {
+  it('should create nx-python project', async () => {
     const app1 = 'app1';
     const lib1 = 'lib1';
-    ensureNxProject('@nxlv/python', 'dist/packages/nx-python');
+    ensureNxProject('@nxlv/nx-python', 'dist/packages/nx-python');
 
     const nxJson = readJson('nx.json');
     nxJson.plugins = ['@nxlv/nx-python'];
@@ -17,11 +17,11 @@ describe('nx-python e2e', () => {
     updateFile('nx.json', JSON.stringify(nxJson, null, 4));
 
     await runNxCommandAsync(
-      `generate @nxlv/python:project ${app1} --type "application"`
+      `generate @nxlv/nx-python:project ${app1} --type "application" --packageName ${app1} --description ${app1}`
     );
 
     await runNxCommandAsync(
-      `generate @nxlv/python:project ${lib1} --type "library"`
+      `generate @nxlv/nx-python:project ${lib1} --type "library"  --packageName ${lib1} --description ${lib1}`
     );
 
     await runNxCommandAsync(`run ${app1}:add --name ${lib1} --local`);
@@ -38,32 +38,30 @@ describe('nx-python e2e', () => {
         `apps/${app1}/dist/${app1}-1.0.0.tar.gz`
       )
     ).not.toThrow();
-
-    done();
   }, 3000000);
 
-  it('should create nx-python project with 3 levels', async (done) => {
+  it('should create nx-python project with 3 levels', async () => {
     const app1 = 'app1';
     const lib1 = 'lib1';
     const lib2 = 'lib2';
 
-    ensureNxProject('@nxlv/python', 'dist/packages/nx-python');
+    ensureNxProject('@nxlv/nx-python', 'dist/packages/nx-python');
 
     const nxJson = readJson('nx.json');
-    nxJson.plugins = ['@nxlv/python'];
+    nxJson.plugins = ['@nxlv/nx-python'];
 
     updateFile('nx.json', JSON.stringify(nxJson, null, 4));
 
     await runNxCommandAsync(
-      `generate @nxlv/python:project ${app1} --type "application"`
+      `generate @nxlv/nx-python:project ${app1} --type "application" --packageName ${app1} --description ${app1}`
     );
 
     await runNxCommandAsync(
-      `generate @nxlv/python:project ${lib1} --type "library"`
+      `generate @nxlv/nx-python:project ${lib1} --type "library"  --packageName ${lib1} --description ${lib1}`
     );
 
     await runNxCommandAsync(
-      `generate @nxlv/python:project ${lib2} --type "library"`
+      `generate @nxlv/nx-python:project ${lib2} --type "library"  --packageName ${lib2} --description ${lib2}`
     );
 
     await runNxCommandAsync(`run ${lib1}:add --name ${lib2} --local`);
@@ -80,7 +78,5 @@ describe('nx-python e2e', () => {
         `apps/${app1}/dist/${app1}-1.0.0.tar.gz`
       )
     ).not.toThrow();
-
-    done();
   }, 3000000);
 });

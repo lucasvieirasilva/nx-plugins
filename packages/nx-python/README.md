@@ -10,8 +10,6 @@ This library was generated with [Nx](https://nx.dev).
 
 🔎 An Nx Custom Plugin to generate Python projects using Poetry, Tox and a custom dependency tree plugin
 
-[Full Nx Monorepo Tools](https://domgen.atlassian.net/wiki/spaces/OPS/pages/1861386252/NX+Monorepo+DevOps+Configuration)
-
 ## Getting Started
 
 ### Add to an existing Nx Workspace
@@ -23,6 +21,26 @@ npm install @nxlv/python --save-dev
 ```
 
 ### Usage
+
+1. Update `nx.json` to add the property `plugins` with `@nxlv/python` value.
+
+Example:
+
+```json
+{
+  ...
+  "affected": {
+    "defaultBase": "main"
+  },
+  "plugins": [
+    "@nxlv/python"
+  ],
+  "cli": {
+    "defaultCollection": "@nrwl/workspace"
+  },
+  ...
+}
+```
 
 #### Add a new Python Project
 

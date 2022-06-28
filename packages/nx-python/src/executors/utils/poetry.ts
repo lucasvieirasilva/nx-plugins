@@ -1,6 +1,6 @@
 import { ProjectConfiguration } from '@nrwl/devkit';
 import chalk from 'chalk';
-import { execSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import path from 'path';
 import toml from '@iarna/toml';
 import fs from 'fs';
@@ -27,12 +27,15 @@ export function addLocalProjectToPoetryProject(
 }
 
 export function updateProject(projectName: string, cwd: string) {
-  const updateLockCommand = `poetry update ${projectName}`;
+  const executable = 'poetry'
+  const updateLockArgs = ['update', projectName]
+  const updateLockCommand = `${executable} ${updateLockArgs.join(" ")}`;
   console.log(
     chalk`{bold Running command}: ${updateLockCommand} at {bold ${cwd}} folder\n`
   );
-  execSync(updateLockCommand, {
+  spawnSync(executable, updateLockArgs, {
     cwd,
+    shell: false,
     stdio: 'inherit',
   });
 }
