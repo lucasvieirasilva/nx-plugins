@@ -19,6 +19,7 @@ export type PyprojectTomlDependency = string | {
   markers?: string,
   optional?: boolean,
   extras?: string[],
+  develop?: boolean
 }
 
 export type PyprojectTomlDependencies = {

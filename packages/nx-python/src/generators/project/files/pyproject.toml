@@ -21,16 +21,25 @@ readme = 'README.md'
   include = "<%= moduleName %>"
 
   [tool.poetry.dependencies]
-  python = "^3.8"
+  python = ">=3.8,<3.10"
 
+  <%if (addDevDependencies) { %>
   [tool.poetry.dev-dependencies]
+  flake8 = "3.9.2"
+  flake8-isort = "4.1.1"
+  flake8-print = "4.0.0"
+  flake8-pytest-style = "1.5.1"
+  flake8-docstrings = "1.6.0"
+  flake8-type-checking = "1.1.1"
+  autopep8 = "1.5.7"
   pytest = "6.2.4"
+  pytest-env = "0.6.2"
   pytest-cov = "2.11.1"
   pytest-html = "3.1.1"
   pytest-sugar = "0.9.4"
+  tomli = "1.2.2"
   tox = "3.23.1"
-  flake8 = "4.0.1"
-  autopep8 = "1.5.7"
+  <% } %>
 
 [build-system]
 requires = ["poetry-core==1.0.3"]

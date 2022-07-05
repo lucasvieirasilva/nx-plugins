@@ -1,17 +1,10 @@
 {
   "$schema": "http://json-schema.org/schema",
   "name": "nx-python",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "generators": {
     "project": {
       "factory": "./src/generators/project/generator",
-      "schema": "./src/generators/project/schema.json",
-      "description": "python project generator"
-    }
-  },
-  "schematics": {
-    "project": {
-      "factory": "./src/generators/project/generator#schematic",
       "schema": "./src/generators/project/schema.json",
       "description": "python project generator"
     }

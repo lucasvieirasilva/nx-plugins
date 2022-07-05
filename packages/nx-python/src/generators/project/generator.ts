@@ -1,6 +1,5 @@
 import {
   addProjectConfiguration,
-  convertNxGenerator,
   formatFiles,
   generateFiles,
   getWorkspaceLayout,
@@ -11,6 +10,9 @@ import {
 import path from 'path';
 import { Schema } from './schema';
 import { parse, stringify } from '@iarna/toml';
+import { PyprojectToml } from '../../graph/dependency-graph';
+import { spawnSync } from 'child_process';
+import chalk from 'chalk';
 
 interface NormalizedSchema extends Schema {
   projectName: string;
@@ -69,10 +71,7 @@ function addFiles(host: Tree, options: NormalizedSchema) {
 
 function addPackageSource(normalizedOptions: NormalizedSchema, host: Tree) {
   if (normalizedOptions.customSource) {
-    if (
-      !normalizedOptions.sourceName ||
-      !normalizedOptions.sourceUrl
-    ) {
+    if (!normalizedOptions.sourceName || !normalizedOptions.sourceUrl) {
       throw new Error(
         "Fields 'sourceName', 'sourceUrl' are required when the flag 'customSource' is true"
       );
@@ -100,6 +99,36 @@ function addPackageSource(normalizedOptions: NormalizedSchema, host: Tree) {
   }
 }
 
+function updateRootPyprojectToml(
+  host: Tree,
+  normalizedOptions: NormalizedSchema
+) {
+  if (host.exists('./pyproject.toml')) {
+    const rootPyprojectToml = parse(
+      host.read('pyproject.toml', 'utf-8')
+    ) as PyprojectToml;
+    rootPyprojectToml.tool.poetry.dependencies[normalizedOptions.packageName] =
+      {
+        path: normalizedOptions.projectRoot,
+        develop: true,
+      };
+    host.write('pyproject.toml', stringify(rootPyprojectToml));
+  }
+}
+
+function updateRootPoetryLock(host: Tree, normalizedOptions: NormalizedSchema) {
+  if (host.exists('./pyproject.toml')) {
+    console.log(chalk`  Updating root {bgBlue poetry.lock}...`);
+    const executable = 'poetry';
+    const updateArgs = ['update', normalizedOptions.packageName];
+    spawnSync(executable, updateArgs, {
+      shell: false,
+      stdio: 'inherit',
+    });
+    console.log(chalk`\n  {bgBlue poetry.lock} updated.\n`);
+  }
+}
+
 async function generator(host: Tree, options: Schema) {
   const normalizedOptions = normalizeOptions(host, options);
   addProjectConfiguration(host, normalizedOptions.projectName, {
@@ -107,6 +136,20 @@ async function generator(host: Tree, options: Schema) {
     projectType: normalizedOptions.type,
     sourceRoot: `${normalizedOptions.projectRoot}/${normalizedOptions.moduleName}`,
     targets: {
+      docs: {
+        executor: '@nrwl/workspace:run-commands',
+        options: {
+          command: `pydoc-markdown -p ${normalizedOptions.moduleName} --render-toc > docs/source/api.md`,
+          cwd: normalizedOptions.projectRoot,
+        },
+      },
+      lock: {
+        executor: '@nrwl/workspace:run-commands',
+        options: {
+          command: 'poetry lock --no-update',
+          cwd: normalizedOptions.projectRoot,
+        },
+      },
       add: {
         executor: '@nxlv/python:add',
         options: {},
@@ -124,17 +167,17 @@ async function generator(host: Tree, options: Schema) {
         outputs: [`${normalizedOptions.projectRoot}/dist`],
         options: {
           outputPath: `${normalizedOptions.projectRoot}/dist`,
-          publish: normalizedOptions.publishable
+          publish: normalizedOptions.publishable,
         },
       },
       install: {
         executor: '@nxlv/python:install',
         options: {
           silent: false,
-          args: "",
+          args: '',
           cacheDir: `.cache/pypoetry`,
           verbose: false,
-          debug: false
+          debug: false,
         },
       },
       lint: {
@@ -163,18 +206,22 @@ async function generator(host: Tree, options: Schema) {
         ],
         options: {
           silent: false,
-          args: ""
+          args: '',
         },
       },
     },
     tags: normalizedOptions.parsedTags,
   });
   addFiles(host, normalizedOptions);
+  updateRootPyprojectToml(host, normalizedOptions);
 
   addPackageSource(normalizedOptions, host);
 
   await formatFiles(host);
+
+  return () => {
+    updateRootPoetryLock(host, normalizedOptions);
+  };
 }
 
 export default generator;
-export const schematic = convertNxGenerator(generator);

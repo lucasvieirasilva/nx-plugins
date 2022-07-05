@@ -1,8 +1,10 @@
+import { spawnSyncMock } from '../../utils/mocks/child_process.mock';
 import { createTreeWithEmptyWorkspace } from '@nrwl/devkit/testing';
 import { Tree, readProjectConfiguration } from '@nrwl/devkit';
 
 import generator from './generator';
 import { Schema } from './schema';
+import dedent from 'string-dedent';
 
 describe('nx-python project generator', () => {
   let appTree: Tree;
@@ -12,6 +14,7 @@ describe('nx-python project generator', () => {
     packageName: 'unittest-test-pkg-name',
     publishable: true,
     customSource: false,
+    addDevDependencies: false
   };
 
   beforeEach(() => {
@@ -28,6 +31,14 @@ describe('nx-python project generator', () => {
 
   it('should successfully generate a python library project', async () => {
     await generator(appTree, { ...options, type: 'library' });
+    const config = readProjectConfiguration(appTree, 'test');
+    expect(config).toMatchSnapshot();
+
+    assertGenerateFiles(appTree, 'libs/test', 'test');
+  });
+
+  it('should successfully generate a python library project with dev dependencies', async () => {
+    await generator(appTree, { ...options, type: 'library', addDevDependencies: true });
     const config = readProjectConfiguration(appTree, 'test');
     expect(config).toMatchSnapshot();
 
@@ -86,6 +97,31 @@ describe('nx-python project generator', () => {
     });
     const config = readProjectConfiguration(appTree, 'test');
     expect(config).toMatchSnapshot();
+  });
+
+  it('should successfully generate a python library project with root pyproject.toml', async () => {
+    appTree.write('pyproject.toml', dedent`
+    [tool.poetry]
+    name = "unit test"
+
+      [tool.poetry.dependencies]
+      python = ">=3.8,<3.10"
+
+    [build-system]
+    requires = [ "poetry-core==1.0.3" ]
+    build-backend = "poetry.core.masonry.api"
+    `)
+
+    const callbackTask = await generator(appTree, { ...options, type: 'library' });
+    callbackTask();
+    const config = readProjectConfiguration(appTree, 'test');
+    expect(config).toMatchSnapshot();
+
+    expect(appTree.read('pyproject.toml', 'utf8')).toMatchSnapshot()
+    expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['update', options.packageName], {
+      shell: false,
+      stdio: 'inherit',
+    });
   });
 });
 

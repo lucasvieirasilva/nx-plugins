@@ -24,6 +24,7 @@
     "@nrwl/nx-plugin": "^13.8.3",
     "@nrwl/tao": "13.8.3",
     "@nrwl/workspace": "13.8.3",
+    "@types/fs-extra": "^9.0.13",
     "@types/jest": "27.0.2",
     "@types/node": "16.11.7",
     "@typescript-eslint/eslint-plugin": "~5.10.0",

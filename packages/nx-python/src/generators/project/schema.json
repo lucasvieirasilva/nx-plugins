@@ -1,5 +1,6 @@
 {
   "$schema": "http://json-schema.org/schema",
+  "cli": "nx",
   "$id": "NxPythonProject",
   "title": "",
   "type": "object",
@@ -22,6 +23,11 @@
       "type": "boolean",
       "description": "Project is publishable",
       "default": true
+    },
+    "addDevDependencies": {
+      "type": "boolean",
+      "description": "Use standalone dev dependencies",
+      "default": false
     },
     "type": {
       "type": "string",

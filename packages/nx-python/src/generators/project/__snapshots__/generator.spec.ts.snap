@@ -21,6 +21,13 @@ Object {
         "apps/shared/test/dist",
       ],
     },
+    "docs": Object {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": Object {
+        "command": "pydoc-markdown -p shared_test --render-toc > docs/source/api.md",
+        "cwd": "apps/shared/test",
+      },
+    },
     "install": Object {
       "executor": "@nxlv/python:install",
       "options": Object {
@@ -39,6 +46,13 @@ Object {
       "outputs": Array [
         "reports/apps/shared/test/pylint.txt",
       ],
+    },
+    "lock": Object {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": Object {
+        "command": "poetry lock --no-update",
+        "cwd": "apps/shared/test",
+      },
     },
     "remove": Object {
       "executor": "@nxlv/python:remove",
@@ -95,6 +109,8 @@ exports[`nx-python project generator should generate a python project into a dif
 
 Project description here.
 
+[API Documentation](docs/source/api.md)
+
 ## [Change log](CHANGELOG.md)
 "
 `;
@@ -123,16 +139,9 @@ readme = 'README.md'
   include = \\"shared_test\\"
 
   [tool.poetry.dependencies]
-  python = \\"^3.8\\"
+  python = \\">=3.8,<3.10\\"
 
-  [tool.poetry.dev-dependencies]
-  pytest = \\"6.2.4\\"
-  pytest-cov = \\"2.11.1\\"
-  pytest-html = \\"3.1.1\\"
-  pytest-sugar = \\"0.9.4\\"
-  tox = \\"3.23.1\\"
-  flake8 = \\"4.0.1\\"
-  autopep8 = \\"1.5.7\\"
+  
 
 [build-system]
 requires = [\\"poetry-core==1.0.3\\"]
@@ -207,16 +216,7 @@ readme = \\"README.md\\"
   include = \\"test\\"
 
   [tool.poetry.dependencies]
-  python = \\"^3.8\\"
-
-  [tool.poetry.dev-dependencies]
-  pytest = \\"6.2.4\\"
-  pytest-cov = \\"2.11.1\\"
-  pytest-html = \\"3.1.1\\"
-  pytest-sugar = \\"0.9.4\\"
-  tox = \\"3.23.1\\"
-  flake8 = \\"4.0.1\\"
-  autopep8 = \\"1.5.7\\"
+  python = \\">=3.8,<3.10\\"
 
   [[tool.poetry.source]]
   name = \\"aws\\"
@@ -253,16 +253,9 @@ readme = 'README.md'
   include = \\"test\\"
 
   [tool.poetry.dependencies]
-  python = \\"^3.8\\"
+  python = \\">=3.8,<3.10\\"
 
-  [tool.poetry.dev-dependencies]
-  pytest = \\"6.2.4\\"
-  pytest-cov = \\"2.11.1\\"
-  pytest-html = \\"3.1.1\\"
-  pytest-sugar = \\"0.9.4\\"
-  tox = \\"3.23.1\\"
-  flake8 = \\"4.0.1\\"
-  autopep8 = \\"1.5.7\\"
+  
 
 [build-system]
 requires = [\\"poetry-core==1.0.3\\"]
@@ -296,6 +289,13 @@ Object {
         "apps/test/dist",
       ],
     },
+    "docs": Object {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": Object {
+        "command": "pydoc-markdown -p test --render-toc > docs/source/api.md",
+        "cwd": "apps/test",
+      },
+    },
     "install": Object {
       "executor": "@nxlv/python:install",
       "options": Object {
@@ -314,6 +314,13 @@ Object {
       "outputs": Array [
         "reports/apps/test/pylint.txt",
       ],
+    },
+    "lock": Object {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": Object {
+        "command": "poetry lock --no-update",
+        "cwd": "apps/test",
+      },
     },
     "remove": Object {
       "executor": "@nxlv/python:remove",
@@ -370,6 +377,13 @@ Object {
         "libs/test/dist",
       ],
     },
+    "docs": Object {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": Object {
+        "command": "pydoc-markdown -p test --render-toc > docs/source/api.md",
+        "cwd": "libs/test",
+      },
+    },
     "install": Object {
       "executor": "@nxlv/python:install",
       "options": Object {
@@ -388,6 +402,13 @@ Object {
       "outputs": Array [
         "reports/libs/test/pylint.txt",
       ],
+    },
+    "lock": Object {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": Object {
+        "command": "poetry lock --no-update",
+        "cwd": "libs/test",
+      },
     },
     "remove": Object {
       "executor": "@nxlv/python:remove",
@@ -444,6 +465,8 @@ exports[`nx-python project generator should successfully generate a python libra
 
 Project description here.
 
+[API Documentation](docs/source/api.md)
+
 ## [Change log](CHANGELOG.md)
 "
 `;
@@ -472,16 +495,9 @@ readme = 'README.md'
   include = \\"test\\"
 
   [tool.poetry.dependencies]
-  python = \\"^3.8\\"
+  python = \\">=3.8,<3.10\\"
 
-  [tool.poetry.dev-dependencies]
-  pytest = \\"6.2.4\\"
-  pytest-cov = \\"2.11.1\\"
-  pytest-html = \\"3.1.1\\"
-  pytest-sugar = \\"0.9.4\\"
-  tox = \\"3.23.1\\"
-  flake8 = \\"4.0.1\\"
-  autopep8 = \\"1.5.7\\"
+  
 
 [build-system]
 requires = [\\"poetry-core==1.0.3\\"]
@@ -532,6 +548,319 @@ def test_index():
 "
 `;
 
+exports[`nx-python project generator should successfully generate a python library project with dev dependencies 1`] = `
+Object {
+  "projectType": "library",
+  "root": "libs/test",
+  "sourceRoot": "libs/test/test",
+  "tags": Array [],
+  "targets": Object {
+    "add": Object {
+      "executor": "@nxlv/python:add",
+      "options": Object {},
+    },
+    "build": Object {
+      "executor": "@nxlv/python:build",
+      "options": Object {
+        "outputPath": "libs/test/dist",
+        "publish": true,
+      },
+      "outputs": Array [
+        "libs/test/dist",
+      ],
+    },
+    "docs": Object {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": Object {
+        "command": "pydoc-markdown -p test --render-toc > docs/source/api.md",
+        "cwd": "libs/test",
+      },
+    },
+    "install": Object {
+      "executor": "@nxlv/python:install",
+      "options": Object {
+        "args": "",
+        "cacheDir": ".cache/pypoetry",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
+    },
+    "lint": Object {
+      "executor": "@nxlv/python:flake8",
+      "options": Object {
+        "outputFile": "reports/libs/test/pylint.txt",
+      },
+      "outputs": Array [
+        "reports/libs/test/pylint.txt",
+      ],
+    },
+    "lock": Object {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": Object {
+        "command": "poetry lock --no-update",
+        "cwd": "libs/test",
+      },
+    },
+    "remove": Object {
+      "executor": "@nxlv/python:remove",
+      "options": Object {},
+    },
+    "test": Object {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": Object {
+        "command": "poetry run pytest tests/",
+        "cwd": "libs/test",
+      },
+      "outputs": Array [
+        "reports/libs/test/unittests",
+        "coverage/libs/test",
+      ],
+    },
+    "tox": Object {
+      "executor": "@nxlv/python:tox",
+      "options": Object {
+        "args": "",
+        "silent": false,
+      },
+      "outputs": Array [
+        "reports/libs/test/unittests",
+        "coverage/libs/test",
+      ],
+    },
+    "update": Object {
+      "executor": "@nxlv/python:update",
+      "options": Object {},
+    },
+  },
+}
+`;
+
+exports[`nx-python project generator should successfully generate a python library project with dev dependencies 2`] = `
+"[tox]
+isolated_build = True
+envlist = py38
+
+[testenv]
+whitelist_externals =
+    poetry
+commands =
+    poetry install -vv --no-root
+    poetry run pytest {posargs} tests/
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python library project with dev dependencies 3`] = `
+"# test
+
+## About
+
+Project description here.
+
+[API Documentation](docs/source/api.md)
+
+## [Change log](CHANGELOG.md)
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python library project with dev dependencies 4`] = `
+"[tool.coverage.run]
+branch = true
+source = [ \\"test\\" ]
+
+[tool.coverage.report]
+exclude_lines = [ ]
+show_missing = true
+
+[tool.pytest.ini_options]
+addopts = \\"--cov --cov-report html:'../../coverage/libs/test/html' --cov-report xml:'../../coverage/libs/test/coverage.xml' --junitxml='../../reports/libs/test/unittests/junit.xml' --html='../../reports/libs/test/unittests/html/index.html'\\"
+
+[tool.poetry]
+name = \\"unittest-test-pkg-name\\"
+version = \\"1.0.0\\"
+description = \\"\\"
+authors = [ ]
+license = 'Proprietary'
+readme = 'README.md'
+
+  [[tool.poetry.packages]]
+  include = \\"test\\"
+
+  [tool.poetry.dependencies]
+  python = \\">=3.8,<3.10\\"
+
+  
+  [tool.poetry.dev-dependencies]
+  flake8 = \\"3.9.2\\"
+  flake8-isort = \\"4.1.1\\"
+  flake8-print = \\"4.0.0\\"
+  flake8-pytest-style = \\"1.5.1\\"
+  flake8-docstrings = \\"1.6.0\\"
+  flake8-type-checking = \\"1.1.1\\"
+  autopep8 = \\"1.5.7\\"
+  pytest = \\"6.2.4\\"
+  pytest-env = \\"0.6.2\\"
+  pytest-cov = \\"2.11.1\\"
+  pytest-html = \\"3.1.1\\"
+  pytest-sugar = \\"0.9.4\\"
+  tomli = \\"1.2.2\\"
+  tox = \\"3.23.1\\"
+  
+
+[build-system]
+requires = [\\"poetry-core==1.0.3\\"]
+build-backend = \\"poetry.core.masonry.api\\"
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python library project with dev dependencies 5`] = `
+"# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## Unreleased
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python library project with dev dependencies 6`] = `
+"[flake8]
+exclude =
+	.git,
+	__pycache__,
+	build,
+	dist,
+	.tox,
+	venv,
+	.venv,
+	.pytest_cache
+max-line-length = 120
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python library project with dev dependencies 7`] = `
+"
+def hello():
+    return \\"Hello test\\"
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python library project with dev dependencies 8`] = `
+"from test import index
+
+
+def test_index():
+    assert index.hello() == \\"Hello test\\"
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python library project with root pyproject.toml 1`] = `
+Object {
+  "projectType": "library",
+  "root": "libs/test",
+  "sourceRoot": "libs/test/test",
+  "tags": Array [],
+  "targets": Object {
+    "add": Object {
+      "executor": "@nxlv/python:add",
+      "options": Object {},
+    },
+    "build": Object {
+      "executor": "@nxlv/python:build",
+      "options": Object {
+        "outputPath": "libs/test/dist",
+        "publish": true,
+      },
+      "outputs": Array [
+        "libs/test/dist",
+      ],
+    },
+    "docs": Object {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": Object {
+        "command": "pydoc-markdown -p test --render-toc > docs/source/api.md",
+        "cwd": "libs/test",
+      },
+    },
+    "install": Object {
+      "executor": "@nxlv/python:install",
+      "options": Object {
+        "args": "",
+        "cacheDir": ".cache/pypoetry",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
+    },
+    "lint": Object {
+      "executor": "@nxlv/python:flake8",
+      "options": Object {
+        "outputFile": "reports/libs/test/pylint.txt",
+      },
+      "outputs": Array [
+        "reports/libs/test/pylint.txt",
+      ],
+    },
+    "lock": Object {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": Object {
+        "command": "poetry lock --no-update",
+        "cwd": "libs/test",
+      },
+    },
+    "remove": Object {
+      "executor": "@nxlv/python:remove",
+      "options": Object {},
+    },
+    "test": Object {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": Object {
+        "command": "poetry run pytest tests/",
+        "cwd": "libs/test",
+      },
+      "outputs": Array [
+        "reports/libs/test/unittests",
+        "coverage/libs/test",
+      ],
+    },
+    "tox": Object {
+      "executor": "@nxlv/python:tox",
+      "options": Object {
+        "args": "",
+        "silent": false,
+      },
+      "outputs": Array [
+        "reports/libs/test/unittests",
+        "coverage/libs/test",
+      ],
+    },
+    "update": Object {
+      "executor": "@nxlv/python:update",
+      "options": Object {},
+    },
+  },
+}
+`;
+
+exports[`nx-python project generator should successfully generate a python library project with root pyproject.toml 2`] = `
+"[tool.poetry]
+name = \\"unit test\\"
+
+  [tool.poetry.dependencies]
+  python = \\">=3.8,<3.10\\"
+
+    [tool.poetry.dependencies.unittest-test-pkg-name]
+    path = \\"libs/test\\"
+    develop = true
+
+[build-system]
+requires = [ \\"poetry-core==1.0.3\\" ]
+build-backend = \\"poetry.core.masonry.api\\"
+"
+`;
+
 exports[`nx-python project generator should successfully generate a python project 1`] = `
 Object {
   "projectType": "application",
@@ -553,6 +882,13 @@ Object {
         "apps/test/dist",
       ],
     },
+    "docs": Object {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": Object {
+        "command": "pydoc-markdown -p test --render-toc > docs/source/api.md",
+        "cwd": "apps/test",
+      },
+    },
     "install": Object {
       "executor": "@nxlv/python:install",
       "options": Object {
@@ -571,6 +907,13 @@ Object {
       "outputs": Array [
         "reports/apps/test/pylint.txt",
       ],
+    },
+    "lock": Object {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": Object {
+        "command": "poetry lock --no-update",
+        "cwd": "apps/test",
+      },
     },
     "remove": Object {
       "executor": "@nxlv/python:remove",
@@ -627,6 +970,8 @@ exports[`nx-python project generator should successfully generate a python proje
 
 Project description here.
 
+[API Documentation](docs/source/api.md)
+
 ## [Change log](CHANGELOG.md)
 "
 `;
@@ -655,16 +1000,9 @@ readme = 'README.md'
   include = \\"test\\"
 
   [tool.poetry.dependencies]
-  python = \\"^3.8\\"
+  python = \\">=3.8,<3.10\\"
 
-  [tool.poetry.dev-dependencies]
-  pytest = \\"6.2.4\\"
-  pytest-cov = \\"2.11.1\\"
-  pytest-html = \\"3.1.1\\"
-  pytest-sugar = \\"0.9.4\\"
-  tox = \\"3.23.1\\"
-  flake8 = \\"4.0.1\\"
-  autopep8 = \\"1.5.7\\"
+  
 
 [build-system]
 requires = [\\"poetry-core==1.0.3\\"]

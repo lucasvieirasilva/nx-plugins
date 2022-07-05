@@ -5,6 +5,7 @@ import path from 'path';
 import { addLocalProjectToPoetryProject, updateProject } from '../utils/poetry';
 import { spawnSync } from 'child_process';
 import { updateDependencyTree } from '../../dependency/update-dependency';
+import { existsSync } from 'fs-extra';
 
 export default async function executor(
   options: UpdateExecutorSchema,
@@ -12,12 +13,13 @@ export default async function executor(
 ) {
   try {
     const projectConfig = context.workspace.projects[context.projectName];
+    const rootPyprojectToml = existsSync('pyproject.toml')
 
     if (options.local && options.name) {
       console.log(
         chalk`\n  {bold Updating {bgBlue  ${options.name} } workspace dependency...}\n`
       );
-      updateLocalProject(context, options.name, projectConfig);
+      updateLocalProject(context, options.name, projectConfig, rootPyprojectToml);
     } else {
       if (options.name) {
         console.log(
@@ -27,9 +29,12 @@ export default async function executor(
         console.log(chalk`\n  {bold Updating project dependencies...}\n`);
       }
 
-      const executable = "poetry"
-      const updateArgs = ['update'].concat(options.name ? [options.name] : []).concat(options.args ? options.args.split(' ') : [])
-      const updateCommand = `${executable} ${updateArgs.join(" ")}`;
+      const executable = 'poetry';
+      const updateArgs = ['update']
+        .concat(options.name ? [options.name] : [])
+        .concat(options.args ? options.args.split(' ') : [])
+        .concat(rootPyprojectToml ? ['--lock'] : []);
+      const updateCommand = `${executable} ${updateArgs.join(' ')}`;
       console.log(
         chalk`{bold Running command}: ${updateCommand} at {bold ${projectConfig.root}} folder\n`
       );
@@ -60,7 +65,8 @@ export default async function executor(
 export function updateLocalProject(
   context: ExecutorContext,
   dependencyName: string,
-  projectConfig: ProjectConfiguration
+  projectConfig: ProjectConfiguration,
+  updateLockOnly: boolean
 ) {
   const dependencyConfig = getLocalDependencyConfig(context, dependencyName);
 
@@ -74,7 +80,7 @@ export function updateLocalProject(
     dependencyConfig,
     dependencyPath
   );
-  updateProject(dependencyPkgName, projectConfig.root);
+  updateProject(dependencyPkgName, projectConfig.root, updateLockOnly);
 }
 
 export function getLocalDependencyConfig(

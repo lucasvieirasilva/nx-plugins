@@ -4,6 +4,7 @@ import { AddExecutorSchema } from './schema';
 import chalk from 'chalk';
 import { updateDependencyTree } from '../../dependency/update-dependency';
 import { updateLocalProject } from '../update/executor';
+import { existsSync } from 'fs-extra';
 
 export default async function executor(
   options: AddExecutorSchema,
@@ -11,18 +12,21 @@ export default async function executor(
 ) {
   try {
     const projectConfig = context.workspace.projects[context.projectName];
+    const rootPyprojectToml = existsSync('pyproject.toml')
 
     if (options.local) {
       console.log(
         chalk`\n  {bold Adding {bgBlue  ${options.name} } workspace dependency...}\n`
       );
-      updateLocalProject(context, options.name, projectConfig);
+      updateLocalProject(context, options.name, projectConfig, rootPyprojectToml);
     } else {
       console.log(
         chalk`\n  {bold Adding {bgBlue  ${options.name} } dependency...}\n`
       );
       const executable = "poetry"
-      const installArgs = ['add', options.name].concat(options.args ? options.args.split(' ') : [])
+      const installArgs = ['add', options.name]
+        .concat(options.args ? options.args.split(' ') : [])
+        .concat(rootPyprojectToml ? ['--lock'] : [])
       const installCommand = `${executable} ${installArgs.join(" ")}`;
       console.log(
         chalk`{bold Running command}: ${installCommand} at {bold ${projectConfig.root}} folder\n`

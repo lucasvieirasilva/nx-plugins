@@ -10,4 +10,5 @@ export interface Schema {
   sourceSecondary?: boolean;
   packageName: string;
   publishable: boolean;
+  addDevDependencies: boolean;
 }

@@ -3,6 +3,7 @@ import executor from './executor';
 import fsMock from 'mock-fs';
 import chalk from 'chalk';
 import { parseToml } from '../utils/poetry';
+import dedent from 'string-dedent';
 
 describe('Add Executor', () => {
   beforeAll(() => {
@@ -429,6 +430,65 @@ version = "1.0.0"
     const output = await executor(options, context);
     expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['add', 'numpy', '--group', 'dev'], {
       cwd: 'apps/app',
+      shell: false,
+      stdio: 'inherit',
+    });
+    expect(output.success).toBe(true);
+  });
+
+  it('run add target and should add the dependency to the project using --lock when the root pyproject.toml is present', async () => {
+    fsMock({
+      'pyproject.toml': dedent`
+      [tool.poetry]
+      name = "app"
+      version = "1.0.0"
+
+        [tool.poetry.dependencies]
+        python = "^3.8"
+        app = { path = "apps/app", develop = true}
+      `,
+      'apps/app/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "app"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
+
+        [tool.poetry.dependencies]
+        python = "^3.8"
+        click = "click"
+      `,
+    });
+
+    const options = {
+      name: 'numpy',
+      local: false,
+    };
+
+    const context = {
+      cwd: '',
+      root: '',
+      isVerbose: false,
+      projectName: 'app',
+      workspace: {
+        npmScope: 'nxlv',
+        version: 2,
+        projects: {
+          app: {
+            root: 'apps/app',
+            targets: {},
+          },
+        },
+      },
+    };
+
+    const output = await executor(options, context);
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(1, 'poetry', ['add', 'numpy', '--lock'], {
+      cwd: 'apps/app',
+      shell: false,
+      stdio: 'inherit',
+    });
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(2, 'poetry', ['update', 'app'], {
       shell: false,
       stdio: 'inherit',
     });

@@ -26,9 +26,9 @@ export function addLocalProjectToPoetryProject(
   return dependencyName;
 }
 
-export function updateProject(projectName: string, cwd: string) {
+export function updateProject(projectName: string, cwd: string, updateLockOnly: boolean) {
   const executable = 'poetry'
-  const updateLockArgs = ['update', projectName]
+  const updateLockArgs = ['update', projectName].concat(updateLockOnly ? ['--lock'] : [])
   const updateLockCommand = `${executable} ${updateLockArgs.join(" ")}`;
   console.log(
     chalk`{bold Running command}: ${updateLockCommand} at {bold ${cwd}} folder\n`
