@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "cli": "nx",
+  "title": "Serverless Framework Deploy Executor",
+  "description": "",
+  "type": "object",
+  "properties": {
+    "stage": {
+      "type": "string",
+      "description": "Stage Name"
+    },
+    "verbose": {
+      "type": "boolean",
+      "description": "Verbose flag.",
+      "default": true
+    },
+    "force": {
+      "type": "boolean",
+      "description": "Force flag.",
+      "default": false
+    }
+  },
+  "required": ["stage"]
+}

@@ -497,6 +497,7 @@ describe('Build Executor', () => {
       '--format',
       'requirements.txt',
       '--without-hashes',
+      '--without-urls',
       '--output',
       `${buildPath}/requirements.txt`,
       '--extras',

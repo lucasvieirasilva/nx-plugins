@@ -35,6 +35,16 @@
       "implementation": "./src/executors/remove/executor",
       "schema": "./src/executors/remove/schema.json",
       "description": "Poetry Remove Wrapper Executor"
+    },
+    "sls-deploy": {
+      "implementation": "./src/executors/sls-deploy/executor",
+      "schema": "./src/executors/sls-deploy/schema.json",
+      "description": "Serverless Deploy Wrapper Executor"
+    },
+    "sls-package": {
+      "implementation": "./src/executors/sls-package/executor",
+      "schema": "./src/executors/sls-package/schema.json",
+      "description": "Serverless Package Wrapper Executor"
     }
   }
 }

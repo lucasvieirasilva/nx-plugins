@@ -2,11 +2,11 @@ import { ExecutorContext } from '@nrwl/devkit';
 import { BuildExecutorSchema } from './schema';
 import {
   readdirSync,
-  rmdirSync,
   copySync,
   readFileSync,
   writeFileSync,
-  mkdirsSync,
+  mkdirSync,
+  rmSync,
 } from 'fs-extra';
 import { join, relative } from 'path';
 import { PyprojectToml, PyprojectTomlDependency } from '../../graph/dependency-graph';
@@ -57,7 +57,7 @@ export default async function executor(
 
     const buildFolderPath = join(tmpdir(), 'nx-python', 'build', uuid());
 
-    mkdirsSync(buildFolderPath);
+    mkdirSync(buildFolderPath, { recursive: true });
 
     logger.info(chalk`  Copying project files to a temporary folder`)
     readdirSync(root).forEach((file) => {
@@ -79,10 +79,9 @@ export default async function executor(
     logger.info(chalk`  Resolving dependencies...`)
     resolveLockedDependencies(root, buildFolderPath, buildTomlData, options.devDependencies);
     writeFileSync(buildPyProjectToml, stringify(buildTomlData));
-
     const distFolder = join(buildFolderPath, 'dist');
 
-    rmdirSync(distFolder, { recursive: true });
+    rmSync(distFolder, { recursive: true, force: true });
 
     logger.info(chalk`  Generating sdist and wheel artifacts`)
     const executable = 'poetry'
@@ -95,13 +94,13 @@ export default async function executor(
       stdio: 'inherit'
     });
 
-    rmdirSync(options.outputPath, { recursive: true });
-    mkdirsSync(options.outputPath);
+    rmSync(options.outputPath, { recursive: true, force: true });
+    mkdirSync(options.outputPath, { recursive: true });
     logger.info(chalk`  Artifacts generated at {bold ${options.outputPath}} folder`)
     copySync(distFolder, options.outputPath);
 
     if (!options.keepBuildFolder) {
-      rmdirSync(buildFolderPath, { recursive: true });
+      rmSync(buildFolderPath, { recursive: true, force: true });
     }
 
     return {
@@ -229,6 +228,7 @@ function getProjectRequirementsTxt(
     '--format',
     requerimentsTxtFilename,
     '--without-hashes',
+    '--without-urls',
     '--output',
     join(buildFolderPath, requerimentsTxtFilename),
   ].concat(devDependencies ? ['--dev'] : []);
