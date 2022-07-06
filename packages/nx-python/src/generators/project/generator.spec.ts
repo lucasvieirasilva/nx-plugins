@@ -11,6 +11,7 @@ describe('nx-python project generator', () => {
   const options: Schema = {
     name: 'test',
     type: 'application',
+    moduleName: null,
     packageName: 'unittest-test-pkg-name',
     publishable: true,
     customSource: false,
@@ -27,6 +28,14 @@ describe('nx-python project generator', () => {
     expect(config).toMatchSnapshot();
 
     assertGenerateFiles(appTree, 'apps/test', 'test');
+  });
+
+  it('should successfully generate a python project with custom module name', async () => {
+    await generator(appTree, { ...options, moduleName: 'mymodule' });
+    const config = readProjectConfiguration(appTree, 'test');
+    expect(config).toMatchSnapshot();
+
+    assertGenerateFiles(appTree, 'apps/test', 'mymodule');
   });
 
   it('should successfully generate a python library project', async () => {

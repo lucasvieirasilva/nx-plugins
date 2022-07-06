@@ -14,7 +14,7 @@ import { PyprojectToml } from '../../graph/dependency-graph';
 import { spawnSync } from 'child_process';
 import chalk from 'chalk';
 
-interface NormalizedSchema extends Schema {
+export interface NormalizedSchema extends Schema {
   projectName: string;
   projectRoot: string;
   moduleName: string;
@@ -22,13 +22,13 @@ interface NormalizedSchema extends Schema {
   parsedTags: string[];
 }
 
-function normalizeOptions(host: Tree, options: Schema): NormalizedSchema {
+export function normalizeOptions(host: Tree, options: Schema): NormalizedSchema {
   const name = names(options.name).fileName;
   const projectDirectory = options.directory
     ? `${names(options.directory).fileName}/${name}`
     : name;
   const projectName = projectDirectory.replace(new RegExp('/', 'g'), '-');
-  const moduleName = projectName.replace(new RegExp('-', 'g'), '_');
+  const moduleName = options.moduleName ? options.moduleName : projectName.replace(new RegExp('-', 'g'), '_');
 
   let projectRoot = '';
 
@@ -44,8 +44,8 @@ function normalizeOptions(host: Tree, options: Schema): NormalizedSchema {
   return {
     ...options,
     description: options.description ?? '',
-    projectName,
     moduleName,
+    projectName,
     projectRoot,
     projectDirectory,
     parsedTags,

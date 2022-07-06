@@ -9,6 +9,7 @@ export interface Schema {
   sourceUrl?: string;
   sourceSecondary?: boolean;
   packageName: string;
+  moduleName: string;
   publishable: boolean;
   addDevDependencies: boolean;
 }

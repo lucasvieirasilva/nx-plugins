@@ -19,6 +19,10 @@
       "description": "Python package name",
       "x-prompt": "What package name would you like to use?"
     },
+    "moduleName": {
+      "type": "string",
+      "description": "Python module name"
+    },
     "publishable": {
       "type": "boolean",
       "description": "Project is publishable",

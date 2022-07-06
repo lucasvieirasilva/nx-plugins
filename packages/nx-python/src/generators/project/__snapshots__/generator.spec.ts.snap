@@ -1052,3 +1052,195 @@ def test_index():
     assert index.hello() == \\"Hello test\\"
 "
 `;
+
+exports[`nx-python project generator should successfully generate a python project with custom module name 1`] = `
+Object {
+  "projectType": "application",
+  "root": "apps/test",
+  "sourceRoot": "apps/test/mymodule",
+  "tags": Array [],
+  "targets": Object {
+    "add": Object {
+      "executor": "@nxlv/python:add",
+      "options": Object {},
+    },
+    "build": Object {
+      "executor": "@nxlv/python:build",
+      "options": Object {
+        "outputPath": "apps/test/dist",
+        "publish": true,
+      },
+      "outputs": Array [
+        "apps/test/dist",
+      ],
+    },
+    "docs": Object {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": Object {
+        "command": "pydoc-markdown -p mymodule --render-toc > docs/source/api.md",
+        "cwd": "apps/test",
+      },
+    },
+    "install": Object {
+      "executor": "@nxlv/python:install",
+      "options": Object {
+        "args": "",
+        "cacheDir": ".cache/pypoetry",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
+    },
+    "lint": Object {
+      "executor": "@nxlv/python:flake8",
+      "options": Object {
+        "outputFile": "reports/apps/test/pylint.txt",
+      },
+      "outputs": Array [
+        "reports/apps/test/pylint.txt",
+      ],
+    },
+    "lock": Object {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": Object {
+        "command": "poetry lock --no-update",
+        "cwd": "apps/test",
+      },
+    },
+    "remove": Object {
+      "executor": "@nxlv/python:remove",
+      "options": Object {},
+    },
+    "test": Object {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": Object {
+        "command": "poetry run pytest tests/",
+        "cwd": "apps/test",
+      },
+      "outputs": Array [
+        "reports/apps/test/unittests",
+        "coverage/apps/test",
+      ],
+    },
+    "tox": Object {
+      "executor": "@nxlv/python:tox",
+      "options": Object {
+        "args": "",
+        "silent": false,
+      },
+      "outputs": Array [
+        "reports/apps/test/unittests",
+        "coverage/apps/test",
+      ],
+    },
+    "update": Object {
+      "executor": "@nxlv/python:update",
+      "options": Object {},
+    },
+  },
+}
+`;
+
+exports[`nx-python project generator should successfully generate a python project with custom module name 2`] = `
+"[tox]
+isolated_build = True
+envlist = py38
+
+[testenv]
+whitelist_externals =
+    poetry
+commands =
+    poetry install -vv --no-root
+    poetry run pytest {posargs} tests/
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python project with custom module name 3`] = `
+"# test
+
+## About
+
+Project description here.
+
+[API Documentation](docs/source/api.md)
+
+## [Change log](CHANGELOG.md)
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python project with custom module name 4`] = `
+"[tool.coverage.run]
+branch = true
+source = [ \\"mymodule\\" ]
+
+[tool.coverage.report]
+exclude_lines = [ ]
+show_missing = true
+
+[tool.pytest.ini_options]
+addopts = \\"--cov --cov-report html:'../../coverage/apps/test/html' --cov-report xml:'../../coverage/apps/test/coverage.xml' --junitxml='../../reports/apps/test/unittests/junit.xml' --html='../../reports/apps/test/unittests/html/index.html'\\"
+
+[tool.poetry]
+name = \\"unittest-test-pkg-name\\"
+version = \\"1.0.0\\"
+description = \\"\\"
+authors = [ ]
+license = 'Proprietary'
+readme = 'README.md'
+
+  [[tool.poetry.packages]]
+  include = \\"mymodule\\"
+
+  [tool.poetry.dependencies]
+  python = \\">=3.8,<3.10\\"
+
+  
+
+[build-system]
+requires = [\\"poetry-core==1.0.3\\"]
+build-backend = \\"poetry.core.masonry.api\\"
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python project with custom module name 5`] = `
+"# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## Unreleased
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python project with custom module name 6`] = `
+"[flake8]
+exclude =
+	.git,
+	__pycache__,
+	build,
+	dist,
+	.tox,
+	venv,
+	.venv,
+	.pytest_cache
+max-line-length = 120
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python project with custom module name 7`] = `
+"
+def hello():
+    return \\"Hello test\\"
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python project with custom module name 8`] = `
+"from mymodule import index
+
+
+def test_index():
+    assert index.hello() == \\"Hello test\\"
+"
+`;
