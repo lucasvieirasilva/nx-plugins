@@ -65,6 +65,7 @@ describe('Build Executor', () => {
       optional = false
       python-versions = ">=3.7"
       `,
+
       'apps/app/pyproject.toml': dedent`
       [tool.poetry]
       name = "app"
@@ -76,6 +77,9 @@ describe('Build Executor', () => {
         python = "^3.8"
         click = "7.1.2"
         dep1 = { path = "../../libs/dep1" }
+
+        [tool.poetry.group.dev.dependencies]
+        pytest = "6.2.4"
       `,
 
       'libs/dep1/dep1/index.py': 'print("Hello from dep1")',
@@ -89,6 +93,9 @@ describe('Build Executor', () => {
         [tool.poetry.dependencies]
         python = "^3.8"
         numpy = "1.21.0"
+
+        [tool.poetry.group.dev.dependencies]
+        pytest = "6.2.4"
       `,
 
       'libs/dep2/dep2/index.py': 'print("Hello from dep2")',
@@ -101,6 +108,9 @@ describe('Build Executor', () => {
 
         [tool.poetry.dependencies]
         python = "^3.8"
+
+        [tool.poetry.group.dev.dependencies]
+        pytest = "6.2.4"
       `,
     });
 
@@ -129,7 +139,7 @@ describe('Build Executor', () => {
 
     const output = await executor(options, {
       cwd: '',
-      root: '',
+      root: '.',
       isVerbose: false,
       projectName: 'app',
       workspace: {
@@ -184,7 +194,7 @@ describe('Build Executor', () => {
         markers: 'python_version >= "3.8" and python_version < "4.0"',
       },
     });
-    expect(projectTomlData.tool.poetry['dev-dependencies']).toStrictEqual({});
+    expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual({});
 
     expect(output.success).toBe(true);
   });
@@ -300,7 +310,7 @@ describe('Build Executor', () => {
 
     const output = await executor(options, {
       cwd: '',
-      root: '',
+      root: '.',
       isVerbose: false,
       projectName: 'app',
       workspace: {
@@ -360,7 +370,7 @@ describe('Build Executor', () => {
         markers: 'python_version >= "3.8" and python_version < "4.0"',
       },
     });
-    expect(projectTomlData.tool.poetry['dev-dependencies']).toStrictEqual({});
+    expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual({});
 
     expect(output.success).toBe(true);
   });
@@ -468,7 +478,7 @@ describe('Build Executor', () => {
 
     const output = await executor(options, {
       cwd: '',
-      root: '',
+      root: '.',
       isVerbose: false,
       projectName: 'app',
       workspace: {
@@ -544,7 +554,7 @@ describe('Build Executor', () => {
       extra1: ['pendulum', 'numpy'],
     })
 
-    expect(projectTomlData.tool.poetry['dev-dependencies']).toStrictEqual({});
+    expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual({});
   });
 
   it('should build python project with dependencies with extras', async () => {
@@ -596,7 +606,7 @@ describe('Build Executor', () => {
 
     const output = await executor(options, {
       cwd: '',
-      root: '',
+      root: '.',
       isVerbose: false,
       projectName: 'app',
       workspace: {
@@ -637,7 +647,7 @@ describe('Build Executor', () => {
         extras: ['s3', 'sqs'],
       },
     });
-    expect(projectTomlData.tool.poetry['dev-dependencies']).toStrictEqual({});
+    expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual({});
     expect(output.success).toBe(true);
   });
 
@@ -687,7 +697,7 @@ describe('Build Executor', () => {
 
     const output = await executor(options, {
       cwd: '',
-      root: '',
+      root: '.',
       isVerbose: false,
       projectName: 'app',
       workspace: {
@@ -717,6 +727,7 @@ describe('Build Executor', () => {
       optional = false
       python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
       `,
+
       'apps/app/pyproject.toml': dedent`
       [tool.poetry]
       name = "app"
@@ -726,6 +737,8 @@ describe('Build Executor', () => {
 
         [tool.poetry.dependencies]
         python = "^3.8"
+
+        [tool.poetry.group.dev.dependencies]
         click = "7.1.2"
       `,
     });
@@ -750,7 +763,7 @@ describe('Build Executor', () => {
 
     const output = await executor(options, {
       cwd: '',
-      root: '',
+      root: '.',
       isVerbose: false,
       projectName: 'app',
       workspace: {
@@ -810,7 +823,7 @@ describe('Build Executor', () => {
 
     const output = await executor(options, {
       cwd: '',
-      root: '',
+      root: '.',
       isVerbose: false,
       projectName: 'app',
       workspace: {

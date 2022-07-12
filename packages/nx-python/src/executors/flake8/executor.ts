@@ -16,6 +16,8 @@ export default async function executor(
   context: ExecutorContext
 ) {
   logger.setOptions(options);
+  const workspaceRoot = context.root;
+  process.chdir(workspaceRoot)
   try {
     logger.info(
       chalk`\n  {bold Running flake8 linting on project {bgBlue  ${context.projectName} }...}\n`

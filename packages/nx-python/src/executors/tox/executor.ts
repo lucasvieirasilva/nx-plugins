@@ -13,6 +13,8 @@ export default async function executor(
   options: ToxExecutorSchema,
   context: ExecutorContext
 ) {
+  const workspaceRoot = context.root;
+  process.chdir(workspaceRoot)
   logger.setOptions(options);
   try {
     const projectConfig = context.workspace.projects[context.projectName];

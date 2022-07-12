@@ -66,7 +66,7 @@ version = "1.0.0"
 
     const context = {
       cwd: '',
-      root: '',
+      root: '.',
       isVerbose: false,
       projectName: 'lib1',
       workspace: {
@@ -170,7 +170,7 @@ version = "1.0.0"
 
     const context = {
       cwd: '',
-      root: '',
+      root: '.',
       isVerbose: false,
       projectName: 'shared1',
       workspace: {
@@ -247,7 +247,7 @@ version = "1.0.0"
 
     const context = {
       cwd: '',
-      root: '',
+      root: '.',
       isVerbose: false,
       projectName: 'app',
       workspace: {
@@ -300,7 +300,7 @@ version = "1.0.0"
 
     const context = {
       cwd: '',
-      root: '',
+      root: '.',
       isVerbose: false,
       projectName: 'app',
       workspace: {

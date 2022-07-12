@@ -17,8 +17,8 @@ const options: ToxExecutorSchema = {
 
 describe('Tox Executor', () => {
   const context = {
-    cwd: '',
-    root: '',
+    cwd: '.',
+    root: '.',
     isVerbose: false,
     projectName: 'app',
     workspace: {

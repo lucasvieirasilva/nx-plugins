@@ -50,6 +50,8 @@ export default async function executor(
   context: ExecutorContext
 ) {
   logger.setOptions(options)
+  const workspaceRoot = context.root;
+  process.chdir(workspaceRoot)
   try {
     logger.info(chalk`\n  {bold Building project {bgBlue  ${context.projectName} }...}\n`);
 
@@ -77,7 +79,7 @@ export default async function executor(
     ) as PyprojectToml;
 
     logger.info(chalk`  Resolving dependencies...`)
-    resolveLockedDependencies(root, buildFolderPath, buildTomlData, options.devDependencies);
+    resolveLockedDependencies(root, buildFolderPath, buildTomlData, options.devDependencies, workspaceRoot);
     writeFileSync(buildPyProjectToml, stringify(buildTomlData));
     const distFolder = join(buildFolderPath, 'dist');
 
@@ -118,14 +120,19 @@ function resolveLockedDependencies(
   root: string,
   buildFolderPath: string,
   buildTomlData: PyprojectToml,
-  devDependencies: boolean
+  devDependencies: boolean,
+  workspaceRoot: string
 ) {
-  const deps = resolveDependencies(devDependencies, root, buildFolderPath, buildTomlData);
+  const deps = resolveDependencies(devDependencies, root, buildFolderPath, buildTomlData, workspaceRoot);
 
   const pythonDependency = buildTomlData.tool.poetry.dependencies.python;
 
   buildTomlData.tool.poetry.dependencies = {};
-  buildTomlData.tool.poetry['dev-dependencies'] = {};
+  buildTomlData.tool.poetry.group = {
+    dev: {
+      dependencies: {}
+    }
+  };
 
   if (pythonDependency) {
     buildTomlData.tool.poetry.dependencies['python'] = pythonDependency;
@@ -155,6 +162,7 @@ function resolveDependencies(
   root: string,
   buildFolderPath: string,
   buildTomlData: PyprojectToml,
+  workspaceRoot: string,
   deps: Dependency[] = [],
   level = 1,
 ): Dependency[] {
@@ -173,7 +181,7 @@ function resolveDependencies(
       if (elements[0].includes('@')) {
         const packageName = elements[0].split('@')[0].trim()
         const localDepUrl = elements[0].split('@')[1].trim()
-        const rootFolder = relative(process.cwd(), uri2path(localDepUrl))
+        const rootFolder = relative(workspaceRoot, uri2path(localDepUrl))
         const pyprojectToml = join(rootFolder, 'pyproject.toml')
         const tomlData = parse(readFileSync(pyprojectToml).toString('utf-8')) as PyprojectToml;
         logger.info(chalk`${tab}• Adding {blue.bold ${packageName}} local dependency`)

@@ -24,7 +24,7 @@ readme = 'README.md'
   python = ">=3.8,<3.10"
 
   <%if (addDevDependencies) { %>
-  [tool.poetry.dev-dependencies]
+  [tool.poetry.group.dev.dependencies]
   flake8 = "3.9.2"
   flake8-isort = "4.1.1"
   flake8-print = "4.0.0"

@@ -10,6 +10,8 @@ export default async function executor(
   options: AddExecutorSchema,
   context: ExecutorContext
 ) {
+  const workspaceRoot = context.root;
+  process.chdir(workspaceRoot)
   try {
     const projectConfig = context.workspace.projects[context.projectName];
     const rootPyprojectToml = existsSync('pyproject.toml')

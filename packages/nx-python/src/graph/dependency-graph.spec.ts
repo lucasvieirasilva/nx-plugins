@@ -1,6 +1,7 @@
 import { processProjectGraph } from './dependency-graph';
 import fsMock from 'mock-fs';
 import { ProjectGraphBuilder } from '@nrwl/devkit';
+import dedent from 'string-dedent';
 
 describe('nx-python dependency graph', () => {
   afterEach(() => {
@@ -9,22 +10,32 @@ describe('nx-python dependency graph', () => {
 
   it('should progress the dependency graph', async () => {
     fsMock({
-      'apps/app1/pyproject.toml': `[tool.poetry]
-name = "app1"
-version = "1.0.0"
-  [tool.poetry.dependencies]
-  python = "^3.8"
-  dep1 = { path = "../../libs/dep1" }`,
-      'libs/dep1/pyproject.toml': `[tool.poetry]
+      'apps/app1/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "app1"
+      version = "1.0.0"
+        [tool.poetry.dependencies]
+        python = "^3.8"
+        dep1 = { path = "../../libs/dep1" }
+      `,
+
+      'libs/dep1/pyproject.toml': dedent`
+      [tool.poetry]
       name = "dep1"
       version = "1.0.0"
         [tool.poetry.dependencies]
-        python = "^3.8"`,
-      'libs/dep2/pyproject.toml': `[tool.poetry]
-        name = "dep2"
-        version = "1.0.0"
-          [tool.poetry.dependencies]
-          python = "^3.8"`,
+        python = "^3.8"
+      `,
+      'libs/dep2/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "dep2"
+      version = "1.0.0"
+        [tool.poetry.dependencies]
+        python = "^3.8"
+
+        [tool.poetry.group.dev.dependencies]
+        pytest = "6.2.4"
+      `,
     });
 
     const mockBuilder = new ProjectGraphBuilder(null);

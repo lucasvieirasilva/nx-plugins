@@ -17,6 +17,9 @@ export default async function executor(
   options: ExecutorSchema,
   context: ExecutorContext
 ) {
+  const workspaceRoot = context.root;
+  process.chdir(workspaceRoot)
+
   const projectConfig = context.workspace.projects[context.projectName];
   const cwd = projectConfig.root
   const requirementsTxt = path.join(cwd, 'requirements.txt')

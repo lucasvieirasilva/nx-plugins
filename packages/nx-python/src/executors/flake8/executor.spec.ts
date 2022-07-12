@@ -32,7 +32,7 @@ describe('Flake8 Executor', () => {
       },
       {
         cwd: '',
-        root: '',
+        root: '.',
         isVerbose: false,
         projectName: 'app',
         workspace: {
@@ -62,7 +62,7 @@ describe('Flake8 Executor', () => {
       },
       {
         cwd: '',
-        root: '',
+        root: '.',
         isVerbose: false,
         projectName: 'app',
         workspace: {
@@ -93,7 +93,7 @@ describe('Flake8 Executor', () => {
       },
       {
         cwd: '',
-        root: '',
+        root: '.',
         isVerbose: false,
         projectName: 'app',
         workspace: {

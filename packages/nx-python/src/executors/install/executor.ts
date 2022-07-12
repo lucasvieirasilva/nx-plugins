@@ -12,6 +12,8 @@ export default async function executor(
   context: ExecutorContext
 ) {
   logger.setOptions(options);
+  const workspaceRoot = context.root;
+  process.chdir(workspaceRoot)
   try {
     const projectConfig = context.workspace.projects[context.projectName];
     let verboseArg = '-v'

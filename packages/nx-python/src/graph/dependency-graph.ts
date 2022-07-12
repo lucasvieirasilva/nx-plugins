@@ -11,8 +11,6 @@ import { readFileSync, existsSync } from 'fs';
 import { parse } from '@iarna/toml';
 import path from 'path';
 
-const POETRY_DEV_DEPENDENCIES = 'dev-dependencies'
-
 export type PyprojectTomlDependency = string | {
   path?: string,
   version?: string,
@@ -40,7 +38,11 @@ export type PyprojectToml = {
         include: string
       }>,
       dependencies: PyprojectTomlDependencies,
-      'dev-dependencies':  PyprojectTomlDependencies,
+      group?: {
+        [key: string]: {
+          dependencies: PyprojectTomlDependencies
+        }
+      },
       extras?: {
         [key: string]: string[]
       }
@@ -56,7 +58,7 @@ export type PyprojectToml = {
 export const getDependents = (
   projectName: string,
   workspace: Workspace | WorkspaceJsonConfiguration,
-  cwd: string = process.cwd()
+  cwd: string
 ): string[] => {
   const deps: string[] = [];
 
@@ -74,7 +76,7 @@ export const getDependents = (
 export const getDependencies = (
   projectName: string,
   workspace: Workspace | WorkspaceJsonConfiguration,
-  cwd: string = process.cwd()
+  cwd: string
 ): Dependency[] => {
   const projectData = workspace.projects[projectName];
   const pyprojectToml = joinPathFragments(projectData.root, 'pyproject.toml');
@@ -84,7 +86,7 @@ export const getDependencies = (
   if (existsSync(pyprojectToml)) {
     const tomlData = getPyprojectData(pyprojectToml);
     resolveDependencies(tomlData.tool.poetry.dependencies, projectData, workspace, cwd, deps, 'main');
-    resolveDependencies(tomlData.tool.poetry[POETRY_DEV_DEPENDENCIES], projectData, workspace, cwd, deps, 'dev');
+    resolveDependencies(tomlData.tool.poetry.group?.dev.dependencies, projectData, workspace, cwd, deps, 'dev');
   }
 
   return deps;
@@ -97,7 +99,7 @@ export const processProjectGraph = (
   const builder = new ProjectGraphBuilder(graph);
 
   for (const project in context.workspace.projects) {
-    const deps = getDependencies(project, context.workspace);
+    const deps = getDependencies(project, context.workspace, process.cwd());
 
     deps.forEach((dep) =>
       builder.addImplicitDependency(project, dep.name)
@@ -131,7 +133,7 @@ const checkProjectIsDependent = (
       root,
       cwd
     ) || isProjectDependent(
-      tomlData.tool.poetry[POETRY_DEV_DEPENDENCIES],
+      tomlData.tool.poetry.group?.dev.dependencies,
       projectData,
       root,
       cwd
@@ -169,7 +171,7 @@ const resolveDependencies = (
   deps: Dependency[],
   category: DependencyCategory
 ) => {
-  for (const dep in dependencies) {
+  for (const dep in dependencies || {}) {
     const depData = dependencies[dep];
 
     if (depData instanceof Object && depData.path) {

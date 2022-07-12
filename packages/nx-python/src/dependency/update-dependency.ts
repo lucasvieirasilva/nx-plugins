@@ -20,7 +20,7 @@ export function updateDependencyTree(context: ExecutorContext) {
     },
   } = parseToml(projectToml);
 
-  updateDependents(context.workspace, context.projectName, name, rootPyprojectToml);
+  updateDependents(context.workspace, context.projectName, name, rootPyprojectToml, context.root);
 
   if (rootPyprojectToml) {
     const rootPyprojectToml = parse(
@@ -43,8 +43,9 @@ export function updateDependents(
   projectName: string,
   modifiedProject: string,
   updateLockOnly: boolean,
+  workspaceRoot: string,
 ) {
-  const deps = getDependents(projectName, workspace);
+  const deps = getDependents(projectName, workspace, workspaceRoot);
 
   for (const dep of deps) {
     console.log(chalk`\nUpdating project {bold ${dep}}`);
@@ -52,6 +53,6 @@ export function updateDependents(
 
     updateProject(modifiedProject, depConfig.root, updateLockOnly);
 
-    updateDependents(workspace, dep, modifiedProject, updateLockOnly);
+    updateDependents(workspace, dep, modifiedProject, updateLockOnly, workspaceRoot);
   }
 }

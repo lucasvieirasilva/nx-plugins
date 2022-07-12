@@ -7,7 +7,7 @@ describe('Serverless Framework Package Executor', () => {
 
   const context = {
     cwd: '',
-    root: '',
+    root: '.',
     isVerbose: false,
     projectName: 'app',
     workspace: {

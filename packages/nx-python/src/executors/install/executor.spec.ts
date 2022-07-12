@@ -5,7 +5,7 @@ import path from 'path'
 describe('Install Executor', () => {
   const context = {
     cwd: '',
-    root: '',
+    root: '.',
     isVerbose: false,
     projectName: 'app',
     workspace: {

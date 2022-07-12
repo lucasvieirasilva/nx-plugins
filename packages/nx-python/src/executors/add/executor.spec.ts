@@ -26,6 +26,9 @@ version = "1.0.0"
   [tool.poetry.dependencies]
   python = "^3.8"
   click = "click"
+
+  [tool.poetry.group.dev.dependencies]
+  pytest = "6.2.4"
 `,
     });
 
@@ -36,7 +39,7 @@ version = "1.0.0"
 
     const context = {
       cwd: '',
-      root: '',
+      root: '.',
       isVerbose: false,
       projectName: 'app',
       workspace: {
@@ -81,7 +84,7 @@ version = "1.0.0"
 
     const context = {
       cwd: '',
-      root: '',
+      root: '.',
       isVerbose: false,
       projectName: 'app',
       workspace: {
@@ -126,7 +129,7 @@ version = "1.0.0"
 
     const context = {
       cwd: '',
-      root: '',
+      root: '.',
       isVerbose: false,
       projectName: 'app',
       workspace: {
@@ -203,7 +206,7 @@ version = "1.0.0"
 
     const context = {
       cwd: '',
-      root: '',
+      root: '.',
       isVerbose: false,
       projectName: 'shared1',
       workspace: {
@@ -288,7 +291,7 @@ version = "1.0.0"
 
     const context = {
       cwd: '',
-      root: '',
+      root: '.',
       isVerbose: false,
       projectName: 'app',
       workspace: {
@@ -346,7 +349,7 @@ version = "1.0.0"
 
     const context = {
       cwd: '',
-      root: '',
+      root: '.',
       isVerbose: false,
       projectName: 'app',
       workspace: {
@@ -412,7 +415,7 @@ version = "1.0.0"
 
     const context = {
       cwd: '',
-      root: '',
+      root: '.',
       isVerbose: false,
       projectName: 'app',
       workspace: {
@@ -467,7 +470,7 @@ version = "1.0.0"
 
     const context = {
       cwd: '',
-      root: '',
+      root: '.',
       isVerbose: false,
       projectName: 'app',
       workspace: {
