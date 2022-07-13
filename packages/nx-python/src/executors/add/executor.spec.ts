@@ -17,19 +17,20 @@ describe('Add Executor', () => {
 
   it('run add target and should add the dependency to the project', async () => {
     fsMock({
-      'apps/app/pyproject.toml': `[tool.poetry]
-name = "app"
-version = "1.0.0"
-  [[tool.poetry.packages]]
-  include = "app"
+      'apps/app/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "app"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
 
-  [tool.poetry.dependencies]
-  python = "^3.8"
-  click = "click"
+        [tool.poetry.dependencies]
+        python = "^3.8"
+        click = "click"
 
-  [tool.poetry.group.dev.dependencies]
-  pytest = "6.2.4"
-`,
+        [tool.poetry.group.dev.dependencies]
+        pytest = "6.2.4"
+      `,
     });
 
     const options = {
@@ -56,6 +57,56 @@ version = "1.0.0"
 
     const output = await executor(options, context);
     expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['add', 'numpy'], {
+      cwd: 'apps/app',
+      shell: false,
+      stdio: 'inherit',
+    });
+    expect(output.success).toBe(true);
+  });
+
+  it('run add target and should add the dependency to the project group dev', async () => {
+    fsMock({
+      'apps/app/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "app"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
+
+        [tool.poetry.dependencies]
+        python = "^3.8"
+        click = "click"
+
+        [tool.poetry.group.dev.dependencies]
+        pytest = "6.2.4"
+      `,
+    });
+
+    const options = {
+      name: 'numpy',
+      local: false,
+      group: 'dev',
+    };
+
+    const context = {
+      cwd: '',
+      root: '.',
+      isVerbose: false,
+      projectName: 'app',
+      workspace: {
+        npmScope: 'nxlv',
+        version: 2,
+        projects: {
+          app: {
+            root: 'apps/app',
+            targets: {},
+          },
+        },
+      },
+    };
+
+    const output = await executor(options, context);
+    expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['add', 'numpy', '--group', 'dev'], {
       cwd: 'apps/app',
       shell: false,
       stdio: 'inherit',
@@ -287,6 +338,65 @@ version = "1.0.0"
     const options = {
       name: 'lib1',
       local: true,
+    };
+
+    const context = {
+      cwd: '',
+      root: '.',
+      isVerbose: false,
+      projectName: 'app',
+      workspace: {
+        version: 2,
+        npmScope: 'nxlv',
+        projects: {
+          app: {
+            root: 'apps/app',
+            targets: {},
+          },
+          lib1: {
+            root: 'libs/lib1',
+            targets: {},
+          },
+        },
+      },
+    };
+
+    const output = await executor(options, context);
+    expect(spawnSyncMock).toHaveBeenCalledTimes(1);
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(1, 'poetry', ['update', 'lib1'], {
+      cwd: 'apps/app',
+      shell: false,
+      stdio: 'inherit',
+    });
+    expect(output.success).toBe(true);
+  });
+
+  it('run add target with local dependency with group dev', async () => {
+    fsMock({
+      'apps/app/pyproject.toml': `[tool.poetry]
+name = "app"
+version = "1.0.0"
+  [[tool.poetry.packages]]
+  include = "app"
+
+  [tool.poetry.dependencies]
+  python = "^3.8"
+  click = "click"`,
+
+      'libs/lib1/pyproject.toml': `[tool.poetry]
+name = "lib1"
+version = "1.0.0"
+  [[tool.poetry.packages]]
+  include = "app"
+
+  [tool.poetry.dependencies]
+  python = "^3.8"`,
+    });
+
+    const options = {
+      name: 'lib1',
+      local: true,
+      group: 'dev',
     };
 
     const context = {

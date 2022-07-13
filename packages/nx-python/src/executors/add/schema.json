@@ -22,6 +22,10 @@
       "type": "boolean",
       "description": "Local dependency",
       "default": false
+    },
+    "group": {
+      "type": "string",
+      "description": "Dependency Group"
     }
   },
   "required": ["name"]

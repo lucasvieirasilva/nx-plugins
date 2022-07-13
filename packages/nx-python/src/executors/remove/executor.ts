@@ -2,8 +2,7 @@ import { ExecutorContext } from '@nrwl/devkit';
 import chalk from 'chalk';
 import { spawnSync } from 'child_process';
 import { updateDependencyTree } from '../../dependency/update-dependency';
-import { getLocalDependencyConfig } from '../update/executor';
-import { getProjectTomlPath, parseToml } from '../utils/poetry';
+import { getLocalDependencyConfig, getProjectTomlPath, parseToml } from '../utils/poetry';
 import { RemoveExecutorSchema } from './schema';
 
 export default async function executor(

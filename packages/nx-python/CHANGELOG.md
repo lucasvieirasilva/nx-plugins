@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [1.7.0] - 2022-07-13
+
+### Changed
+
+- Modify `@nxlv/nx-python:add` executor to add the CLI option `--group`.
+
 ## [1.6.0] - 2022-07-12
 
 ### Changed

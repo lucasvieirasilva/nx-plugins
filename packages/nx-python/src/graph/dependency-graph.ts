@@ -34,6 +34,7 @@ export type Dependency = {
 export type PyprojectToml = {
   tool: {
     poetry: {
+      name: string
       packages: Array<{
         include: string
       }>,

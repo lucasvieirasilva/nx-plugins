@@ -319,24 +319,28 @@ version = "1.0.0"
 
   it('run update target with local dependency with project name and package name different', async () => {
     fsMock({
-      'apps/app/pyproject.toml': `[tool.poetry]
-name = "dgx-devops-app"
-version = "1.0.0"
-  [[tool.poetry.packages]]
-  include = "app"
+      'apps/app/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "dgx-devops-app"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
 
-  [tool.poetry.dependencies]
-  python = "^3.8"
-  click = "click"`,
+        [tool.poetry.dependencies]
+        python = "^3.8"
+        click = "click"
+        dgx-devops-lib1 = { path = "../../libs/lib1", develop = true }
+      `,
+      'libs/lib1/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "dgx-devops-lib1"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
 
-      'libs/lib1/pyproject.toml': `[tool.poetry]
-name = "dgx-devops-lib1"
-version = "1.0.0"
-  [[tool.poetry.packages]]
-  include = "app"
-
-  [tool.poetry.dependencies]
-  python = "^3.8"`,
+        [tool.poetry.dependencies]
+        python = "^3.8"
+      `,
     });
 
     const options = {
