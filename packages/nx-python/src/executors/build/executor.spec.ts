@@ -1,5 +1,5 @@
 import { BuildExecutorSchema } from './schema';
-import { spawnSyncMock } from '../../utils/mocks/child_process.mock';
+import { spawnSyncMock } from '../../utils/mocks/cross-spawn.mock';
 import { uuidMock } from '../../utils/mocks/uuid.mock';
 import executor from './executor';
 import fsMock from 'mock-fs';

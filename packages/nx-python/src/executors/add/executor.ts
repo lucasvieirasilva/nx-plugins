@@ -1,5 +1,5 @@
 import { ExecutorContext, ProjectConfiguration } from '@nrwl/devkit';
-import { spawnSync } from 'child_process';
+import spawn from 'cross-spawn';
 import { AddExecutorSchema } from './schema';
 import chalk from 'chalk';
 import { updateDependencyTree } from '../../dependency/update-dependency';
@@ -41,7 +41,7 @@ export default async function executor(
       console.log(
         chalk`{bold Running command}: ${installCommand} at {bold ${projectConfig.root}} folder\n`
       );
-      spawnSync(executable, installArgs, {
+      spawn.sync(executable, installArgs, {
         cwd: projectConfig.root,
         shell: false,
         stdio: 'inherit',

@@ -11,7 +11,7 @@ import path from 'path';
 import { Schema } from './schema';
 import { parse, stringify } from '@iarna/toml';
 import { PyprojectToml } from '../../graph/dependency-graph';
-import { spawnSync } from 'child_process';
+import spawn from 'cross-spawn';
 import chalk from 'chalk';
 
 export interface NormalizedSchema extends Schema {
@@ -121,7 +121,7 @@ function updateRootPoetryLock(host: Tree, normalizedOptions: NormalizedSchema) {
     console.log(chalk`  Updating root {bgBlue poetry.lock}...`);
     const executable = 'poetry';
     const updateArgs = ['update', normalizedOptions.packageName];
-    spawnSync(executable, updateArgs, {
+    spawn.sync(executable, updateArgs, {
       shell: false,
       stdio: 'inherit',
     });

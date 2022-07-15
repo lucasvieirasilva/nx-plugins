@@ -2,7 +2,8 @@ import { InstallExecutorSchema } from './schema';
 import { Logger } from '../utils/logger';
 import { ExecutorContext } from '@nrwl/devkit';
 import chalk from 'chalk';
-import { spawnSync, SpawnSyncOptions } from 'child_process';
+import { SpawnSyncOptions } from 'child_process';
+import spawn from 'cross-spawn';
 import path from 'path'
 
 const logger = new Logger();
@@ -41,7 +42,7 @@ export default async function executor(
       }
     }
 
-    spawnSync(executable, installArgs, execOpts)
+    spawn.sync(executable, installArgs, execOpts)
 
     return {
       success: true,

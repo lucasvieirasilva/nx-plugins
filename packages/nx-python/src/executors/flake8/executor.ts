@@ -1,6 +1,6 @@
 import { ExecutorContext } from '@nrwl/devkit';
 import chalk from 'chalk';
-import { spawnSync } from 'child_process';
+import spawn from 'cross-spawn';
 import { Logger } from '../utils/logger';
 import { Flake8ExecutorSchema } from './schema';
 import path from 'path'
@@ -34,7 +34,7 @@ export default async function executor(
 
     const executable = 'poetry'
     const lintingArgs = ['run', 'flake8', '--output-file', absPath]
-    spawnSync(executable, lintingArgs, {
+    spawn.sync(executable, lintingArgs, {
       cwd: cwd,
       shell: false,
       stdio: 'inherit'

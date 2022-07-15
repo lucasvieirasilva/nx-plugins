@@ -1,4 +1,4 @@
-import { spawnSyncMock } from '../../utils/mocks/child_process.mock';
+import { spawnSyncMock } from '../../utils/mocks/cross-spawn.mock';
 import { createTreeWithEmptyWorkspace } from '@nrwl/devkit/testing';
 import { Tree, readProjectConfiguration } from '@nrwl/devkit';
 

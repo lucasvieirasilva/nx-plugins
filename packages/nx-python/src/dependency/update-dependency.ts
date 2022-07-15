@@ -8,7 +8,7 @@ import {
 } from '../executors/utils/poetry';
 import { existsSync, readFileSync } from 'fs-extra';
 import { parse } from '@iarna/toml';
-import { spawnSync } from 'child_process';
+import spawn from 'cross-spawn';
 
 export function updateDependencyTree(context: ExecutorContext) {
   const rootPyprojectToml = existsSync('pyproject.toml')
@@ -30,7 +30,7 @@ export function updateDependencyTree(context: ExecutorContext) {
     if (rootPyprojectToml.tool.poetry.dependencies[name]) {
       console.log(chalk`\nUpdating root {bold pyproject.toml} dependency {bold ${name}}`);
 
-      spawnSync('poetry', ['update', name], {
+      spawn.sync('poetry', ['update', name], {
         shell: false,
         stdio: 'inherit',
       });

@@ -1,6 +1,6 @@
 import { ExecutorContext } from '@nrwl/devkit';
 import chalk from 'chalk';
-import { spawnSync } from 'child_process';
+import spawn from 'cross-spawn';
 import { updateDependencyTree } from '../../dependency/update-dependency';
 import { getLocalDependencyConfig, getProjectTomlPath, parseToml } from '../utils/poetry';
 import { RemoveExecutorSchema } from './schema';
@@ -37,7 +37,7 @@ export default async function executor(
     console.log(
       chalk`{bold Running command}: ${removeCommand} at {bold ${projectConfig.root}} folder\n`
     );
-    spawnSync(executable, removeArgs, {
+    spawn.sync(executable, removeArgs, {
       cwd: projectConfig.root,
       shell: false,
       stdio: 'inherit',

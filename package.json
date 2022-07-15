@@ -11,6 +11,7 @@
   "dependencies": {
     "@iarna/toml": "^2.2.5",
     "chalk": "^4.1.1",
+    "cross-spawn": "^7.0.3",
     "tslib": "^2.0.0",
     "uuid": "^8.3.2"
   },
@@ -24,6 +25,7 @@
     "@nrwl/nx-plugin": "^13.8.3",
     "@nrwl/tao": "13.8.3",
     "@nrwl/workspace": "13.8.3",
+    "@types/cross-spawn": "^6.0.2",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "27.0.2",
     "@types/node": "16.11.7",

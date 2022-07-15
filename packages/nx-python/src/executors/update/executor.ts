@@ -7,7 +7,7 @@ import {
   parseToml,
   updateProject,
 } from '../utils/poetry';
-import { spawnSync } from 'child_process';
+import spawn from 'cross-spawn';
 import { updateDependencyTree } from '../../dependency/update-dependency';
 import { existsSync } from 'fs-extra';
 
@@ -50,7 +50,7 @@ export default async function executor(
       console.log(
         chalk`{bold Running command}: ${updateCommand} at {bold ${projectConfig.root}} folder\n`
       );
-      spawnSync(executable, updateArgs, {
+      spawn.sync(executable, updateArgs, {
         cwd: projectConfig.root,
         shell: false,
         stdio: 'inherit',

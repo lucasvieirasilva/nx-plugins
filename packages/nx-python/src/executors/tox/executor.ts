@@ -4,7 +4,7 @@ import buildExecutor from '../build/executor';
 import path from 'path';
 import chalk from 'chalk';
 import { Logger } from '../utils/logger';
-import { spawnSync } from 'child_process';
+import spawn from 'cross-spawn';
 import { readdirSync, existsSync } from 'fs-extra';
 
 const logger = new Logger();
@@ -53,7 +53,7 @@ export default async function executor(
     const toxArgs = ['run', 'tox', '--installpkg', packagePath].concat(options.args ? options.args.split(' ') : [])
     const command = `${executable} ${toxArgs.join(' ')}`;
     logger.info(chalk`\n  Running Command: {bold ${command}}\n`);
-    spawnSync(executable, toxArgs, {
+    spawn.sync(executable, toxArgs, {
       cwd: projectConfig.root,
       shell: false,
       stdio: 'inherit',

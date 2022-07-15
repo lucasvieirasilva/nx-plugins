@@ -11,7 +11,7 @@ import {
 import { join, relative } from 'path';
 import { PyprojectToml, PyprojectTomlDependency } from '../../graph/dependency-graph';
 import { parse, stringify } from '@iarna/toml';
-import { spawnSync } from 'child_process';
+import spawn from 'cross-spawn';
 import { tmpdir } from 'os'
 import { v4 as uuid } from 'uuid'
 import chalk from 'chalk'
@@ -90,7 +90,7 @@ export default async function executor(
     const buildArgs = ['build']
     const command = `${executable} ${buildArgs.join(' ')}`
     logger.info(chalk`  Running ${command}`)
-    spawnSync(executable, buildArgs, {
+    spawn.sync(executable, buildArgs, {
       cwd: buildFolderPath,
       shell: false,
       stdio: 'inherit'
@@ -249,7 +249,7 @@ function getProjectRequirementsTxt(
     });
   }
 
-  spawnSync(
+  spawn.sync(
     'poetry',
     exportArgs,
     {

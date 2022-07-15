@@ -1,6 +1,6 @@
 import { ExecutorContext } from '@nrwl/devkit';
 import chalk from 'chalk';
-import { spawnSync } from 'child_process';
+import spawn from 'cross-spawn';
 import { Logger } from '../utils/logger';
 import { ExecutorSchema } from './schema';
 import path from 'path'
@@ -43,7 +43,7 @@ export default async function executor(
 
     const executable = 'npx'
     const deployArgs = ['sls', 'package', '--stage', options.stage]
-    spawnSync(executable, deployArgs, {
+    spawn.sync(executable, deployArgs, {
       cwd: cwd,
       shell: false,
       stdio: 'inherit'

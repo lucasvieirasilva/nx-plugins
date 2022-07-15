@@ -1,6 +1,6 @@
 import { ExecutorContext, ProjectConfiguration } from '@nrwl/devkit';
 import chalk from 'chalk';
-import { spawnSync } from 'child_process';
+import spawn from 'cross-spawn';
 import path from 'path';
 import toml from '@iarna/toml';
 import fs from 'fs';
@@ -44,7 +44,7 @@ export function updateProject(projectName: string, cwd: string, updateLockOnly: 
   console.log(
     chalk`{bold Running command}: ${updateLockCommand} at {bold ${cwd}} folder\n`
   );
-  spawnSync(executable, updateLockArgs, {
+  spawn.sync(executable, updateLockArgs, {
     cwd,
     shell: false,
     stdio: 'inherit',

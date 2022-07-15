@@ -1,4 +1,4 @@
-import { spawnSyncMock } from '../../utils/mocks/child_process.mock';
+import { spawnSyncMock } from '../../utils/mocks/cross-spawn.mock';
 import executor from './executor';
 import path from 'path'
 
