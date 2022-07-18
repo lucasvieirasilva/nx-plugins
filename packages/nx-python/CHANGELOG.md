@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [1.9.0] - 2022-07-18
+
+### Changed
+
+- Modify `@nxlv/nx-python:add` executor to add the CLI option `--extras`.
+
 ## [1.8.1] - 2022-07-15
 
 ### Fixed

@@ -3,4 +3,5 @@ export interface AddExecutorSchema {
   local: boolean;
   args?: string;
   group?: string;
+  extras?: string[];
 }

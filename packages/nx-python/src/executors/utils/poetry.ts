@@ -10,7 +10,8 @@ export function addLocalProjectToPoetryProject(
   targetConfig: ProjectConfiguration,
   dependencyConfig: ProjectConfiguration,
   dependencyPath: string,
-  group?: string
+  group?: string,
+  extras?: string[]
 ): string {
   const targetToml = getProjectTomlPath(targetConfig);
   const dependencyToml = getProjectTomlPath(dependencyConfig);
@@ -24,11 +25,13 @@ export function addLocalProjectToPoetryProject(
     targetTomlData.tool.poetry.group[group].dependencies[dependencyName] = {
       path: dependencyPath,
       develop: true,
+      ...(extras ? { extras } : {})
     };
   } else {
     targetTomlData.tool.poetry.dependencies[dependencyName] = {
       path: dependencyPath,
       develop: true,
+      ...(extras ? { extras } : {})
     };
   }
 

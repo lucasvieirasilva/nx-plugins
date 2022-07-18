@@ -114,6 +114,56 @@ describe('Add Executor', () => {
     expect(output.success).toBe(true);
   });
 
+  it('run add target and should add the dependency to the project extras', async () => {
+    fsMock({
+      'apps/app/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "app"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
+
+        [tool.poetry.dependencies]
+        python = "^3.8"
+        click = "click"
+
+        [tool.poetry.group.dev.dependencies]
+        pytest = "6.2.4"
+      `,
+    });
+
+    const options = {
+      name: 'numpy',
+      local: false,
+      extras: ['dev'],
+    };
+
+    const context = {
+      cwd: '',
+      root: '.',
+      isVerbose: false,
+      projectName: 'app',
+      workspace: {
+        npmScope: 'nxlv',
+        version: 2,
+        projects: {
+          app: {
+            root: 'apps/app',
+            targets: {},
+          },
+        },
+      },
+    };
+
+    const output = await executor(options, context);
+    expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['add', 'numpy', '--extras=dev'], {
+      cwd: 'apps/app',
+      shell: false,
+      stdio: 'inherit',
+    });
+    expect(output.success).toBe(true);
+  });
+
   it('run add target and should not add the dependency to the project because the project does not exist', async () => {
     fsMock({
       'apps/app/pyproject.toml': `[tool.poetry]
@@ -397,6 +447,133 @@ version = "1.0.0"
       name: 'lib1',
       local: true,
       group: 'dev',
+    };
+
+    const context = {
+      cwd: '',
+      root: '.',
+      isVerbose: false,
+      projectName: 'app',
+      workspace: {
+        version: 2,
+        npmScope: 'nxlv',
+        projects: {
+          app: {
+            root: 'apps/app',
+            targets: {},
+          },
+          lib1: {
+            root: 'libs/lib1',
+            targets: {},
+          },
+        },
+      },
+    };
+
+    const output = await executor(options, context);
+    expect(spawnSyncMock).toHaveBeenCalledTimes(1);
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(1, 'poetry', ['update', 'lib1'], {
+      cwd: 'apps/app',
+      shell: false,
+      stdio: 'inherit',
+    });
+    expect(output.success).toBe(true);
+  });
+
+  it('run add target with local dependency with extras', async () => {
+    fsMock({
+      'apps/app/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "app"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
+
+        [tool.poetry.dependencies]
+        python = "^3.8"
+        click = "click"
+      `,
+
+      'libs/lib1/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "lib1"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
+
+        [tool.poetry.dependencies]
+        python = "^3.8"
+      `,
+    });
+
+    const options = {
+      name: 'lib1',
+      local: true,
+      extras: ['dev']
+    };
+
+    const context = {
+      cwd: '',
+      root: '.',
+      isVerbose: false,
+      projectName: 'app',
+      workspace: {
+        version: 2,
+        npmScope: 'nxlv',
+        projects: {
+          app: {
+            root: 'apps/app',
+            targets: {},
+          },
+          lib1: {
+            root: 'libs/lib1',
+            targets: {},
+          },
+        },
+      },
+    };
+
+    const output = await executor(options, context);
+    expect(spawnSyncMock).toHaveBeenCalledTimes(1);
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(1, 'poetry', ['update', 'lib1'], {
+      cwd: 'apps/app',
+      shell: false,
+      stdio: 'inherit',
+    });
+    expect(output.success).toBe(true);
+  });
+
+  it('run add target with local dependency with extras', async () => {
+    fsMock({
+      'apps/app/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "app"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
+
+        [tool.poetry.dependencies]
+        python = "^3.8"
+        click = "click"
+      `,
+
+      'libs/lib1/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "lib1"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
+
+        [tool.poetry.dependencies]
+        python = "^3.8"
+      `,
+    });
+
+    const options = {
+      name: 'lib1',
+      local: true,
+      group: 'dev',
+      extras: ['dev']
     };
 
     const context = {

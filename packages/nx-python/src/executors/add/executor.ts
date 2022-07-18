@@ -26,7 +26,8 @@ export default async function executor(
         options.name,
         projectConfig,
         rootPyprojectToml,
-        options.group
+        options.group,
+        options.extras
       );
     } else {
       console.log(
@@ -36,7 +37,8 @@ export default async function executor(
       const installArgs = ['add', options.name]
         .concat(options.group ? ['--group', options.group] : [])
         .concat(options.args ? options.args.split(' ') : [])
-        .concat(rootPyprojectToml ? ['--lock'] : []);
+        .concat(options.extras ? options.extras.map(ex => `--extras=${ex}`) : [])
+        .concat(rootPyprojectToml ? ['--lock'] : [])
       const installCommand = `${executable} ${installArgs.join(' ')}`;
       console.log(
         chalk`{bold Running command}: ${installCommand} at {bold ${projectConfig.root}} folder\n`
@@ -70,7 +72,8 @@ function updateLocalProject(
   dependencyName: string,
   projectConfig: ProjectConfiguration,
   updateLockOnly: boolean,
-  group?: string
+  group?: string,
+  extras?: string[]
 ) {
   const dependencyConfig = getLocalDependencyConfig(context, dependencyName);
 
@@ -83,7 +86,8 @@ function updateLocalProject(
     projectConfig,
     dependencyConfig,
     dependencyPath,
-    group
+    group,
+    extras
   );
   updateProject(dependencyPkgName, projectConfig.root, updateLockOnly);
 }

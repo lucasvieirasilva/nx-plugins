@@ -26,6 +26,13 @@
     "group": {
       "type": "string",
       "description": "Dependency Group"
+    },
+    "extras": {
+      "type": "array",
+      "description": "Extras to activate for the dependency",
+      "items": {
+        "type": "string"
+      }
     }
   },
   "required": ["name"]
