@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [1.9.2] - 2022-07-19
+
+### Fixed
+
+- Fixed update dependency tree function.
+
+## [1.9.1] - 2022-07-19
+
+### Fixed
+
+- Fixed `@nxlv/nx-python:flake8` to return error when the `pylint.txt` has more than 1 line.
+
 ## [1.9.0] - 2022-07-18
 
 ### Changed

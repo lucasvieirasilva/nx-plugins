@@ -44,15 +44,21 @@ export function updateDependents(
   modifiedProject: string,
   updateLockOnly: boolean,
   workspaceRoot: string,
+  updatedProjects: string[] = []
 ) {
+  updatedProjects.push(projectName);
   const deps = getDependents(projectName, workspace, workspaceRoot);
 
   for (const dep of deps) {
+    if (updatedProjects.includes(dep)) {
+      continue;
+    }
+
     console.log(chalk`\nUpdating project {bold ${dep}}`);
     const depConfig = workspace.projects[dep];
 
-    updateProject(modifiedProject, depConfig.root, updateLockOnly);
+    updateProject(projectName, depConfig.root, updateLockOnly);
 
-    updateDependents(workspace, dep, modifiedProject, updateLockOnly, workspaceRoot);
+    updateDependents(workspace, dep, modifiedProject, updateLockOnly, workspaceRoot, updatedProjects);
   }
 }

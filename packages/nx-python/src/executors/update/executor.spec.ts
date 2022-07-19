@@ -150,50 +150,57 @@ version = "1.0.0"
     expect(output.success).toBe(false);
   });
 
-  it('run update target and should update all the dependency tree', async () => {
+  it('run update target and should update all the dependency tree ---', async () => {
     fsMock({
-      'apps/app/pyproject.toml': `[tool.poetry]
-name = "app"
-version = "1.0.0"
-  [[tool.poetry.packages]]
-  include = "app"
+      'apps/app/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "app"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
 
-  [tool.poetry.dependencies]
-  python = "^3.8"
-  click = "click"
-  lib1 = { path = "../../libs/lib1" }
-`,
+        [tool.poetry.dependencies]
+        python = "^3.8"
+        click = "click"
+        lib1 = { path = "../../libs/lib1" }
+        shared1 = { path = "../../libs/shared1" }
+      `,
 
-      'apps/app1/pyproject.toml': `[tool.poetry]
-name = "app1"
-version = "1.0.0"
-  [[tool.poetry.packages]]
-  include = "app"
+      'apps/app1/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "app1"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
 
-  [tool.poetry.dependencies]
-  python = "^3.8"
-  click = "click"
-  lib1 = { path = "../../libs/lib1" }
-`,
+        [tool.poetry.dependencies]
+        python = "^3.8"
+        click = "click"
+        lib1 = { path = "../../libs/lib1" }
+      `,
 
-      'libs/lib1/pyproject.toml': `[tool.poetry]
-  name = "lib1"
-  version = "1.0.0"
-    [[tool.poetry.packages]]
-    include = "app"
+      'libs/lib1/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "lib1"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
 
-    [tool.poetry.dependencies]
-    python = "^3.8"
-    shared1 = { path = "../../libs/shared1" }`,
+        [tool.poetry.dependencies]
+        python = "^3.8"
+        shared1 = { path = "../shared1" }
+      `,
 
-      'libs/shared1/pyproject.toml': `[tool.poetry]
-  name = "lib1"
-  version = "1.0.0"
-    [[tool.poetry.packages]]
-    include = "app"
+      'libs/shared1/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "shared1"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
 
-    [tool.poetry.dependencies]
-    python = "^3.8"`,
+        [tool.poetry.dependencies]
+        python = "^3.8"
+      `,
     });
 
     const options = {
@@ -218,10 +225,6 @@ version = "1.0.0"
             root: 'apps/app1',
             targets: {},
           },
-          app3: {
-            root: 'apps/app3',
-            targets: {},
-          },
           lib1: {
             root: 'libs/lib1',
             targets: {},
@@ -241,13 +244,13 @@ version = "1.0.0"
       shell: false,
       stdio: 'inherit',
     });
-    expect(spawnSyncMock).toHaveBeenNthCalledWith(2, 'poetry', ['update', 'lib1'], {
-      cwd: 'libs/lib1',
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(2, 'poetry', ['update', 'shared1'], {
+      cwd: 'apps/app',
       shell: false,
       stdio: 'inherit',
     });
-    expect(spawnSyncMock).toHaveBeenNthCalledWith(3, 'poetry', ['update', 'lib1'], {
-      cwd: 'apps/app',
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(3, 'poetry', ['update', 'shared1'], {
+      cwd: 'libs/lib1',
       shell: false,
       stdio: 'inherit',
     });
@@ -650,12 +653,12 @@ version = "1.0.0"
       shell: false,
       stdio: 'inherit',
     });
-    expect(spawnSyncMock).toHaveBeenNthCalledWith(3, 'poetry', ['update', 'shared1', '--lock'], {
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(3, 'poetry', ['update', 'lib1', '--lock'], {
       cwd: 'apps/app',
       shell: false,
       stdio: 'inherit',
     });
-    expect(spawnSyncMock).toHaveBeenNthCalledWith(4, 'poetry', ['update', 'shared1', '--lock'], {
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(4, 'poetry', ['update', 'lib1', '--lock'], {
       cwd: 'apps/app1',
       shell: false,
       stdio: 'inherit',

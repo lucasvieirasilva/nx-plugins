@@ -121,11 +121,11 @@ branch = true
 source = [ \\"shared_test\\" ]
 
 [tool.coverage.report]
-exclude_lines = [ ]
+exclude_lines = ['if TYPE_CHECKING:']
 show_missing = true
 
 [tool.pytest.ini_options]
-addopts = \\"--cov --cov-report html:'../../../coverage/apps/shared/test/html' --cov-report xml:'../../../coverage/apps/shared/test/coverage.xml' --junitxml='../../../reports/apps/shared/test/unittests/junit.xml' --html='../../../reports/apps/shared/test/unittests/html/index.html'\\"
+addopts = \\"--cov --cov-fail-under=100 --cov-report html:'../../../coverage/apps/shared/test/html' --cov-report xml:'../../../coverage/apps/shared/test/coverage.xml' --junitxml='../../../reports/apps/shared/test/unittests/junit.xml' --html='../../../reports/apps/shared/test/unittests/html/index.html'\\"
 
 [tool.poetry]
 name = \\"unittest-test-pkg-name\\"
@@ -198,11 +198,11 @@ branch = true
 source = [ \\"test\\" ]
 
 [tool.coverage.report]
-exclude_lines = [ ]
+exclude_lines = [ \\"if TYPE_CHECKING:\\" ]
 show_missing = true
 
 [tool.pytest.ini_options]
-addopts = \\"--cov --cov-report html:'../../coverage/apps/test/html' --cov-report xml:'../../coverage/apps/test/coverage.xml' --junitxml='../../reports/apps/test/unittests/junit.xml' --html='../../reports/apps/test/unittests/html/index.html'\\"
+addopts = \\"--cov --cov-fail-under=100 --cov-report html:'../../coverage/apps/test/html' --cov-report xml:'../../coverage/apps/test/coverage.xml' --junitxml='../../reports/apps/test/unittests/junit.xml' --html='../../reports/apps/test/unittests/html/index.html'\\"
 
 [tool.poetry]
 name = \\"unittest-test-pkg-name\\"
@@ -235,11 +235,11 @@ branch = true
 source = [ \\"test\\" ]
 
 [tool.coverage.report]
-exclude_lines = [ ]
+exclude_lines = ['if TYPE_CHECKING:']
 show_missing = true
 
 [tool.pytest.ini_options]
-addopts = \\"--cov --cov-report html:'../../coverage/apps/test/html' --cov-report xml:'../../coverage/apps/test/coverage.xml' --junitxml='../../reports/apps/test/unittests/junit.xml' --html='../../reports/apps/test/unittests/html/index.html'\\"
+addopts = \\"--cov --cov-fail-under=100 --cov-report html:'../../coverage/apps/test/html' --cov-report xml:'../../coverage/apps/test/coverage.xml' --junitxml='../../reports/apps/test/unittests/junit.xml' --html='../../reports/apps/test/unittests/html/index.html'\\"
 
 [tool.poetry]
 name = \\"unittest-test-pkg-name\\"
@@ -477,11 +477,11 @@ branch = true
 source = [ \\"test\\" ]
 
 [tool.coverage.report]
-exclude_lines = [ ]
+exclude_lines = ['if TYPE_CHECKING:']
 show_missing = true
 
 [tool.pytest.ini_options]
-addopts = \\"--cov --cov-report html:'../../coverage/libs/test/html' --cov-report xml:'../../coverage/libs/test/coverage.xml' --junitxml='../../reports/libs/test/unittests/junit.xml' --html='../../reports/libs/test/unittests/html/index.html'\\"
+addopts = \\"--cov --cov-fail-under=100 --cov-report html:'../../coverage/libs/test/html' --cov-report xml:'../../coverage/libs/test/coverage.xml' --junitxml='../../reports/libs/test/unittests/junit.xml' --html='../../reports/libs/test/unittests/html/index.html'\\"
 
 [tool.poetry]
 name = \\"unittest-test-pkg-name\\"
@@ -669,11 +669,11 @@ branch = true
 source = [ \\"test\\" ]
 
 [tool.coverage.report]
-exclude_lines = [ ]
+exclude_lines = ['if TYPE_CHECKING:']
 show_missing = true
 
 [tool.pytest.ini_options]
-addopts = \\"--cov --cov-report html:'../../coverage/libs/test/html' --cov-report xml:'../../coverage/libs/test/coverage.xml' --junitxml='../../reports/libs/test/unittests/junit.xml' --html='../../reports/libs/test/unittests/html/index.html'\\"
+addopts = \\"--cov --cov-fail-under=100 --cov-report html:'../../coverage/libs/test/html' --cov-report xml:'../../coverage/libs/test/coverage.xml' --junitxml='../../reports/libs/test/unittests/junit.xml' --html='../../reports/libs/test/unittests/html/index.html'\\"
 
 [tool.poetry]
 name = \\"unittest-test-pkg-name\\"
@@ -691,18 +691,18 @@ readme = 'README.md'
 
   
   [tool.poetry.group.dev.dependencies]
-  flake8 = \\"3.9.2\\"
+  flake8 = \\"4.0.1\\"
   flake8-isort = \\"4.1.1\\"
-  flake8-print = \\"4.0.0\\"
-  flake8-pytest-style = \\"1.5.1\\"
+  flake8-print = \\"5.0.0\\"
+  flake8-pytest-style = \\"1.6.0\\"
   flake8-docstrings = \\"1.6.0\\"
-  flake8-type-checking = \\"1.1.1\\"
+  flake8-type-checking = \\"2.0.6\\"
   autopep8 = \\"1.5.7\\"
-  pytest = \\"6.2.4\\"
+  pytest = \\"7.1.2\\"
   pytest-env = \\"0.6.2\\"
-  pytest-cov = \\"2.11.1\\"
+  pytest-cov = \\"3.0.0\\"
   pytest-html = \\"3.1.1\\"
-  pytest-sugar = \\"0.9.4\\"
+  pytest-sugar = \\"0.9.5\\"
   tomli = \\"1.2.2\\"
   tox = \\"3.23.1\\"
   
@@ -982,11 +982,11 @@ branch = true
 source = [ \\"test\\" ]
 
 [tool.coverage.report]
-exclude_lines = [ ]
+exclude_lines = ['if TYPE_CHECKING:']
 show_missing = true
 
 [tool.pytest.ini_options]
-addopts = \\"--cov --cov-report html:'../../coverage/apps/test/html' --cov-report xml:'../../coverage/apps/test/coverage.xml' --junitxml='../../reports/apps/test/unittests/junit.xml' --html='../../reports/apps/test/unittests/html/index.html'\\"
+addopts = \\"--cov --cov-fail-under=100 --cov-report html:'../../coverage/apps/test/html' --cov-report xml:'../../coverage/apps/test/coverage.xml' --junitxml='../../reports/apps/test/unittests/junit.xml' --html='../../reports/apps/test/unittests/html/index.html'\\"
 
 [tool.poetry]
 name = \\"unittest-test-pkg-name\\"
@@ -1174,11 +1174,11 @@ branch = true
 source = [ \\"mymodule\\" ]
 
 [tool.coverage.report]
-exclude_lines = [ ]
+exclude_lines = ['if TYPE_CHECKING:']
 show_missing = true
 
 [tool.pytest.ini_options]
-addopts = \\"--cov --cov-report html:'../../coverage/apps/test/html' --cov-report xml:'../../coverage/apps/test/coverage.xml' --junitxml='../../reports/apps/test/unittests/junit.xml' --html='../../reports/apps/test/unittests/html/index.html'\\"
+addopts = \\"--cov --cov-fail-under=100 --cov-report html:'../../coverage/apps/test/html' --cov-report xml:'../../coverage/apps/test/coverage.xml' --junitxml='../../reports/apps/test/unittests/junit.xml' --html='../../reports/apps/test/unittests/html/index.html'\\"
 
 [tool.poetry]
 name = \\"unittest-test-pkg-name\\"
