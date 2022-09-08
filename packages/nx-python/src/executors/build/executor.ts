@@ -198,7 +198,7 @@ function resolveDependencies(
         dep.markers = elements[1].trim();
       }
 
-      const lockedPkg = lockData.package.find(pkg => pkg.name === dep.name)
+      const lockedPkg = lockData.package.find(pkg => pkg.name.toLowerCase() === dep.name.toLowerCase())
       if (!lockedPkg) {
         throw new Error(chalk`Package {blue.bold ${dep.name}} not found in poetry.lock`);
       }

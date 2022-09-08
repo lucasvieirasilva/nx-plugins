@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [1.10.0] - 2022-09-08
+
+### Changed
+
+- Update `poetry-core` to version `1.1.0`.
+
+### Fixed
+
+- Fix `build` executor when the package name is not lowercase.
+
 ## [1.9.2] - 2022-07-19
 
 ### Fixed
