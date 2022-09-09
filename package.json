@@ -13,7 +13,8 @@
     "chalk": "^4.1.1",
     "cross-spawn": "^7.0.3",
     "tslib": "^2.0.0",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "file-uri-to-path": "^2.0.0"
   },
   "devDependencies": {
     "@nrwl/cli": "13.8.3",
@@ -33,7 +34,6 @@
     "@typescript-eslint/parser": "~5.10.0",
     "eslint": "~8.7.0",
     "eslint-config-prettier": "8.1.0",
-    "file-uri-to-path": "^2.0.0",
     "jest": "27.2.3",
     "jest-html-reporter": "^3.5.0",
     "jest-junit": "^14.0.0",
