@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [1.10.2] - 2022-09-27
+
+### Fixed
+
+- Fix dependency graph for Windows.
+
 ## [1.10.1] - 2022-09-09
 
-### Fixex
+### Fixed
 
 - Move `file-uri-to-path` to `dependencies`.
 

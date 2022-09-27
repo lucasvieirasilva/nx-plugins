@@ -156,7 +156,7 @@ const isProjectDependent = (
     if (depData instanceof Object && depData.path) {
       const depAbsPath = path.resolve(projectData.root, depData.path);
 
-      if (root === path.relative(cwd, depAbsPath)) {
+      if (path.normalize(root) === path.normalize(path.relative(cwd, depAbsPath))) {
         return true;
       }
     }
@@ -178,7 +178,7 @@ const resolveDependencies = (
     if (depData instanceof Object && depData.path) {
       const depAbsPath = path.resolve(projectData.root, depData.path);
       const depProjectName = Object.keys(workspace.projects).find(
-        (proj) => workspace.projects[proj].root === path.relative(cwd, depAbsPath)
+        (proj) => path.normalize(workspace.projects[proj].root) === path.normalize(path.relative(cwd, depAbsPath))
       );
 
       deps.push({ name: depProjectName, category });
