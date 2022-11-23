@@ -65,6 +65,9 @@ describe('Serverless Framework Deploy Executor', () => {
     fsMock({
       'apps/app/dist/test.whl': 'abc123'
     })
+    spawnSyncMock.mockReturnValue({
+      status: 0
+    })
 
     const output = await executor(
       {
@@ -91,9 +94,45 @@ describe('Serverless Framework Deploy Executor', () => {
     expect(output.success).toBe(true);
   });
 
+  it('should run serverless framework command with error status code', async () => {
+    fsMock({
+      'apps/app/dist/test.whl': 'abc123'
+    })
+    spawnSyncMock.mockReturnValue({
+      status: 1
+    })
+
+    const output = await executor(
+      {
+        stage: 'dev',
+        verbose: false,
+        force: false
+      },
+      context
+    );
+    expect(spawnSyncMock).toHaveBeenCalledWith(
+      'npx',
+      [
+        'sls',
+        'deploy',
+        '--stage',
+        'dev'
+      ],
+      {
+        cwd: 'apps/app',
+        stdio: 'inherit',
+        shell: false
+      }
+    )
+    expect(output.success).toBe(false);
+  });
+
   it('should run serverless framework command using npx with verbose and force', async () => {
     fsMock({
       'apps/app/dist/test.whl': 'abc123'
+    })
+    spawnSyncMock.mockReturnValue({
+      status: 0
     })
 
     const output = await executor(

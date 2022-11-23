@@ -45,11 +45,15 @@ export default async function executor(
     const deployArgs = ['sls', 'deploy', '--stage', options.stage]
       .concat(options.verbose ? ['--verbose'] : [])
       .concat(options.force ? ['--force'] : [])
-    spawn.sync(executable, deployArgs, {
+    const result = spawn.sync(executable, deployArgs, {
       cwd: cwd,
       shell: false,
-      stdio: 'inherit'
+      stdio: 'inherit',
     });
+
+    if (result.status !== 0) {
+      throw new Error(`Serverless deploy failed`);
+    }
 
     return {
       success: true,

@@ -43,11 +43,15 @@ export default async function executor(
 
     const executable = 'npx'
     const deployArgs = ['sls', 'package', '--stage', options.stage]
-    spawn.sync(executable, deployArgs, {
+    const result = spawn.sync(executable, deployArgs, {
       cwd: cwd,
       shell: false,
       stdio: 'inherit'
     });
+
+    if (result.status !== 0) {
+      throw new Error(`Serverless package failed`);
+    }
 
     return {
       success: true,
