@@ -1,4 +1,4 @@
-import { ExecutorContext, WorkspaceJsonConfiguration } from '@nrwl/devkit';
+import { ExecutorContext, ProjectsConfigurations } from '@nrwl/devkit';
 import chalk from 'chalk';
 import { getDependents, PyprojectToml } from '../graph/dependency-graph';
 import {
@@ -39,7 +39,7 @@ export function updateDependencyTree(context: ExecutorContext) {
 }
 
 export function updateDependents(
-  workspace: WorkspaceJsonConfiguration,
+  workspace: ProjectsConfigurations,
   projectName: string,
   modifiedProject: string,
   updateLockOnly: boolean,

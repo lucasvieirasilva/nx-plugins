@@ -4,7 +4,7 @@ import {
   ProjectGraphProcessorContext,
   joinPathFragments,
   Workspace,
-  WorkspaceJsonConfiguration,
+  ProjectsConfigurations,
   ProjectConfiguration,
 } from '@nrwl/devkit';
 import { readFileSync, existsSync } from 'fs';
@@ -58,7 +58,7 @@ export type PyprojectToml = {
 
 export const getDependents = (
   projectName: string,
-  workspace: Workspace | WorkspaceJsonConfiguration,
+  workspace: Workspace | ProjectsConfigurations,
   cwd: string
 ): string[] => {
   const deps: string[] = [];
@@ -76,7 +76,7 @@ export const getDependents = (
 
 export const getDependencies = (
   projectName: string,
-  workspace: Workspace | WorkspaceJsonConfiguration,
+  workspace: Workspace | ProjectsConfigurations,
   cwd: string
 ): Dependency[] => {
   const projectData = workspace.projects[projectName];
@@ -117,7 +117,7 @@ const getPyprojectData = (pyprojectToml: string) => {
 };
 
 const checkProjectIsDependent = (
-  workspace: Workspace | WorkspaceJsonConfiguration,
+  workspace: Workspace | ProjectsConfigurations,
   project: string,
   root: string,
   cwd: string
@@ -167,7 +167,7 @@ const isProjectDependent = (
 const resolveDependencies = (
   dependencies: PyprojectTomlDependencies,
   projectData: ProjectConfiguration,
-  workspace: Workspace | WorkspaceJsonConfiguration,
+  workspace: Workspace | ProjectsConfigurations,
   cwd: string,
   deps: Dependency[],
   category: DependencyCategory

@@ -2,6 +2,8 @@
 
 exports[`nx-python project generator should generate a python project into a different folder 1`] = `
 Object {
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "name": "shared-test",
   "projectType": "application",
   "root": "apps/shared/test",
   "sourceRoot": "apps/shared/test/shared_test",
@@ -265,6 +267,8 @@ build-backend = \\"poetry.core.masonry.api\\"
 
 exports[`nx-python project generator should generate a python project with tags 1`] = `
 Object {
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "test",
   "projectType": "application",
   "root": "apps/test",
   "sourceRoot": "apps/test/test",
@@ -358,6 +362,8 @@ Object {
 
 exports[`nx-python project generator should successfully generate a python library project 1`] = `
 Object {
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "test",
   "projectType": "library",
   "root": "libs/test",
   "sourceRoot": "libs/test/test",
@@ -550,6 +556,8 @@ def test_index():
 
 exports[`nx-python project generator should successfully generate a python library project with dev dependencies 1`] = `
 Object {
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "test",
   "projectType": "library",
   "root": "libs/test",
   "sourceRoot": "libs/test/test",
@@ -758,6 +766,8 @@ def test_index():
 
 exports[`nx-python project generator should successfully generate a python library project with root pyproject.toml 1`] = `
 Object {
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "test",
   "projectType": "library",
   "root": "libs/test",
   "sourceRoot": "libs/test/test",
@@ -863,6 +873,8 @@ build-backend = \\"poetry.core.masonry.api\\"
 
 exports[`nx-python project generator should successfully generate a python project 1`] = `
 Object {
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "test",
   "projectType": "application",
   "root": "apps/test",
   "sourceRoot": "apps/test/test",
@@ -1055,6 +1067,8 @@ def test_index():
 
 exports[`nx-python project generator should successfully generate a python project with custom module name 1`] = `
 Object {
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "test",
   "projectType": "application",
   "root": "apps/test",
   "sourceRoot": "apps/test/mymodule",

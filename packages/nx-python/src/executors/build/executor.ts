@@ -179,8 +179,9 @@ function resolveDependencies(
       const dep = {} as Dependency;
       const elements = line.split(";");
       if (elements[0].includes('@')) {
-        const packageName = elements[0].split('@')[0].trim()
-        const localDepUrl = elements[0].split('@')[1].trim()
+        const atPosition = elements[0].indexOf('@')
+        const packageName = elements[0].substring(0, atPosition).trim()
+        const localDepUrl = elements[0].substring(atPosition + 1).trim()
         const rootFolder = relative(workspaceRoot, uri2path(localDepUrl))
         const pyprojectToml = join(rootFolder, 'pyproject.toml')
         const tomlData = parse(readFileSync(pyprojectToml).toString('utf-8')) as PyprojectToml;

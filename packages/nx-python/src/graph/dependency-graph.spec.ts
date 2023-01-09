@@ -43,13 +43,19 @@ describe('nx-python dependency graph', () => {
     mockBuilder.addNode({
       name: 'app1',
       type: 'app',
-      data: {},
+      data: {
+        root: 'apps/app1',
+        files: []
+      },
     });
 
     mockBuilder.addNode({
       name: 'dep1',
       type: 'lib',
-      data: {},
+      data: {
+        root: 'libs/dep1',
+        files: []
+      },
     });
 
     const result = processProjectGraph(mockBuilder.graph, {
@@ -95,12 +101,18 @@ describe('nx-python dependency graph', () => {
         app1: {
           name: 'app1',
           type: 'app',
-          data: {},
+          data: {
+            root: 'apps/app1',
+            files: [],
+          },
         },
         dep1: {
           name: 'dep1',
           type: 'lib',
-          data: {},
+          data: {
+            root: 'libs/dep1',
+            files: [],
+          },
         },
       },
     });

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [15.0.0] - 2023-01-09
+
+### BREAKING CHANGES
+
+- Update `@nxlv/python` to support `nx` version `^15.0.0`.
+
 ## [1.10.3] - 2022-11-23
 
 ### Fixed
@@ -45,13 +51,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed `@nxlv/nx-python:flake8` to return error when the `pylint.txt` has more than 1 line.
+- Fixed `@nxlv/python:flake8` to return error when the `pylint.txt` has more than 1 line.
 
 ## [1.9.0] - 2022-07-18
 
 ### Changed
 
-- Modify `@nxlv/nx-python:add` executor to add the CLI option `--extras`.
+- Modify `@nxlv/python:add` executor to add the CLI option `--extras`.
 
 ## [1.8.1] - 2022-07-15
 
@@ -69,7 +75,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Modify `@nxlv/nx-python:add` executor to add the CLI option `--group`.
+- Modify `@nxlv/python:add` executor to add the CLI option `--group`.
 
 ## [1.6.0] - 2022-07-12
 
@@ -81,7 +87,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Modify `@nxlv/nx-python:build` executor to pass workspace root to dependency graph functions.
+- Modify `@nxlv/python:build` executor to pass workspace root to dependency graph functions.
 
 ## [1.4.0] - 2022-07-11
 
@@ -91,37 +97,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Modify `@nxlv/nx-python:project` generator to add unit tests `conftest.py` file.
+- Modify `@nxlv/python:project` generator to add unit tests `conftest.py` file.
 
 ## [1.3.0] - 2022-07-06
 
 ### Changed
 
-- Modify `@nxlv/nx-python:project` generator to add unit tests `conftest.py` file.
+- Modify `@nxlv/python:project` generator to add unit tests `conftest.py` file.
 
 ## [1.2.0] - 2022-07-06
 
 ### Changed
 
-- Modify `@nxlv/nx-python:project` generator to support module name as a parameter.
+- Modify `@nxlv/python:project` generator to support module name as a parameter.
 
 ## [1.1.0] - 2022-07-05
 
 ### Changed
 
-- Modify `@nxlv/nx-python:project` generator and all executors to support root `pyproject.toml`.
+- Modify `@nxlv/python:project` generator and all executors to support root `pyproject.toml`.
 
 ## [1.0.0] - 2022-07-05
 
 ### Added
 
-- Added `@nxlv/nx-python:project` project generator.
-- Added `@nxlv/nx-python:add` Poetry add wrapper executor.
-- Added `@nxlv/nx-python:build` Poetry build wrapper executor.
-- Added `@nxlv/nx-python:flake8` Flake8 wrapper executor.
-- Added `@nxlv/nx-python:install` Poetry install wrapper executor.
-- Added `@nxlv/nx-python:remove` Poetry remove wrapper executor.
-- Added `@nxlv/nx-python:sls-deploy` Serverless Framework Deploy wrapper executor.
-- Added `@nxlv/nx-python:sls-package` Serverless Framework Package wrapper executor.
-- Added `@nxlv/nx-python:tox` Tox wrapper executor.
-- Added `@nxlv/nx-python:update` Poetry update wrapper executor.
+- Added `@nxlv/python:project` project generator.
+- Added `@nxlv/python:add` Poetry add wrapper executor.
+- Added `@nxlv/python:build` Poetry build wrapper executor.
+- Added `@nxlv/python:flake8` Flake8 wrapper executor.
+- Added `@nxlv/python:install` Poetry install wrapper executor.
+- Added `@nxlv/python:remove` Poetry remove wrapper executor.
+- Added `@nxlv/python:sls-deploy` Serverless Framework Deploy wrapper executor.
+- Added `@nxlv/python:sls-package` Serverless Framework Package wrapper executor.
+- Added `@nxlv/python:tox` Tox wrapper executor.
+- Added `@nxlv/python:update` Poetry update wrapper executor.

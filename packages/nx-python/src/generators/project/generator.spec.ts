@@ -19,7 +19,9 @@ describe('nx-python project generator', () => {
   };
 
   beforeEach(() => {
-    appTree = createTreeWithEmptyWorkspace();
+    appTree = createTreeWithEmptyWorkspace({
+      layout: 'apps-libs',
+    })
   });
 
   it('should successfully generate a python project', async () => {
