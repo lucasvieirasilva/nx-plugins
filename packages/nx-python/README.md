@@ -1,6 +1,8 @@
 # @nxlv/python
 
-This library was generated with [Nx](https://nx.dev).
+`@nxlv/python` plugin is designed to extend the Nx features to work with Python projects based on Poetry.
+
+Check this article for more details: <https://lucasvieirasilva.medium.com/poetry-python-nx-monorepo-5750d8627024>
 
 ## What is Nx
 
