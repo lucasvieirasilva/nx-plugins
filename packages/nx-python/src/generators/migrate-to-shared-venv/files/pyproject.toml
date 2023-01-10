@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "<%= packageName %>"
+version = "1.0.0"
+description = "<%= description %>"
+authors = [ ]
+license = 'Proprietary'
+readme = 'README.md'
+
+  [tool.poetry.dependencies]
+  python = ">=3.8,<3.10"
+
+[build-system]
+requires = ["poetry-core==1.1.0"]
+build-backend = "poetry.core.masonry.api"

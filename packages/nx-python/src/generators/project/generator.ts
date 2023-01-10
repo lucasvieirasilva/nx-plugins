@@ -137,14 +137,14 @@ async function generator(host: Tree, options: Schema) {
     sourceRoot: `${normalizedOptions.projectRoot}/${normalizedOptions.moduleName}`,
     targets: {
       docs: {
-        executor: '@nrwl/workspace:run-commands',
+        executor: 'nx:run-commands',
         options: {
           command: `pydoc-markdown -p ${normalizedOptions.moduleName} --render-toc > docs/source/api.md`,
           cwd: normalizedOptions.projectRoot,
         },
       },
       lock: {
-        executor: '@nrwl/workspace:run-commands',
+        executor: 'nx:run-commands',
         options: {
           command: 'poetry lock --no-update',
           cwd: normalizedOptions.projectRoot,
@@ -188,7 +188,7 @@ async function generator(host: Tree, options: Schema) {
         },
       },
       test: {
-        executor: '@nrwl/workspace:run-commands',
+        executor: 'nx:run-commands',
         outputs: [
           `reports/${normalizedOptions.projectRoot}/unittests`,
           `coverage/${normalizedOptions.projectRoot}`,

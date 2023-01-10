@@ -24,7 +24,7 @@ Object {
       ],
     },
     "docs": Object {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": Object {
         "command": "pydoc-markdown -p shared_test --render-toc > docs/source/api.md",
         "cwd": "apps/shared/test",
@@ -50,7 +50,7 @@ Object {
       ],
     },
     "lock": Object {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": Object {
         "command": "poetry lock --no-update",
         "cwd": "apps/shared/test",
@@ -61,7 +61,7 @@ Object {
       "options": Object {},
     },
     "test": Object {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": Object {
         "command": "poetry run pytest tests/",
         "cwd": "apps/shared/test",
@@ -294,7 +294,7 @@ Object {
       ],
     },
     "docs": Object {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": Object {
         "command": "pydoc-markdown -p test --render-toc > docs/source/api.md",
         "cwd": "apps/test",
@@ -320,7 +320,7 @@ Object {
       ],
     },
     "lock": Object {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": Object {
         "command": "poetry lock --no-update",
         "cwd": "apps/test",
@@ -331,7 +331,7 @@ Object {
       "options": Object {},
     },
     "test": Object {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": Object {
         "command": "poetry run pytest tests/",
         "cwd": "apps/test",
@@ -384,7 +384,7 @@ Object {
       ],
     },
     "docs": Object {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": Object {
         "command": "pydoc-markdown -p test --render-toc > docs/source/api.md",
         "cwd": "libs/test",
@@ -410,7 +410,7 @@ Object {
       ],
     },
     "lock": Object {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": Object {
         "command": "poetry lock --no-update",
         "cwd": "libs/test",
@@ -421,7 +421,7 @@ Object {
       "options": Object {},
     },
     "test": Object {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": Object {
         "command": "poetry run pytest tests/",
         "cwd": "libs/test",
@@ -578,7 +578,7 @@ Object {
       ],
     },
     "docs": Object {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": Object {
         "command": "pydoc-markdown -p test --render-toc > docs/source/api.md",
         "cwd": "libs/test",
@@ -604,7 +604,7 @@ Object {
       ],
     },
     "lock": Object {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": Object {
         "command": "poetry lock --no-update",
         "cwd": "libs/test",
@@ -615,7 +615,7 @@ Object {
       "options": Object {},
     },
     "test": Object {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": Object {
         "command": "poetry run pytest tests/",
         "cwd": "libs/test",
@@ -788,7 +788,7 @@ Object {
       ],
     },
     "docs": Object {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": Object {
         "command": "pydoc-markdown -p test --render-toc > docs/source/api.md",
         "cwd": "libs/test",
@@ -814,7 +814,7 @@ Object {
       ],
     },
     "lock": Object {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": Object {
         "command": "poetry lock --no-update",
         "cwd": "libs/test",
@@ -825,7 +825,7 @@ Object {
       "options": Object {},
     },
     "test": Object {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": Object {
         "command": "poetry run pytest tests/",
         "cwd": "libs/test",
@@ -895,7 +895,7 @@ Object {
       ],
     },
     "docs": Object {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": Object {
         "command": "pydoc-markdown -p test --render-toc > docs/source/api.md",
         "cwd": "apps/test",
@@ -921,7 +921,7 @@ Object {
       ],
     },
     "lock": Object {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": Object {
         "command": "poetry lock --no-update",
         "cwd": "apps/test",
@@ -932,7 +932,7 @@ Object {
       "options": Object {},
     },
     "test": Object {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": Object {
         "command": "poetry run pytest tests/",
         "cwd": "apps/test",
@@ -1089,7 +1089,7 @@ Object {
       ],
     },
     "docs": Object {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": Object {
         "command": "pydoc-markdown -p mymodule --render-toc > docs/source/api.md",
         "cwd": "apps/test",
@@ -1115,7 +1115,7 @@ Object {
       ],
     },
     "lock": Object {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": Object {
         "command": "poetry lock --no-update",
         "cwd": "apps/test",
@@ -1126,7 +1126,7 @@ Object {
       "options": Object {},
     },
     "test": Object {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": Object {
         "command": "poetry run pytest tests/",
         "cwd": "apps/test",

@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "cli": "nx",
+  "$id": "NxPythonProject",
+  "title": "Migrate Nx Workspace to Shared Virtual Environment",
+  "type": "object",
+  "properties": {
+    "moveDevDependencies": {
+      "type": "boolean",
+      "description": "Specifies if migration moves the dev dependencies from the projects to the root pyproject.toml",
+      "default": true
+    }
+  },
+  "required": []
+}

@@ -29,15 +29,9 @@ Example:
 ```json
 {
   ...
-  "affected": {
-    "defaultBase": "main"
-  },
   "plugins": [
     "@nxlv/python"
-  ],
-  "cli": {
-    "defaultCollection": "@nrwl/workspace"
-  },
+  ]
   ...
 }
 ```
@@ -255,3 +249,21 @@ The `@nxlv/python:tox` handles tox executions for a project.
 | ---------- | :-------: | -------------------------------- | -------- | ------- |
 | `--silent` | `boolean` | Hide output text                 | `false`  | `false` |
 | `--args`   | `string`  | Custom arguments (e.g `-e py38`) | `false`  |         |
+
+### Shared Virtual Environment
+
+By default, the `@nxlv/python` manages the projects individually, so, all the projects have their one set of dependencies and virtual environments.
+
+However, In some cases, we want to use a shared virtual environment for the entire workspace to save some installation time in your local environment and CI tool, we use this mode when the workspace contains many projects with the same dependencies and versions that don't conflict in the workspace level.
+
+To migrate to this mode, run the following command:
+
+```bash
+npx nx generate @nxlv/python:migrate-to-shared-venv
+```
+
+#### Options
+
+| Option                  |   Type    | Description                                                                                      | Required | Default |
+| ----------------------- | :-------: | ------------------------------------------------------------------------------------------------ | -------- | ------- |
+| `--moveDevDependencies` | `boolean` | Specifies if migration moves the dev dependencies from the projects to the root `pyproject.toml` | `true`   | `true`  |

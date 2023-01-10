@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update `@nxlv/python` to support `nx` version `^15.0.0`.
 
+### Added
+
+- Added `@nxlv/python:migrate-to-shared-venv` executor to migrate to shared venv.
+
 ## [1.10.3] - 2022-11-23
 
 ### Fixed
