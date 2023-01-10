@@ -4,6 +4,7 @@ import {
   generateFiles,
   getProjects,
   Tree,
+  ProjectConfiguration,
 } from '@nrwl/devkit';
 import path from 'path';
 import { Schema } from './schema';
@@ -49,34 +50,15 @@ function updatePyprojectRoot(host: Tree, options: Schema): LockUpdateTask[] {
         develop: true,
       };
       if (options.moveDevDependencies) {
-        const devDependencies =
-          pyprojectToml.tool.poetry.group?.dev?.dependencies || {};
-
-        for (const devDependency of Object.keys(devDependencies)) {
-          rootPyprojectToml.tool.poetry.group = rootPyprojectToml.tool.poetry.group || {};
-          rootPyprojectToml.tool.poetry.group.dev = rootPyprojectToml.tool.poetry.group.dev || { dependencies: {} };
-          rootPyprojectToml.tool.poetry.group.dev.dependencies[devDependency] =
-            devDependencies[devDependency];
-        }
-
-        if (Object.keys(devDependencies).length > 0) {
-          delete pyprojectToml.tool.poetry.group.dev
-        }
-        host.write(pyprojectTomlPath, stringify(pyprojectToml));
-
-        postGeneratorTasks.push(() => {
-          console.log(
-            chalk`  Updating ${pyprojectToml.tool.poetry.name} {bgBlue poetry.lock}...`
-          );
-          const executable = 'poetry';
-          const lockArgs = ['lock', '--no-update'];
-          spawn.sync(executable, lockArgs, {
-            shell: false,
-            stdio: 'inherit',
-            cwd: projectConfig.root,
-          });
-          console.log(chalk`\n  {bgBlue poetry.lock} updated.\n`);
-        });
+        postGeneratorTasks.push(
+          moveDevDependencies(
+            pyprojectToml,
+            rootPyprojectToml,
+            host,
+            pyprojectTomlPath,
+            projectConfig
+          )
+        );
       }
     }
   }
@@ -84,6 +66,45 @@ function updatePyprojectRoot(host: Tree, options: Schema): LockUpdateTask[] {
   host.write('pyproject.toml', stringify(rootPyprojectToml));
 
   return postGeneratorTasks;
+}
+
+function moveDevDependencies(
+  pyprojectToml: PyprojectToml,
+  rootPyprojectToml: PyprojectToml,
+  host: Tree,
+  pyprojectTomlPath: string,
+  projectConfig: ProjectConfiguration
+) {
+  const devDependencies =
+    pyprojectToml.tool.poetry.group?.dev?.dependencies || {};
+
+  for (const devDependency of Object.keys(devDependencies)) {
+    rootPyprojectToml.tool.poetry.group =
+      rootPyprojectToml.tool.poetry.group || {};
+    rootPyprojectToml.tool.poetry.group.dev = rootPyprojectToml.tool.poetry
+      .group.dev || { dependencies: {} };
+    rootPyprojectToml.tool.poetry.group.dev.dependencies[devDependency] =
+      devDependencies[devDependency];
+  }
+
+  if (Object.keys(devDependencies).length > 0) {
+    delete pyprojectToml.tool.poetry.group.dev;
+  }
+  host.write(pyprojectTomlPath, stringify(pyprojectToml));
+
+  return () => {
+    console.log(
+      chalk`  Updating ${pyprojectToml.tool.poetry.name} {bgBlue poetry.lock}...`
+    );
+    const executable = 'poetry';
+    const lockArgs = ['lock', '--no-update'];
+    spawn.sync(executable, lockArgs, {
+      shell: false,
+      stdio: 'inherit',
+      cwd: projectConfig.root,
+    });
+    console.log(chalk`\n  {bgBlue poetry.lock} updated.\n`);
+  };
 }
 
 function updateRootPoetryLock() {
