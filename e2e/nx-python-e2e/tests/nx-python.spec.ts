@@ -9,19 +9,19 @@ describe('nx-python e2e', () => {
   it('should create nx-python project', async () => {
     const app1 = 'app1';
     const lib1 = 'lib1';
-    ensureNxProject('@nxlv/nx-python', 'dist/packages/nx-python');
+    ensureNxProject('@nxlv/python', 'dist/packages/nx-python');
 
     const nxJson = readJson('nx.json');
-    nxJson.plugins = ['@nxlv/nx-python'];
+    nxJson.plugins = ['@nxlv/python'];
 
     updateFile('nx.json', JSON.stringify(nxJson, null, 4));
 
     await runNxCommandAsync(
-      `generate @nxlv/nx-python:project ${app1} --type "application" --packageName ${app1} --description ${app1}`
+      `generate @nxlv/python:project ${app1} --type "application" --packageName ${app1} --description ${app1}`
     );
 
     await runNxCommandAsync(
-      `generate @nxlv/nx-python:project ${lib1} --type "library"  --packageName ${lib1} --description ${lib1}`
+      `generate @nxlv/python:project ${lib1} --type "library"  --packageName ${lib1} --description ${lib1}`
     );
 
     await runNxCommandAsync(`run ${app1}:add --name ${lib1} --local`);
@@ -45,23 +45,23 @@ describe('nx-python e2e', () => {
     const lib1 = 'lib1';
     const lib2 = 'lib2';
 
-    ensureNxProject('@nxlv/nx-python', 'dist/packages/nx-python');
+    ensureNxProject('@nxlv/python', 'dist/packages/nx-python');
 
     const nxJson = readJson('nx.json');
-    nxJson.plugins = ['@nxlv/nx-python'];
+    nxJson.plugins = ['@nxlv/python'];
 
     updateFile('nx.json', JSON.stringify(nxJson, null, 4));
 
     await runNxCommandAsync(
-      `generate @nxlv/nx-python:project ${app1} --type "application" --packageName ${app1} --description ${app1}`
+      `generate @nxlv/python:project ${app1} --type "application" --packageName ${app1} --description ${app1}`
     );
 
     await runNxCommandAsync(
-      `generate @nxlv/nx-python:project ${lib1} --type "library"  --packageName ${lib1} --description ${lib1}`
+      `generate @nxlv/python:project ${lib1} --type "library"  --packageName ${lib1} --description ${lib1}`
     );
 
     await runNxCommandAsync(
-      `generate @nxlv/nx-python:project ${lib2} --type "library"  --packageName ${lib2} --description ${lib2}`
+      `generate @nxlv/python:project ${lib2} --type "library"  --packageName ${lib2} --description ${lib2}`
     );
 
     await runNxCommandAsync(`run ${lib1}:add --name ${lib2} --local`);

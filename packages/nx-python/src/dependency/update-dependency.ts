@@ -1,4 +1,4 @@
-import { ExecutorContext, WorkspaceJsonConfiguration } from '@nrwl/devkit';
+import { ExecutorContext, ProjectsConfigurations } from '@nrwl/devkit';
 import chalk from 'chalk';
 import { getDependents, PyprojectToml } from '../graph/dependency-graph';
 import {
@@ -12,25 +12,19 @@ import spawn from 'cross-spawn';
 
 export function updateDependencyTree(context: ExecutorContext) {
   const rootPyprojectToml = existsSync('pyproject.toml')
-  const projectConfig = context.workspace.projects[context.projectName];
-  const projectToml = getProjectTomlPath(projectConfig);
-  const {
-    tool: {
-      poetry: { name },
-    },
-  } = parseToml(projectToml);
+  const pkgName = getProjectPackageName(context, context.projectName)
 
-  updateDependents(context.workspace, context.projectName, name, rootPyprojectToml, context.root);
+  updateDependents(context, context.workspace, context.projectName, rootPyprojectToml, context.root);
 
   if (rootPyprojectToml) {
     const rootPyprojectToml = parse(
       readFileSync('pyproject.toml', { encoding: 'utf-8' })
     ) as PyprojectToml;
 
-    if (rootPyprojectToml.tool.poetry.dependencies[name]) {
-      console.log(chalk`\nUpdating root {bold pyproject.toml} dependency {bold ${name}}`);
+    if (rootPyprojectToml.tool.poetry.dependencies[pkgName]) {
+      console.log(chalk`\nUpdating root {bold pyproject.toml} dependency {bold ${pkgName}}`);
 
-      spawn.sync('poetry', ['update', name], {
+      spawn.sync('poetry', ['update', pkgName], {
         shell: false,
         stdio: 'inherit',
       });
@@ -39,9 +33,9 @@ export function updateDependencyTree(context: ExecutorContext) {
 }
 
 export function updateDependents(
-  workspace: WorkspaceJsonConfiguration,
+  context: ExecutorContext,
+  workspace: ProjectsConfigurations,
   projectName: string,
-  modifiedProject: string,
   updateLockOnly: boolean,
   workspaceRoot: string,
   updatedProjects: string[] = []
@@ -57,8 +51,21 @@ export function updateDependents(
     console.log(chalk`\nUpdating project {bold ${dep}}`);
     const depConfig = workspace.projects[dep];
 
-    updateProject(projectName, depConfig.root, updateLockOnly);
+    const pkgName = getProjectPackageName(context, projectName)
+    updateProject(pkgName, depConfig.root, updateLockOnly);
 
-    updateDependents(workspace, dep, modifiedProject, updateLockOnly, workspaceRoot, updatedProjects);
+    updateDependents(context, workspace, dep, updateLockOnly, workspaceRoot, updatedProjects);
   }
+}
+
+function getProjectPackageName(context: ExecutorContext, projectName: string) {
+  const projectConfig = context.workspace.projects[projectName];
+  const projectToml = getProjectTomlPath(projectConfig);
+  const {
+    tool: {
+      poetry: { name },
+    },
+  } = parseToml(projectToml);
+
+  return name
 }

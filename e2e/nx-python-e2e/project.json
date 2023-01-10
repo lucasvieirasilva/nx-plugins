@@ -1,5 +1,6 @@
 {
-  "root": "e2e/nx-python-e2e",
+  "name": "nx-python-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "sourceRoot": "e2e/nx-python-e2e/src",
   "targets": {
@@ -7,7 +8,7 @@
       "executor": "@nrwl/nx-plugin:e2e",
       "options": {
         "target": "nx-python:build",
-        "jestConfig": "e2e/nx-python-e2e/jest.config.js"
+        "jestConfig": "e2e/nx-python-e2e/jest.config.ts"
       }
     }
   },

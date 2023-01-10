@@ -160,7 +160,7 @@ version = "1.0.0"
 
       'libs/shared1/pyproject.toml': dedent`
       [tool.poetry]
-      name = "shared"
+      name = "shared1"
       version = "1.0.0"
         [[tool.poetry.packages]]
         include = "app"
