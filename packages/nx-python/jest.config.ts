@@ -14,7 +14,14 @@ export default {
   coverageDirectory: '../../coverage/packages/nx-python',
   collectCoverage: true,
   collectCoverageFrom: ['./src/**/*.ts', '!./src/types.ts'],
-  coverageReporters: ['text', 'html', 'cobertura', 'clover'],
+  coverageReporters: [
+    'text',
+    'html',
+    'cobertura',
+    'clover',
+    'json',
+    'json-summary',
+  ],
   coverageThreshold: {
     global: {
       statements: 100,
