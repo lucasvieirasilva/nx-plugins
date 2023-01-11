@@ -14,6 +14,7 @@ jobs:
         with:
           fetch-depth: 0
       - uses: nrwl/nx-set-shas@v3
+      - run: poetry --version
       - run: npm ci
 
       - run: npx nx workspace-lint
