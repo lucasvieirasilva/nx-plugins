@@ -8,10 +8,7 @@ module.exports = {
     'scope-enum': async (ctx) => [
       2,
       'always',
-      [
-        ...(await getProjects(ctx)),
-        'workspace',
-      ],
+      [...(await getProjects(ctx)), 'workspace'],
     ],
   },
 };
