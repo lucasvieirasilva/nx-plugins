@@ -1,4 +1,4 @@
 export interface Flake8ExecutorSchema {
-  outputFile: string
-  silent: boolean
+  outputFile: string;
+  silent: boolean;
 }

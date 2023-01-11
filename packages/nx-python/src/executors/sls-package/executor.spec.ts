@@ -4,7 +4,6 @@ import executor from './executor';
 import fsMock from 'mock-fs';
 
 describe('Serverless Framework Package Executor', () => {
-
   const context = {
     cwd: '',
     root: '.',
@@ -20,7 +19,7 @@ describe('Serverless Framework Package Executor', () => {
         },
       },
     },
-  }
+  };
 
   beforeAll(() => {
     console.log(chalk`init chalk`);
@@ -34,88 +33,78 @@ describe('Serverless Framework Package Executor', () => {
   it('should throw an exception when the dist folder is empty', async () => {
     const output = await executor(
       {
-        stage: 'dev'
+        stage: 'dev',
       },
       context
     );
-    expect(spawnSyncMock).not.toHaveBeenCalled()
+    expect(spawnSyncMock).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
 
   it('should throw an exception when the whl file does not exist', async () => {
     fsMock({
-      'apps/app/dist/test.tar.gz': 'abc123'
-    })
+      'apps/app/dist/test.tar.gz': 'abc123',
+    });
 
     const output = await executor(
       {
-        stage: 'dev'
+        stage: 'dev',
       },
       context
     );
-    expect(spawnSyncMock).not.toHaveBeenCalled()
+    expect(spawnSyncMock).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
 
   it('should run serverless framework command using npx', async () => {
     fsMock({
-      'apps/app/dist/test.whl': 'abc123'
-    })
+      'apps/app/dist/test.whl': 'abc123',
+    });
     spawnSyncMock.mockReturnValue({
-      status: 0
-    })
+      status: 0,
+    });
 
     const output = await executor(
       {
-        stage: 'dev'
+        stage: 'dev',
       },
       context
     );
     expect(spawnSyncMock).toHaveBeenCalledWith(
       'npx',
-      [
-        'sls',
-        'package',
-        '--stage',
-        'dev'
-      ],
+      ['sls', 'package', '--stage', 'dev'],
       {
         cwd: 'apps/app',
         stdio: 'inherit',
-        shell: false
+        shell: false,
       }
-    )
+    );
     expect(output.success).toBe(true);
   });
 
   it('should run serverless framework command with error', async () => {
     fsMock({
-      'apps/app/dist/test.whl': 'abc123'
-    })
+      'apps/app/dist/test.whl': 'abc123',
+    });
     spawnSyncMock.mockReturnValue({
-      status: 1
-    })
+      status: 1,
+    });
 
     const output = await executor(
       {
-        stage: 'dev'
+        stage: 'dev',
       },
       context
     );
     expect(spawnSyncMock).toHaveBeenCalledWith(
       'npx',
-      [
-        'sls',
-        'package',
-        '--stage',
-        'dev'
-      ],
+      ['sls', 'package', '--stage', 'dev'],
       {
         cwd: 'apps/app',
         stdio: 'inherit',
-        shell: false
+        shell: false,
       }
-    )
+    );
     expect(output.success).toBe(false);
   });
 });

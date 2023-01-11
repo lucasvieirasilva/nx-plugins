@@ -15,10 +15,10 @@ export default async function executor(
   context: ExecutorContext
 ) {
   const workspaceRoot = context.root;
-  process.chdir(workspaceRoot)
+  process.chdir(workspaceRoot);
   logger.setOptions(options);
   try {
-    await checkPoetryExecutable()
+    await checkPoetryExecutable();
     const projectConfig = context.workspace.projects[context.projectName];
     const distFolder = path.join(projectConfig.root, 'dist');
 
@@ -28,7 +28,7 @@ export default async function executor(
         keepBuildFolder: false,
         ignorePaths: ['.venv', '.tox', 'tests'],
         outputPath: distFolder,
-        devDependencies: true
+        devDependencies: true,
       },
       context
     );
@@ -38,7 +38,7 @@ export default async function executor(
     }
 
     if (!existsSync(distFolder)) {
-      throw new Error(chalk`Folder {blue.bold ${distFolder}} not found`)
+      throw new Error(chalk`Folder {blue.bold ${distFolder}} not found`);
     }
 
     const packageFile = readdirSync(distFolder).find((file) =>
@@ -46,12 +46,19 @@ export default async function executor(
     );
 
     if (!packageFile) {
-      throw new Error(chalk`No package file {blue.bold *.tar.gz} found in the {bold ${distFolder}}`)
+      throw new Error(
+        chalk`No package file {blue.bold *.tar.gz} found in the {bold ${distFolder}}`
+      );
     }
 
-    const packagePath = path.relative(projectConfig.root, path.join(distFolder, packageFile))
+    const packagePath = path.relative(
+      projectConfig.root,
+      path.join(distFolder, packageFile)
+    );
 
-    const toxArgs = ['run', 'tox', '--installpkg', packagePath].concat(options.args ? options.args.split(' ') : [])
+    const toxArgs = ['run', 'tox', '--installpkg', packagePath].concat(
+      options.args ? options.args.split(' ') : []
+    );
     const command = `${POETRY_EXECUTABLE} ${toxArgs.join(' ')}`;
     logger.info(chalk`\n  Running Command: {bold ${command}}\n`);
     spawn.sync(POETRY_EXECUTABLE, toxArgs, {

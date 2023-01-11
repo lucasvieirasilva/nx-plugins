@@ -1,7 +1,7 @@
-export const uuidMock = jest.fn()
+export const uuidMock = jest.fn();
 
-jest.mock("uuid", () => {
+jest.mock('uuid', () => {
   return {
-    v4: uuidMock
+    v4: uuidMock,
   };
 });

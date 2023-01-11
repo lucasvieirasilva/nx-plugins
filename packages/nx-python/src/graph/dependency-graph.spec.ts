@@ -45,7 +45,7 @@ describe('nx-python dependency graph', () => {
       type: 'app',
       data: {
         root: 'apps/app1',
-        files: []
+        files: [],
       },
     });
 
@@ -54,7 +54,7 @@ describe('nx-python dependency graph', () => {
       type: 'lib',
       data: {
         root: 'libs/dep1',
-        files: []
+        files: [],
       },
     });
 

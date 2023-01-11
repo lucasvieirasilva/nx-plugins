@@ -11,50 +11,52 @@ import { readFileSync, existsSync } from 'fs';
 import { parse } from '@iarna/toml';
 import path from 'path';
 
-export type PyprojectTomlDependency = string | {
-  path?: string,
-  version?: string,
-  markers?: string,
-  optional?: boolean,
-  extras?: string[],
-  develop?: boolean
-}
+export type PyprojectTomlDependency =
+  | string
+  | {
+      path?: string;
+      version?: string;
+      markers?: string;
+      optional?: boolean;
+      extras?: string[];
+      develop?: boolean;
+    };
 
 export type PyprojectTomlDependencies = {
-  [key: string]: PyprojectTomlDependency
-}
+  [key: string]: PyprojectTomlDependency;
+};
 
-export type DependencyCategory = 'main' | 'dev'
+export type DependencyCategory = 'main' | 'dev';
 
 export type Dependency = {
-  name: string
-  category: DependencyCategory
-}
+  name: string;
+  category: DependencyCategory;
+};
 
 export type PyprojectToml = {
   tool: {
     poetry: {
-      name: string
+      name: string;
       packages: Array<{
-        include: string
-      }>,
-      dependencies: PyprojectTomlDependencies,
+        include: string;
+      }>;
+      dependencies: PyprojectTomlDependencies;
       group?: {
         [key: string]: {
-          dependencies: PyprojectTomlDependencies
-        }
-      },
+          dependencies: PyprojectTomlDependencies;
+        };
+      };
       extras?: {
-        [key: string]: string[]
-      }
+        [key: string]: string[];
+      };
       plugins?: {
         [key: string]: {
-          [key: string]: string
-        }
-      }
-    }
-  }
-}
+          [key: string]: string;
+        };
+      };
+    };
+  };
+};
 
 export const getDependents = (
   projectName: string,
@@ -67,7 +69,7 @@ export const getDependents = (
 
   for (const project in workspace.projects) {
     if (checkProjectIsDependent(workspace, project, root, cwd)) {
-      deps.push(project)
+      deps.push(project);
     }
   }
 
@@ -86,8 +88,22 @@ export const getDependencies = (
 
   if (existsSync(pyprojectToml)) {
     const tomlData = getPyprojectData(pyprojectToml);
-    resolveDependencies(tomlData.tool.poetry.dependencies, projectData, workspace, cwd, deps, 'main');
-    resolveDependencies(tomlData.tool.poetry.group?.dev.dependencies, projectData, workspace, cwd, deps, 'dev');
+    resolveDependencies(
+      tomlData.tool.poetry.dependencies,
+      projectData,
+      workspace,
+      cwd,
+      deps,
+      'main'
+    );
+    resolveDependencies(
+      tomlData.tool.poetry.group?.dev.dependencies,
+      projectData,
+      workspace,
+      cwd,
+      deps,
+      'dev'
+    );
   }
 
   return deps;
@@ -102,18 +118,14 @@ export const processProjectGraph = (
   for (const project in context.workspace.projects) {
     const deps = getDependencies(project, context.workspace, process.cwd());
 
-    deps.forEach((dep) =>
-      builder.addImplicitDependency(project, dep.name)
-    );
+    deps.forEach((dep) => builder.addImplicitDependency(project, dep.name));
   }
 
   return builder.graph;
 };
 
 const getPyprojectData = (pyprojectToml: string) => {
-  return parse(
-    readFileSync(pyprojectToml).toString('utf-8')
-  ) as PyprojectToml;
+  return parse(readFileSync(pyprojectToml).toString('utf-8')) as PyprojectToml;
 };
 
 const checkProjectIsDependent = (
@@ -128,16 +140,19 @@ const checkProjectIsDependent = (
   if (existsSync(pyprojectToml)) {
     const tomlData = getPyprojectData(pyprojectToml);
 
-    return isProjectDependent(
-      tomlData.tool.poetry.dependencies,
-      projectData,
-      root,
-      cwd
-    ) || isProjectDependent(
-      tomlData.tool.poetry.group?.dev.dependencies,
-      projectData,
-      root,
-      cwd
+    return (
+      isProjectDependent(
+        tomlData.tool.poetry.dependencies,
+        projectData,
+        root,
+        cwd
+      ) ||
+      isProjectDependent(
+        tomlData.tool.poetry.group?.dev.dependencies,
+        projectData,
+        root,
+        cwd
+      )
     );
   }
 
@@ -156,13 +171,15 @@ const isProjectDependent = (
     if (depData instanceof Object && depData.path) {
       const depAbsPath = path.resolve(projectData.root, depData.path);
 
-      if (path.normalize(root) === path.normalize(path.relative(cwd, depAbsPath))) {
+      if (
+        path.normalize(root) === path.normalize(path.relative(cwd, depAbsPath))
+      ) {
         return true;
       }
     }
   }
-  return false
-}
+  return false;
+};
 
 const resolveDependencies = (
   dependencies: PyprojectTomlDependencies,
@@ -178,11 +195,12 @@ const resolveDependencies = (
     if (depData instanceof Object && depData.path) {
       const depAbsPath = path.resolve(projectData.root, depData.path);
       const depProjectName = Object.keys(workspace.projects).find(
-        (proj) => path.normalize(workspace.projects[proj].root) === path.normalize(path.relative(cwd, depAbsPath))
+        (proj) =>
+          path.normalize(workspace.projects[proj].root) ===
+          path.normalize(path.relative(cwd, depAbsPath))
       );
 
       deps.push({ name: depProjectName, category });
     }
   }
-}
-
+};

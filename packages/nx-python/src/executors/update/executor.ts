@@ -21,7 +21,7 @@ export default async function executor(
   process.chdir(workspaceRoot);
 
   try {
-    await checkPoetryExecutable()
+    await checkPoetryExecutable();
     const projectConfig = context.workspace.projects[context.projectName];
     const rootPyprojectToml = existsSync('pyproject.toml');
 
