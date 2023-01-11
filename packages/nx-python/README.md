@@ -1,12 +1,10 @@
 # @nxlv/python
 
+![Coverage Badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/lucasvieirasilva/64d6f926915811aa067f60e6a70735c8/raw/coverage-packages-nx-python.json)
+
 `@nxlv/python` plugin is designed to extend the Nx features to work with Python projects based on Poetry.
 
 Check this article for more details: <https://lucasvieirasilva.medium.com/poetry-python-nx-monorepo-5750d8627024>
-
-## What is Nx
-
-🔎 Extensible Dev Tools for Monorepos.
 
 ## What is @nxlv/python
 

@@ -7,8 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  pr:
-    name: Pull Request
+  main:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
