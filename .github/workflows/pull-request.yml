@@ -4,7 +4,8 @@ on:
     branches: [main]
 
 jobs:
-  main:
+  pr:
+    name: Pull Request
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -29,3 +30,14 @@ jobs:
           gist-id: 64d6f926915811aa067f60e6a70735c8
           color: green
           named-logo: jest
+
+      - name: Create Coverage Badge
+        uses: schneegans/dynamic-badges-action@v1.0.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: 64d6f926915811aa067f60e6a70735c8
+          filename: nx-plugins__${{ env.BRANCH }}.json
+          label: Test Coverage
+          message: ${{ env.COVERAGE }}
+          color: green
+          namedLogo: jest
