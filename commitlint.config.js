@@ -10,5 +10,6 @@ module.exports = {
       'always',
       [...(await getProjects(ctx)), 'workspace'],
     ],
+    'body-max-line-length': [0, 'always'],
   },
 };
