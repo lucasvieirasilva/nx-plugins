@@ -26,6 +26,6 @@ jobs:
           coverage-folder: ./coverage
           coverage-base-folder: ./coverage-base
           gist-token: ${{ secrets.GIST_SECRET }}
-          gist-id: 7d253d8f-5d55-4c6b-a5bc-06564e10d0f8
+          gist-id: 64d6f926915811aa067f60e6a70735c8
           color: green
           named-logo: jest
