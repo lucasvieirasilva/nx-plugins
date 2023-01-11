@@ -14,30 +14,22 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - uses: actions/github-script@v6
-        id: ref
+      - uses: nrwl/nx-set-shas@v3
+      - run: npm ci
+
+      - run: npx nx workspace-lint
+      - run: npx nx format:check
+      - run: npx nx affected --target=lint --parallel=3
+      - run: npx nx affected --target=test --parallel=3 --ci --code-coverage
+      - run: npx nx affected --target=build --parallel=3
+
+      - name: Code Coverage Summary
+        uses: dkhunt27/nx-code-coverage@v0.3.0
         with:
-          result-encoding: string
-          script: |
-            return JSON.stringify(context.payload)
-      - name: Echo
-        run: echo ${{ steps.ref.outputs.result }}
-      # - uses: nrwl/nx-set-shas@v3
-      # - run: npm ci
-
-      # - run: npx nx workspace-lint
-      # - run: npx nx format:check
-      # - run: npx nx affected --target=lint --parallel=3
-      # - run: npx nx affected --target=test --parallel=3 --ci --code-coverage
-      # - run: npx nx affected --target=build --parallel=3
-
-      # - name: Code Coverage Summary
-      #   uses: dkhunt27/nx-code-coverage@v0.3.0
-      #   with:
-      #     github-token: ${{ secrets.GITHUB_TOKEN }}
-      #     coverage-folder: ./coverage
-      #     coverage-base-folder: ./coverage-base
-      #     gist-token: ${{ secrets.GIST_SECRET }}
-      #     gist-id: 64d6f926915811aa067f60e6a70735c8
-      #     color: green
-      #     named-logo: jest
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          coverage-folder: ./coverage
+          coverage-base-folder: ./coverage-base
+          gist-token: ${{ secrets.GIST_SECRET }}
+          gist-id: 64d6f926915811aa067f60e6a70735c8
+          color: green
+          named-logo: jest
