@@ -8,7 +8,8 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git@github.com:lucasvieirasilva/nx-plugins.git"
+    "url": "git@github.com:lucasvieirasilva/nx-plugins.git",
+    "directory": "packages/nx-python"
   },
   "peerDependencies": {
     "@nrwl/devkit": "^15.0.0"

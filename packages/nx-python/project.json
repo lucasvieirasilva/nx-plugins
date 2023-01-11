@@ -55,6 +55,15 @@
         "jestConfig": "packages/nx-python/jest.config.ts",
         "passWithNoTests": true
       }
+    },
+    "release": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "npx semantic-release-plus --extends ./packages/nx-python/release.config.js",
+        "parallel": false
+      },
+      "dependsOn": ["^build"]
     }
   },
   "tags": []
