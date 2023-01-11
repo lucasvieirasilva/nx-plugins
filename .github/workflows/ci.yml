@@ -23,6 +23,7 @@ jobs:
       - run: npx nx affected --target=build --parallel=3
       - run: |
           echo "NO_COVERAGE_RUN=$(if [ -z "$(npx nx print-affected --select=projects)" ]; then echo "false"; else echo "true";fi)" >> $GITHUB_ENV
+      - run: echo "${{ env.NO_COVERAGE_RUN }}"
       - name: Code Coverage Summary
         uses: dkhunt27/nx-code-coverage@v1
         with:
