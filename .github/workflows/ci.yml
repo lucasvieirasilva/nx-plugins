@@ -19,7 +19,7 @@ jobs:
         with:
           result-encoding: string
           script: |
-            return context.payload
+            return JSON.stringify(context.payload)
       - name: Echo
         run: echo ${{ steps.ref.outputs.result }}
       # - uses: nrwl/nx-set-shas@v3
