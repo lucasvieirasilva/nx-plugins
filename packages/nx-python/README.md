@@ -14,7 +14,7 @@ Check this article for more details: <https://lucasvieirasilva.medium.com/poetry
 
 ### Add to an existing Nx Workspace
 
-Install the npm dependency
+Install the npm dependency teste
 
 ```shell
 npm install @nxlv/python --save-dev
