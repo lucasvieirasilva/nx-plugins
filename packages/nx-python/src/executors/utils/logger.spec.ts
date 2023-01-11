@@ -1,44 +1,39 @@
-import { Logger } from "./logger"
+import { Logger } from './logger';
 
 describe('Executor logger', () => {
-
-  let consoleSpy = null
+  let consoleSpy = null;
   beforeEach(() => {
     consoleSpy = jest.spyOn(console, 'info');
-  })
+  });
 
   afterEach(() => {
-    jest.resetAllMocks()
-  })
+    jest.resetAllMocks();
+  });
 
   it('should print the message in the console', () => {
-    const logger = new Logger()
+    const logger = new Logger();
     logger.setOptions({
-      silent: false
-    })
+      silent: false,
+    });
 
-    logger.info("hello")
-    expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining('hello')
-    );
-  })
+    logger.info('hello');
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('hello'));
+  });
 
   it('should print the message in the console when the options are not specified', () => {
-    const logger = new Logger()
+    const logger = new Logger();
 
-    logger.info("hello")
-    expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining('hello')
-    );
-  })
+    logger.info('hello');
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('hello'));
+  });
 
   it('should not print the message in the console when the options.silent is true', () => {
-    const logger = new Logger()
+    const logger = new Logger();
     logger.setOptions({
-      silent: true
-    })
+      silent: true,
+    });
 
-    logger.info("hello")
+    logger.info('hello');
     expect(consoleSpy).not.toHaveBeenCalled();
-  })
-})
+  });
+});

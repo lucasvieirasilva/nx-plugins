@@ -4,7 +4,6 @@ import executor from './executor';
 import fsMock from 'mock-fs';
 
 describe('Serverless Framework Deploy Executor', () => {
-
   const context = {
     cwd: '',
     root: '.',
@@ -20,7 +19,7 @@ describe('Serverless Framework Deploy Executor', () => {
         },
       },
     },
-  }
+  };
 
   beforeAll(() => {
     console.log(chalk`init chalk`);
@@ -36,129 +35,112 @@ describe('Serverless Framework Deploy Executor', () => {
       {
         stage: 'dev',
         verbose: true,
-        force: false
+        force: false,
       },
       context
     );
-    expect(spawnSyncMock).not.toHaveBeenCalled()
+    expect(spawnSyncMock).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
 
   it('should throw an exception when the whl file does not exist', async () => {
     fsMock({
-      'apps/app/dist/test.tar.gz': 'abc123'
-    })
+      'apps/app/dist/test.tar.gz': 'abc123',
+    });
 
     const output = await executor(
       {
         stage: 'dev',
         verbose: true,
-        force: false
+        force: false,
       },
       context
     );
-    expect(spawnSyncMock).not.toHaveBeenCalled()
+    expect(spawnSyncMock).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
 
   it('should run serverless framework command using npx', async () => {
     fsMock({
-      'apps/app/dist/test.whl': 'abc123'
-    })
+      'apps/app/dist/test.whl': 'abc123',
+    });
     spawnSyncMock.mockReturnValue({
-      status: 0
-    })
+      status: 0,
+    });
 
     const output = await executor(
       {
         stage: 'dev',
         verbose: false,
-        force: false
+        force: false,
       },
       context
     );
     expect(spawnSyncMock).toHaveBeenCalledWith(
       'npx',
-      [
-        'sls',
-        'deploy',
-        '--stage',
-        'dev'
-      ],
+      ['sls', 'deploy', '--stage', 'dev'],
       {
         cwd: 'apps/app',
         stdio: 'inherit',
-        shell: false
+        shell: false,
       }
-    )
+    );
     expect(output.success).toBe(true);
   });
 
   it('should run serverless framework command with error status code', async () => {
     fsMock({
-      'apps/app/dist/test.whl': 'abc123'
-    })
+      'apps/app/dist/test.whl': 'abc123',
+    });
     spawnSyncMock.mockReturnValue({
-      status: 1
-    })
+      status: 1,
+    });
 
     const output = await executor(
       {
         stage: 'dev',
         verbose: false,
-        force: false
+        force: false,
       },
       context
     );
     expect(spawnSyncMock).toHaveBeenCalledWith(
       'npx',
-      [
-        'sls',
-        'deploy',
-        '--stage',
-        'dev'
-      ],
+      ['sls', 'deploy', '--stage', 'dev'],
       {
         cwd: 'apps/app',
         stdio: 'inherit',
-        shell: false
+        shell: false,
       }
-    )
+    );
     expect(output.success).toBe(false);
   });
 
   it('should run serverless framework command using npx with verbose and force', async () => {
     fsMock({
-      'apps/app/dist/test.whl': 'abc123'
-    })
+      'apps/app/dist/test.whl': 'abc123',
+    });
     spawnSyncMock.mockReturnValue({
-      status: 0
-    })
+      status: 0,
+    });
 
     const output = await executor(
       {
         stage: 'dev',
         verbose: true,
-        force: true
+        force: true,
       },
       context
     );
     expect(spawnSyncMock).toHaveBeenCalledWith(
       'npx',
-      [
-        'sls',
-        'deploy',
-        '--stage',
-        'dev',
-        '--verbose',
-        '--force'
-      ],
+      ['sls', 'deploy', '--stage', 'dev', '--verbose', '--force'],
       {
         cwd: 'apps/app',
         stdio: 'inherit',
-        shell: false
+        shell: false,
       }
-    )
+    );
     expect(output.success).toBe(true);
   });
 });

@@ -1,14 +1,12 @@
-
 interface ExecutorLoggerOption {
   silent: boolean;
 }
 
 export class Logger {
-
-  private options: ExecutorLoggerOption | null
+  private options: ExecutorLoggerOption | null;
 
   public setOptions(options: ExecutorLoggerOption) {
-    this.options = options
+    this.options = options;
   }
 
   public info(message: unknown) {

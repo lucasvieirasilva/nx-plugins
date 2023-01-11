@@ -1,26 +1,25 @@
 import chalk from 'chalk';
 import { spawnSyncMock } from '../../utils/mocks/cross-spawn.mock';
-import * as poetryUtils from '../utils/poetry'
+import * as poetryUtils from '../utils/poetry';
 import fsMock from 'mock-fs';
 import executor from './executor';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import { v4 as uuid } from "uuid";
-import {
-  mkdirsSync,
-  writeFileSync
-} from 'fs-extra';
+import { v4 as uuid } from 'uuid';
+import { mkdirsSync, writeFileSync } from 'fs-extra';
 
 describe('Flake8 Executor', () => {
-
-  let tmppath = null
+  let tmppath = null;
   let checkPoetryExecutableMock: jest.SpyInstance;
 
   beforeEach(() => {
-    tmppath = join(tmpdir(), 'nx-python', 'flake8', uuid())
-    checkPoetryExecutableMock = jest.spyOn(poetryUtils, 'checkPoetryExecutable')
+    tmppath = join(tmpdir(), 'nx-python', 'flake8', uuid());
+    checkPoetryExecutableMock = jest.spyOn(
+      poetryUtils,
+      'checkPoetryExecutable'
+    );
     checkPoetryExecutableMock.mockResolvedValue(undefined);
-  })
+  });
 
   beforeAll(() => {
     console.log(chalk`init chalk`);
@@ -63,9 +62,9 @@ describe('Flake8 Executor', () => {
   });
 
   it('should execute flake8 linting', async () => {
-    const outputFile = join(tmppath, 'reports/apps/app/pylint.txt')
+    const outputFile = join(tmppath, 'reports/apps/app/pylint.txt');
     spawnSyncMock.mockImplementation(() => {
-      writeFileSync(outputFile, '', { encoding: 'utf8' })
+      writeFileSync(outputFile, '', { encoding: 'utf8' });
     });
 
     const output = await executor(
@@ -95,12 +94,11 @@ describe('Flake8 Executor', () => {
     expect(output.success).toBe(true);
   });
 
-
   it('should execute flake8 linting when the reports folder already exists', async () => {
-    mkdirsSync(join(tmppath, 'reports/apps/app'))
-    const outputFile = join(tmppath, 'reports/apps/app/pylint.txt')
+    mkdirsSync(join(tmppath, 'reports/apps/app'));
+    const outputFile = join(tmppath, 'reports/apps/app/pylint.txt');
     spawnSyncMock.mockImplementation(() => {
-      writeFileSync(outputFile, '', { encoding: 'utf8' })
+      writeFileSync(outputFile, '', { encoding: 'utf8' });
     });
 
     const output = await executor(
@@ -132,8 +130,8 @@ describe('Flake8 Executor', () => {
 
   it('should returns a error when run the flake8 CLI', async () => {
     spawnSyncMock.mockImplementation(() => {
-      throw new Error('Some error')
-    })
+      throw new Error('Some error');
+    });
 
     const output = await executor(
       {
@@ -163,12 +161,12 @@ describe('Flake8 Executor', () => {
   });
 
   it('should execute flake8 linting with pylint content more than 1 line', async () => {
-    mkdirsSync(join(tmppath, 'reports/apps/app'))
-    const outputFile = join(tmppath, 'reports/apps/app/pylint.txt')
-    writeFileSync(outputFile, '', { encoding: 'utf8' })
+    mkdirsSync(join(tmppath, 'reports/apps/app'));
+    const outputFile = join(tmppath, 'reports/apps/app/pylint.txt');
+    writeFileSync(outputFile, '', { encoding: 'utf8' });
 
     spawnSyncMock.mockImplementation(() => {
-      writeFileSync(outputFile, 'test\n', { encoding: 'utf8' })
+      writeFileSync(outputFile, 'test\n', { encoding: 'utf8' });
     });
 
     const output = await executor(

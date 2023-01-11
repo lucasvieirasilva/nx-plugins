@@ -13,7 +13,10 @@ import { parse, stringify } from '@iarna/toml';
 import { PyprojectToml } from '../../graph/dependency-graph';
 import spawn from 'cross-spawn';
 import chalk from 'chalk';
-import { checkPoetryExecutable, POETRY_EXECUTABLE } from '../../executors/utils/poetry';
+import {
+  checkPoetryExecutable,
+  POETRY_EXECUTABLE,
+} from '../../executors/utils/poetry';
 
 export interface NormalizedSchema extends Schema {
   projectName: string;
@@ -23,13 +26,18 @@ export interface NormalizedSchema extends Schema {
   parsedTags: string[];
 }
 
-export function normalizeOptions(host: Tree, options: Schema): NormalizedSchema {
+export function normalizeOptions(
+  host: Tree,
+  options: Schema
+): NormalizedSchema {
   const name = names(options.name).fileName;
   const projectDirectory = options.directory
     ? `${names(options.directory).fileName}/${name}`
     : name;
   const projectName = projectDirectory.replace(new RegExp('/', 'g'), '-');
-  const moduleName = options.moduleName ? options.moduleName : projectName.replace(new RegExp('-', 'g'), '_');
+  const moduleName = options.moduleName
+    ? options.moduleName
+    : projectName.replace(new RegExp('-', 'g'), '_');
 
   let projectRoot = '';
 
@@ -130,7 +138,7 @@ function updateRootPoetryLock(host: Tree, normalizedOptions: NormalizedSchema) {
 }
 
 async function generator(host: Tree, options: Schema) {
-  await checkPoetryExecutable()
+  await checkPoetryExecutable();
 
   const normalizedOptions = normalizeOptions(host, options);
   addProjectConfiguration(host, normalizedOptions.projectName, {

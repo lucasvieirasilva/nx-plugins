@@ -1,5 +1,5 @@
 import { spawnSyncMock } from '../../utils/mocks/cross-spawn.mock';
-import * as poetryUtils from '../utils/poetry'
+import * as poetryUtils from '../utils/poetry';
 
 const buildExecutorMock = jest.fn();
 
@@ -41,9 +41,12 @@ describe('Tox Executor', () => {
   });
 
   beforeEach(() => {
-    checkPoetryExecutableMock = jest.spyOn(poetryUtils, 'checkPoetryExecutable')
+    checkPoetryExecutableMock = jest.spyOn(
+      poetryUtils,
+      'checkPoetryExecutable'
+    );
     checkPoetryExecutableMock.mockResolvedValue(undefined);
-  })
+  });
 
   afterEach(() => {
     fsMock.restore();
@@ -79,12 +82,12 @@ describe('Tox Executor', () => {
 
   it('should build and run tox successfully', async () => {
     buildExecutorMock.mockResolvedValue({
-      success: true
-    })
+      success: true,
+    });
 
     fsMock({
       'apps/app/dist/package.tar.gz': 'fake',
-    })
+    });
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
@@ -94,32 +97,38 @@ describe('Tox Executor', () => {
         keepBuildFolder: false,
         ignorePaths: ['.venv', '.tox', 'tests'],
         outputPath: 'apps/app/dist',
-        devDependencies: true
+        devDependencies: true,
       },
       context
     );
     expect(spawnSyncMock).toBeCalledWith(
-      'poetry', ['run', 'tox', '--installpkg', 'dist/package.tar.gz'], {
-      cwd: 'apps/app',
-      shell: false,
-      stdio: 'inherit',
-    });
+      'poetry',
+      ['run', 'tox', '--installpkg', 'dist/package.tar.gz'],
+      {
+        cwd: 'apps/app',
+        shell: false,
+        stdio: 'inherit',
+      }
+    );
     expect(output.success).toBe(true);
   });
 
   it('should build and run tox successfully with args', async () => {
     buildExecutorMock.mockResolvedValue({
-      success: true
-    })
+      success: true,
+    });
 
     fsMock({
       'apps/app/dist/package.tar.gz': 'fake',
-    })
+    });
 
-    const output = await executor({
-      silent: false,
-      args: '-e linters'
-    }, context);
+    const output = await executor(
+      {
+        silent: false,
+        args: '-e linters',
+      },
+      context
+    );
 
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(buildExecutorMock).toBeCalledWith(
@@ -128,23 +137,26 @@ describe('Tox Executor', () => {
         keepBuildFolder: false,
         ignorePaths: ['.venv', '.tox', 'tests'],
         outputPath: 'apps/app/dist',
-        devDependencies: true
+        devDependencies: true,
       },
       context
     );
     expect(spawnSyncMock).toBeCalledWith(
-      'poetry', ['run', 'tox', '--installpkg', 'dist/package.tar.gz', '-e', 'linters'], {
-      cwd: 'apps/app',
-      shell: false,
-      stdio: 'inherit',
-    });
+      'poetry',
+      ['run', 'tox', '--installpkg', 'dist/package.tar.gz', '-e', 'linters'],
+      {
+        cwd: 'apps/app',
+        shell: false,
+        stdio: 'inherit',
+      }
+    );
     expect(output.success).toBe(true);
   });
 
   it('should failure the build and not run tox command', async () => {
     buildExecutorMock.mockResolvedValue({
-      success: false
-    })
+      success: false,
+    });
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
@@ -154,7 +166,7 @@ describe('Tox Executor', () => {
         keepBuildFolder: false,
         ignorePaths: ['.venv', '.tox', 'tests'],
         outputPath: 'apps/app/dist',
-        devDependencies: true
+        devDependencies: true,
       },
       context
     );
@@ -164,8 +176,8 @@ describe('Tox Executor', () => {
 
   it('should dist folder not exists and not run tox command', async () => {
     buildExecutorMock.mockResolvedValue({
-      success: true
-    })
+      success: true,
+    });
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
@@ -175,7 +187,7 @@ describe('Tox Executor', () => {
         keepBuildFolder: false,
         ignorePaths: ['.venv', '.tox', 'tests'],
         outputPath: 'apps/app/dist',
-        devDependencies: true
+        devDependencies: true,
       },
       context
     );
@@ -184,14 +196,13 @@ describe('Tox Executor', () => {
   });
 
   it('should not generate the tar.gz and not run tox command', async () => {
-
     fsMock({
       'apps/app/dist/something.txt': 'fake',
-    })
+    });
 
     buildExecutorMock.mockResolvedValue({
-      success: true
-    })
+      success: true,
+    });
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
@@ -201,7 +212,7 @@ describe('Tox Executor', () => {
         keepBuildFolder: false,
         ignorePaths: ['.venv', '.tox', 'tests'],
         outputPath: 'apps/app/dist',
-        devDependencies: true
+        devDependencies: true,
       },
       context
     );

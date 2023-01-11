@@ -17,7 +17,7 @@ export default async function executor(
   const workspaceRoot = context.root;
   process.chdir(workspaceRoot);
   try {
-    await checkPoetryExecutable()
+    await checkPoetryExecutable();
     logger.info(
       chalk`\n  {bold Running flake8 linting on project {bgBlue  ${context.projectName} }...}\n`
     );

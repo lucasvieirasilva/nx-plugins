@@ -1,7 +1,7 @@
 import { spawnSyncMock } from '../../utils/mocks/cross-spawn.mock';
-import * as poetryUtils from '../utils/poetry'
+import * as poetryUtils from '../utils/poetry';
 import executor from './executor';
-import path from 'path'
+import path from 'path';
 
 describe('Install Executor', () => {
   let checkPoetryExecutableMock: jest.SpyInstance;
@@ -23,9 +23,12 @@ describe('Install Executor', () => {
   };
 
   beforeEach(() => {
-    checkPoetryExecutableMock = jest.spyOn(poetryUtils, 'checkPoetryExecutable')
+    checkPoetryExecutableMock = jest.spyOn(
+      poetryUtils,
+      'checkPoetryExecutable'
+    );
     checkPoetryExecutableMock.mockResolvedValue(undefined);
-  })
+  });
 
   it('should return success false when the poetry is not installed', async () => {
     checkPoetryExecutableMock.mockRejectedValue(new Error('poetry not found'));
@@ -33,7 +36,7 @@ describe('Install Executor', () => {
     const options = {
       silent: false,
       debug: false,
-      verbose: false
+      verbose: false,
     };
 
     const context = {
@@ -63,17 +66,16 @@ describe('Install Executor', () => {
     const options = {
       silent: false,
       debug: false,
-      verbose: false
-    }
+      verbose: false,
+    };
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
-    expect(spawnSyncMock).toHaveBeenCalledWith(
-      'poetry', ['install', '-v'], {
+    expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['install', '-v'], {
       stdio: 'inherit',
       shell: false,
-      cwd: 'apps/app'
-    })
+      cwd: 'apps/app',
+    });
     expect(output.success).toBe(true);
   });
 
@@ -82,17 +84,20 @@ describe('Install Executor', () => {
       silent: false,
       debug: false,
       verbose: false,
-      args: '--no-dev'
-    }
+      args: '--no-dev',
+    };
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(spawnSyncMock).toHaveBeenCalledWith(
-      'poetry', ['install', '-v', '--no-dev'], {
-      stdio: 'inherit',
-      shell: false,
-      cwd: 'apps/app'
-    })
+      'poetry',
+      ['install', '-v', '--no-dev'],
+      {
+        stdio: 'inherit',
+        shell: false,
+        cwd: 'apps/app',
+      }
+    );
     expect(output.success).toBe(true);
   });
 
@@ -100,17 +105,16 @@ describe('Install Executor', () => {
     const options = {
       silent: false,
       debug: false,
-      verbose: true
-    }
+      verbose: true,
+    };
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
-    expect(spawnSyncMock).toHaveBeenCalledWith(
-      'poetry', ['install', '-vv'], {
+    expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['install', '-vv'], {
       stdio: 'inherit',
       shell: false,
-      cwd: 'apps/app'
-    })
+      cwd: 'apps/app',
+    });
     expect(output.success).toBe(true);
   });
 
@@ -118,17 +122,16 @@ describe('Install Executor', () => {
     const options = {
       silent: false,
       debug: true,
-      verbose: false
-    }
+      verbose: false,
+    };
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
-    expect(spawnSyncMock).toHaveBeenCalledWith(
-      'poetry', ['install','-vv'], {
+    expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['install', '-vv'], {
       stdio: 'inherit',
       shell: false,
-      cwd: 'apps/app'
-    })
+      cwd: 'apps/app',
+    });
     expect(output.success).toBe(true);
   });
 
@@ -137,44 +140,42 @@ describe('Install Executor', () => {
       silent: false,
       debug: false,
       verbose: false,
-      cacheDir: 'apps/app/.cache/pypoetry'
-    }
+      cacheDir: 'apps/app/.cache/pypoetry',
+    };
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
-    expect(spawnSyncMock).toHaveBeenCalledWith(
-      'poetry', ['install', '-v'], {
+    expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['install', '-v'], {
       stdio: 'inherit',
       cwd: 'apps/app',
       shell: false,
       env: {
         ...process.env,
-        POETRY_CACHE_DIR: path.resolve('apps/app/.cache/pypoetry')
-      }
-    })
+        POETRY_CACHE_DIR: path.resolve('apps/app/.cache/pypoetry'),
+      },
+    });
     expect(output.success).toBe(true);
   });
 
   it('should not install when the command fail', async () => {
     spawnSyncMock.mockImplementation(() => {
-      throw new Error('fake')
-    })
+      throw new Error('fake');
+    });
 
     const options = {
       silent: false,
       debug: false,
       verbose: false,
-      cacheDir: 'apps/app/.cache/pypoetry'
-    }
+      cacheDir: 'apps/app/.cache/pypoetry',
+    };
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
-    expect(spawnSyncMock).toHaveBeenCalledWith(
-      'poetry', ['install', '-v'], {
+    expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['install', '-v'], {
       stdio: 'inherit',
       shell: false,
-      cwd: 'apps/app'
-    })
+      cwd: 'apps/app',
+    });
     expect(output.success).toBe(false);
   });
 });

@@ -13,17 +13,14 @@ export default {
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: '../../coverage/packages/nx-python',
   collectCoverage: true,
-  collectCoverageFrom: [
-    './src/**/*.ts',
-    '!./src/types.ts'
-  ],
+  collectCoverageFrom: ['./src/**/*.ts', '!./src/types.ts'],
   coverageReporters: ['text', 'html', 'cobertura', 'clover'],
   coverageThreshold: {
     global: {
       statements: 100,
       branches: 100,
       functions: 100,
-      lines: 100
-    }
-  }
+      lines: 100,
+    },
+  },
 };

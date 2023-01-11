@@ -1,5 +1,5 @@
 export interface ExecutorSchema {
-  stage: string
-  verbose: boolean
-  force: boolean
+  stage: string;
+  verbose: boolean;
+  force: boolean;
 }

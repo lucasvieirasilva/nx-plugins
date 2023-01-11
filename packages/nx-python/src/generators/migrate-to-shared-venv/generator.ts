@@ -12,7 +12,10 @@ import { parse, stringify } from '@iarna/toml';
 import { PyprojectToml } from '../../graph/dependency-graph';
 import spawn from 'cross-spawn';
 import chalk from 'chalk';
-import { checkPoetryExecutable, POETRY_EXECUTABLE } from '../../executors/utils/poetry';
+import {
+  checkPoetryExecutable,
+  POETRY_EXECUTABLE,
+} from '../../executors/utils/poetry';
 
 async function addFiles(host: Tree) {
   const packageJson = await readJsonFile('package.json');
@@ -118,7 +121,7 @@ function updateRootPoetryLock() {
 }
 
 async function generator(host: Tree, options: Schema) {
-  await checkPoetryExecutable()
+  await checkPoetryExecutable();
 
   await addFiles(host);
   const lockUpdateTasks = updatePyprojectRoot(host, options);

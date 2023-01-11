@@ -5,7 +5,13 @@ import chalk from 'chalk';
 import { updateDependencyTree } from '../../dependency/update-dependency';
 import { existsSync } from 'fs-extra';
 import path from 'path';
-import { addLocalProjectToPoetryProject, checkPoetryExecutable, getLocalDependencyConfig, POETRY_EXECUTABLE, updateProject } from '../utils/poetry';
+import {
+  addLocalProjectToPoetryProject,
+  checkPoetryExecutable,
+  getLocalDependencyConfig,
+  POETRY_EXECUTABLE,
+  updateProject,
+} from '../utils/poetry';
 
 export default async function executor(
   options: AddExecutorSchema,
@@ -14,7 +20,7 @@ export default async function executor(
   const workspaceRoot = context.root;
   process.chdir(workspaceRoot);
   try {
-    await checkPoetryExecutable()
+    await checkPoetryExecutable();
     const projectConfig = context.workspace.projects[context.projectName];
     const rootPyprojectToml = existsSync('pyproject.toml');
 
@@ -37,8 +43,10 @@ export default async function executor(
       const installArgs = ['add', options.name]
         .concat(options.group ? ['--group', options.group] : [])
         .concat(options.args ? options.args.split(' ') : [])
-        .concat(options.extras ? options.extras.map(ex => `--extras=${ex}`) : [])
-        .concat(rootPyprojectToml ? ['--lock'] : [])
+        .concat(
+          options.extras ? options.extras.map((ex) => `--extras=${ex}`) : []
+        )
+        .concat(rootPyprojectToml ? ['--lock'] : []);
       const installCommand = `${POETRY_EXECUTABLE} ${installArgs.join(' ')}`;
       console.log(
         chalk`{bold Running command}: ${installCommand} at {bold ${projectConfig.root}} folder\n`

@@ -1,4 +1,4 @@
-export const spawnSyncMock = jest.fn()
+export const spawnSyncMock = jest.fn();
 
 jest.mock('cross-spawn', () => {
   return {

@@ -1,7 +1,7 @@
 import { BuildExecutorSchema } from './schema';
 import { spawnSyncMock } from '../../utils/mocks/cross-spawn.mock';
 import { uuidMock } from '../../utils/mocks/uuid.mock';
-import * as poetryUtils from '../utils/poetry'
+import * as poetryUtils from '../utils/poetry';
 import executor from './executor';
 import fsMock from 'mock-fs';
 import { existsSync, readFileSync, mkdirsSync, writeFileSync } from 'fs-extra';
@@ -23,7 +23,10 @@ describe('Build Executor', () => {
   beforeEach(() => {
     uuidMock.mockReturnValue('abc');
     buildPath = join(tmpdir(), 'nx-python', 'build', 'abc');
-    checkPoetryExecutableMock = jest.spyOn(poetryUtils, 'checkPoetryExecutable')
+    checkPoetryExecutableMock = jest.spyOn(
+      poetryUtils,
+      'checkPoetryExecutable'
+    );
     checkPoetryExecutableMock.mockResolvedValue(undefined);
   });
 
@@ -163,7 +166,8 @@ describe('Build Executor', () => {
           dep1 @ file://${process.cwd()}/libs/dep1
           numpy==1.21.0; python_version >= "3.8" and python_version < "4.0"
 
-        `);
+        `
+        );
       }
     });
 
@@ -233,7 +237,9 @@ describe('Build Executor', () => {
         markers: 'python_version >= "3.8" and python_version < "4.0"',
       },
     });
-    expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual({});
+    expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual(
+      {}
+    );
 
     expect(output.success).toBe(true);
   });
@@ -335,7 +341,7 @@ describe('Build Executor', () => {
             numpy==1.21.0; python_version >= "3.8" and python_version < "4.0"
 
           `
-        )
+        );
       }
     });
 
@@ -410,7 +416,9 @@ describe('Build Executor', () => {
         markers: 'python_version >= "3.8" and python_version < "4.0"',
       },
     });
-    expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual({});
+    expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual(
+      {}
+    );
 
     expect(output.success).toBe(true);
   });
@@ -503,8 +511,8 @@ describe('Build Executor', () => {
             pendulum==2.1.2
             dep1 @ file://${process.cwd()}/libs/dep1
             numpy==1.21.0; python_version >= "3.8" and python_version < "4.0"
-          `,
-        )
+          `
+        );
       }
     });
 
@@ -532,7 +540,7 @@ describe('Build Executor', () => {
           dep1: {
             root: 'libs/dep1',
             targets: {},
-          }
+          },
         },
       },
     });
@@ -543,21 +551,26 @@ describe('Build Executor', () => {
     expect(existsSync(`${buildPath}/app`)).toBeTruthy();
     expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
     expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
-    expect(spawnSyncMock).toHaveBeenNthCalledWith(1, 'poetry', [
-      'export',
-      '--format',
-      'requirements.txt',
-      '--without-hashes',
-      '--without-urls',
-      '--output',
-      `${buildPath}/requirements.txt`,
-      '--extras',
-      'extra1'
-    ], {
-      cwd: "apps/app",
-      shell: false,
-      stdio: 'inherit',
-    });
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(
+      1,
+      'poetry',
+      [
+        'export',
+        '--format',
+        'requirements.txt',
+        '--without-hashes',
+        '--without-urls',
+        '--output',
+        `${buildPath}/requirements.txt`,
+        '--extras',
+        'extra1',
+      ],
+      {
+        cwd: 'apps/app',
+        shell: false,
+        stdio: 'inherit',
+      }
+    );
     expect(spawnSyncMock).toHaveBeenNthCalledWith(2, 'poetry', ['build'], {
       cwd: buildPath,
       shell: false,
@@ -587,15 +600,17 @@ describe('Build Executor', () => {
       },
       pendulum: {
         optional: true,
-        version: "2.1.2",
+        version: '2.1.2',
       },
     });
 
     expect(projectTomlData.tool.poetry.extras).toStrictEqual({
       extra1: ['pendulum', 'numpy'],
-    })
+    });
 
-    expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual({});
+    expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual(
+      {}
+    );
   });
 
   it('should build python project with dependencies with extras', async () => {
@@ -632,8 +647,8 @@ describe('Build Executor', () => {
           join(buildPath, 'requirements.txt'),
           dedent`
             moto[s3,sqs]==2.3.2
-          `,
-        )
+          `
+        );
       }
     });
 
@@ -689,7 +704,9 @@ describe('Build Executor', () => {
         extras: ['s3', 'sqs'],
       },
     });
-    expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual({});
+    expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual(
+      {}
+    );
     expect(output.success).toBe(true);
   });
 
@@ -723,9 +740,7 @@ describe('Build Executor', () => {
       if (args[0] == 'build') {
         spawnBuildMockImpl(opts);
       } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
-        writeFileSync(
-          join(buildPath, 'requirements.txt'), 'click==7.1.2'
-        )
+        writeFileSync(join(buildPath, 'requirements.txt'), 'click==7.1.2');
       }
     });
 
@@ -790,9 +805,7 @@ describe('Build Executor', () => {
       if (args[0] == 'build') {
         spawnBuildMockImpl(opts);
       } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
-        writeFileSync(
-          join(buildPath, 'requirements.txt'), 'click==7.1.2'
-        )
+        writeFileSync(join(buildPath, 'requirements.txt'), 'click==7.1.2');
       }
     });
 
