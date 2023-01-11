@@ -1,3 +1,17 @@
+# [15.1.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.0.2...nx-python-v15.1.0) (2023-01-11)
+
+
+### Bug Fixes
+
+* **nx-python:** fix semantic-release config format ([5061df2](https://github.com/lucasvieirasilva/nx-plugins/commit/5061df2439c9d83aa081315a0ba56a5e206cbbe0))
+* **workspace:** disable body-max-lint-length and changelog ([a4106ce](https://github.com/lucasvieirasilva/nx-plugins/commit/a4106ce924e1704efb5badeb01920226c1206fac))
+* **workspace:** fix lint staged and release config ([46a0343](https://github.com/lucasvieirasilva/nx-plugins/commit/46a03434ff2c286d0cd51fad4fe11c01441a4449))
+
+
+### Features
+
+* **nx-python:** added semantic-release ([cbc9d97](https://github.com/lucasvieirasilva/nx-plugins/commit/cbc9d97424266eecc66d61ecbd65427042dace35))
+
 ## [15.0.2] - 2023-01-11
 
 ### Fixed
