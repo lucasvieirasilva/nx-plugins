@@ -4,6 +4,7 @@ import { getDependents, PyprojectToml } from '../graph/dependency-graph';
 import {
   getProjectTomlPath,
   parseToml,
+  POETRY_EXECUTABLE,
   updateProject,
 } from '../executors/utils/poetry';
 import { existsSync, readFileSync } from 'fs-extra';
@@ -24,7 +25,7 @@ export function updateDependencyTree(context: ExecutorContext) {
     if (rootPyprojectToml.tool.poetry.dependencies[pkgName]) {
       console.log(chalk`\nUpdating root {bold pyproject.toml} dependency {bold ${pkgName}}`);
 
-      spawn.sync('poetry', ['update', pkgName], {
+      spawn.sync(POETRY_EXECUTABLE, ['update', pkgName], {
         shell: false,
         stdio: 'inherit',
       });

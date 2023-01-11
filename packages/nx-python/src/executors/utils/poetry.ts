@@ -5,6 +5,17 @@ import path from 'path';
 import toml from '@iarna/toml';
 import fs from 'fs';
 import { PyprojectToml } from '../../graph/dependency-graph';
+import commandExists from 'command-exists'
+
+export const POETRY_EXECUTABLE = 'poetry'
+
+export async function checkPoetryExecutable() {
+  try {
+    await commandExists(POETRY_EXECUTABLE)
+  } catch (e) {
+    throw new Error('Poetry is not installed. Please install Poetry before running this command.')
+  }
+}
 
 export function addLocalProjectToPoetryProject(
   targetConfig: ProjectConfiguration,
@@ -41,13 +52,12 @@ export function addLocalProjectToPoetryProject(
 }
 
 export function updateProject(projectName: string, cwd: string, updateLockOnly: boolean) {
-  const executable = 'poetry'
   const updateLockArgs = ['update', projectName].concat(updateLockOnly ? ['--lock'] : [])
-  const updateLockCommand = `${executable} ${updateLockArgs.join(" ")}`;
+  const updateLockCommand = `${POETRY_EXECUTABLE} ${updateLockArgs.join(" ")}`;
   console.log(
     chalk`{bold Running command}: ${updateLockCommand} at {bold ${cwd}} folder\n`
   );
-  spawn.sync(executable, updateLockArgs, {
+  spawn.sync(POETRY_EXECUTABLE, updateLockArgs, {
     cwd,
     shell: false,
     stdio: 'inherit',

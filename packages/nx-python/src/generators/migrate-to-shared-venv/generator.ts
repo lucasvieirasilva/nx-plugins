@@ -12,6 +12,7 @@ import { parse, stringify } from '@iarna/toml';
 import { PyprojectToml } from '../../graph/dependency-graph';
 import spawn from 'cross-spawn';
 import chalk from 'chalk';
+import { checkPoetryExecutable, POETRY_EXECUTABLE } from '../../executors/utils/poetry';
 
 async function addFiles(host: Tree) {
   const packageJson = await readJsonFile('package.json');
@@ -96,9 +97,8 @@ function moveDevDependencies(
     console.log(
       chalk`  Updating ${pyprojectToml.tool.poetry.name} {bgBlue poetry.lock}...`
     );
-    const executable = 'poetry';
     const lockArgs = ['lock', '--no-update'];
-    spawn.sync(executable, lockArgs, {
+    spawn.sync(POETRY_EXECUTABLE, lockArgs, {
       shell: false,
       stdio: 'inherit',
       cwd: projectConfig.root,
@@ -109,9 +109,8 @@ function moveDevDependencies(
 
 function updateRootPoetryLock() {
   console.log(chalk`  Updating root {bgBlue poetry.lock}...`);
-  const executable = 'poetry';
   const updateArgs = ['install'];
-  spawn.sync(executable, updateArgs, {
+  spawn.sync(POETRY_EXECUTABLE, updateArgs, {
     shell: false,
     stdio: 'inherit',
   });
@@ -119,6 +118,8 @@ function updateRootPoetryLock() {
 }
 
 async function generator(host: Tree, options: Schema) {
+  await checkPoetryExecutable()
+
   await addFiles(host);
   const lockUpdateTasks = updatePyprojectRoot(host, options);
   await formatFiles(host);

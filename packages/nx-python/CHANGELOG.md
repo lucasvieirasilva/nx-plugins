@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [15.0.2] - 2023-01-11
+
+### Fixed
+
+- Fixed all executors and generators to throw an exception when the `poetry` is not installed.
+
 ## [15.0.1] - 2023-01-10
 
 ### Fixed

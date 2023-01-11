@@ -6,6 +6,7 @@ import chalk from 'chalk';
 import { Logger } from '../utils/logger';
 import spawn from 'cross-spawn';
 import { readdirSync, existsSync } from 'fs-extra';
+import { checkPoetryExecutable, POETRY_EXECUTABLE } from '../utils/poetry';
 
 const logger = new Logger();
 
@@ -17,6 +18,7 @@ export default async function executor(
   process.chdir(workspaceRoot)
   logger.setOptions(options);
   try {
+    await checkPoetryExecutable()
     const projectConfig = context.workspace.projects[context.projectName];
     const distFolder = path.join(projectConfig.root, 'dist');
 
@@ -49,11 +51,10 @@ export default async function executor(
 
     const packagePath = path.relative(projectConfig.root, path.join(distFolder, packageFile))
 
-    const executable = 'poetry'
     const toxArgs = ['run', 'tox', '--installpkg', packagePath].concat(options.args ? options.args.split(' ') : [])
-    const command = `${executable} ${toxArgs.join(' ')}`;
+    const command = `${POETRY_EXECUTABLE} ${toxArgs.join(' ')}`;
     logger.info(chalk`\n  Running Command: {bold ${command}}\n`);
-    spawn.sync(executable, toxArgs, {
+    spawn.sync(POETRY_EXECUTABLE, toxArgs, {
       cwd: projectConfig.root,
       shell: false,
       stdio: 'inherit',

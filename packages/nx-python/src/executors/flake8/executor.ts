@@ -5,6 +5,7 @@ import { Logger } from '../utils/logger';
 import { Flake8ExecutorSchema } from './schema';
 import path from 'path';
 import { mkdirsSync, existsSync, readFileSync, rmSync } from 'fs-extra';
+import { checkPoetryExecutable, POETRY_EXECUTABLE } from '../utils/poetry';
 
 const logger = new Logger();
 
@@ -16,6 +17,7 @@ export default async function executor(
   const workspaceRoot = context.root;
   process.chdir(workspaceRoot);
   try {
+    await checkPoetryExecutable()
     logger.info(
       chalk`\n  {bold Running flake8 linting on project {bgBlue  ${context.projectName} }...}\n`
     );
@@ -29,13 +31,12 @@ export default async function executor(
       mkdirsSync(reportFolder);
     }
 
-    const executable = 'poetry';
     if (existsSync(absPath)) {
       rmSync(absPath, { force: true });
     }
 
     const lintingArgs = ['run', 'flake8', '--output-file', absPath];
-    spawn.sync(executable, lintingArgs, {
+    spawn.sync(POETRY_EXECUTABLE, lintingArgs, {
       cwd: cwd,
       shell: false,
       stdio: 'inherit',

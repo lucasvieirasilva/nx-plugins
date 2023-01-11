@@ -1,4 +1,5 @@
 import { spawnSyncMock } from '../../utils/mocks/cross-spawn.mock';
+import * as poetryUtils from '../../executors/utils/poetry';
 import { createTreeWithEmptyWorkspace } from '@nrwl/devkit/testing';
 import { Tree, readProjectConfiguration } from '@nrwl/devkit';
 
@@ -7,6 +8,7 @@ import { Schema } from './schema';
 import dedent from 'string-dedent';
 
 describe('nx-python project generator', () => {
+  let checkPoetryExecutableMock: jest.SpyInstance;
   let appTree: Tree;
   const options: Schema = {
     name: 'test',
@@ -15,17 +17,31 @@ describe('nx-python project generator', () => {
     packageName: 'unittest-test-pkg-name',
     publishable: true,
     customSource: false,
-    addDevDependencies: false
+    addDevDependencies: false,
   };
 
   beforeEach(() => {
     appTree = createTreeWithEmptyWorkspace({
       layout: 'apps-libs',
-    })
+    });
+    checkPoetryExecutableMock = jest.spyOn(
+      poetryUtils,
+      'checkPoetryExecutable'
+    );
+    checkPoetryExecutableMock.mockResolvedValue(undefined);
+  });
+
+  it('should throw an exception when the poetry is not installed', async () => {
+    checkPoetryExecutableMock.mockRejectedValue(new Error('poetry not found'));
+
+    expect(generator(appTree, options)).rejects.toThrow('poetry not found');
+
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
   });
 
   it('should successfully generate a python project', async () => {
     await generator(appTree, options);
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     const config = readProjectConfiguration(appTree, 'test');
     expect(config).toMatchSnapshot();
 
@@ -34,6 +50,7 @@ describe('nx-python project generator', () => {
 
   it('should successfully generate a python project with custom module name', async () => {
     await generator(appTree, { ...options, moduleName: 'mymodule' });
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     const config = readProjectConfiguration(appTree, 'test');
     expect(config).toMatchSnapshot();
 
@@ -42,6 +59,7 @@ describe('nx-python project generator', () => {
 
   it('should successfully generate a python library project', async () => {
     await generator(appTree, { ...options, type: 'library' });
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     const config = readProjectConfiguration(appTree, 'test');
     expect(config).toMatchSnapshot();
 
@@ -49,7 +67,12 @@ describe('nx-python project generator', () => {
   });
 
   it('should successfully generate a python library project with dev dependencies', async () => {
-    await generator(appTree, { ...options, type: 'library', addDevDependencies: true });
+    await generator(appTree, {
+      ...options,
+      type: 'library',
+      addDevDependencies: true,
+    });
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     const config = readProjectConfiguration(appTree, 'test');
     expect(config).toMatchSnapshot();
 
@@ -111,7 +134,9 @@ describe('nx-python project generator', () => {
   });
 
   it('should successfully generate a python library project with root pyproject.toml', async () => {
-    appTree.write('pyproject.toml', dedent`
+    appTree.write(
+      'pyproject.toml',
+      dedent`
     [tool.poetry]
     name = "unit test"
 
@@ -121,18 +146,26 @@ describe('nx-python project generator', () => {
     [build-system]
     requires = [ "poetry-core==1.0.3" ]
     build-backend = "poetry.core.masonry.api"
-    `)
+    `
+    );
 
-    const callbackTask = await generator(appTree, { ...options, type: 'library' });
+    const callbackTask = await generator(appTree, {
+      ...options,
+      type: 'library',
+    });
     callbackTask();
     const config = readProjectConfiguration(appTree, 'test');
     expect(config).toMatchSnapshot();
 
-    expect(appTree.read('pyproject.toml', 'utf8')).toMatchSnapshot()
-    expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['update', options.packageName], {
-      shell: false,
-      stdio: 'inherit',
-    });
+    expect(appTree.read('pyproject.toml', 'utf8')).toMatchSnapshot();
+    expect(spawnSyncMock).toHaveBeenCalledWith(
+      'poetry',
+      ['update', options.packageName],
+      {
+        shell: false,
+        stdio: 'inherit',
+      }
+    );
   });
 });
 

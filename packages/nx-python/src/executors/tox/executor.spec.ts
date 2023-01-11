@@ -1,4 +1,5 @@
 import { spawnSyncMock } from '../../utils/mocks/cross-spawn.mock';
+import * as poetryUtils from '../utils/poetry'
 
 const buildExecutorMock = jest.fn();
 
@@ -16,6 +17,8 @@ const options: ToxExecutorSchema = {
 };
 
 describe('Tox Executor', () => {
+  let checkPoetryExecutableMock: jest.SpyInstance;
+
   const context = {
     cwd: '.',
     root: '.',
@@ -37,9 +40,41 @@ describe('Tox Executor', () => {
     console.log(chalk`init chalk`);
   });
 
+  beforeEach(() => {
+    checkPoetryExecutableMock = jest.spyOn(poetryUtils, 'checkPoetryExecutable')
+    checkPoetryExecutableMock.mockResolvedValue(undefined);
+  })
+
   afterEach(() => {
     fsMock.restore();
     jest.resetAllMocks();
+  });
+
+  it('should return success false when the poetry is not installed', async () => {
+    checkPoetryExecutableMock.mockRejectedValue(new Error('poetry not found'));
+
+    const context = {
+      cwd: '',
+      root: '.',
+      isVerbose: false,
+      projectName: 'app',
+      workspace: {
+        npmScope: 'nxlv',
+        version: 2,
+        projects: {
+          app: {
+            root: 'apps/app',
+            targets: {},
+          },
+        },
+      },
+    };
+
+    const output = await executor(options, context);
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(buildExecutorMock).not.toHaveBeenCalled();
+    expect(spawnSyncMock).not.toHaveBeenCalled();
+    expect(output.success).toBe(false);
   });
 
   it('should build and run tox successfully', async () => {
@@ -52,7 +87,7 @@ describe('Tox Executor', () => {
     })
 
     const output = await executor(options, context);
-
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(buildExecutorMock).toBeCalledWith(
       {
         silent: options.silent,
@@ -86,6 +121,7 @@ describe('Tox Executor', () => {
       args: '-e linters'
     }, context);
 
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(buildExecutorMock).toBeCalledWith(
       {
         silent: options.silent,
@@ -111,7 +147,7 @@ describe('Tox Executor', () => {
     })
 
     const output = await executor(options, context);
-
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(buildExecutorMock).toBeCalledWith(
       {
         silent: options.silent,
@@ -132,7 +168,7 @@ describe('Tox Executor', () => {
     })
 
     const output = await executor(options, context);
-
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(buildExecutorMock).toBeCalledWith(
       {
         silent: options.silent,
@@ -158,7 +194,7 @@ describe('Tox Executor', () => {
     })
 
     const output = await executor(options, context);
-
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(buildExecutorMock).toBeCalledWith(
       {
         silent: options.silent,
