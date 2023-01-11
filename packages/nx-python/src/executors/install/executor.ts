@@ -5,6 +5,7 @@ import chalk from 'chalk';
 import { SpawnSyncOptions } from 'child_process';
 import spawn from 'cross-spawn';
 import path from 'path'
+import { checkPoetryExecutable, POETRY_EXECUTABLE } from '../utils/poetry';
 
 const logger = new Logger();
 
@@ -16,6 +17,7 @@ export default async function executor(
   const workspaceRoot = context.root;
   process.chdir(workspaceRoot)
   try {
+    await checkPoetryExecutable()
     const projectConfig = context.workspace.projects[context.projectName];
     let verboseArg = '-v'
 
@@ -25,9 +27,8 @@ export default async function executor(
       verboseArg = '-vv'
     }
 
-    const executable = 'poetry'
     const installArgs = ['install', verboseArg].concat(options.args ? options.args.split(' ') : [])
-    const command = `${executable} ${installArgs.join(' ')}`
+    const command = `${POETRY_EXECUTABLE} ${installArgs.join(' ')}`
     logger.info(chalk`\n  Running Command: {bold ${command}}\n`);
     const execOpts: SpawnSyncOptions = {
       stdio: 'inherit',
@@ -42,7 +43,7 @@ export default async function executor(
       }
     }
 
-    spawn.sync(executable, installArgs, execOpts)
+    spawn.sync(POETRY_EXECUTABLE, installArgs, execOpts)
 
     return {
       success: true,

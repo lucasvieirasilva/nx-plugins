@@ -2,9 +2,11 @@ import { ExecutorContext, ProjectConfiguration } from '@nrwl/devkit';
 import chalk from 'chalk';
 import { UpdateExecutorSchema } from './schema';
 import {
+  checkPoetryExecutable,
   getLocalDependencyConfig,
   getProjectTomlPath,
   parseToml,
+  POETRY_EXECUTABLE,
   updateProject,
 } from '../utils/poetry';
 import spawn from 'cross-spawn';
@@ -19,6 +21,7 @@ export default async function executor(
   process.chdir(workspaceRoot);
 
   try {
+    await checkPoetryExecutable()
     const projectConfig = context.workspace.projects[context.projectName];
     const rootPyprojectToml = existsSync('pyproject.toml');
 
@@ -41,16 +44,15 @@ export default async function executor(
         console.log(chalk`\n  {bold Updating project dependencies...}\n`);
       }
 
-      const executable = 'poetry';
       const updateArgs = ['update']
         .concat(options.name ? [options.name] : [])
         .concat(options.args ? options.args.split(' ') : [])
         .concat(rootPyprojectToml ? ['--lock'] : []);
-      const updateCommand = `${executable} ${updateArgs.join(' ')}`;
+      const updateCommand = `${POETRY_EXECUTABLE} ${updateArgs.join(' ')}`;
       console.log(
         chalk`{bold Running command}: ${updateCommand} at {bold ${projectConfig.root}} folder\n`
       );
-      spawn.sync(executable, updateArgs, {
+      spawn.sync(POETRY_EXECUTABLE, updateArgs, {
         cwd: projectConfig.root,
         shell: false,
         stdio: 'inherit',

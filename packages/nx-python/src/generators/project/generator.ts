@@ -13,6 +13,7 @@ import { parse, stringify } from '@iarna/toml';
 import { PyprojectToml } from '../../graph/dependency-graph';
 import spawn from 'cross-spawn';
 import chalk from 'chalk';
+import { checkPoetryExecutable, POETRY_EXECUTABLE } from '../../executors/utils/poetry';
 
 export interface NormalizedSchema extends Schema {
   projectName: string;
@@ -119,9 +120,8 @@ function updateRootPyprojectToml(
 function updateRootPoetryLock(host: Tree, normalizedOptions: NormalizedSchema) {
   if (host.exists('./pyproject.toml')) {
     console.log(chalk`  Updating root {bgBlue poetry.lock}...`);
-    const executable = 'poetry';
     const updateArgs = ['update', normalizedOptions.packageName];
-    spawn.sync(executable, updateArgs, {
+    spawn.sync(POETRY_EXECUTABLE, updateArgs, {
       shell: false,
       stdio: 'inherit',
     });
@@ -130,6 +130,8 @@ function updateRootPoetryLock(host: Tree, normalizedOptions: NormalizedSchema) {
 }
 
 async function generator(host: Tree, options: Schema) {
+  await checkPoetryExecutable()
+
   const normalizedOptions = normalizeOptions(host, options);
   addProjectConfiguration(host, normalizedOptions.projectName, {
     root: normalizedOptions.projectRoot,

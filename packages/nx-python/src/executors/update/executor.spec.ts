@@ -1,4 +1,5 @@
 import { spawnSyncMock } from '../../utils/mocks/cross-spawn.mock';
+import * as poetryUtils from '../utils/poetry'
 import executor from './executor';
 import fsMock from 'mock-fs';
 import chalk from 'chalk';
@@ -6,13 +7,51 @@ import { parseToml } from '../utils/poetry';
 import dedent from 'string-dedent';
 
 describe('Update Executor', () => {
+  let checkPoetryExecutableMock: jest.SpyInstance;
+
   beforeAll(() => {
     console.log(chalk`init chalk`);
   });
 
+  beforeEach(() => {
+    checkPoetryExecutableMock = jest.spyOn(poetryUtils, 'checkPoetryExecutable')
+    checkPoetryExecutableMock.mockResolvedValue(undefined);
+  })
+
   afterEach(() => {
     fsMock.restore();
     jest.resetAllMocks();
+  });
+
+  it('should return success false when the poetry is not installed', async () => {
+    checkPoetryExecutableMock.mockRejectedValue(new Error('poetry not found'));
+
+    const options = {
+      name: 'numpy',
+      local: false,
+    };
+
+    const context = {
+      cwd: '',
+      root: '.',
+      isVerbose: false,
+      projectName: 'app',
+      workspace: {
+        npmScope: 'nxlv',
+        version: 2,
+        projects: {
+          app: {
+            root: 'apps/app',
+            targets: {},
+          },
+        },
+      },
+    };
+
+    const output = await executor(options, context);
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(spawnSyncMock).not.toHaveBeenCalled();
+    expect(output.success).toBe(false);
   });
 
   it('run update target and should update the dependency to the project', async () => {
@@ -52,6 +91,7 @@ version = "1.0.0"
     };
 
     const output = await executor(options, context);
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['update', 'numpy'], {
       cwd: 'apps/app',
       shell: false,
@@ -97,6 +137,7 @@ version = "1.0.0"
     };
 
     const output = await executor(options, context);
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(spawnSyncMock).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
@@ -142,6 +183,7 @@ version = "1.0.0"
     };
 
     const output = await executor(options, context);
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['update', 'numpy'], {
       cwd: 'apps/app',
       shell: false,
@@ -238,6 +280,7 @@ version = "1.0.0"
     };
 
     const output = await executor(options, context);
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(spawnSyncMock).toHaveBeenCalledTimes(4);
     expect(spawnSyncMock).toHaveBeenNthCalledWith(1, 'poetry', ['update', 'numpy'], {
       cwd: 'libs/shared1',
@@ -311,6 +354,7 @@ version = "1.0.0"
     };
 
     const output = await executor(options, context);
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(spawnSyncMock).toHaveBeenCalledTimes(1);
     expect(spawnSyncMock).toHaveBeenNthCalledWith(1, 'poetry', ['update', 'lib1'], {
       cwd: 'apps/app',
@@ -373,6 +417,7 @@ version = "1.0.0"
     };
 
     const output = await executor(options, context);
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(spawnSyncMock).toHaveBeenCalledTimes(1);
     expect(spawnSyncMock).toHaveBeenNthCalledWith(1, 'poetry', ['update', 'dgx-devops-lib1'], {
       cwd: 'apps/app',
@@ -431,6 +476,7 @@ version = "1.0.0"
     };
 
     const output = await executor(options, context);
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['update', 'numpy', '--group', 'dev'], {
       cwd: 'apps/app',
       shell: false,
@@ -475,6 +521,7 @@ version = "1.0.0"
     };
 
     const output = await executor(options, context);
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['update'], {
       cwd: 'apps/app',
       shell: false,
@@ -530,6 +577,7 @@ version = "1.0.0"
     };
 
     const output = await executor(options, context);
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(spawnSyncMock).toHaveBeenNthCalledWith(1, 'poetry', ['update', 'numpy', '--lock'], {
       cwd: 'apps/app',
       shell: false,
@@ -642,6 +690,7 @@ version = "1.0.0"
     };
 
     const output = await executor(options, context);
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(spawnSyncMock).toHaveBeenCalledTimes(5);
     expect(spawnSyncMock).toHaveBeenNthCalledWith(1, 'poetry', ['update', 'numpy', '--lock'], {
       cwd: 'libs/shared1',

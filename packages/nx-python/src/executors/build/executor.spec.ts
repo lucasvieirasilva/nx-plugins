@@ -1,6 +1,7 @@
 import { BuildExecutorSchema } from './schema';
 import { spawnSyncMock } from '../../utils/mocks/cross-spawn.mock';
 import { uuidMock } from '../../utils/mocks/uuid.mock';
+import * as poetryUtils from '../utils/poetry'
 import executor from './executor';
 import fsMock from 'mock-fs';
 import { existsSync, readFileSync, mkdirsSync, writeFileSync } from 'fs-extra';
@@ -13,6 +14,7 @@ import dedent from 'string-dedent';
 
 describe('Build Executor', () => {
   let buildPath = null;
+  let checkPoetryExecutableMock: jest.SpyInstance;
 
   beforeAll(() => {
     console.log(chalk`init chalk`);
@@ -21,11 +23,47 @@ describe('Build Executor', () => {
   beforeEach(() => {
     uuidMock.mockReturnValue('abc');
     buildPath = join(tmpdir(), 'nx-python', 'build', 'abc');
+    checkPoetryExecutableMock = jest.spyOn(poetryUtils, 'checkPoetryExecutable')
+    checkPoetryExecutableMock.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
     fsMock.restore();
     jest.resetAllMocks();
+  });
+
+  it('should return success false when the poetry is not installed', async () => {
+    checkPoetryExecutableMock.mockRejectedValue(new Error('poetry not found'));
+
+    const options = {
+      ignorePaths: ['.venv', '.tox', 'tests/'],
+      silent: false,
+      outputPath: 'dist/apps/app',
+      keepBuildFolder: true,
+      devDependencies: false,
+    };
+
+    const context = {
+      cwd: '',
+      root: '.',
+      isVerbose: false,
+      projectName: 'app',
+      workspace: {
+        npmScope: 'nxlv',
+        version: 2,
+        projects: {
+          app: {
+            root: 'apps/app',
+            targets: {},
+          },
+        },
+      },
+    };
+
+    const output = await executor(options, context);
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(spawnSyncMock).not.toHaveBeenCalled();
+    expect(output.success).toBe(false);
   });
 
   it('should build python project with local dependencies and keep the build folder', async () => {
@@ -162,6 +200,7 @@ describe('Build Executor', () => {
       },
     });
 
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(existsSync(buildPath)).toBeTruthy();
     expect(existsSync(`${buildPath}/app`)).toBeTruthy();
     expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
@@ -333,6 +372,7 @@ describe('Build Executor', () => {
       },
     });
 
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(existsSync(buildPath)).toBeTruthy();
     expect(existsSync(`${buildPath}/app`)).toBeTruthy();
     expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
@@ -497,6 +537,7 @@ describe('Build Executor', () => {
       },
     });
 
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(output.success).toBe(true);
     expect(existsSync(buildPath)).toBeTruthy();
     expect(existsSync(`${buildPath}/app`)).toBeTruthy();
@@ -621,6 +662,7 @@ describe('Build Executor', () => {
       },
     });
 
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(existsSync(buildPath)).toBeTruthy();
     expect(existsSync(`${buildPath}/app`)).toBeTruthy();
     expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
@@ -711,6 +753,7 @@ describe('Build Executor', () => {
         },
       },
     });
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
 
@@ -778,6 +821,7 @@ describe('Build Executor', () => {
       },
     });
 
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(existsSync(buildPath)).not.toBeTruthy();
     expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['build'], {
       cwd: buildPath,
@@ -838,6 +882,7 @@ describe('Build Executor', () => {
       },
     });
 
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
 });

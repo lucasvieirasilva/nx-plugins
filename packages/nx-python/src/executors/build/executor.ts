@@ -17,6 +17,7 @@ import { v4 as uuid } from 'uuid'
 import chalk from 'chalk'
 import { Logger } from '../utils/logger';
 import uri2path from 'file-uri-to-path'
+import { checkPoetryExecutable, POETRY_EXECUTABLE } from '../utils/poetry';
 
 const logger = new Logger()
 
@@ -53,6 +54,7 @@ export default async function executor(
   const workspaceRoot = context.root;
   process.chdir(workspaceRoot)
   try {
+    await checkPoetryExecutable()
     logger.info(chalk`\n  {bold Building project {bgBlue  ${context.projectName} }...}\n`);
 
     const { root } = context.workspace.projects[context.projectName];
@@ -86,11 +88,10 @@ export default async function executor(
     rmSync(distFolder, { recursive: true, force: true });
 
     logger.info(chalk`  Generating sdist and wheel artifacts`)
-    const executable = 'poetry'
     const buildArgs = ['build']
-    const command = `${executable} ${buildArgs.join(' ')}`
+    const command = `${POETRY_EXECUTABLE} ${buildArgs.join(' ')}`
     logger.info(chalk`  Running ${command}`)
-    spawn.sync(executable, buildArgs, {
+    spawn.sync(POETRY_EXECUTABLE, buildArgs, {
       cwd: buildFolderPath,
       shell: false,
       stdio: 'inherit'
@@ -251,7 +252,7 @@ function getProjectRequirementsTxt(
   }
 
   spawn.sync(
-    'poetry',
+    POETRY_EXECUTABLE,
     exportArgs,
     {
       cwd: root,

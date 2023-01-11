@@ -2,7 +2,7 @@ import { ExecutorContext } from '@nrwl/devkit';
 import chalk from 'chalk';
 import spawn from 'cross-spawn';
 import { updateDependencyTree } from '../../dependency/update-dependency';
-import { getLocalDependencyConfig, getProjectTomlPath, parseToml } from '../utils/poetry';
+import { checkPoetryExecutable, getLocalDependencyConfig, getProjectTomlPath, parseToml, POETRY_EXECUTABLE } from '../utils/poetry';
 import { RemoveExecutorSchema } from './schema';
 
 export default async function executor(
@@ -12,6 +12,7 @@ export default async function executor(
   const workspaceRoot = context.root;
   process.chdir(workspaceRoot)
   try {
+    await checkPoetryExecutable()
     const projectConfig = context.workspace.projects[context.projectName];
     console.log(
       chalk`\n  {bold Removing {bgBlue  ${options.name} } dependency...}\n`
@@ -31,13 +32,12 @@ export default async function executor(
       dependencyName = name;
     }
 
-    const executable = 'poetry'
     const removeArgs = ['remove', dependencyName].concat(options.args ? options.args.split(' ') : [])
-    const removeCommand = `${executable} ${removeArgs.join(' ')}`;
+    const removeCommand = `${POETRY_EXECUTABLE} ${removeArgs.join(' ')}`;
     console.log(
       chalk`{bold Running command}: ${removeCommand} at {bold ${projectConfig.root}} folder\n`
     );
-    spawn.sync(executable, removeArgs, {
+    spawn.sync(POETRY_EXECUTABLE, removeArgs, {
       cwd: projectConfig.root,
       shell: false,
       stdio: 'inherit',

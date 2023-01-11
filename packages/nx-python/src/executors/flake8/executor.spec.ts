@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import { spawnSyncMock } from '../../utils/mocks/cross-spawn.mock';
+import * as poetryUtils from '../utils/poetry'
 import fsMock from 'mock-fs';
 import executor from './executor';
 import { tmpdir } from 'os';
@@ -13,9 +14,12 @@ import {
 describe('Flake8 Executor', () => {
 
   let tmppath = null
+  let checkPoetryExecutableMock: jest.SpyInstance;
 
   beforeEach(() => {
     tmppath = join(tmpdir(), 'nx-python', 'flake8', uuid())
+    checkPoetryExecutableMock = jest.spyOn(poetryUtils, 'checkPoetryExecutable')
+    checkPoetryExecutableMock.mockResolvedValue(undefined);
   })
 
   beforeAll(() => {
@@ -25,6 +29,37 @@ describe('Flake8 Executor', () => {
   afterEach(() => {
     fsMock.restore();
     jest.resetAllMocks();
+  });
+
+  it('should return success false when the poetry is not installed', async () => {
+    checkPoetryExecutableMock.mockRejectedValue(new Error('poetry not found'));
+
+    const options = {
+      outputFile: '',
+      silent: false,
+    };
+
+    const context = {
+      cwd: '',
+      root: '.',
+      isVerbose: false,
+      projectName: 'app',
+      workspace: {
+        npmScope: 'nxlv',
+        version: 2,
+        projects: {
+          app: {
+            root: 'apps/app',
+            targets: {},
+          },
+        },
+      },
+    };
+
+    const output = await executor(options, context);
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(spawnSyncMock).not.toHaveBeenCalled();
+    expect(output.success).toBe(false);
   });
 
   it('should execute flake8 linting', async () => {
@@ -55,6 +90,7 @@ describe('Flake8 Executor', () => {
         },
       }
     );
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(spawnSyncMock).toHaveBeenCalledTimes(1);
     expect(output.success).toBe(true);
   });
@@ -89,6 +125,7 @@ describe('Flake8 Executor', () => {
         },
       }
     );
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(spawnSyncMock).toHaveBeenCalledTimes(1);
     expect(output.success).toBe(true);
   });
@@ -120,6 +157,7 @@ describe('Flake8 Executor', () => {
         },
       }
     );
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(spawnSyncMock).toHaveBeenCalledTimes(1);
     expect(output.success).toBe(false);
   });
@@ -155,6 +193,7 @@ describe('Flake8 Executor', () => {
         },
       }
     );
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(spawnSyncMock).toHaveBeenCalledTimes(1);
     expect(output.success).toBe(false);
   });
