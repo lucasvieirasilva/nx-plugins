@@ -18,13 +18,13 @@ jobs:
         with:
           result-encoding: string
           script: |
-            return context.payload.ref.replace(/\/refs\/tags\//, '').split('/')[0]
+            return context.payload.ref.replace(/\/refs\/tags\//, '').split('@')[0]
       - uses: actions/github-script@v6
         id: version
         with:
           result-encoding: string
           script: |
-            return context.payload.ref.replace(/\/refs\/tags\//, '').split('/')[1]
+            return context.payload.ref.replace(/\/refs\/tags\//, '').split('@')[1]
       - name: Build
         run: |
           npx nx run ${{ steps.project.outputs.result }}:build
