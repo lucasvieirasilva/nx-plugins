@@ -21,6 +21,8 @@ jobs:
       - run: npx nx affected --target=lint --parallel=3
       - run: npx nx affected --target=test --parallel=3 --ci --code-coverage
       - run: npx nx affected --target=build --parallel=3
+      - run: |
+          echo "NO_COVERAGE_RUN=$(if [ -z "$(npx nx print-affected --select=projects)" ]; then echo "false"; else echo "true";fi)"
       - name: Code Coverage Summary
         uses: dkhunt27/nx-code-coverage@v1
         with:
@@ -31,3 +33,4 @@ jobs:
           gist-id: 64d6f926915811aa067f60e6a70735c8
           color: green
           named-logo: jest
+          no-coverage-ran: ${{ env.NO_COVERAGE_RUN }}
