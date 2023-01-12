@@ -19,6 +19,7 @@ describe('Add Executor', () => {
       'checkPoetryExecutable'
     );
     checkPoetryExecutableMock.mockResolvedValue(undefined);
+    spawnSyncMock.mockReturnValue({ status: 0 });
   });
 
   afterEach(() => {

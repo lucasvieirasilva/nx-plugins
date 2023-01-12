@@ -28,6 +28,7 @@ describe('Build Executor', () => {
       'checkPoetryExecutable'
     );
     checkPoetryExecutableMock.mockResolvedValue(undefined);
+    spawnSyncMock.mockReturnValue({ status: 0 });
   });
 
   afterEach(() => {
@@ -169,6 +170,7 @@ describe('Build Executor', () => {
         `
         );
       }
+      return { status: 0 };
     });
 
     const options: BuildExecutorSchema = {
@@ -343,6 +345,7 @@ describe('Build Executor', () => {
           `
         );
       }
+      return { status: 0 };
     });
 
     const options: BuildExecutorSchema = {
@@ -514,6 +517,7 @@ describe('Build Executor', () => {
           `
         );
       }
+      return { status: 0 };
     });
 
     const options: BuildExecutorSchema = {
@@ -650,6 +654,7 @@ describe('Build Executor', () => {
           `
         );
       }
+      return { status: 0 };
     });
 
     const options: BuildExecutorSchema = {
@@ -742,6 +747,7 @@ describe('Build Executor', () => {
       } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
         writeFileSync(join(buildPath, 'requirements.txt'), 'click==7.1.2');
       }
+      return { status: 0 };
     });
 
     const options: BuildExecutorSchema = {
@@ -807,6 +813,7 @@ describe('Build Executor', () => {
       } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
         writeFileSync(join(buildPath, 'requirements.txt'), 'click==7.1.2');
       }
+      return { status: 0 };
     });
 
     const options: BuildExecutorSchema = {
@@ -868,6 +875,7 @@ describe('Build Executor', () => {
       } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
         throw Error('Poetry export error');
       }
+      return { status: 0 };
     });
 
     const options: BuildExecutorSchema = {

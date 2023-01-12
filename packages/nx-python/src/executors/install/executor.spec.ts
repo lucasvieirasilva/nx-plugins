@@ -28,6 +28,7 @@ describe('Install Executor', () => {
       'checkPoetryExecutable'
     );
     checkPoetryExecutableMock.mockResolvedValue(undefined);
+    spawnSyncMock.mockReturnValue({ status: 0 });
   });
 
   it('should return success false when the poetry is not installed', async () => {

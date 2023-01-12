@@ -4,12 +4,11 @@ import { getDependents, PyprojectToml } from '../graph/dependency-graph';
 import {
   getProjectTomlPath,
   parseToml,
-  POETRY_EXECUTABLE,
+  runPoetry,
   updateProject,
 } from '../executors/utils/poetry';
 import { existsSync, readFileSync } from 'fs-extra';
 import { parse } from '@iarna/toml';
-import spawn from 'cross-spawn';
 
 export function updateDependencyTree(context: ExecutorContext) {
   const rootPyprojectToml = existsSync('pyproject.toml');
@@ -33,10 +32,7 @@ export function updateDependencyTree(context: ExecutorContext) {
         chalk`\nUpdating root {bold pyproject.toml} dependency {bold ${pkgName}}`
       );
 
-      spawn.sync(POETRY_EXECUTABLE, ['update', pkgName], {
-        shell: false,
-        stdio: 'inherit',
-      });
+      runPoetry(['update', pkgName]);
     }
   }
 }
