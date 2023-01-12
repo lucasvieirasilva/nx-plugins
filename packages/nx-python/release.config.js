@@ -15,6 +15,12 @@ module.exports = {
         changelogFile: `${srcRoot}/CHANGELOG.md`,
       },
     ],
+    [
+      '@semantic-release/exec',
+      {
+        prepareCmd: 'npx nx format:write --uncommitted',
+      },
+    ],
     '@semantic-release/npm',
     [
       '@semantic-release/git',
