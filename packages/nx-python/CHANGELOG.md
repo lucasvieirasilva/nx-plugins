@@ -1,3 +1,9 @@
+## [15.1.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.1.0...nx-python-v15.1.1) (2023-01-12)
+
+### Bug Fixes
+
+- **nx-python:** fix all poetry commands to check the exit code ([#13](https://github.com/lucasvieirasilva/nx-plugins/issues/13)) ([9e55677](https://github.com/lucasvieirasilva/nx-plugins/commit/9e55677e15a568521350cdd8dd3372529170948e))
+
 # [15.1.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.0.2...nx-python-v15.1.0) (2023-01-11)
 
 ### Bug Fixes
