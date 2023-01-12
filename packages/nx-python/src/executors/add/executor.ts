@@ -1,5 +1,4 @@
 import { ExecutorContext, ProjectConfiguration } from '@nrwl/devkit';
-import spawn from 'cross-spawn';
 import { AddExecutorSchema } from './schema';
 import chalk from 'chalk';
 import { updateDependencyTree } from '../../dependency/update-dependency';
@@ -9,7 +8,7 @@ import {
   addLocalProjectToPoetryProject,
   checkPoetryExecutable,
   getLocalDependencyConfig,
-  POETRY_EXECUTABLE,
+  runPoetry,
   updateProject,
 } from '../utils/poetry';
 
@@ -47,15 +46,8 @@ export default async function executor(
           options.extras ? options.extras.map((ex) => `--extras=${ex}`) : []
         )
         .concat(rootPyprojectToml ? ['--lock'] : []);
-      const installCommand = `${POETRY_EXECUTABLE} ${installArgs.join(' ')}`;
-      console.log(
-        chalk`{bold Running command}: ${installCommand} at {bold ${projectConfig.root}} folder\n`
-      );
-      spawn.sync(POETRY_EXECUTABLE, installArgs, {
-        cwd: projectConfig.root,
-        shell: false,
-        stdio: 'inherit',
-      });
+
+      runPoetry(installArgs, { cwd: projectConfig.root });
     }
 
     updateDependencyTree(context);

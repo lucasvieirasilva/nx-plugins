@@ -4,9 +4,8 @@ import buildExecutor from '../build/executor';
 import path from 'path';
 import chalk from 'chalk';
 import { Logger } from '../utils/logger';
-import spawn from 'cross-spawn';
 import { readdirSync, existsSync } from 'fs-extra';
-import { checkPoetryExecutable, POETRY_EXECUTABLE } from '../utils/poetry';
+import { checkPoetryExecutable, runPoetry } from '../utils/poetry';
 
 const logger = new Logger();
 
@@ -59,13 +58,7 @@ export default async function executor(
     const toxArgs = ['run', 'tox', '--installpkg', packagePath].concat(
       options.args ? options.args.split(' ') : []
     );
-    const command = `${POETRY_EXECUTABLE} ${toxArgs.join(' ')}`;
-    logger.info(chalk`\n  Running Command: {bold ${command}}\n`);
-    spawn.sync(POETRY_EXECUTABLE, toxArgs, {
-      cwd: projectConfig.root,
-      shell: false,
-      stdio: 'inherit',
-    });
+    runPoetry(toxArgs, { cwd: projectConfig.root });
 
     return {
       success: true,

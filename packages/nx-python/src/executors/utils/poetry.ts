@@ -6,6 +6,7 @@ import toml from '@iarna/toml';
 import fs from 'fs';
 import { PyprojectToml } from '../../graph/dependency-graph';
 import commandExists from 'command-exists';
+import { SpawnSyncOptions } from 'child_process';
 
 export const POETRY_EXECUTABLE = 'poetry';
 
@@ -63,15 +64,7 @@ export function updateProject(
   const updateLockArgs = ['update', projectName].concat(
     updateLockOnly ? ['--lock'] : []
   );
-  const updateLockCommand = `${POETRY_EXECUTABLE} ${updateLockArgs.join(' ')}`;
-  console.log(
-    chalk`{bold Running command}: ${updateLockCommand} at {bold ${cwd}} folder\n`
-  );
-  spawn.sync(POETRY_EXECUTABLE, updateLockArgs, {
-    cwd,
-    shell: false,
-    stdio: 'inherit',
-  });
+  runPoetry(updateLockArgs, { cwd });
 }
 
 export function getProjectTomlPath(targetConfig: ProjectConfiguration) {
@@ -93,4 +86,43 @@ export function getLocalDependencyConfig(
     );
   }
   return dependencyConfig;
+}
+
+export type RunPoetryOptions = {
+  log?: boolean;
+  error?: boolean;
+} & SpawnSyncOptions;
+
+export function runPoetry(
+  args: string[],
+  options: RunPoetryOptions = {}
+): void {
+  const log = options.log ?? true;
+  const error = options.error ?? true;
+  delete options.log;
+  delete options.error;
+
+  const commandStr = `${POETRY_EXECUTABLE} ${args.join(' ')}`;
+
+  if (log) {
+    console.log(
+      chalk`{bold Running command}: ${commandStr} ${
+        options.cwd && options.cwd !== '.'
+          ? chalk`at {bold ${options.cwd}} folder`
+          : ''
+      }\n`
+    );
+  }
+
+  const result = spawn.sync(POETRY_EXECUTABLE, args, {
+    ...options,
+    shell: false,
+    stdio: 'inherit',
+  });
+
+  if (error && result.status !== 0) {
+    throw new Error(
+      chalk`{bold ${commandStr}} command failed with exit code {bold ${result.status}}`
+    );
+  }
 }

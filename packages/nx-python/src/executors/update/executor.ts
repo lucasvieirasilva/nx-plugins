@@ -6,10 +6,9 @@ import {
   getLocalDependencyConfig,
   getProjectTomlPath,
   parseToml,
-  POETRY_EXECUTABLE,
+  runPoetry,
   updateProject,
 } from '../utils/poetry';
-import spawn from 'cross-spawn';
 import { updateDependencyTree } from '../../dependency/update-dependency';
 import { existsSync } from 'fs-extra';
 
@@ -48,15 +47,7 @@ export default async function executor(
         .concat(options.name ? [options.name] : [])
         .concat(options.args ? options.args.split(' ') : [])
         .concat(rootPyprojectToml ? ['--lock'] : []);
-      const updateCommand = `${POETRY_EXECUTABLE} ${updateArgs.join(' ')}`;
-      console.log(
-        chalk`{bold Running command}: ${updateCommand} at {bold ${projectConfig.root}} folder\n`
-      );
-      spawn.sync(POETRY_EXECUTABLE, updateArgs, {
-        cwd: projectConfig.root,
-        shell: false,
-        stdio: 'inherit',
-      });
+      runPoetry(updateArgs, { cwd: projectConfig.root });
     }
 
     updateDependencyTree(context);

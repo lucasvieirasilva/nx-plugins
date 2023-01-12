@@ -19,6 +19,7 @@ describe('Flake8 Executor', () => {
       'checkPoetryExecutable'
     );
     checkPoetryExecutableMock.mockResolvedValue(undefined);
+    spawnSyncMock.mockReturnValue({ status: 0 });
   });
 
   beforeAll(() => {

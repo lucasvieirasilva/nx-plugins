@@ -29,6 +29,7 @@ describe('nx-python project generator', () => {
       'checkPoetryExecutable'
     );
     checkPoetryExecutableMock.mockResolvedValue(undefined);
+    spawnSyncMock.mockReturnValue({ status: 0 });
   });
 
   it('should throw an exception when the poetry is not installed', async () => {

@@ -14,13 +14,12 @@ import {
   PyprojectTomlDependency,
 } from '../../graph/dependency-graph';
 import { parse, stringify } from '@iarna/toml';
-import spawn from 'cross-spawn';
 import { tmpdir } from 'os';
 import { v4 as uuid } from 'uuid';
 import chalk from 'chalk';
 import { Logger } from '../utils/logger';
 import uri2path from 'file-uri-to-path';
-import { checkPoetryExecutable, POETRY_EXECUTABLE } from '../utils/poetry';
+import { checkPoetryExecutable, runPoetry } from '../utils/poetry';
 
 const logger = new Logger();
 
@@ -100,13 +99,7 @@ export default async function executor(
 
     logger.info(chalk`  Generating sdist and wheel artifacts`);
     const buildArgs = ['build'];
-    const command = `${POETRY_EXECUTABLE} ${buildArgs.join(' ')}`;
-    logger.info(chalk`  Running ${command}`);
-    spawn.sync(POETRY_EXECUTABLE, buildArgs, {
-      cwd: buildFolderPath,
-      shell: false,
-      stdio: 'inherit',
-    });
+    runPoetry(buildArgs, { cwd: buildFolderPath });
 
     rmSync(options.outputPath, { recursive: true, force: true });
     mkdirSync(options.outputPath, { recursive: true });
@@ -300,11 +293,7 @@ function getProjectRequirementsTxt(
     });
   }
 
-  spawn.sync(POETRY_EXECUTABLE, exportArgs, {
-    cwd: root,
-    shell: false,
-    stdio: 'inherit',
-  });
+  runPoetry(exportArgs, { cwd: root, log: false });
 
   return readFileSync(outputPath, { encoding: 'utf-8' });
 }
