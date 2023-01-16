@@ -15,7 +15,7 @@
     "@nrwl/devkit": "15.4.5",
     "@nrwl/eslint-plugin-nx": "15.4.5",
     "@nrwl/jest": "15.4.5",
-    "@nrwl/js": "15.4.5",
+    "@nrwl/js": "15.5.1",
     "@nrwl/linter": "15.4.5",
     "@nrwl/nx-plugin": "^15.4.5",
     "@nrwl/workspace": "15.4.5",
