@@ -20,6 +20,8 @@ export type PyprojectTomlDependency =
       optional?: boolean;
       extras?: string[];
       develop?: boolean;
+      git?: string;
+      rev?: string;
     };
 
 export type PyprojectTomlDependencies = {

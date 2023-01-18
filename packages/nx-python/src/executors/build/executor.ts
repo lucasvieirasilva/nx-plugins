@@ -29,6 +29,8 @@ type Dependency = {
   markers?: string;
   optional: boolean;
   extras?: string[];
+  git?: string;
+  rev?: string;
 };
 
 type PoetryLockPackage = {
@@ -40,7 +42,9 @@ type PoetryLockPackage = {
     [key: string]: PyprojectTomlDependency;
   };
   source?: {
-    type: string;
+    type: 'git' | 'directory' | 'file' | 'url';
+    url?: string;
+    reference?: string;
   };
 };
 
@@ -158,12 +162,14 @@ function resolveLockedDependencies(
 }
 
 function parseToPyprojectDependency(dep: Dependency): PyprojectTomlDependency {
-  if (dep.markers || dep.optional || dep.extras) {
+  if (dep.markers || dep.optional || dep.extras || dep.git) {
     return {
       version: dep.version,
       markers: dep.markers,
       optional: dep.optional,
       extras: dep.extras,
+      git: dep.git,
+      rev: dep.rev,
     };
   } else {
     return dep.version;
@@ -196,23 +202,21 @@ function resolveDependencies(
     if (line.trim()) {
       const dep = {} as Dependency;
       const elements = line.split(';');
+
+      if (elements.length > 1) {
+        dep.markers = elements[1].trim();
+      }
+
       if (elements[0].includes('@')) {
-        const atPosition = elements[0].indexOf('@');
-        const packageName = elements[0].substring(0, atPosition).trim();
-        const localDepUrl = elements[0].substring(atPosition + 1).trim();
-        const rootFolder = relative(workspaceRoot, uri2path(localDepUrl));
-        const pyprojectToml = join(rootFolder, 'pyproject.toml');
-        const tomlData = parse(
-          readFileSync(pyprojectToml).toString('utf-8')
-        ) as PyprojectToml;
-        logger.info(
-          chalk`${tab}• Adding {blue.bold ${packageName}} local dependency`
-        );
-        includeDependencyPackage(
-          tomlData,
-          rootFolder,
+        resolveSourceDependency(
+          tab,
+          elements,
+          dep,
+          lockData,
+          workspaceRoot,
           buildFolderPath,
-          buildTomlData
+          buildTomlData,
+          deps
         );
         continue;
       }
@@ -224,18 +228,7 @@ function resolveDependencies(
       );
       resolvePackageExtras(dep);
 
-      if (elements.length > 1) {
-        dep.markers = elements[1].trim();
-      }
-
-      const lockedPkg = lockData.package.find(
-        (pkg) => pkg.name.toLowerCase() === dep.name.toLowerCase()
-      );
-      if (!lockedPkg) {
-        throw new Error(
-          chalk`Package {blue.bold ${dep.name}} not found in poetry.lock`
-        );
-      }
+      const lockedPkg = getLockedPackage(lockData, dep.name);
 
       dep.optional = lockedPkg.optional;
       deps.push(dep);
@@ -264,6 +257,100 @@ function resolveDependencies(
   }
 
   return deps;
+}
+
+function resolveSourceDependency(
+  tab: string,
+  exportedLineElements: string[],
+  dep: Dependency,
+  lockData: PoetryLock,
+  workspaceRoot: string,
+  buildFolderPath: string,
+  buildTomlData: PyprojectToml,
+  deps: Dependency[]
+) {
+  const atPosition = exportedLineElements[0].indexOf('@');
+  const packageName = exportedLineElements[0].substring(0, atPosition).trim();
+  const location = exportedLineElements[0].substring(atPosition + 1).trim();
+
+  dep.name = packageName;
+  resolvePackageExtras(dep);
+
+  const lockedPkg = getLockedPackage(lockData, dep.name);
+
+  switch (lockedPkg.source.type) {
+    case 'directory':
+      includeDirectoryDependency(
+        location,
+        workspaceRoot,
+        tab,
+        packageName,
+        buildFolderPath,
+        buildTomlData
+      );
+      break;
+    case 'git':
+      includeGitDependency(tab, lockedPkg, dep, deps);
+      break;
+    default:
+      throw new Error(`Unsupported source type: ${lockedPkg.source.type}`);
+  }
+}
+
+function getLockedPackage(lockData: PoetryLock, packageName: string) {
+  const lockedPkg = lockData.package.find(
+    (pkg) => pkg.name.toLowerCase() === packageName.toLowerCase()
+  );
+  if (!lockedPkg) {
+    throw new Error(
+      chalk`Package {blue.bold ${packageName.toLowerCase()}} not found in poetry.lock`
+    );
+  }
+  return lockedPkg;
+}
+
+function includeGitDependency(
+  tab: string,
+  lockedPkg: PoetryLockPackage,
+  dep: Dependency,
+  deps: Dependency[]
+) {
+  dep.git = lockedPkg.source.url;
+  dep.optional = lockedPkg.optional;
+
+  if (lockedPkg.source.reference !== 'HEAD') {
+    dep.rev = lockedPkg.source.reference;
+  }
+
+  logger.info(
+    chalk`${tab}• Adding {blue.bold ${dep.name}==${dep.git}@${lockedPkg.source.reference}} dependency`
+  );
+
+  deps.push(dep);
+}
+
+function includeDirectoryDependency(
+  localDepUrl: string,
+  workspaceRoot: string,
+  tab: string,
+  packageName: string,
+  buildFolderPath: string,
+  buildTomlData: PyprojectToml
+) {
+  const rootFolder = relative(workspaceRoot, uri2path(localDepUrl));
+  const pyprojectToml = join(rootFolder, 'pyproject.toml');
+  const tomlData = parse(
+    readFileSync(pyprojectToml).toString('utf-8')
+  ) as PyprojectToml;
+  logger.info(
+    chalk`${tab}• Adding {blue.bold ${packageName}} local dependency`
+  );
+  includeDependencyPackage(
+    tomlData,
+    rootFolder,
+    buildFolderPath,
+    buildTomlData
+  );
 }
 
 function getProjectRequirementsTxt(
