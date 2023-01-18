@@ -246,6 +246,398 @@ describe('Build Executor', () => {
     expect(output.success).toBe(true);
   });
 
+  it('should build python project with git dependency with revision and markers', async () => {
+    fsMock({
+      'apps/app/.venv/pyvenv.cfg': 'fake',
+      'apps/app/app/index.py': 'print("Hello from app")',
+      'apps/app/poetry.lock': dedent`
+      [[package]]
+      name = "Django"
+      version = "5.0.dev20230117182751"
+      description = "A high-level Python web framework that encourages rapid development and clean, pragmatic design."
+      category = "main"
+      optional = false
+      python-versions = ">=3.8"
+      files = []
+      develop = false
+
+      [package.source]
+      type = "git"
+      url = "https://github.com/django/django.git"
+      reference = "d54717118360e8679aa2bd0c5a1625f3e84712ba"
+      resolved_reference = "d54717118360e8679aa2bd0c5a1625f3e84712ba"
+      `,
+
+      'apps/app/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "app"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
+
+        [tool.poetry.dependencies]
+        python = "^3.8"
+        django = {git = "https://github.com/django/django.git", rev = "d54717118360e8679aa2bd0c5a1625f3e84712ba"}
+      `,
+    });
+
+    spawnSyncMock.mockImplementation((_, args, opts) => {
+      if (args[0] == 'build') {
+        spawnBuildMockImpl(opts);
+      } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
+        writeFileSync(
+          join(buildPath, 'requirements.txt'),
+          dedent`
+          django @ git+https://github.com/django/django.git@d54717118360e8679aa2bd0c5a1625f3e84712ba ; python_version >= "3.8" and python_version < "3.10"
+        `
+        );
+      }
+      return { status: 0 };
+    });
+
+    const options: BuildExecutorSchema = {
+      ignorePaths: ['.venv', '.tox', 'tests/'],
+      silent: false,
+      outputPath: 'dist/apps/app',
+      keepBuildFolder: true,
+      devDependencies: false,
+    };
+
+    const output = await executor(options, {
+      cwd: '',
+      root: '.',
+      isVerbose: false,
+      projectName: 'app',
+      workspace: {
+        version: 2,
+        npmScope: 'nxlv',
+        projects: {
+          app: {
+            root: 'apps/app',
+            targets: {},
+          },
+        },
+      },
+    });
+
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(existsSync(buildPath)).toBeTruthy();
+    expect(existsSync(`${buildPath}/app`)).toBeTruthy();
+    expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['build'], {
+      cwd: buildPath,
+      shell: false,
+      stdio: 'inherit',
+    });
+
+    const projectTomlData = parse(
+      readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8')
+    ) as PyprojectToml;
+
+    expect(projectTomlData.tool.poetry.packages).toStrictEqual([
+      {
+        include: 'app',
+      },
+    ]);
+
+    expect(projectTomlData.tool.poetry.dependencies).toStrictEqual({
+      python: '^3.8',
+      django: {
+        git: 'https://github.com/django/django.git',
+        optional: false,
+        rev: 'd54717118360e8679aa2bd0c5a1625f3e84712ba',
+        markers: 'python_version >= "3.8" and python_version < "3.10"',
+      },
+    });
+    expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual(
+      {}
+    );
+
+    expect(output.success).toBe(true);
+  });
+
+  it('should build python project with git dependency without revision and markers', async () => {
+    fsMock({
+      'apps/app/.venv/pyvenv.cfg': 'fake',
+      'apps/app/app/index.py': 'print("Hello from app")',
+      'apps/app/poetry.lock': dedent`
+      [[package]]
+      name = "Django"
+      version = "5.0.dev20230117182751"
+      description = "A high-level Python web framework that encourages rapid development and clean, pragmatic design."
+      category = "main"
+      optional = false
+      python-versions = ">=3.8"
+      files = []
+      develop = false
+
+      [package.source]
+      type = "git"
+      url = "https://github.com/django/django.git"
+      reference = "HEAD"
+      resolved_reference = "d54717118360e8679aa2bd0c5a1625f3e84712ba"
+      `,
+
+      'apps/app/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "app"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
+
+        [tool.poetry.dependencies]
+        python = "^3.8"
+        django = {git = "https://github.com/django/django.git", rev = "d54717118360e8679aa2bd0c5a1625f3e84712ba"}
+      `,
+    });
+
+    spawnSyncMock.mockImplementation((_, args, opts) => {
+      if (args[0] == 'build') {
+        spawnBuildMockImpl(opts);
+      } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
+        writeFileSync(
+          join(buildPath, 'requirements.txt'),
+          dedent`
+          django @ git+https://github.com/django/django.git"
+        `
+        );
+      }
+      return { status: 0 };
+    });
+
+    const options: BuildExecutorSchema = {
+      ignorePaths: ['.venv', '.tox', 'tests/'],
+      silent: false,
+      outputPath: 'dist/apps/app',
+      keepBuildFolder: true,
+      devDependencies: false,
+    };
+
+    const output = await executor(options, {
+      cwd: '',
+      root: '.',
+      isVerbose: false,
+      projectName: 'app',
+      workspace: {
+        version: 2,
+        npmScope: 'nxlv',
+        projects: {
+          app: {
+            root: 'apps/app',
+            targets: {},
+          },
+        },
+      },
+    });
+
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(existsSync(buildPath)).toBeTruthy();
+    expect(existsSync(`${buildPath}/app`)).toBeTruthy();
+    expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['build'], {
+      cwd: buildPath,
+      shell: false,
+      stdio: 'inherit',
+    });
+
+    const projectTomlData = parse(
+      readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8')
+    ) as PyprojectToml;
+
+    expect(projectTomlData.tool.poetry.packages).toStrictEqual([
+      {
+        include: 'app',
+      },
+    ]);
+
+    expect(projectTomlData.tool.poetry.dependencies).toStrictEqual({
+      python: '^3.8',
+      django: {
+        git: 'https://github.com/django/django.git',
+        optional: false,
+      },
+    });
+    expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual(
+      {}
+    );
+
+    expect(output.success).toBe(true);
+  });
+
+  it('should build python project with git dependency with extras', async () => {
+    fsMock({
+      'apps/app/.venv/pyvenv.cfg': 'fake',
+      'apps/app/app/index.py': 'print("Hello from app")',
+      'apps/app/poetry.lock': dedent`
+      [[package]]
+      name = "Django"
+      version = "5.0.dev20230117182751"
+      description = "A high-level Python web framework that encourages rapid development and clean, pragmatic design."
+      category = "main"
+      optional = false
+      python-versions = ">=3.8"
+      files = []
+      develop = false
+
+      [package.source]
+      type = "git"
+      url = "https://github.com/django/django.git"
+      reference = "HEAD"
+      resolved_reference = "d54717118360e8679aa2bd0c5a1625f3e84712ba"
+      `,
+
+      'apps/app/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "app"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
+
+        [tool.poetry.dependencies]
+        python = "^3.8"
+        django = {git = "https://github.com/django/django.git", rev = "d54717118360e8679aa2bd0c5a1625f3e84712ba", extras = ["argon2"]}
+      `,
+    });
+
+    spawnSyncMock.mockImplementation((_, args, opts) => {
+      if (args[0] == 'build') {
+        spawnBuildMockImpl(opts);
+      } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
+        writeFileSync(
+          join(buildPath, 'requirements.txt'),
+          dedent`
+          django[argon2] @ git+https://github.com/django/django.git"
+        `
+        );
+      }
+      return { status: 0 };
+    });
+
+    const options: BuildExecutorSchema = {
+      ignorePaths: ['.venv', '.tox', 'tests/'],
+      silent: false,
+      outputPath: 'dist/apps/app',
+      keepBuildFolder: true,
+      devDependencies: false,
+    };
+
+    const output = await executor(options, {
+      cwd: '',
+      root: '.',
+      isVerbose: false,
+      projectName: 'app',
+      workspace: {
+        version: 2,
+        npmScope: 'nxlv',
+        projects: {
+          app: {
+            root: 'apps/app',
+            targets: {},
+          },
+        },
+      },
+    });
+
+    expect(output.success).toBe(true);
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(existsSync(buildPath)).toBeTruthy();
+    expect(existsSync(`${buildPath}/app`)).toBeTruthy();
+    expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['build'], {
+      cwd: buildPath,
+      shell: false,
+      stdio: 'inherit',
+    });
+
+    const projectTomlData = parse(
+      readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8')
+    ) as PyprojectToml;
+
+    expect(projectTomlData.tool.poetry.packages).toStrictEqual([
+      {
+        include: 'app',
+      },
+    ]);
+
+    expect(projectTomlData.tool.poetry.dependencies).toStrictEqual({
+      python: '^3.8',
+      django: {
+        git: 'https://github.com/django/django.git',
+        optional: false,
+        extras: ['argon2'],
+      },
+    });
+    expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual(
+      {}
+    );
+  });
+
+  it('should throw an exception when the source type is not supported', async () => {
+    fsMock({
+      'apps/app/.venv/pyvenv.cfg': 'fake',
+      'apps/app/app/index.py': 'print("Hello from app")',
+      'apps/app/poetry.lock': dedent`
+      [[package]]
+      name = "Django"
+      version = "5.0.dev20230117182751"
+
+      [package.source]
+      type = "invalid"
+      `,
+
+      'apps/app/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "app"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
+
+        [tool.poetry.dependencies]
+        python = "^3.8"
+        django = {git = "https://github.com/django/django.git", rev = "d54717118360e8679aa2bd0c5a1625f3e84712ba"}
+      `,
+    });
+
+    spawnSyncMock.mockImplementation((_, args, opts) => {
+      if (args[0] == 'build') {
+        spawnBuildMockImpl(opts);
+      } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
+        writeFileSync(
+          join(buildPath, 'requirements.txt'),
+          dedent`
+          django @ git+https://github.com/django/django.git"
+        `
+        );
+      }
+      return { status: 0 };
+    });
+
+    const options: BuildExecutorSchema = {
+      ignorePaths: ['.venv', '.tox', 'tests/'],
+      silent: false,
+      outputPath: 'dist/apps/app',
+      keepBuildFolder: true,
+      devDependencies: false,
+    };
+
+    const output = await executor(options, {
+      cwd: '',
+      root: '.',
+      isVerbose: false,
+      projectName: 'app',
+      workspace: {
+        version: 2,
+        npmScope: 'nxlv',
+        projects: {
+          app: {
+            root: 'apps/app',
+            targets: {},
+          },
+        },
+      },
+    });
+
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(output.success).toBe(false);
+  });
+
   it('should build python project with local dependencies with poetry plugins', async () => {
     fsMock({
       'apps/app/.venv/pyvenv.cfg': 'fake',
