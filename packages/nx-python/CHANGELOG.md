@@ -1,3 +1,9 @@
+# [15.2.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.1.1...nx-python-v15.2.0) (2023-01-18)
+
+### Features
+
+- **nx-python:** added support for git dependencies ([#21](https://github.com/lucasvieirasilva/nx-plugins/issues/21)) ([76db36a](https://github.com/lucasvieirasilva/nx-plugins/commit/76db36a6cd180d69aaf0068ab9a2905aa3299830))
+
 ## [15.1.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.1.0...nx-python-v15.1.1) (2023-01-12)
 
 ### Bug Fixes
