@@ -208,35 +208,16 @@ function resolveDependencies(
       }
 
       if (elements[0].includes('@')) {
-        const atPosition = elements[0].indexOf('@');
-        const packageName = elements[0].substring(0, atPosition).trim();
-        const location = elements[0].substring(atPosition + 1).trim();
-
-        dep.name = packageName;
-        resolvePackageExtras(dep);
-
-        const lockedPkg = getLockedPackage(lockData, dep.name);
-
-        switch (lockedPkg.source.type) {
-          case 'directory':
-            includeDirectoryDependency(
-              location,
-              workspaceRoot,
-              tab,
-              packageName,
-              buildFolderPath,
-              buildTomlData
-            );
-            break;
-          case 'git':
-            includeGitDependency(tab, lockedPkg, dep, deps);
-            break;
-          default:
-            throw new Error(
-              `Unsupported source type: ${lockedPkg.source.type}`
-            );
-        }
-
+        resolveSourceDependency(
+          tab,
+          elements,
+          dep,
+          lockData,
+          workspaceRoot,
+          buildFolderPath,
+          buildTomlData,
+          deps
+        );
         continue;
       }
 
@@ -276,6 +257,44 @@ function resolveDependencies(
   }
 
   return deps;
+}
+
+function resolveSourceDependency(
+  tab: string,
+  exportedLineElements: string[],
+  dep: Dependency,
+  lockData: PoetryLock,
+  workspaceRoot: string,
+  buildFolderPath: string,
+  buildTomlData: PyprojectToml,
+  deps: Dependency[]
+) {
+  const atPosition = exportedLineElements[0].indexOf('@');
+  const packageName = exportedLineElements[0].substring(0, atPosition).trim();
+  const location = exportedLineElements[0].substring(atPosition + 1).trim();
+
+  dep.name = packageName;
+  resolvePackageExtras(dep);
+
+  const lockedPkg = getLockedPackage(lockData, dep.name);
+
+  switch (lockedPkg.source.type) {
+    case 'directory':
+      includeDirectoryDependency(
+        location,
+        workspaceRoot,
+        tab,
+        packageName,
+        buildFolderPath,
+        buildTomlData
+      );
+      break;
+    case 'git':
+      includeGitDependency(tab, lockedPkg, dep, deps);
+      break;
+    default:
+      throw new Error(`Unsupported source type: ${lockedPkg.source.type}`);
+  }
 }
 
 function getLockedPackage(lockData: PoetryLock, packageName: string) {
