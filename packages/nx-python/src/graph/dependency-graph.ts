@@ -28,11 +28,9 @@ export type PyprojectTomlDependencies = {
   [key: string]: PyprojectTomlDependency;
 };
 
-export type DependencyCategory = 'main' | 'dev';
-
 export type Dependency = {
   name: string;
-  category: DependencyCategory;
+  category: string;
 };
 
 export type PyprojectToml = {
@@ -42,6 +40,7 @@ export type PyprojectToml = {
       packages: Array<{
         include: string;
       }>;
+      version: string;
       dependencies: PyprojectTomlDependencies;
       group?: {
         [key: string]: {
@@ -90,6 +89,7 @@ export const getDependencies = (
 
   if (existsSync(pyprojectToml)) {
     const tomlData = getPyprojectData(pyprojectToml);
+
     resolveDependencies(
       tomlData.tool.poetry.dependencies,
       projectData,
@@ -98,14 +98,16 @@ export const getDependencies = (
       deps,
       'main'
     );
-    resolveDependencies(
-      tomlData.tool.poetry.group?.dev.dependencies,
-      projectData,
-      workspace,
-      cwd,
-      deps,
-      'dev'
-    );
+    for (const group in tomlData.tool.poetry.group) {
+      resolveDependencies(
+        tomlData.tool.poetry.group[group].dependencies,
+        projectData,
+        workspace,
+        cwd,
+        deps,
+        group
+      );
+    }
   }
 
   return deps;
@@ -142,20 +144,25 @@ const checkProjectIsDependent = (
   if (existsSync(pyprojectToml)) {
     const tomlData = getPyprojectData(pyprojectToml);
 
-    return (
-      isProjectDependent(
-        tomlData.tool.poetry.dependencies,
-        projectData,
-        root,
-        cwd
-      ) ||
-      isProjectDependent(
-        tomlData.tool.poetry.group?.dev.dependencies,
-        projectData,
-        root,
-        cwd
-      )
+    let isDep = isProjectDependent(
+      tomlData.tool.poetry.dependencies,
+      projectData,
+      root,
+      cwd
     );
+
+    if (isDep) return true;
+
+    for (const group in tomlData.tool.poetry.group) {
+      isDep = isProjectDependent(
+        tomlData.tool.poetry.group[group].dependencies,
+        projectData,
+        root,
+        cwd
+      );
+
+      if (isDep) return true;
+    }
   }
 
   return false;
@@ -189,7 +196,7 @@ const resolveDependencies = (
   workspace: Workspace | ProjectsConfigurations,
   cwd: string,
   deps: Dependency[],
-  category: DependencyCategory
+  category: string
 ) => {
   for (const dep in dependencies || {}) {
     const depData = dependencies[dep];
