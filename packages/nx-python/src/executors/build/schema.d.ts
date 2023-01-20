@@ -4,4 +4,6 @@ export interface BuildExecutorSchema {
   outputPath: string;
   keepBuildFolder: boolean;
   devDependencies: boolean;
+  lockedVersions: boolean;
+  bundleLocalDependencies: boolean;
 }

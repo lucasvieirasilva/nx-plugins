@@ -8,7 +8,7 @@ import {
   mkdirSync,
   rmSync,
 } from 'fs-extra';
-import { join, relative } from 'path';
+import { join } from 'path';
 import {
   PyprojectToml,
   PyprojectTomlDependency,
@@ -18,39 +18,14 @@ import { tmpdir } from 'os';
 import { v4 as uuid } from 'uuid';
 import chalk from 'chalk';
 import { Logger } from '../utils/logger';
-import uri2path from 'file-uri-to-path';
 import { checkPoetryExecutable, runPoetry } from '../utils/poetry';
+import {
+  LockedDependencyResolver,
+  ProjectDependencyResolver,
+} from './resolvers';
+import { Dependency } from './resolvers/types';
 
 const logger = new Logger();
-
-type Dependency = {
-  name: string;
-  version: string;
-  markers?: string;
-  optional: boolean;
-  extras?: string[];
-  git?: string;
-  rev?: string;
-};
-
-type PoetryLockPackage = {
-  name: string;
-  version: string;
-  category: string;
-  optional: boolean;
-  dependencies?: {
-    [key: string]: PyprojectTomlDependency;
-  };
-  source?: {
-    type: 'git' | 'directory' | 'file' | 'url';
-    url?: string;
-    reference?: string;
-  };
-};
-
-type PoetryLock = {
-  package: PoetryLockPackage[];
-};
 
 export default async function executor(
   options: BuildExecutorSchema,
@@ -61,6 +36,15 @@ export default async function executor(
   process.chdir(workspaceRoot);
   try {
     await checkPoetryExecutable();
+    if (
+      options.lockedVersions === true &&
+      options.bundleLocalDependencies === false
+    ) {
+      throw new Error(
+        'Not supported operations, you cannot use lockedVersions without bundleLocalDependencies'
+      );
+    }
+
     logger.info(
       chalk`\n  {bold Building project {bgBlue  ${context.projectName} }...}\n`
     );
@@ -88,14 +72,33 @@ export default async function executor(
       readFileSync(buildPyProjectToml).toString('utf-8')
     ) as PyprojectToml;
 
-    logger.info(chalk`  Resolving dependencies...`);
-    resolveLockedDependencies(
+    const deps = resolveDependencies(
+      options,
       root,
       buildFolderPath,
       buildTomlData,
-      options.devDependencies,
-      workspaceRoot
+      workspaceRoot,
+      context
     );
+
+    const pythonDependency = buildTomlData.tool.poetry.dependencies.python;
+
+    buildTomlData.tool.poetry.dependencies = {};
+    buildTomlData.tool.poetry.group = {
+      dev: {
+        dependencies: {},
+      },
+    };
+
+    if (pythonDependency) {
+      buildTomlData.tool.poetry.dependencies['python'] = pythonDependency;
+    }
+
+    for (const dep of deps) {
+      const pyprojectDep = parseToPyprojectDependency(dep);
+      buildTomlData.tool.poetry.dependencies[dep.name] = pyprojectDep;
+    }
+
     writeFileSync(buildPyProjectToml, stringify(buildTomlData));
     const distFolder = join(buildFolderPath, 'dist');
 
@@ -127,40 +130,6 @@ export default async function executor(
   }
 }
 
-function resolveLockedDependencies(
-  root: string,
-  buildFolderPath: string,
-  buildTomlData: PyprojectToml,
-  devDependencies: boolean,
-  workspaceRoot: string
-) {
-  const deps = resolveDependencies(
-    devDependencies,
-    root,
-    buildFolderPath,
-    buildTomlData,
-    workspaceRoot
-  );
-
-  const pythonDependency = buildTomlData.tool.poetry.dependencies.python;
-
-  buildTomlData.tool.poetry.dependencies = {};
-  buildTomlData.tool.poetry.group = {
-    dev: {
-      dependencies: {},
-    },
-  };
-
-  if (pythonDependency) {
-    buildTomlData.tool.poetry.dependencies['python'] = pythonDependency;
-  }
-
-  for (const dep of deps) {
-    const pyprojectDep = parseToPyprojectDependency(dep);
-    buildTomlData.tool.poetry.dependencies[dep.name] = pyprojectDep;
-  }
-}
-
 function parseToPyprojectDependency(dep: Dependency): PyprojectTomlDependency {
   if (dep.markers || dep.optional || dep.extras || dep.git) {
     return {
@@ -177,301 +146,26 @@ function parseToPyprojectDependency(dep: Dependency): PyprojectTomlDependency {
 }
 
 function resolveDependencies(
-  devDependencies: boolean,
+  options: BuildExecutorSchema,
   root: string,
   buildFolderPath: string,
   buildTomlData: PyprojectToml,
   workspaceRoot: string,
-  deps: Dependency[] = [],
-  level = 1
-): Dependency[] {
-  const tab = getLoggingTab(level);
-  const requerimentsTxt = getProjectRequirementsTxt(
-    devDependencies,
-    buildTomlData,
-    root,
-    buildFolderPath
-  );
-
-  const lockData = parse(
-    readFileSync(join(root, 'poetry.lock')).toString('utf-8')
-  ) as PoetryLock;
-
-  const requerimentsLines = requerimentsTxt.split('\n');
-  for (const line of requerimentsLines) {
-    if (line.trim()) {
-      const dep = {} as Dependency;
-      const elements = line.split(';');
-
-      if (elements.length > 1) {
-        dep.markers = elements[1].trim();
-      }
-
-      if (elements[0].includes('@')) {
-        resolveSourceDependency(
-          tab,
-          elements,
-          dep,
-          lockData,
-          workspaceRoot,
-          buildFolderPath,
-          buildTomlData,
-          deps
-        );
-        continue;
-      }
-
-      dep.name = elements[0].split('==')[0];
-      dep.version = elements[0].split('==')[1];
-      logger.info(
-        chalk`${tab}• Adding {blue.bold ${dep.name}==${dep.version}} dependency`
-      );
-      resolvePackageExtras(dep);
-
-      const lockedPkg = getLockedPackage(lockData, dep.name);
-
-      dep.optional = lockedPkg.optional;
-      deps.push(dep);
-    }
-  }
-
-  if (buildTomlData.tool.poetry.extras) {
-    for (const extra in buildTomlData.tool.poetry.extras) {
-      const originalExtraDeps = buildTomlData.tool.poetry.extras[extra];
-      const lockedDeps = originalExtraDeps.map((dep) =>
-        lockData.package.find((pkg) => pkg.name === dep)
-      );
-      const resolvedDeps = resolveExtrasLockedDependencyTree(
-        lockData,
-        lockedDeps,
-        level
-      );
-
-      logger.info(
-        chalk`${tab}• Extra: {blue.bold ${extra}} - {blue.bold ${resolvedDeps.join(
-          ', '
-        )}} Locked Dependencies`
-      );
-      buildTomlData.tool.poetry.extras[extra] = resolvedDeps;
-    }
-  }
-
-  return deps;
-}
-
-function resolveSourceDependency(
-  tab: string,
-  exportedLineElements: string[],
-  dep: Dependency,
-  lockData: PoetryLock,
-  workspaceRoot: string,
-  buildFolderPath: string,
-  buildTomlData: PyprojectToml,
-  deps: Dependency[]
+  context: ExecutorContext
 ) {
-  const atPosition = exportedLineElements[0].indexOf('@');
-  const packageName = exportedLineElements[0].substring(0, atPosition).trim();
-  const location = exportedLineElements[0].substring(atPosition + 1).trim();
-
-  dep.name = packageName;
-  resolvePackageExtras(dep);
-
-  const lockedPkg = getLockedPackage(lockData, dep.name);
-
-  switch (lockedPkg.source.type) {
-    case 'directory':
-      includeDirectoryDependency(
-        location,
-        workspaceRoot,
-        tab,
-        packageName,
-        buildFolderPath,
-        buildTomlData
-      );
-      break;
-    case 'git':
-      includeGitDependency(tab, lockedPkg, dep, deps);
-      break;
-    default:
-      throw new Error(`Unsupported source type: ${lockedPkg.source.type}`);
-  }
-}
-
-function getLockedPackage(lockData: PoetryLock, packageName: string) {
-  const lockedPkg = lockData.package.find(
-    (pkg) => pkg.name.toLowerCase() === packageName.toLowerCase()
-  );
-  if (!lockedPkg) {
-    throw new Error(
-      chalk`Package {blue.bold ${packageName.toLowerCase()}} not found in poetry.lock`
+  if (options.lockedVersions) {
+    return new LockedDependencyResolver(logger).resolve(
+      root,
+      buildFolderPath,
+      buildTomlData,
+      options.devDependencies,
+      workspaceRoot
     );
-  }
-  return lockedPkg;
-}
-
-function includeGitDependency(
-  tab: string,
-  lockedPkg: PoetryLockPackage,
-  dep: Dependency,
-  deps: Dependency[]
-) {
-  dep.git = lockedPkg.source.url;
-  dep.optional = lockedPkg.optional;
-
-  if (lockedPkg.source.reference !== 'HEAD') {
-    dep.rev = lockedPkg.source.reference;
-  }
-
-  logger.info(
-    chalk`${tab}• Adding {blue.bold ${dep.name}==${dep.git}@${lockedPkg.source.reference}} dependency`
-  );
-
-  deps.push(dep);
-}
-
-function includeDirectoryDependency(
-  localDepUrl: string,
-  workspaceRoot: string,
-  tab: string,
-  packageName: string,
-  buildFolderPath: string,
-  buildTomlData: PyprojectToml
-) {
-  const rootFolder = relative(workspaceRoot, uri2path(localDepUrl));
-  const pyprojectToml = join(rootFolder, 'pyproject.toml');
-  const tomlData = parse(
-    readFileSync(pyprojectToml).toString('utf-8')
-  ) as PyprojectToml;
-  logger.info(
-    chalk`${tab}• Adding {blue.bold ${packageName}} local dependency`
-  );
-  includeDependencyPackage(
-    tomlData,
-    rootFolder,
-    buildFolderPath,
-    buildTomlData
-  );
-}
-
-function getProjectRequirementsTxt(
-  devDependencies: boolean,
-  buildTomlData: PyprojectToml,
-  root: string,
-  buildFolderPath: string
-): string {
-  const requerimentsTxtFilename = 'requirements.txt';
-  const outputPath = join(buildFolderPath, requerimentsTxtFilename);
-
-  const exportArgs = [
-    'export',
-    '--format',
-    requerimentsTxtFilename,
-    '--without-hashes',
-    '--without-urls',
-    '--output',
-    join(buildFolderPath, requerimentsTxtFilename),
-  ].concat(devDependencies ? ['--dev'] : []);
-
-  const extras = getExtras(buildTomlData);
-  if (extras.length > 0) {
-    extras.forEach((extra) => {
-      exportArgs.push('--extras');
-      exportArgs.push(extra);
-    });
-  }
-
-  runPoetry(exportArgs, { cwd: root, log: false });
-
-  return readFileSync(outputPath, { encoding: 'utf-8' });
-}
-
-function resolvePackageExtras(dep: Dependency) {
-  if (dep.name.indexOf('[') !== -1) {
-    dep.extras = dep.name
-      .substring(dep.name.indexOf('[') + 1, dep.name.lastIndexOf(']'))
-      .split(',')
-      .map((extraName) => extraName.trim());
-
-    dep.name = dep.name.substring(0, dep.name.indexOf('['));
-  }
-}
-
-function getLoggingTab(level: number): string {
-  return '    '.repeat(level);
-}
-
-function resolveExtrasLockedDependencyTree(
-  lockData: PoetryLock,
-  deps: PoetryLockPackage[],
-  level: number,
-  resolvedDeps: string[] = []
-): string[] {
-  const tab = getLoggingTab(level);
-  for (const dep of deps) {
-    logger.info(chalk`${tab}• Resolving dependency: {blue.bold ${dep.name}}`);
-    if (dep.source?.type !== 'directory' && !resolvedDeps.includes(dep.name)) {
-      resolvedDeps.push(dep.name);
-    }
-    const pkgDeps = dep.dependencies ? Object.keys(dep.dependencies) : [];
-    const optionalPkgDeps = pkgDeps
-      .map((depName) =>
-        lockData.package.find((pkg) => pkg.name === depName && pkg.optional)
-      )
-      .filter(
-        (pkgDep) => pkgDep !== undefined && !resolvedDeps.includes(pkgDep.name)
-      );
-
-    optionalPkgDeps.forEach((pkgDep) => resolvedDeps.push(pkgDep.name));
-    if (optionalPkgDeps.length > 0) {
-      logger.info(
-        chalk`${tab}• Resolved Dependencies: {blue.bold ${optionalPkgDeps
-          .map((pkgDep) => pkgDep.name)
-          .join(' ')}}`
-      );
-    }
-    resolveExtrasLockedDependencyTree(
-      lockData,
-      optionalPkgDeps,
-      level,
-      resolvedDeps
+  } else {
+    return new ProjectDependencyResolver(logger, options, context).resolve(
+      root,
+      buildFolderPath,
+      buildTomlData
     );
-  }
-
-  return resolvedDeps;
-}
-
-function getExtras(buildTomlData: PyprojectToml) {
-  if (buildTomlData.tool.poetry.extras) {
-    return Object.keys(buildTomlData.tool.poetry.extras);
-  }
-  return [];
-}
-
-function includeDependencyPackage(
-  tomlData: PyprojectToml,
-  root: string,
-  buildFolderPath: string,
-  buildTomlData: PyprojectToml
-) {
-  for (const pkg of tomlData.tool.poetry.packages) {
-    const pkgFolder = join(root, pkg.include);
-    const buildPackageFolder = join(buildFolderPath, pkg.include);
-
-    copySync(pkgFolder, buildPackageFolder, { recursive: true });
-
-    buildTomlData.tool.poetry.packages.push({
-      include: pkg.include,
-    });
-  }
-
-  if (tomlData.tool.poetry.plugins) {
-    if (!buildTomlData.tool.poetry.plugins) {
-      buildTomlData.tool.poetry.plugins = {};
-    }
-
-    for (const pluginName in tomlData.tool.poetry.plugins) {
-      buildTomlData.tool.poetry.plugins[pluginName] =
-        tomlData.tool.poetry.plugins[pluginName];
-    }
   }
 }

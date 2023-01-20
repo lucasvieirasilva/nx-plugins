@@ -16,6 +16,8 @@ Object {
     "build": Object {
       "executor": "@nxlv/python:build",
       "options": Object {
+        "bundleLocalDependencies": true,
+        "lockedVersions": true,
         "outputPath": "apps/shared/test/dist",
         "publish": true,
       },
@@ -286,6 +288,8 @@ Object {
     "build": Object {
       "executor": "@nxlv/python:build",
       "options": Object {
+        "bundleLocalDependencies": true,
+        "lockedVersions": true,
         "outputPath": "apps/test/dist",
         "publish": true,
       },
@@ -376,6 +380,8 @@ Object {
     "build": Object {
       "executor": "@nxlv/python:build",
       "options": Object {
+        "bundleLocalDependencies": true,
+        "lockedVersions": true,
         "outputPath": "libs/test/dist",
         "publish": true,
       },
@@ -570,6 +576,8 @@ Object {
     "build": Object {
       "executor": "@nxlv/python:build",
       "options": Object {
+        "bundleLocalDependencies": true,
+        "lockedVersions": true,
         "outputPath": "libs/test/dist",
         "publish": true,
       },
@@ -780,6 +788,8 @@ Object {
     "build": Object {
       "executor": "@nxlv/python:build",
       "options": Object {
+        "bundleLocalDependencies": true,
+        "lockedVersions": true,
         "outputPath": "libs/test/dist",
         "publish": true,
       },
@@ -887,6 +897,8 @@ Object {
     "build": Object {
       "executor": "@nxlv/python:build",
       "options": Object {
+        "bundleLocalDependencies": true,
+        "lockedVersions": true,
         "outputPath": "apps/test/dist",
         "publish": true,
       },
@@ -1081,6 +1093,8 @@ Object {
     "build": Object {
       "executor": "@nxlv/python:build",
       "options": Object {
+        "bundleLocalDependencies": true,
+        "lockedVersions": true,
         "outputPath": "apps/test/dist",
         "publish": true,
       },

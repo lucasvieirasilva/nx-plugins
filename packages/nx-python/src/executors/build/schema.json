@@ -31,6 +31,16 @@
       "type": "boolean",
       "description": "Build with dev dependencies",
       "default": false
+    },
+    "lockedVersions": {
+      "type": "boolean",
+      "description": "Build with locked versions",
+      "default": true
+    },
+    "bundleLocalDependencies": {
+      "type": "boolean",
+      "description": "Bundle local dependencies",
+      "default": true
     }
   },
   "required": ["outputPath"]

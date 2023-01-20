@@ -28,6 +28,16 @@
       "description": "Project is publishable",
       "default": true
     },
+    "buildLockedVersions": {
+      "type": "boolean",
+      "description": "Use locked versions for build dependencies",
+      "default": true
+    },
+    "buildBundleLocalDependencies": {
+      "type": "boolean",
+      "description": "Bundle local dependencies",
+      "default": true
+    },
     "addDevDependencies": {
       "type": "boolean",
       "description": "Use standalone dev dependencies",

@@ -171,6 +171,9 @@ async function generator(host: Tree, options: Schema) {
         options: {
           outputPath: `${normalizedOptions.projectRoot}/dist`,
           publish: normalizedOptions.publishable,
+          lockedVersions: normalizedOptions.buildLockedVersions,
+          bundleLocalDependencies:
+            normalizedOptions.buildBundleLocalDependencies,
         },
       },
       install: {

@@ -28,6 +28,8 @@ export default async function executor(
         ignorePaths: ['.venv', '.tox', 'tests'],
         outputPath: distFolder,
         devDependencies: true,
+        lockedVersions: true,
+        bundleLocalDependencies: true,
       },
       context
     );
