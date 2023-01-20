@@ -19,7 +19,7 @@ jobs:
       - run: npx nx workspace-lint
       - run: npx nx format:check
       - run: npx nx affected --target=lint --parallel=3
-      - run: npx nx affected --target=test --parallel=3 --ci --code-coverage
+      - run: npx nx affected --target=test --parallel=3 --ci --code-coverage --silent
       - run: npx nx affected --target=build --parallel=3
       - run: |
           echo "NO_COVERAGE_RUN=$(if [ -z "$(npx nx print-affected --select=projects)" ]; then echo "true"; else echo "false";fi)" >> $GITHUB_ENV
