@@ -41,8 +41,19 @@ jobs:
           mkdir coverage
           unzip coverage.zip -d coverage
 
+      - name: 'Resolve PR Number'
+        id: set-pr-number
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          result-encoding: string
+          script: |
+            var fs = require('fs');
+            var issue_number = Number(fs.readFileSync('.coverage/NR'));
+            return issue_number;
+
       - name: Code Coverage Summary
-        uses: dkhunt27/nx-code-coverage@v1
+        uses: lucasvieirasilva/nx-code-coverage@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           coverage-folder: ./coverage
@@ -52,3 +63,4 @@ jobs:
           color: green
           named-logo: jest
           no-coverage-ran: false
+          pr-number: ${{steps.set-pr-number.outputs.result}}

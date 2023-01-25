@@ -30,6 +30,9 @@ jobs:
       - run: npx nx affected --target=build --parallel=3
       - run: |
           echo "NO_COVERAGE_RUN=$(if [ -z "$(npx nx print-affected --select=projects)" ]; then echo "true"; else echo "false";fi)" >> $GITHUB_ENV
+      - if: env.NO_COVERAGE_RUN != 'true'
+        run: |
+          echo ${{ github.event.number }} > ./coverage/NR
       - uses: actions/upload-artifact@v2
         if: env.NO_COVERAGE_RUN != 'true'
         with:
