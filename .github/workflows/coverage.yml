@@ -1,0 +1,38 @@
+name: Code Coverage
+
+on:
+  workflow_run:
+    workflows: ['CI']
+    types:
+      - completed
+
+permissions:
+  pull-requests: write
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    if: >
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: coverage
+
+      - name: Display structure of downloaded files
+        run: ls -R
+
+      # - name: Code Coverage Summary
+      #   uses: dkhunt27/nx-code-coverage@v1
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     coverage-folder: ./coverage
+      #     coverage-base-folder: ./coverage-base
+      #     gist-token: ${{ secrets.GIST_SECRET }}
+      #     gist-id: 64d6f926915811aa067f60e6a70735c8
+      #     color: green
+      #     named-logo: jest
+      #     no-coverage-ran: ${{ env.NO_COVERAGE_RUN }}
