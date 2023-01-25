@@ -33,7 +33,7 @@ jobs:
       - name: Merge coverage
         if: env.NO_COVERAGE_RUN != 'true'
         run: |
-          node ./tools/coverageMerger.js
+          node ./tools/scripts/coverageMerger.js
       - name: Coveralls
         if: env.NO_COVERAGE_RUN != 'true'
         uses: coverallsapp/github-action@master
