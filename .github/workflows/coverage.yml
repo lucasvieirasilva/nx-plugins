@@ -1,10 +1,8 @@
 name: Code Coverage
 
-# read-write repo token
-# access to secrets
 on:
   workflow_run:
-    workflows: ["CI"]
+    workflows: ['CI']
     types:
       - completed
 
