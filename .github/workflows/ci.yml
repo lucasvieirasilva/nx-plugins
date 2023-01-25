@@ -31,6 +31,7 @@ jobs:
       - run: |
           echo "NO_COVERAGE_RUN=$(if [ -z "$(npx nx print-affected --select=projects)" ]; then echo "true"; else echo "false";fi)" >> $GITHUB_ENV
       - uses: actions/upload-artifact@v2
+        if: env.NO_COVERAGE_RUN != 'true'
         with:
           name: coverage
           path: ./coverage
