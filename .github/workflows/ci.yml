@@ -30,14 +30,15 @@ jobs:
       - run: npx nx affected --target=build --parallel=3
       - run: |
           echo "NO_COVERAGE_RUN=$(if [ -z "$(npx nx print-affected --select=projects)" ]; then echo "true"; else echo "false";fi)" >> $GITHUB_ENV
-      - if: env.NO_COVERAGE_RUN != 'true'
-        run: |
-          echo ${{ github.event.number }} > ./coverage/NR
-      - uses: actions/upload-artifact@v2
+      - name: Merge coverage
         if: env.NO_COVERAGE_RUN != 'true'
+        run: |
+          node ./tools/scripts/coverageMerger.js
+      - name: Coveralls
+        if: env.NO_COVERAGE_RUN != 'true'
+        uses: coverallsapp/github-action@master
         with:
-          name: coverage
-          path: ./coverage
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Release
         if: ${{ success() && (github.event_name != 'pull_request' || github.event.action == 'closed' && github.event.pull_request.merged == true) }}
         env:

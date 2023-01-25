@@ -21,6 +21,7 @@ export default {
     'clover',
     'json',
     'json-summary',
+    'lcov',
   ],
   coverageThreshold: {
     global: {
