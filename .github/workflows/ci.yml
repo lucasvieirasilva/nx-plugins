@@ -30,17 +30,10 @@ jobs:
       - run: npx nx affected --target=build --parallel=3
       - run: |
           echo "NO_COVERAGE_RUN=$(if [ -z "$(npx nx print-affected --select=projects)" ]; then echo "true"; else echo "false";fi)" >> $GITHUB_ENV
-      - name: Code Coverage Summary
-        uses: dkhunt27/nx-code-coverage@v1
+      - uses: actions/upload-artifact@v2
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          coverage-folder: ./coverage
-          coverage-base-folder: ./coverage-base
-          gist-token: ${{ secrets.GIST_SECRET }}
-          gist-id: 64d6f926915811aa067f60e6a70735c8
-          color: green
-          named-logo: jest
-          no-coverage-ran: ${{ env.NO_COVERAGE_RUN }}
+          name: coverage
+          path: ./coverage
       - name: Release
         if: ${{ success() && (github.event_name != 'pull_request' || github.event.action == 'closed' && github.event.pull_request.merged == true) }}
         env:
