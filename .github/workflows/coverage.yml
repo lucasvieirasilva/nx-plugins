@@ -16,8 +16,6 @@ jobs:
       github.event.workflow_run.event == 'pull_request' &&
       github.event.workflow_run.conclusion == 'success'
     steps:
-      - uses: actions/checkout@v3
-
       - name: 'Download artifact'
         uses: actions/github-script@v3.1.0
         with:
@@ -53,3 +51,4 @@ jobs:
           gist-id: 64d6f926915811aa067f60e6a70735c8
           color: green
           named-logo: jest
+          no-coverage-ran: false
