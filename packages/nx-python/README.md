@@ -1,4 +1,4 @@
-# @nxlv/python
+# @nxlv/python test
 
 ![Coverage Badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/lucasvieirasilva/64d6f926915811aa067f60e6a70735c8/raw/coverage-packages-nx-python.json)
 
