@@ -16,8 +16,6 @@ jobs:
       github.event.workflow_run.event == 'pull_request' &&
       github.event.workflow_run.conclusion == 'success'
     steps:
-      - uses: actions/checkout@v3
-
       - name: 'Download artifact'
         uses: actions/github-script@v3.1.0
         with:
@@ -43,8 +41,19 @@ jobs:
           mkdir coverage
           unzip coverage.zip -d coverage
 
+      - name: 'Resolve PR Number'
+        id: set-pr-number
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          result-encoding: string
+          script: |
+            var fs = require('fs');
+            var issue_number = Number(fs.readFileSync('.coverage/NR'));
+            return issue_number;
+
       - name: Code Coverage Summary
-        uses: dkhunt27/nx-code-coverage@v1
+        uses: lucasvieirasilva/nx-code-coverage@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           coverage-folder: ./coverage
@@ -53,3 +62,5 @@ jobs:
           gist-id: 64d6f926915811aa067f60e6a70735c8
           color: green
           named-logo: jest
+          no-coverage-ran: false
+          pr-number: ${{steps.set-pr-number.outputs.result}}
