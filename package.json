@@ -14,7 +14,7 @@
     "@commitlint/cz-commitlint": "^17.4.2",
     "@nrwl/devkit": "15.5.1",
     "@nrwl/eslint-plugin-nx": "15.5.1",
-    "@nrwl/jest": "15.5.1",
+    "@nrwl/jest": "15.6.3",
     "@nrwl/js": "15.5.1",
     "@nrwl/linter": "15.5.1",
     "@nrwl/nx-plugin": "15.5.1",
