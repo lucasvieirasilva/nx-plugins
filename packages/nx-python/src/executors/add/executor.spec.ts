@@ -446,6 +446,142 @@ version = "1.0.0"
     expect(output.success).toBe(true);
   });
 
+  it('run add target and should update all the dependency tree for dev dependencies', async () => {
+    fsMock({
+      'apps/app/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "app"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
+
+        [tool.poetry.dependencies]
+        python = "^3.8"
+        click = "click"
+        lib1 = { path = "../../libs/lib1" }
+      `,
+
+      'apps/app1/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "app1"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
+
+        [tool.poetry.dependencies]
+        python = "^3.8"
+        click = "click"
+        lib1 = { path = "../../libs/lib1" }
+      `,
+
+      'libs/lib1/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "lib1"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
+
+        [tool.poetry.group.dev.dependencies]
+        python = "^3.8"
+        shared1 = { path = "../shared1" }
+      `,
+
+      'libs/shared1/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "shared1"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
+
+        [tool.poetry.dependencies]
+        python = "^3.8"
+      `,
+    });
+
+    const options = {
+      name: 'numpy',
+      local: false,
+    };
+
+    const context = {
+      cwd: '',
+      root: '.',
+      isVerbose: false,
+      projectName: 'shared1',
+      workspace: {
+        version: 2,
+        npmScope: 'nxlv',
+        projects: {
+          app: {
+            root: 'apps/app',
+            targets: {},
+          },
+          app1: {
+            root: 'apps/app1',
+            targets: {},
+          },
+          app3: {
+            root: 'apps/app3',
+            targets: {},
+          },
+          lib1: {
+            root: 'libs/lib1',
+            targets: {},
+          },
+          shared1: {
+            root: 'libs/shared1',
+            targets: {},
+          },
+        },
+      },
+    };
+
+    const output = await executor(options, context);
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(spawnSyncMock).toHaveBeenCalledTimes(4);
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(
+      1,
+      'poetry',
+      ['add', 'numpy'],
+      {
+        cwd: 'libs/shared1',
+        shell: false,
+        stdio: 'inherit',
+      }
+    );
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(
+      2,
+      'poetry',
+      ['update', 'shared1'],
+      {
+        cwd: 'libs/lib1',
+        shell: false,
+        stdio: 'inherit',
+      }
+    );
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(
+      3,
+      'poetry',
+      ['update', 'lib1'],
+      {
+        cwd: 'apps/app',
+        shell: false,
+        stdio: 'inherit',
+      }
+    );
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(
+      4,
+      'poetry',
+      ['update', 'lib1'],
+      {
+        cwd: 'apps/app1',
+        shell: false,
+        stdio: 'inherit',
+      }
+    );
+    expect(output.success).toBe(true);
+  });
+
   it('run add target with local dependency', async () => {
     fsMock({
       'apps/app/pyproject.toml': `[tool.poetry]

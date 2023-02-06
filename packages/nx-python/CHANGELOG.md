@@ -1,3 +1,9 @@
+# [15.3.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.2.0...nx-python-v15.3.0) (2023-01-25)
+
+### Features
+
+- **nx-python:** follow all groups with dep graph ([#22](https://github.com/lucasvieirasilva/nx-plugins/issues/22)) ([f962fac](https://github.com/lucasvieirasilva/nx-plugins/commit/f962fac0da8736abd1c425ca431c3b26f1db065d))
+
 # [15.2.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.1.1...nx-python-v15.2.0) (2023-01-18)
 
 ### Features
