@@ -1,4 +1,7 @@
-import { PyprojectToml } from '../../../graph/dependency-graph';
+import {
+  PyprojectToml,
+  PyprojectTomlSource,
+} from '../../../graph/dependency-graph';
 import { Logger } from '../../utils/logger';
 import chalk from 'chalk';
 import { Dependency } from './types';
@@ -8,6 +11,35 @@ import { parse } from '@iarna/toml';
 import { BuildExecutorSchema } from '../schema';
 import { getLoggingTab, includeDependencyPackage } from './utils';
 import { ExecutorContext } from '@nrwl/devkit';
+import { createHash } from 'crypto';
+
+export const resolveDuplicateSources = (
+  sources: PyprojectTomlSource[],
+  { name, url }: PyprojectTomlSource
+): [PyprojectTomlSource[], string] => {
+  if (!sources) {
+    return [[{ name, url }], name];
+  }
+
+  const existing = sources.find((s) => s.name === name);
+
+  if (existing) {
+    if (existing.url === url) {
+      return [sources, name];
+    }
+
+    const hash = createHash('md5').update(url).digest('hex');
+    const newName = `${name}-${hash}`;
+
+    if (sources.find((s) => s.name === newName)) {
+      return [sources, newName];
+    }
+
+    return [[...sources, { name: newName, url }], newName];
+  }
+
+  return [[...sources, { name, url }], name];
+};
 
 export class ProjectDependencyResolver {
   private logger: Logger;
@@ -73,7 +105,9 @@ export class ProjectDependencyResolver {
         ) as PyprojectToml;
 
         const config = this.getProjectConfig(depPath);
-        const publisable = config.targets?.build?.options?.publish ?? true;
+        const targetOptions: BuildExecutorSchema | undefined =
+          config.targets?.build?.options;
+        const publisable = targetOptions?.publish ?? true;
 
         if (
           this.options.bundleLocalDependencies === true ||
@@ -99,6 +133,23 @@ export class ProjectDependencyResolver {
           continue;
         } else {
           dep.version = depPyproject.tool.poetry.version;
+
+          if (targetOptions?.customSourceUrl) {
+            const [newSources, newSourceName] = resolveDuplicateSources(
+              buildTomlData.tool.poetry.source,
+              {
+                name: targetOptions.customSourceName,
+                url: targetOptions.customSourceUrl,
+              }
+            );
+            if (newSourceName != targetOptions.customSourceName) {
+              this.logger.info(
+                chalk`  Duplicate source for {blue.bold ${dep.name}} renamed to ${newSourceName}`
+              );
+            }
+            buildTomlData.tool.poetry.source = newSources;
+            dep.source = newSourceName;
+          }
         }
       } else {
         dep.version = data.version;

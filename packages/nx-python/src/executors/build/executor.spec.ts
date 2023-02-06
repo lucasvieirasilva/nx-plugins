@@ -1756,6 +1756,8 @@ describe('Build Executor', () => {
                 build: {
                   options: {
                     publish: true,
+                    customSourceName: 'foo',
+                    customSourceUrl: 'http://example.com/bar',
                   },
                 },
               },
@@ -1780,6 +1782,13 @@ describe('Build Executor', () => {
         readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8')
       ) as PyprojectToml;
 
+      expect(projectTomlData.tool.poetry.source).toStrictEqual([
+        {
+          name: 'foo',
+          url: 'http://example.com/bar',
+        },
+      ]);
+
       expect(projectTomlData.tool.poetry.packages).toStrictEqual([
         {
           include: 'app',
@@ -1796,7 +1805,268 @@ describe('Build Executor', () => {
           version: '^4.1.5',
           extras: ['argon2'],
         },
-        dep2: '1.0.0',
+        dep2: { version: '1.0.0', source: 'foo' },
+      });
+      expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual(
+        {}
+      );
+    });
+
+    it('should build the project without locked versions and handle duplicate sources', async () => {
+      fsMock({
+        'apps/app/.venv/pyvenv.cfg': 'fake',
+        'apps/app/app/index.py': 'print("Hello from app")',
+        'apps/app/pyproject.toml': dedent`
+        [tool.poetry]
+        name = "app"
+        version = "1.0.0"
+          [[tool.poetry.packages]]
+          include = "app"
+
+          [tool.poetry.dependencies]
+          python = "^3.8"
+          click = "^7.1.2"
+          dep1 = { path = "../../libs/dep1" }
+          dep2 = { path = "../../libs/dep2" }
+          dep3 = { path = "../../libs/dep3" }
+          dep4 = { path = "../../libs/dep4" }
+          dep5 = { path = "../../libs/dep5" }
+
+          [tool.poetry.group.dev.dependencies]
+          pytest = "6.2.4"
+        `,
+
+        'libs/dep1/.venv/pyvenv.cfg': 'fake',
+        'libs/dep1/dep1/index.py': 'print("Hello from app")',
+        'libs/dep1/pyproject.toml': dedent`
+        [tool.poetry]
+        name = "dep1"
+        version = "1.0.0"
+          [[tool.poetry.packages]]
+          include = "dep1"
+
+          [tool.poetry.dependencies]
+          python = "^3.8"
+          django = { version = "^4.1.5", extras = ["argon2"] }
+          dep2 = { path = "../dep2" }
+
+          [tool.poetry.group.dev.dependencies]
+          pytest = "6.2.4"
+        `,
+        'libs/dep2/.venv/pyvenv.cfg': 'fake',
+        'libs/dep2/dep2/index.py': 'print("Hello from app")',
+        'libs/dep2/pyproject.toml': dedent`
+        [tool.poetry]
+        name = "dep2"
+        version = "1.0.0"
+          [[tool.poetry.packages]]
+          include = "dep2"
+
+          [tool.poetry.dependencies]
+          python = "^3.8"
+          numpy = "^1.21.0"
+
+          [tool.poetry.group.dev.dependencies]
+          pytest = "6.2.4"
+        `,
+        'libs/dep3/.venv/pyvenv.cfg': 'fake',
+        'libs/dep3/dep3/index.py': 'print("Hello from app")',
+        'libs/dep3/pyproject.toml': dedent`
+        [tool.poetry]
+        name = "dep3"
+        version = "1.0.0"
+          [[tool.poetry.packages]]
+          include = "dep3"
+
+          [tool.poetry.dependencies]
+          python = "^3.8"
+          numpy = "^1.21.0"
+
+          [tool.poetry.group.dev.dependencies]
+          pytest = "6.2.4"
+        `,
+        'libs/dep4/.venv/pyvenv.cfg': 'fake',
+        'libs/dep4/dep4/index.py': 'print("Hello from app")',
+        'libs/dep4/pyproject.toml': dedent`
+        [tool.poetry]
+        name = "dep4"
+        version = "1.0.0"
+          [[tool.poetry.packages]]
+          include = "dep3"
+
+          [tool.poetry.dependencies]
+          python = "^3.8"
+          numpy = "^1.21.0"
+
+          [tool.poetry.group.dev.dependencies]
+          pytest = "6.2.4"
+        `,
+        'libs/dep5/.venv/pyvenv.cfg': 'fake',
+        'libs/dep5/dep5/index.py': 'print("Hello from app")',
+        'libs/dep5/pyproject.toml': dedent`
+        [tool.poetry]
+        name = "dep5"
+        version = "1.0.0"
+          [[tool.poetry.packages]]
+          include = "dep3"
+
+          [tool.poetry.dependencies]
+          python = "^3.8"
+          numpy = "^1.21.0"
+
+          [tool.poetry.group.dev.dependencies]
+          pytest = "6.2.4"
+        `,
+      });
+
+      spawnSyncMock.mockImplementation((_, args, opts) => {
+        spawnBuildMockImpl(opts);
+        return { status: 0 };
+      });
+
+      const options: BuildExecutorSchema = {
+        ignorePaths: ['.venv', '.tox', 'tests/'],
+        silent: false,
+        outputPath: 'dist/apps/app',
+        keepBuildFolder: true,
+        devDependencies: false,
+        lockedVersions: false,
+        bundleLocalDependencies: false,
+      };
+
+      const output = await executor(options, {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        workspace: {
+          version: 2,
+          npmScope: 'nxlv',
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+            dep1: {
+              root: 'libs/dep1',
+              targets: {
+                build: {
+                  options: {
+                    publish: true,
+                    customSourceName: 'foo',
+                    customSourceUrl: 'http://example.com/foo',
+                  },
+                },
+              },
+            },
+            dep2: {
+              root: 'libs/dep2',
+              targets: {
+                build: {
+                  options: {
+                    publish: true,
+                    customSourceName: 'foo',
+                    customSourceUrl: 'http://example.com/bar',
+                  },
+                },
+              },
+            },
+            dep3: {
+              root: 'libs/dep3',
+              targets: {
+                build: {
+                  options: {
+                    publish: true,
+                    customSourceName: 'foo',
+                    customSourceUrl: 'http://example.com/bar',
+                  },
+                },
+              },
+            },
+            dep4: {
+              root: 'libs/dep4',
+              targets: {
+                build: {
+                  options: {
+                    publish: true,
+                    customSourceName: 'another',
+                    customSourceUrl: 'http://example.com/another',
+                  },
+                },
+              },
+            },
+            dep5: {
+              root: 'libs/dep5',
+              targets: {
+                build: {
+                  options: {
+                    publish: true,
+                    customSourceName: 'another',
+                    customSourceUrl: 'http://example.com/another',
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      expect(checkPoetryExecutableMock).toHaveBeenCalled();
+      expect(output.success).toBe(true);
+      expect(existsSync(buildPath)).toBeTruthy();
+      expect(existsSync(`${buildPath}/app`)).toBeTruthy();
+      expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
+      expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['build'], {
+        cwd: buildPath,
+        shell: false,
+        stdio: 'inherit',
+      });
+
+      const projectTomlData = parse(
+        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8')
+      ) as PyprojectToml;
+
+      expect(projectTomlData.tool.poetry.source).toStrictEqual([
+        {
+          name: 'foo',
+          url: 'http://example.com/foo',
+        },
+        {
+          name: 'foo-198fb9d8236b3d9116a180365e447b05',
+          url: 'http://example.com/bar',
+        },
+        {
+          name: 'another',
+          url: 'http://example.com/another',
+        },
+      ]);
+
+      expect(projectTomlData.tool.poetry.packages).toStrictEqual([
+        {
+          include: 'app',
+        },
+      ]);
+
+      expect(projectTomlData.tool.poetry.dependencies).toStrictEqual({
+        python: '^3.8',
+        click: '^7.1.2',
+        dep1: { version: '1.0.0', source: 'foo' },
+        dep2: {
+          version: '1.0.0',
+          source: 'foo-198fb9d8236b3d9116a180365e447b05',
+        },
+        dep3: {
+          version: '1.0.0',
+          source: 'foo-198fb9d8236b3d9116a180365e447b05',
+        },
+        dep4: {
+          version: '1.0.0',
+          source: 'another',
+        },
+        dep5: {
+          version: '1.0.0',
+          source: 'another',
+        },
       });
       expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual(
         {}

@@ -6,4 +6,7 @@ export interface BuildExecutorSchema {
   devDependencies: boolean;
   lockedVersions: boolean;
   bundleLocalDependencies: boolean;
+  customSourceName?: string;
+  customSourceUrl?: string;
+  publish?: boolean;
 }
