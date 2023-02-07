@@ -1,3 +1,9 @@
+# [15.4.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.3.0...nx-python-v15.4.0) (2023-02-07)
+
+### Features
+
+- **nx-python:** added support for build with non-locked versions and non-bundle local dependencies ([#24](https://github.com/lucasvieirasilva/nx-plugins/issues/24)) ([0ff434b](https://github.com/lucasvieirasilva/nx-plugins/commit/0ff434b3cabe277de74e39879469aef2a67a37a5))
+
 # [15.3.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.2.0...nx-python-v15.3.0) (2023-01-25)
 
 ### Features
