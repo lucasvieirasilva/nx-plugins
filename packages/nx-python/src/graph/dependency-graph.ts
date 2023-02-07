@@ -41,7 +41,6 @@ export type PyprojectToml = {
       packages: Array<{
         include: string;
       }>;
-      version: string;
       dependencies: PyprojectTomlDependencies;
       group?: {
         [key: string]: {
