@@ -18,6 +18,8 @@ describe('nx-python project generator', () => {
     publishable: true,
     customSource: false,
     addDevDependencies: false,
+    buildLockedVersions: true,
+    buildBundleLocalDependencies: true,
   };
 
   beforeEach(() => {

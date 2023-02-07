@@ -42,6 +42,8 @@ describe('nx-python migrate-shared-venv generator', () => {
       addDevDependencies: true,
       moduleName: 'proj1',
       packageName: 'proj1',
+      buildLockedVersions: true,
+      buildBundleLocalDependencies: true,
     });
 
     const task = await generator(appTree, {
@@ -75,6 +77,8 @@ describe('nx-python migrate-shared-venv generator', () => {
       addDevDependencies: false,
       moduleName: 'proj1',
       packageName: 'proj1',
+      buildLockedVersions: true,
+      buildBundleLocalDependencies: true,
     });
 
     const task = await generator(appTree, {

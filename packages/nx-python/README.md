@@ -44,18 +44,20 @@ nx generate @nxlv/python:project myproject
 
 #### Options
 
-| Option              |   Type    | Description                                        | Required                               | Default       |
-| ------------------- | :-------: | -------------------------------------------------- | -------------------------------------- | ------------- |
-| `--type`            | `string`  | Project type `application` or `library`            | `true`                                 | `application` |
-| `--description`     | `string`  | Project description                                | `false`                                |               |
-| `--directory`       | `string`  | A directory where the project is placed            | `false`                                |               |
-| `--packageName`     | `string`  | Package name                                       | `true`                                 |               |
-| `--publishable`     | `boolean` | Speficies if the project is publishable or not     | `false`                                | `true`        |
-| `--customSource`    | `boolean` | Speficies if the project uses custom PyPi registry | `false`                                | `false`       |
-| `--sourceName`      | `string`  | Custom PyPi registry name                          | only if the `--customSource` is `true` |               |
-| `--sourceUrl`       | `string`  | Custom PyPi registry url                           | only if the `--customSource` is `true` |               |
-| `--sourceSecondary` | `boolean` | Custom PyPi registry secondary flag                | only if the `--customSource` is `true` | `true`        |
-| `--tags`            | `string`  | Add tags to the project                            | `false`                                |               |
+| Option                           |   Type    | Description                                        | Required                               | Default       |
+| -------------------------------- | :-------: | -------------------------------------------------- | -------------------------------------- | ------------- |
+| `--type`                         | `string`  | Project type `application` or `library`            | `true`                                 | `application` |
+| `--description`                  | `string`  | Project description                                | `false`                                |               |
+| `--directory`                    | `string`  | A directory where the project is placed            | `false`                                |               |
+| `--packageName`                  | `string`  | Package name                                       | `true`                                 |               |
+| `--publishable`                  | `boolean` | Speficies if the project is publishable or not     | `false`                                | `true`        |
+| `--buildLockedVersions`          | `boolean` | Use locked versions for build dependencies         | `false`                                | `true`        |
+| `--buildBundleLocalDependencies` | `boolean` | Bundle local dependencies                          | `false`                                | `true`        |
+| `--customSource`                 | `boolean` | Speficies if the project uses custom PyPi registry | `false`                                | `false`       |
+| `--sourceName`                   | `string`  | Custom PyPi registry name                          | only if the `--customSource` is `true` |               |
+| `--sourceUrl`                    | `string`  | Custom PyPi registry url                           | only if the `--customSource` is `true` |               |
+| `--sourceSecondary`              | `boolean` | Custom PyPi registry secondary flag                | only if the `--customSource` is `true` | `true`        |
+| `--tags`                         | `string`  | Add tags to the project                            | `false`                                |               |
 
 #### Add a new dependency to a project
 
@@ -207,12 +209,146 @@ The `@nxlv/python:build` command handles the `sdist` and `wheel` build generatio
 
 ##### Options
 
-| Option              |   Type    | Description                              | Required | Default                      |
-| ------------------- | :-------: | ---------------------------------------- | -------- | ---------------------------- |
-| `--silent`          | `boolean` | Hide output text                         | `false`  | `false`                      |
-| `--outputPath`      | `string`  | Output path for the python tar/whl files | `true`   |                              |
-| `--keepBuildFolder` | `boolean` | Keep build folder                        | `false`  | `false`                      |
-| `--ignorePaths`     |  `array`  | Ignore folder/files on build process     | `false`  | `[".venv", ".tox", "tests"]` |
+| Option                      |   Type    | Description                              | Required | Default                      |
+| --------------------------- | :-------: | ---------------------------------------- | -------- | ---------------------------- |
+| `--silent`                  | `boolean` | Hide output text                         | `false`  | `false`                      |
+| `--outputPath`              | `string`  | Output path for the python tar/whl files | `true`   |                              |
+| `--keepBuildFolder`         | `boolean` | Keep build folder                        | `false`  | `false`                      |
+| `--lockedVersions`          | `boolean` | Build with locked versions               | `false`  | `true`                       |
+| `--bundleLocalDependencies` | `boolean` | Bundle local dependencies                | `false`  | `true`                       |
+| `--ignorePaths`             |  `array`  | Ignore folder/files on build process     | `false`  | `[".venv", ".tox", "tests"]` |
+
+##### Locked Versions Build
+
+Using the default (`lockedVersions` and `bundleLocalDependencies`) options, the executor uses the locked versions across all the dependencies and bundles the local dependencies in the same wheel file.
+
+`packages/proj1/pyproject.toml`
+
+```toml
+[tool.poetry]
+name = "pymonorepo-proj1"
+
+  [[tool.poetry.packages]]
+  include = "pymonorepo_proj1"
+
+  [tool.poetry.dependencies]
+  python = ">=3.8,<3.10"
+  pendulum = "^2.1.2"
+
+    [tool.poetry.dependencies.pymonorepo-lib1]
+    path = "../lib1"
+    develop = true
+```
+
+`packages/lib1/pyproject.toml`
+
+```toml
+[tool.poetry]
+name = "pymonorepo-lib1"
+version = "1.0.0"
+
+  [[tool.poetry.packages]]
+  include = "pymonorepo_lib1"
+
+  [tool.poetry.dependencies]
+  python = ">=3.8,<3.10"
+  numpy = "^1.24.1"
+```
+
+When the `build` is executed in the `proj1` package, the dist tar/whl file will contain the `lib1` package and all dependencies in the `poetry.lock` file.
+
+`packages/proj1/dist/pymonorepo-proj1-1.0.0.tar.gz/pyproject.toml`
+
+```toml
+[tool.poetry]
+name = "pymonorepo-proj1"
+version = "1.0.0"
+
+  [[tool.poetry.packages]]
+  include = "pymonorepo_proj1"
+
+  [[tool.poetry.packages]]
+  include = "pymonorepo_lib1"
+
+  [tool.poetry.dependencies]
+  python = ">=3.8,<3.10"
+
+    [tool.poetry.dependencies.numpy]
+    version = "1.24.1 "
+    markers = 'python_version >= "3.8" and python_version < "3.10"'
+    optional = false
+
+    [tool.poetry.dependencies.pendulum]
+    version = "2.1.2 "
+    markers = 'python_version >= "3.8" and python_version < "3.10"'
+    optional = false
+
+    [tool.poetry.dependencies.python-dateutil]
+    version = "2.8.2 "
+    markers = 'python_version >= "3.8" and python_version < "3.10"'
+    optional = false
+
+    [tool.poetry.dependencies.pytzdata]
+    version = "2020.1 "
+    markers = 'python_version >= "3.8" and python_version < "3.10"'
+    optional = false
+
+    [tool.poetry.dependencies.six]
+    version = "1.16.0 "
+    markers = 'python_version >= "3.8" and python_version < "3.10"'
+    optional = false
+```
+
+Note, that `python-dateutil` is a dependency of `pendulum`, and the `pymonorepo_lib1` is now part of the project instead of a dependency.
+
+##### Non-Locked Versions Build
+
+Using the `--lockedVersions=false` option, the executor uses the versions from the `pyproject.toml` file across all the dependencies and bundles the local dependencies in the same wheel file.
+
+`packages/proj1/dist/pymonorepo-proj1-1.0.0.tar.gz/pyproject.toml`
+
+```toml
+[tool.poetry]
+name = "pymonorepo-proj1"
+version = "1.0.0"
+
+  [[tool.poetry.packages]]
+  include = "pymonorepo_proj1"
+
+  [[tool.poetry.packages]]
+  include = "pymonorepo_lib1"
+
+  [tool.poetry.dependencies]
+  python = ">=3.8,<3.10"
+  numpy = "^1.24.1"
+  pendulum = "^2.1.2"
+```
+
+Note, the `pymonorepo_lib1` still bundled in the project but the dependencies are listed in the same way it is on the pyproject (using `^`).
+
+##### Non-Bundled Local Dependencies Build
+
+Using the `--bundleLocalDependencies=false` and `--lockedVersions=false` options, the executor checks if the local dependency is publishable and uses the version from the `pyproject.toml` file, instead of bundling the package.
+
+`packages/proj1/dist/pymonorepo-proj1-1.0.0.tar.gz/pyproject.toml`
+
+```toml
+[tool.poetry]
+name = "pymonorepo-proj1"
+version = "1.0.0"
+
+  [[tool.poetry.packages]]
+  include = "pymonorepo_proj1"
+
+  [tool.poetry.dependencies]
+  python = ">=3.8,<3.10"
+  pendulum = "^2.1.2"
+  pymonorepo-lib1 = "1.0.0"
+```
+
+To identify if the package is publishable, the executor checks `project.json` file, property `targets.build.options.publish`.
+
+If the `publish` option is set to `false` and the `--bundleLocalDependencies=false` option is used, the executor will bundle the package.
 
 #### flake8
 

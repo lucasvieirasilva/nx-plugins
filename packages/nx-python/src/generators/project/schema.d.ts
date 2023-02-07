@@ -12,4 +12,6 @@ export interface Schema {
   moduleName: string;
   publishable: boolean;
   addDevDependencies: boolean;
+  buildLockedVersions: boolean;
+  buildBundleLocalDependencies: boolean;
 }

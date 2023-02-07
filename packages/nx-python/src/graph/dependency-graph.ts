@@ -37,10 +37,10 @@ export type PyprojectToml = {
   tool: {
     poetry: {
       name: string;
+      version: string;
       packages: Array<{
         include: string;
       }>;
-      version: string;
       dependencies: PyprojectTomlDependencies;
       group?: {
         [key: string]: {

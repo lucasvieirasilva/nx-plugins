@@ -99,6 +99,8 @@ describe('Tox Executor', () => {
         ignorePaths: ['.venv', '.tox', 'tests'],
         outputPath: 'apps/app/dist',
         devDependencies: true,
+        lockedVersions: true,
+        bundleLocalDependencies: true,
       },
       context
     );
@@ -139,6 +141,8 @@ describe('Tox Executor', () => {
         ignorePaths: ['.venv', '.tox', 'tests'],
         outputPath: 'apps/app/dist',
         devDependencies: true,
+        lockedVersions: true,
+        bundleLocalDependencies: true,
       },
       context
     );
@@ -168,6 +172,8 @@ describe('Tox Executor', () => {
         ignorePaths: ['.venv', '.tox', 'tests'],
         outputPath: 'apps/app/dist',
         devDependencies: true,
+        lockedVersions: true,
+        bundleLocalDependencies: true,
       },
       context
     );
@@ -189,6 +195,8 @@ describe('Tox Executor', () => {
         ignorePaths: ['.venv', '.tox', 'tests'],
         outputPath: 'apps/app/dist',
         devDependencies: true,
+        lockedVersions: true,
+        bundleLocalDependencies: true,
       },
       context
     );
@@ -214,6 +222,8 @@ describe('Tox Executor', () => {
         ignorePaths: ['.venv', '.tox', 'tests'],
         outputPath: 'apps/app/dist',
         devDependencies: true,
+        lockedVersions: true,
+        bundleLocalDependencies: true,
       },
       context
     );
