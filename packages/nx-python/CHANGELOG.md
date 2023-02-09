@@ -1,3 +1,9 @@
+# [15.5.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.4.0...nx-python-v15.5.0) (2023-02-09)
+
+### Features
+
+- **nx-python:** adds support for custom dependency sources ([#41](https://github.com/lucasvieirasilva/nx-plugins/issues/41)) ([b0e4ffa](https://github.com/lucasvieirasilva/nx-plugins/commit/b0e4ffa417795bffe5f1d40e00905f908172550d))
+
 # [15.4.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.3.0...nx-python-v15.4.0) (2023-02-07)
 
 ### Features
