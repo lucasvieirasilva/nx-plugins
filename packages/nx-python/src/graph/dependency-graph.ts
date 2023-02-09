@@ -22,6 +22,7 @@ export type PyprojectTomlDependency =
       develop?: boolean;
       git?: string;
       rev?: string;
+      source?: string;
     };
 
 export type PyprojectTomlDependencies = {
@@ -31,6 +32,11 @@ export type PyprojectTomlDependencies = {
 export type Dependency = {
   name: string;
   category: string;
+};
+
+export type PyprojectTomlSource = {
+  name: string;
+  url: string;
 };
 
 export type PyprojectToml = {
@@ -55,6 +61,7 @@ export type PyprojectToml = {
           [key: string]: string;
         };
       };
+      source?: PyprojectTomlSource[];
     };
   };
 };

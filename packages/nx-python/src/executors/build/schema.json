@@ -41,6 +41,15 @@
       "type": "boolean",
       "description": "Bundle local dependencies",
       "default": true
+    },
+    "customSourceName": {
+      "type": "string",
+      "description": "Name for the custom source URL",
+      "default": "private"
+    },
+    "customSourceUrl": {
+      "type": "string",
+      "description": "URL for the custom source"
     }
   },
   "required": ["outputPath"]

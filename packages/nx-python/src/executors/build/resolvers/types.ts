@@ -8,6 +8,7 @@ export type Dependency = {
   extras?: string[];
   git?: string;
   rev?: string;
+  source?: string;
 };
 
 export type PoetryLockPackage = {

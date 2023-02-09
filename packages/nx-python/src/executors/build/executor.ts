@@ -131,7 +131,7 @@ export default async function executor(
 }
 
 function parseToPyprojectDependency(dep: Dependency): PyprojectTomlDependency {
-  if (dep.markers || dep.optional || dep.extras || dep.git) {
+  if (dep.markers || dep.optional || dep.extras || dep.git || dep.source) {
     return {
       version: dep.version,
       markers: dep.markers,
@@ -139,6 +139,7 @@ function parseToPyprojectDependency(dep: Dependency): PyprojectTomlDependency {
       extras: dep.extras,
       git: dep.git,
       rev: dep.rev,
+      source: dep.source,
     };
   } else {
     return dep.version;

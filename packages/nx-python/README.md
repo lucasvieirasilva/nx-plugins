@@ -350,6 +350,33 @@ To identify if the package is publishable, the executor checks `project.json` fi
 
 If the `publish` option is set to `false` and the `--bundleLocalDependencies=false` option is used, the executor will bundle the package.
 
+###### Custom source specification
+
+In addition when adding dependencies in this way its also possible to configure a custom source for a package. This works similar to the `publish` option in that its specified on the target dependencies build options. To use this set the `customSourceName` and `customSourceUrl` to valid values for the source to retrieve the package from for each package stored on a custom Pypi.
+
+`project.json` example:
+
+```json
+{
+  ...
+  "targets": {
+    ...
+    "build": {
+      "executor": "@nxlv/python:build",
+      "outputs": ["apps/myapp/dist"],
+      "options": {
+        "outputPath": "apps/myapp/dist",
+        "publish": false,
+        "customSourceName": "example",
+        "customSourceUrl": "http://example.com/"
+      }
+    },
+  }
+}
+```
+
+Alternatively its also possible to configured it within the `nx.json` as `targetDefaults` across the whole repository.
+
 #### flake8
 
 The `@nxlv/python:flake8` handles the `flake8` linting tasks and reporting generator.
