@@ -29,7 +29,7 @@
     "@types/cross-spawn": "^6.0.2",
     "@types/jest": "28.1.1",
     "@types/node": "18.13.0",
-    "@typescript-eslint/eslint-plugin": "^5.48.2",
+    "@typescript-eslint/eslint-plugin": "^5.52.0",
     "@typescript-eslint/parser": "^5.50.0",
     "commitizen": "^4.3.0",
     "cz-conventional-changelog": "^3.3.0",
