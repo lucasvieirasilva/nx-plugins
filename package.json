@@ -11,7 +11,7 @@
     "@commitlint/cli": "^17.4.2",
     "@commitlint/config-conventional": "^17.4.2",
     "@commitlint/config-nx-scopes": "^17.4.2",
-    "@commitlint/cz-commitlint": "^17.4.2",
+    "@commitlint/cz-commitlint": "^17.4.4",
     "@nrwl/devkit": "15.6.3",
     "@nrwl/eslint-plugin-nx": "15.6.3",
     "@nrwl/jest": "15.6.3",
