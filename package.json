@@ -39,7 +39,7 @@
     "jest": "28.1.1",
     "jest-environment-jsdom": "29.4.2",
     "jsonc-eslint-parser": "^2.1.0",
-    "lint-staged": "^13.1.0",
+    "lint-staged": "^13.1.2",
     "mock-fs": "^5.2.0",
     "nx": "15.6.3",
     "prettier": "^2.8.4",
