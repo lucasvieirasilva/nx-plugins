@@ -59,6 +59,11 @@ describe('nx-python dependency graph', () => {
     });
 
     const result = processProjectGraph(mockBuilder.graph, {
+      projectsConfigurations: {
+        projects: {},
+        version: 2,
+      },
+      nxJsonConfiguration: {},
       fileMap: {},
       filesToProcess: {},
       workspace: {
@@ -159,6 +164,11 @@ describe('nx-python dependency graph', () => {
     });
 
     const result = processProjectGraph(mockBuilder.graph, {
+      projectsConfigurations: {
+        projects: {},
+        version: 2,
+      },
+      nxJsonConfiguration: {},
       fileMap: {},
       filesToProcess: {},
       workspace: {
@@ -251,6 +261,11 @@ describe('nx-python dependency graph', () => {
     });
 
     const result = processProjectGraph(mockBuilder.graph, {
+      projectsConfigurations: {
+        projects: {},
+        version: 2,
+      },
+      nxJsonConfiguration: {},
       fileMap: {},
       filesToProcess: {},
       workspace: {
@@ -304,6 +319,11 @@ describe('nx-python dependency graph', () => {
 
   it('should progress the dependency graph for an empty project', async () => {
     const result = processProjectGraph(null, {
+      projectsConfigurations: {
+        projects: {},
+        version: 2,
+      },
+      nxJsonConfiguration: {},
       fileMap: {},
       filesToProcess: {},
       workspace: {
