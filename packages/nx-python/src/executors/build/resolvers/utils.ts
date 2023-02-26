@@ -12,7 +12,7 @@ export function includeDependencyPackage(
     const pkgFolder = join(root, pkg.include);
     const buildPackageFolder = join(buildFolderPath, pkg.include);
 
-    copySync(pkgFolder, buildPackageFolder, { recursive: true });
+    copySync(pkgFolder, buildPackageFolder);
 
     buildTomlData.tool.poetry.packages.push({
       include: pkg.include,

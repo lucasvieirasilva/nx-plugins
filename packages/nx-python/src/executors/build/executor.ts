@@ -6,7 +6,7 @@ import {
   readFileSync,
   writeFileSync,
   mkdirSync,
-  rmSync,
+  removeSync,
 } from 'fs-extra';
 import { join } from 'path';
 import {
@@ -60,9 +60,7 @@ export default async function executor(
       if (!options.ignorePaths.includes(file)) {
         const source = join(root, file);
         const target = join(buildFolderPath, file);
-        copySync(source, target, {
-          recursive: true,
-        });
+        copySync(source, target);
       }
     });
 
@@ -102,13 +100,13 @@ export default async function executor(
     writeFileSync(buildPyProjectToml, stringify(buildTomlData));
     const distFolder = join(buildFolderPath, 'dist');
 
-    rmSync(distFolder, { recursive: true, force: true });
+    removeSync(distFolder);
 
     logger.info(chalk`  Generating sdist and wheel artifacts`);
     const buildArgs = ['build'];
     runPoetry(buildArgs, { cwd: buildFolderPath });
 
-    rmSync(options.outputPath, { recursive: true, force: true });
+    removeSync(options.outputPath);
     mkdirSync(options.outputPath, { recursive: true });
     logger.info(
       chalk`  Artifacts generated at {bold ${options.outputPath}} folder`
@@ -116,7 +114,7 @@ export default async function executor(
     copySync(distFolder, options.outputPath);
 
     if (!options.keepBuildFolder) {
-      rmSync(buildFolderPath, { recursive: true, force: true });
+      removeSync(buildFolderPath);
     }
 
     return {

@@ -4,7 +4,7 @@ import spawn from 'cross-spawn';
 import { Logger } from '../utils/logger';
 import { ExecutorSchema } from './schema';
 import path from 'path';
-import { existsSync, readdirSync, writeFileSync, rmSync } from 'fs-extra';
+import { existsSync, readdirSync, writeFileSync, removeSync } from 'fs-extra';
 
 const logger = new Logger();
 
@@ -61,6 +61,6 @@ export default async function executor(
       success: false,
     };
   } finally {
-    rmSync(requirementsTxt, { recursive: true, force: true });
+    removeSync(requirementsTxt);
   }
 }
