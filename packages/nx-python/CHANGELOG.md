@@ -1,3 +1,9 @@
+## [15.5.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.5.0...nx-python-v15.5.1) (2023-02-26)
+
+### Bug Fixes
+
+- **nx-python:** replace rmSync to fs-extra removeSync and add fs-extra as a dependency ([#54](https://github.com/lucasvieirasilva/nx-plugins/issues/54)) ([b6acba2](https://github.com/lucasvieirasilva/nx-plugins/commit/b6acba2ea1b78e90cf8fd4c3b24bdfe999c6106a))
+
 # [15.5.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.4.0...nx-python-v15.5.0) (2023-02-09)
 
 ### Features
