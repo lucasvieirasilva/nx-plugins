@@ -9,7 +9,7 @@
   "private": true,
   "devDependencies": {
     "@commitlint/cli": "^17.4.2",
-    "@commitlint/config-conventional": "^17.4.2",
+    "@commitlint/config-conventional": "^17.4.4",
     "@commitlint/config-nx-scopes": "^17.4.2",
     "@commitlint/cz-commitlint": "^17.4.4",
     "@nrwl/devkit": "15.7.2",
