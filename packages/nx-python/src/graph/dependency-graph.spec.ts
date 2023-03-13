@@ -99,7 +99,6 @@ describe('nx-python dependency graph', () => {
             type: 'implicit',
           },
         ],
-        dep1: [],
       },
       externalNodes: {},
       nodes: {
@@ -196,7 +195,6 @@ describe('nx-python dependency graph', () => {
             type: 'implicit',
           },
         ],
-        dep1: [],
       },
       externalNodes: {},
       nodes: {
@@ -293,7 +291,6 @@ describe('nx-python dependency graph', () => {
             type: 'implicit',
           },
         ],
-        dep1: [],
       },
       externalNodes: {},
       nodes: {
