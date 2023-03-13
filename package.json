@@ -35,7 +35,7 @@
     "commitizen": "^4.3.0",
     "cz-conventional-changelog": "^3.3.0",
     "eslint": "~8.35.0",
-    "eslint-config-prettier": "8.6.0",
+    "eslint-config-prettier": "8.7.0",
     "husky": "^8.0.0",
     "jest": "28.1.1",
     "jest-environment-jsdom": "29.4.2",
