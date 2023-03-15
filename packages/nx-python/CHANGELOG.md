@@ -1,3 +1,9 @@
+# [15.6.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.5.1...nx-python-v15.6.0) (2023-03-15)
+
+### Features
+
+- **nx-python:** added nx placeholders for nx-python generator project ([#68](https://github.com/lucasvieirasilva/nx-plugins/issues/68)) ([34e0fc7](https://github.com/lucasvieirasilva/nx-plugins/commit/34e0fc7f1bbe102077c30d6f4d439602b287ec7f))
+
 ## [15.5.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.5.0...nx-python-v15.5.1) (2023-02-26)
 
 ### Bug Fixes
