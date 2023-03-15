@@ -22,7 +22,7 @@ exports[`nx-python project generator should generate a python project into a dif
         "publish": true,
       },
       "outputs": [
-        "apps/shared/test/dist",
+        "{projectRoot}/dist",
       ],
     },
     "docs": {
@@ -48,7 +48,7 @@ exports[`nx-python project generator should generate a python project into a dif
         "outputFile": "reports/apps/shared/test/pylint.txt",
       },
       "outputs": [
-        "reports/apps/shared/test/pylint.txt",
+        "{workspaceRoot}/reports/apps/shared/test/pylint.txt",
       ],
     },
     "lock": {
@@ -69,8 +69,8 @@ exports[`nx-python project generator should generate a python project into a dif
         "cwd": "apps/shared/test",
       },
       "outputs": [
-        "reports/apps/shared/test/unittests",
-        "coverage/apps/shared/test",
+        "{workspaceRoot}/reports/apps/shared/test/unittests",
+        "{workspaceRoot}/coverage/apps/shared/test",
       ],
     },
     "tox": {
@@ -80,8 +80,8 @@ exports[`nx-python project generator should generate a python project into a dif
         "silent": false,
       },
       "outputs": [
-        "reports/apps/shared/test/unittests",
-        "coverage/apps/shared/test",
+        "{workspaceRoot}/reports/apps/shared/test/unittests",
+        "{workspaceRoot}/coverage/apps/shared/test",
       ],
     },
     "update": {
@@ -294,7 +294,7 @@ exports[`nx-python project generator should generate a python project with tags 
         "publish": true,
       },
       "outputs": [
-        "apps/test/dist",
+        "{projectRoot}/dist",
       ],
     },
     "docs": {
@@ -320,7 +320,7 @@ exports[`nx-python project generator should generate a python project with tags 
         "outputFile": "reports/apps/test/pylint.txt",
       },
       "outputs": [
-        "reports/apps/test/pylint.txt",
+        "{workspaceRoot}/reports/apps/test/pylint.txt",
       ],
     },
     "lock": {
@@ -341,8 +341,8 @@ exports[`nx-python project generator should generate a python project with tags 
         "cwd": "apps/test",
       },
       "outputs": [
-        "reports/apps/test/unittests",
-        "coverage/apps/test",
+        "{workspaceRoot}/reports/apps/test/unittests",
+        "{workspaceRoot}/coverage/apps/test",
       ],
     },
     "tox": {
@@ -352,8 +352,8 @@ exports[`nx-python project generator should generate a python project with tags 
         "silent": false,
       },
       "outputs": [
-        "reports/apps/test/unittests",
-        "coverage/apps/test",
+        "{workspaceRoot}/reports/apps/test/unittests",
+        "{workspaceRoot}/coverage/apps/test",
       ],
     },
     "update": {
@@ -386,7 +386,7 @@ exports[`nx-python project generator should successfully generate a python libra
         "publish": true,
       },
       "outputs": [
-        "libs/test/dist",
+        "{projectRoot}/dist",
       ],
     },
     "docs": {
@@ -412,7 +412,7 @@ exports[`nx-python project generator should successfully generate a python libra
         "outputFile": "reports/libs/test/pylint.txt",
       },
       "outputs": [
-        "reports/libs/test/pylint.txt",
+        "{workspaceRoot}/reports/libs/test/pylint.txt",
       ],
     },
     "lock": {
@@ -433,8 +433,8 @@ exports[`nx-python project generator should successfully generate a python libra
         "cwd": "libs/test",
       },
       "outputs": [
-        "reports/libs/test/unittests",
-        "coverage/libs/test",
+        "{workspaceRoot}/reports/libs/test/unittests",
+        "{workspaceRoot}/coverage/libs/test",
       ],
     },
     "tox": {
@@ -444,8 +444,8 @@ exports[`nx-python project generator should successfully generate a python libra
         "silent": false,
       },
       "outputs": [
-        "reports/libs/test/unittests",
-        "coverage/libs/test",
+        "{workspaceRoot}/reports/libs/test/unittests",
+        "{workspaceRoot}/coverage/libs/test",
       ],
     },
     "update": {
@@ -582,7 +582,7 @@ exports[`nx-python project generator should successfully generate a python libra
         "publish": true,
       },
       "outputs": [
-        "libs/test/dist",
+        "{projectRoot}/dist",
       ],
     },
     "docs": {
@@ -608,7 +608,7 @@ exports[`nx-python project generator should successfully generate a python libra
         "outputFile": "reports/libs/test/pylint.txt",
       },
       "outputs": [
-        "reports/libs/test/pylint.txt",
+        "{workspaceRoot}/reports/libs/test/pylint.txt",
       ],
     },
     "lock": {
@@ -629,8 +629,8 @@ exports[`nx-python project generator should successfully generate a python libra
         "cwd": "libs/test",
       },
       "outputs": [
-        "reports/libs/test/unittests",
-        "coverage/libs/test",
+        "{workspaceRoot}/reports/libs/test/unittests",
+        "{workspaceRoot}/coverage/libs/test",
       ],
     },
     "tox": {
@@ -640,8 +640,8 @@ exports[`nx-python project generator should successfully generate a python libra
         "silent": false,
       },
       "outputs": [
-        "reports/libs/test/unittests",
-        "coverage/libs/test",
+        "{workspaceRoot}/reports/libs/test/unittests",
+        "{workspaceRoot}/coverage/libs/test",
       ],
     },
     "update": {
@@ -794,7 +794,7 @@ exports[`nx-python project generator should successfully generate a python libra
         "publish": true,
       },
       "outputs": [
-        "libs/test/dist",
+        "{projectRoot}/dist",
       ],
     },
     "docs": {
@@ -820,7 +820,7 @@ exports[`nx-python project generator should successfully generate a python libra
         "outputFile": "reports/libs/test/pylint.txt",
       },
       "outputs": [
-        "reports/libs/test/pylint.txt",
+        "{workspaceRoot}/reports/libs/test/pylint.txt",
       ],
     },
     "lock": {
@@ -841,8 +841,8 @@ exports[`nx-python project generator should successfully generate a python libra
         "cwd": "libs/test",
       },
       "outputs": [
-        "reports/libs/test/unittests",
-        "coverage/libs/test",
+        "{workspaceRoot}/reports/libs/test/unittests",
+        "{workspaceRoot}/coverage/libs/test",
       ],
     },
     "tox": {
@@ -852,8 +852,8 @@ exports[`nx-python project generator should successfully generate a python libra
         "silent": false,
       },
       "outputs": [
-        "reports/libs/test/unittests",
-        "coverage/libs/test",
+        "{workspaceRoot}/reports/libs/test/unittests",
+        "{workspaceRoot}/coverage/libs/test",
       ],
     },
     "update": {
@@ -903,7 +903,7 @@ exports[`nx-python project generator should successfully generate a python proje
         "publish": true,
       },
       "outputs": [
-        "apps/test/dist",
+        "{projectRoot}/dist",
       ],
     },
     "docs": {
@@ -929,7 +929,7 @@ exports[`nx-python project generator should successfully generate a python proje
         "outputFile": "reports/apps/test/pylint.txt",
       },
       "outputs": [
-        "reports/apps/test/pylint.txt",
+        "{workspaceRoot}/reports/apps/test/pylint.txt",
       ],
     },
     "lock": {
@@ -950,8 +950,8 @@ exports[`nx-python project generator should successfully generate a python proje
         "cwd": "apps/test",
       },
       "outputs": [
-        "reports/apps/test/unittests",
-        "coverage/apps/test",
+        "{workspaceRoot}/reports/apps/test/unittests",
+        "{workspaceRoot}/coverage/apps/test",
       ],
     },
     "tox": {
@@ -961,8 +961,8 @@ exports[`nx-python project generator should successfully generate a python proje
         "silent": false,
       },
       "outputs": [
-        "reports/apps/test/unittests",
-        "coverage/apps/test",
+        "{workspaceRoot}/reports/apps/test/unittests",
+        "{workspaceRoot}/coverage/apps/test",
       ],
     },
     "update": {
@@ -1099,7 +1099,7 @@ exports[`nx-python project generator should successfully generate a python proje
         "publish": true,
       },
       "outputs": [
-        "apps/test/dist",
+        "{projectRoot}/dist",
       ],
     },
     "docs": {
@@ -1125,7 +1125,7 @@ exports[`nx-python project generator should successfully generate a python proje
         "outputFile": "reports/apps/test/pylint.txt",
       },
       "outputs": [
-        "reports/apps/test/pylint.txt",
+        "{workspaceRoot}/reports/apps/test/pylint.txt",
       ],
     },
     "lock": {
@@ -1146,8 +1146,8 @@ exports[`nx-python project generator should successfully generate a python proje
         "cwd": "apps/test",
       },
       "outputs": [
-        "reports/apps/test/unittests",
-        "coverage/apps/test",
+        "{workspaceRoot}/reports/apps/test/unittests",
+        "{workspaceRoot}/coverage/apps/test",
       ],
     },
     "tox": {
@@ -1157,8 +1157,8 @@ exports[`nx-python project generator should successfully generate a python proje
         "silent": false,
       },
       "outputs": [
-        "reports/apps/test/unittests",
-        "coverage/apps/test",
+        "{workspaceRoot}/reports/apps/test/unittests",
+        "{workspaceRoot}/coverage/apps/test",
       ],
     },
     "update": {
