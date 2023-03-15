@@ -167,7 +167,7 @@ async function generator(host: Tree, options: Schema) {
       },
       build: {
         executor: '@nxlv/python:build',
-        outputs: [`${normalizedOptions.projectRoot}/dist`],
+        outputs: ['{projectRoot}/dist'],
         options: {
           outputPath: `${normalizedOptions.projectRoot}/dist`,
           publish: normalizedOptions.publishable,
@@ -188,7 +188,9 @@ async function generator(host: Tree, options: Schema) {
       },
       lint: {
         executor: '@nxlv/python:flake8',
-        outputs: [`reports/${normalizedOptions.projectRoot}/pylint.txt`],
+        outputs: [
+          `{workspaceRoot}/reports/${normalizedOptions.projectRoot}/pylint.txt`,
+        ],
         options: {
           outputFile: `reports/${normalizedOptions.projectRoot}/pylint.txt`,
         },
@@ -196,8 +198,8 @@ async function generator(host: Tree, options: Schema) {
       test: {
         executor: 'nx:run-commands',
         outputs: [
-          `reports/${normalizedOptions.projectRoot}/unittests`,
-          `coverage/${normalizedOptions.projectRoot}`,
+          `{workspaceRoot}/reports/${normalizedOptions.projectRoot}/unittests`,
+          `{workspaceRoot}/coverage/${normalizedOptions.projectRoot}`,
         ],
         options: {
           command: `poetry run pytest tests/`,
@@ -207,8 +209,8 @@ async function generator(host: Tree, options: Schema) {
       tox: {
         executor: '@nxlv/python:tox',
         outputs: [
-          `reports/${normalizedOptions.projectRoot}/unittests`,
-          `coverage/${normalizedOptions.projectRoot}`,
+          `{workspaceRoot}/reports/${normalizedOptions.projectRoot}/unittests`,
+          `{workspaceRoot}/coverage/${normalizedOptions.projectRoot}`,
         ],
         options: {
           silent: false,
