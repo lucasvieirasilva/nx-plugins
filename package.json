@@ -13,7 +13,7 @@
     "@commitlint/config-nx-scopes": "^17.4.2",
     "@commitlint/cz-commitlint": "^17.4.4",
     "@nrwl/devkit": "15.8.6",
-    "@nrwl/eslint-plugin-nx": "15.8.6",
+    "@nrwl/eslint-plugin-nx": "15.8.7",
     "@nrwl/jest": "15.8.6",
     "@nrwl/js": "15.8.6",
     "@nrwl/linter": "15.8.6",
