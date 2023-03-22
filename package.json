@@ -38,7 +38,7 @@
     "eslint-config-prettier": "8.7.0",
     "husky": "^8.0.0",
     "jest": "29.4.3",
-    "jest-environment-jsdom": "29.4.3",
+    "jest-environment-jsdom": "29.5.0",
     "jsonc-eslint-parser": "^2.2.0",
     "lint-staged": "^13.1.2",
     "mock-fs": "^5.2.0",
