@@ -1,3 +1,9 @@
+# [15.7.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.6.0...nx-python-v15.7.0) (2023-03-22)
+
+### Features
+
+- **nx-python:** parameterize python version range, tox envlist and add .python-version file ([#74](https://github.com/lucasvieirasilva/nx-plugins/issues/74)) ([70d8a3b](https://github.com/lucasvieirasilva/nx-plugins/commit/70d8a3b56c270c65174b7916d7ea5d27f47f1700)), closes [#67](https://github.com/lucasvieirasilva/nx-plugins/issues/67)
+
 # [15.6.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.5.1...nx-python-v15.6.0) (2023-03-15)
 
 ### Features
