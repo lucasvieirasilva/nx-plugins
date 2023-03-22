@@ -20,6 +20,9 @@ describe('nx-python project generator', () => {
     addDevDependencies: false,
     buildLockedVersions: true,
     buildBundleLocalDependencies: true,
+    pyprojectPythonDependency: '>=3.8,<3.10',
+    pyenvPythonVersion: '3.8.11',
+    toxEnvlist: 'py38',
   };
 
   beforeEach(() => {
@@ -208,5 +211,8 @@ function assertGenerateFiles(
   ).toBeTruthy();
   expect(
     appTree.read(`${projectDirectory}/tests/test_index.py`).toString()
+  ).toMatchSnapshot();
+  expect(
+    appTree.read(`${projectDirectory}/.python-version`).toString()
   ).toMatchSnapshot();
 }

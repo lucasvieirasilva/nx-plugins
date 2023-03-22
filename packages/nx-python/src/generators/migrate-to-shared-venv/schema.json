@@ -9,6 +9,16 @@
       "type": "boolean",
       "description": "Specifies if migration moves the dev dependencies from the projects to the root pyproject.toml",
       "default": true
+    },
+    "pyprojectPythonDependency": {
+      "type": "string",
+      "description": "Pyproject python dependency version range",
+      "default": ">=3.8,<3.11"
+    },
+    "pyenvPythonVersion": {
+      "type": "string",
+      "description": "Pyenv .python-version content",
+      "default": "3.8.11"
     }
   },
   "required": []

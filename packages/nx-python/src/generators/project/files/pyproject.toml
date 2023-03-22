@@ -21,7 +21,7 @@ readme = 'README.md'
   include = "<%= moduleName %>"
 
   [tool.poetry.dependencies]
-  python = ">=3.8,<3.10"
+  python = "<%- pyprojectPythonDependency %>"
 
   <%if (addDevDependencies) { %>
   [tool.poetry.group.dev.dependencies]

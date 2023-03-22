@@ -13,10 +13,11 @@ import { PyprojectToml } from '../../graph/dependency-graph';
 import chalk from 'chalk';
 import { checkPoetryExecutable, runPoetry } from '../../executors/utils/poetry';
 
-async function addFiles(host: Tree) {
+async function addFiles(host: Tree, options: Schema) {
   const packageJson = await readJsonFile('package.json');
 
   const templateOptions = {
+    ...options,
     template: '',
     dot: '.',
     packageName: packageJson.name,
@@ -111,7 +112,7 @@ function updateRootPoetryLock() {
 async function generator(host: Tree, options: Schema) {
   await checkPoetryExecutable();
 
-  await addFiles(host);
+  await addFiles(host, options);
   const lockUpdateTasks = updatePyprojectRoot(host, options);
   await formatFiles(host);
 
