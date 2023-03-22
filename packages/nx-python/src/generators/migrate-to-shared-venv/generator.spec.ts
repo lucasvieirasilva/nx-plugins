@@ -27,6 +27,8 @@ describe('nx-python migrate-shared-venv generator', () => {
     expect(
       generator(appTree, {
         moveDevDependencies: true,
+        pyenvPythonVersion: '3.8.11',
+        pyprojectPythonDependency: '>=3.8,<3.10',
       })
     ).rejects.toThrow('poetry not found');
 
@@ -44,10 +46,15 @@ describe('nx-python migrate-shared-venv generator', () => {
       packageName: 'proj1',
       buildLockedVersions: true,
       buildBundleLocalDependencies: true,
+      pyenvPythonVersion: '3.8.11',
+      pyprojectPythonDependency: '>=3.8,<3.10',
+      toxEnvlist: 'py38',
     });
 
     const task = await generator(appTree, {
       moveDevDependencies: true,
+      pyenvPythonVersion: '3.8.11',
+      pyprojectPythonDependency: '>=3.8,<3.10',
     });
     task();
 
@@ -56,6 +63,7 @@ describe('nx-python migrate-shared-venv generator', () => {
       appTree.read('apps/proj1/pyproject.toml', 'utf-8')
     ).toMatchSnapshot();
     expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
+    expect(appTree.read('.python-version', 'utf-8')).toMatchSnapshot();
     expect(spawnSyncMock).toHaveBeenNthCalledWith(
       1,
       'poetry',
@@ -79,10 +87,15 @@ describe('nx-python migrate-shared-venv generator', () => {
       packageName: 'proj1',
       buildLockedVersions: true,
       buildBundleLocalDependencies: true,
+      pyenvPythonVersion: '3.8.11',
+      pyprojectPythonDependency: '>=3.8,<3.10',
+      toxEnvlist: 'py38',
     });
 
     const task = await generator(appTree, {
       moveDevDependencies: true,
+      pyenvPythonVersion: '3.8.11',
+      pyprojectPythonDependency: '>=3.8,<3.10',
     });
     task();
 
@@ -91,6 +104,7 @@ describe('nx-python migrate-shared-venv generator', () => {
       appTree.read('apps/proj1/pyproject.toml', 'utf-8')
     ).toMatchSnapshot();
     expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
+    expect(appTree.read('.python-version', 'utf-8')).toMatchSnapshot();
     expect(spawnSyncMock).toHaveBeenNthCalledWith(
       1,
       'poetry',

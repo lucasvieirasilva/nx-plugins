@@ -196,6 +196,11 @@ def test_index():
 "
 `;
 
+exports[`nx-python project generator should generate a python project into a different folder 9`] = `
+"3.8.11
+"
+`;
+
 exports[`nx-python project generator should generate a python project using custom source 1`] = `
 "[tool.coverage.run]
 branch = true
@@ -560,6 +565,11 @@ def test_index():
 "
 `;
 
+exports[`nx-python project generator should successfully generate a python library project 9`] = `
+"3.8.11
+"
+`;
+
 exports[`nx-python project generator should successfully generate a python library project with dev dependencies 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
@@ -769,6 +779,11 @@ exports[`nx-python project generator should successfully generate a python libra
 
 def test_index():
     assert index.hello() == "Hello test"
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python library project with dev dependencies 9`] = `
+"3.8.11
 "
 `;
 
@@ -1077,6 +1092,11 @@ def test_index():
 "
 `;
 
+exports[`nx-python project generator should successfully generate a python project 9`] = `
+"3.8.11
+"
+`;
+
 exports[`nx-python project generator should successfully generate a python project with custom module name 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
@@ -1270,5 +1290,10 @@ exports[`nx-python project generator should successfully generate a python proje
 
 def test_index():
     assert index.hello() == "Hello test"
+"
+`;
+
+exports[`nx-python project generator should successfully generate a python project with custom module name 9`] = `
+"3.8.11
 "
 `;

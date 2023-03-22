@@ -9,6 +9,9 @@ export interface Schema {
   sourceUrl?: string;
   sourceSecondary?: boolean;
   packageName: string;
+  pyprojectPythonDependency: string;
+  pyenvPythonVersion: string;
+  toxEnvlist: string;
   moduleName: string;
   publishable: boolean;
   addDevDependencies: boolean;
