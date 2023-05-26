@@ -1,18 +1,13 @@
-const glob = require('glob');
+const { globSync } = require('glob');
 const fs = require('fs');
 const path = require('path');
 
 const getLcovFiles = function (src) {
-  return new Promise((resolve, reject) => {
-    glob(`${src}/**/lcov.info`, (error, result) => {
-      if (error) return reject(error);
-      resolve(result);
-    });
-  });
+  return globSync(`${src}/**/lcov.info`);
 };
 
 (async function () {
-  const files = await getLcovFiles('coverage');
+  const files = getLcovFiles('coverage');
   const mergedReport = files.reduce(
     (mergedReport, currFile) => (mergedReport += fs.readFileSync(currFile)),
     ''

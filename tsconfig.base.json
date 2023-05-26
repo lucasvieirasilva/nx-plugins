@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@nxlv/python": ["packages/nx-python/src/index.ts"]
+      "@nxlv/python": ["packages/nx-python/src/index.ts"],
+      "@nxlv/util": ["packages/util/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

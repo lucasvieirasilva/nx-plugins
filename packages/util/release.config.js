@@ -1,4 +1,4 @@
-const name = 'nx-python';
+const name = 'util';
 const srcRoot = `packages/${name}`;
 
 module.exports = {
