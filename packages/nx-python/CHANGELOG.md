@@ -1,3 +1,15 @@
+# [15.8.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.7.0...nx-python-v15.8.0) (2023-05-26)
+
+### Features
+
+- **util:** add @nxlv/util package with some shared functions ([#105](https://github.com/lucasvieirasilva/nx-plugins/issues/105)) ([4f65c9c](https://github.com/lucasvieirasilva/nx-plugins/commit/4f65c9cc9319cba89f9650d5deebdacbbfbb1369))
+
+# [15.8.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.7.0...nx-python-v15.8.0) (2023-05-26)
+
+### Features
+
+- **util:** add @nxlv/util package with some shared functions ([#105](https://github.com/lucasvieirasilva/nx-plugins/issues/105)) ([4f65c9c](https://github.com/lucasvieirasilva/nx-plugins/commit/4f65c9cc9319cba89f9650d5deebdacbbfbb1369))
+
 # [15.7.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.6.0...nx-python-v15.7.0) (2023-03-22)
 
 ### Features
