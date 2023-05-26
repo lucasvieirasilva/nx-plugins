@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const getLcovFiles = function (src) {
-  return globSync(`${src}/**/lcov.info`)
+  return globSync(`${src}/**/lcov.info`);
 };
 
 (async function () {
