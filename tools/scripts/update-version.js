@@ -14,9 +14,15 @@ if (!packageJsonPath) {
   process.exit(1);
 }
 
-const packageJson = JSON.parse(fs.readFileSync(packageJsonPath).toString('utf-8'));
+const packageJson = JSON.parse(
+  fs.readFileSync(packageJsonPath).toString('utf-8')
+);
 packageJson.version = version;
 
-fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n', 'utf8');
+fs.writeFileSync(
+  packageJsonPath,
+  JSON.stringify(packageJson, null, 2) + '\n',
+  'utf8'
+);
 
 console.log(`Updated version to ${version}`);
