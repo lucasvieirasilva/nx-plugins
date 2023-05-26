@@ -15,7 +15,11 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@nxlv/data-migration": ["packages/data-migration/src/index.ts"],
       "@nxlv/python": ["packages/nx-python/src/index.ts"],
+      "@nxlv/testing/dynamoose-mock": [
+        "packages/testing/dynamoose-mock/src/index.ts"
+      ],
       "@nxlv/util": ["packages/util/src/index.ts"]
     }
   },

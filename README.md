@@ -19,6 +19,11 @@
 ## Plugins available
 
 - [@nxlv/nx-plugins](packages/nx-python/README.md)
+- [@nxlv/data-migration](packages/data-migration/README.md)
+
+## Libraries available
+
+- [@nxlv/util](packages/util/README.md)
 
 ## Prerequisites
 

@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "name": "plugins-migration",
+  "version": "0.0.1",
+  "generators": {
+    "migration": {
+      "factory": "./src/generators/migration/generator",
+      "schema": "./src/generators/migration/schema.json",
+      "description": "migration generator"
+    }
+  }
+}
