@@ -27,7 +27,7 @@ export class MigratorRunner {
       {
         cwd: this.cwd,
         absolute: true,
-        ignore: ['**/*.transform.ts', '**/*.model.ts', '**/*.schema.ts'],
+        ignore: ['**/*.stream.ts', '**/*.model.ts', '**/*.schema.ts'],
       }
     );
 

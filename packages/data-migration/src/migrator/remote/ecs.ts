@@ -166,7 +166,7 @@ export class EcsRemoteRunner {
         startTime = events[events.length - 1].timestamp + 1;
       }
     } catch (error) {
-      if (error.code !== 'ResourceNotFoundException') {
+      if (error.name !== 'ResourceNotFoundException') {
         this.logger.warn(`Error fetching ECS task logs: ${error.message}`);
       }
     }
@@ -185,7 +185,7 @@ export class EcsRemoteRunner {
         startedBy: 'migration',
         networkConfiguration: {
           awsvpcConfiguration: {
-            assignPublicIp: 'DISABLED',
+            assignPublicIp: config.assignPublicIp ?? 'DISABLED',
             subnets: (await resolveConfigParam(config.subnetIds))
               .split(',')
               .map((x) => x.trim()),
@@ -231,16 +231,8 @@ export class EcsRemoteRunner {
                 value: this.logger.level,
               },
               {
-                name: 'NODE_ENV',
-                value: process.env.NODE_ENV,
-              },
-              {
-                name: 'KMS_KEY_ID',
-                value: process.env.KMS_KEY_ID,
-              },
-              {
-                name: 'SM_ES_SECRET_ID',
-                value: process.env.SM_ES_SECRET_ID,
+                name: 'ENV',
+                value: process.env.ENV,
               },
               {
                 name: 'MIGRATION_FILE_NAME',
@@ -284,7 +276,7 @@ export class EcsRemoteRunner {
         })
       );
     } catch (error) {
-      if (error.code !== 'ResourceAlreadyExistsException') {
+      if (error.name !== 'ResourceAlreadyExistsException') {
         throw error;
       }
       this.logger.debug(
@@ -357,7 +349,7 @@ export class EcsRemoteRunner {
         })
       );
     } catch (error) {
-      if (error.code !== 'RepositoryNotFoundException') {
+      if (error.name !== 'RepositoryNotFoundException') {
         throw error;
       }
 
@@ -385,13 +377,17 @@ export class EcsRemoteRunner {
     );
 
     this.logger.debug(`Compiling remote wrapper`);
+    const wrapperPath = fs.existsSync(path.join(__dirname, 'wrapper.ts'))
+      ? path.join(__dirname, 'wrapper.ts')
+      : path.join(__dirname, 'wrapper.js');
+
     await esbuild.build({
       format: 'cjs',
       bundle: true,
       minify: false,
       sourcemap: false,
       target: ['node18'],
-      entryPoints: [path.join(__dirname, 'wrapper.ts')],
+      entryPoints: [wrapperPath],
       outfile: remoteWrapperFile,
       platform: 'node',
     });

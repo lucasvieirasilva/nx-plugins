@@ -6,11 +6,13 @@ jest.mock('child_process', () => ({
 
 const mkdirSyncMock = jest.fn();
 const copyFileSyncMock = jest.fn();
+const existsSyncMock = jest.fn();
 
 jest.mock('fs', () => ({
   ...jest.requireActual('fs'),
   mkdirSync: mkdirSyncMock,
   copyFileSync: copyFileSyncMock,
+  existsSync: existsSyncMock,
 }));
 
 const esbuildMock = jest.fn();
@@ -55,8 +57,8 @@ import { LifecycleHook } from '../types';
 import path from 'path';
 
 class AwsErrorMock extends Error {
-  constructor(public code: string) {
-    super(code);
+  constructor(public name: string) {
+    super(name);
   }
 }
 
@@ -102,10 +104,10 @@ describe('ecs remote runner', () => {
       .setSystemTime(new Date('2021-05-10T12:00:00Z').getTime());
     process.env = {
       ...originalEnv,
-      NODE_ENV: 'test',
-      KMS_KEY_ID: 'my-key-id',
-      SM_ES_SECRET_ID: 'es-secret',
+      ENV: 'test',
     };
+
+    existsSyncMock.mockReturnValue(true);
   });
 
   it('should be defined', () => {
@@ -328,16 +330,8 @@ describe('ecs remote runner', () => {
                   value: 'info',
                 },
                 {
-                  name: 'NODE_ENV',
+                  name: 'ENV',
                   value: 'test',
-                },
-                {
-                  name: 'KMS_KEY_ID',
-                  value: 'my-key-id',
-                },
-                {
-                  name: 'SM_ES_SECRET_ID',
-                  value: 'es-secret',
                 },
                 {
                   name: 'MIGRATION_FILE_NAME',
@@ -378,6 +372,638 @@ describe('ecs remote runner', () => {
         networkConfiguration: {
           awsvpcConfiguration: {
             assignPublicIp: 'DISABLED',
+            securityGroups: ['sg-1'],
+            subnets: ['subnet-1', 'subnet-2'],
+          },
+        },
+        startedBy: 'migration',
+        taskDefinition:
+          'arn:aws:ecs:us-east-1:123456789012:task-definition/test-test1-202305101:1',
+      });
+      expect(ecsMock).toHaveReceivedNthCommandWith(3, DescribeTasksCommand, {
+        cluster: 'test-cluster',
+        tasks: ['arn:aws:ecs:us-east-1:123456789012:task/test-test1-202305101'],
+      });
+      expect(ecsMock).toHaveReceivedNthCommandWith(4, DescribeTasksCommand, {
+        cluster: 'test-cluster',
+        tasks: ['arn:aws:ecs:us-east-1:123456789012:task/test-test1-202305101'],
+      });
+
+      expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
+        2,
+        GetLogEventsCommand,
+        {
+          endTime: Date.now(),
+          logGroupName: '/ecs/test/test1/20230510',
+          logStreamName: 'ecs/migration/abc123',
+          startTime: Date.now(),
+        }
+      );
+      expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
+        3,
+        GetLogEventsCommand,
+        {
+          endTime: Date.now(),
+          logGroupName: '/ecs/test/test1/20230510',
+          logStreamName: 'ecs/migration/abc123',
+          startTime: Date.now() + 2,
+        }
+      );
+
+      expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
+        4,
+        DeleteLogGroupCommand,
+        {
+          logGroupName: '/ecs/test/test1/20230510',
+        }
+      );
+      expect(ecsMock).toHaveReceivedNthCommandWith(
+        5,
+        DeregisterTaskDefinitionCommand,
+        {
+          taskDefinition:
+            'arn:aws:ecs:us-east-1:123456789012:task-definition/test-test1-202305101:1',
+        }
+      );
+    });
+
+    it('should run the migration with wrapper.js', async () => {
+      delete process.env.AWS_REGION;
+      const stsMock = mockClient(STSClient);
+      const ecrMock = mockClient(ECRClient);
+      const ecsMock = mockClient(ECSClient);
+      const cloudWatchLogsMock = mockClient(CloudWatchLogsClient);
+
+      stsMock.on(GetCallerIdentityCommand).resolves({
+        Account: accountId,
+      });
+
+      ecrMock
+        .on(DescribeRepositoriesCommand)
+        .rejectsOnce(new AwsErrorMock('RepositoryNotFoundException'));
+
+      spawmMock
+        .mockReturnValueOnce({
+          status: 0,
+        })
+        .mockReturnValueOnce({
+          status: 0,
+        })
+        .mockReturnValueOnce({
+          status: 0,
+        });
+
+      ecsMock.on(RegisterTaskDefinitionCommand).resolvesOnce({
+        taskDefinition: {
+          taskDefinitionArn:
+            'arn:aws:ecs:us-east-1:123456789012:task-definition/test-test1-202305101:1',
+        },
+      });
+
+      ecsMock.on(RunTaskCommand).resolvesOnce({
+        tasks: [
+          {
+            taskArn:
+              'arn:aws:ecs:us-east-1:123456789012:task/test-test1-202305101',
+          },
+        ],
+      });
+
+      ecsMock
+        .on(DescribeTasksCommand)
+        .resolvesOnce({
+          tasks: [
+            {
+              taskArn: 'arn:aws:ecs:us-east-1:123456789012:task/abc123',
+              lastStatus: 'PENDING',
+              containers: [
+                {
+                  name: 'migration',
+                  lastStatus: 'PENDING',
+                  exitCode: 0,
+                },
+              ],
+            },
+          ],
+        })
+        .resolvesOnce({
+          tasks: [
+            {
+              taskArn: 'arn:aws:ecs:us-east-1:123456789012:task/abc123',
+              lastStatus: 'STOPPED',
+              containers: [
+                {
+                  name: 'migration',
+                  lastStatus: 'STOPPED',
+                  exitCode: 0,
+                },
+              ],
+            },
+          ],
+        });
+
+      cloudWatchLogsMock
+        .on(GetLogEventsCommand)
+        .resolvesOnce({
+          events: [
+            {
+              message: 'test1',
+              timestamp: Date.now() + 1,
+            },
+          ],
+        })
+        .resolvesOnce({
+          events: [
+            {
+              message: 'test2',
+              timestamp: Date.now() + 2,
+            },
+          ],
+        });
+
+      existsSyncMock.mockReturnValue(false);
+
+      const runner = new EcsRemoteRunner(
+        new CLILogger('info'),
+        migrationBase as never
+      );
+
+      await runner.run();
+
+      expect(stsMock).toHaveReceivedCommandTimes(GetCallerIdentityCommand, 1);
+      expect(execSyncMock).toHaveBeenCalledTimes(2);
+      expect(execSyncMock).toHaveBeenNthCalledWith(
+        1,
+        `aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws`,
+        { stdio: 'inherit' }
+      );
+      expect(execSyncMock).toHaveBeenNthCalledWith(
+        2,
+        `aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${accountId}.dkr.ecr.us-east-1.amazonaws.com`,
+        { stdio: 'inherit' }
+      );
+      expect(ecrMock).toHaveReceivedNthCommandWith(
+        1,
+        DescribeRepositoriesCommand,
+        {
+          repositoryNames: ['migrations'],
+        }
+      );
+      expect(ecrMock).toHaveReceivedNthCommandWith(2, CreateRepositoryCommand, {
+        repositoryName: 'migrations',
+      });
+      expect(mkdirSyncMock).toHaveBeenCalledWith(
+        'dist/apps/test/src/migrations/remote',
+        { recursive: true }
+      );
+      expect(copyFileSyncMock).toHaveBeenCalledWith(
+        path.join(__dirname, 'Dockerfile'),
+        'dist/apps/test/src/migrations/remote/Dockerfile'
+      );
+
+      expect(esbuildMock).toHaveBeenCalledTimes(2);
+      expect(esbuildMock).toHaveBeenNthCalledWith(1, {
+        format: 'cjs',
+        bundle: true,
+        minify: false,
+        sourcemap: false,
+        target: ['node18'],
+        entryPoints: [path.join(__dirname, 'wrapper.js')],
+        outfile: 'dist/apps/test/src/migrations/remote/wrapper.js',
+        platform: 'node',
+      });
+      expect(esbuildMock).toHaveBeenNthCalledWith(2, {
+        format: 'cjs',
+        bundle: true,
+        minify: false,
+        sourcemap: false,
+        target: ['node18'],
+        entryPoints: ['apps/test/src/migrations/20230510-test1.ts'],
+        outfile: 'dist/apps/test/src/migrations/remote/migration.js',
+        platform: 'node',
+      });
+
+      expect(spawmMock).toHaveBeenCalledTimes(3);
+      expect(spawmMock).toHaveBeenNthCalledWith(
+        1,
+        'docker',
+        ['build', '--platform=linux/amd64', '-t', 'test-test1-20230510', '.'],
+        {
+          cwd: 'dist/apps/test/src/migrations/remote',
+          stdio: 'inherit',
+        }
+      );
+      expect(spawmMock).toHaveBeenNthCalledWith(
+        2,
+        'docker',
+        [
+          'tag',
+          'test-test1-20230510',
+          `${accountId}.dkr.ecr.us-east-1.amazonaws.com/migrations:test-test1-20230510`,
+        ],
+        {
+          cwd: 'dist/apps/test/src/migrations/remote',
+          stdio: 'inherit',
+        }
+      );
+      expect(spawmMock).toHaveBeenNthCalledWith(
+        3,
+        'docker',
+        [
+          'push',
+          `${accountId}.dkr.ecr.us-east-1.amazonaws.com/migrations:test-test1-20230510`,
+        ],
+        {
+          cwd: 'dist/apps/test/src/migrations/remote',
+          stdio: 'inherit',
+        }
+      );
+      expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
+        1,
+        CreateLogGroupCommand,
+        {
+          logGroupName: `/ecs/test/test1/20230510`,
+          tags: {
+            namespace: 'test',
+            name: 'test1',
+            version: '20230510',
+            source: 'migration',
+          },
+        }
+      );
+
+      expect(ecsMock).toHaveReceivedNthCommandWith(
+        1,
+        RegisterTaskDefinitionCommand,
+        {
+          containerDefinitions: [
+            {
+              environment: [
+                {
+                  name: 'LOG_LEVEL',
+                  value: 'info',
+                },
+                {
+                  name: 'ENV',
+                  value: 'test',
+                },
+                {
+                  name: 'MIGRATION_FILE_NAME',
+                  value: 'migration.js',
+                },
+                {
+                  name: 'OPERATION',
+                  value: 'run',
+                },
+              ],
+              image:
+                '123456789012.dkr.ecr.us-east-1.amazonaws.com/migrations:test-test1-20230510',
+              logConfiguration: {
+                logDriver: 'awslogs',
+                options: {
+                  'awslogs-group': '/ecs/test/test1/20230510',
+                  'awslogs-region': 'us-east-1',
+                  'awslogs-stream-prefix': 'ecs',
+                },
+              },
+              name: 'migration',
+            },
+          ],
+          cpu: '1024',
+          executionRoleArn:
+            'arn:aws:iam::123456789012:role/ecsTaskExecutionRole',
+          family: 'migration-test-test1-20230510-task',
+          memory: '2048',
+          networkMode: 'awsvpc',
+          requiresCompatibilities: ['FARGATE'],
+          taskRoleArn: 'arn:aws:iam::123456789012:role/ecsTaskRole',
+        }
+      );
+      expect(ecsMock).toHaveReceivedNthCommandWith(2, RunTaskCommand, {
+        cluster: 'test-cluster',
+        count: 1,
+        launchType: 'FARGATE',
+        networkConfiguration: {
+          awsvpcConfiguration: {
+            assignPublicIp: 'DISABLED',
+            securityGroups: ['sg-1'],
+            subnets: ['subnet-1', 'subnet-2'],
+          },
+        },
+        startedBy: 'migration',
+        taskDefinition:
+          'arn:aws:ecs:us-east-1:123456789012:task-definition/test-test1-202305101:1',
+      });
+      expect(ecsMock).toHaveReceivedNthCommandWith(3, DescribeTasksCommand, {
+        cluster: 'test-cluster',
+        tasks: ['arn:aws:ecs:us-east-1:123456789012:task/test-test1-202305101'],
+      });
+      expect(ecsMock).toHaveReceivedNthCommandWith(4, DescribeTasksCommand, {
+        cluster: 'test-cluster',
+        tasks: ['arn:aws:ecs:us-east-1:123456789012:task/test-test1-202305101'],
+      });
+
+      expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
+        2,
+        GetLogEventsCommand,
+        {
+          endTime: Date.now(),
+          logGroupName: '/ecs/test/test1/20230510',
+          logStreamName: 'ecs/migration/abc123',
+          startTime: Date.now(),
+        }
+      );
+      expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
+        3,
+        GetLogEventsCommand,
+        {
+          endTime: Date.now(),
+          logGroupName: '/ecs/test/test1/20230510',
+          logStreamName: 'ecs/migration/abc123',
+          startTime: Date.now() + 2,
+        }
+      );
+
+      expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
+        4,
+        DeleteLogGroupCommand,
+        {
+          logGroupName: '/ecs/test/test1/20230510',
+        }
+      );
+      expect(ecsMock).toHaveReceivedNthCommandWith(
+        5,
+        DeregisterTaskDefinitionCommand,
+        {
+          taskDefinition:
+            'arn:aws:ecs:us-east-1:123456789012:task-definition/test-test1-202305101:1',
+        }
+      );
+    });
+
+    it('should run the migration with assignPublicIp to ENABLED', async () => {
+      delete process.env.AWS_REGION;
+      const stsMock = mockClient(STSClient);
+      const ecrMock = mockClient(ECRClient);
+      const ecsMock = mockClient(ECSClient);
+      const cloudWatchLogsMock = mockClient(CloudWatchLogsClient);
+
+      stsMock.on(GetCallerIdentityCommand).resolves({
+        Account: accountId,
+      });
+
+      ecrMock
+        .on(DescribeRepositoriesCommand)
+        .rejectsOnce(new AwsErrorMock('RepositoryNotFoundException'));
+
+      spawmMock
+        .mockReturnValueOnce({
+          status: 0,
+        })
+        .mockReturnValueOnce({
+          status: 0,
+        })
+        .mockReturnValueOnce({
+          status: 0,
+        });
+
+      ecsMock.on(RegisterTaskDefinitionCommand).resolvesOnce({
+        taskDefinition: {
+          taskDefinitionArn:
+            'arn:aws:ecs:us-east-1:123456789012:task-definition/test-test1-202305101:1',
+        },
+      });
+
+      ecsMock.on(RunTaskCommand).resolvesOnce({
+        tasks: [
+          {
+            taskArn:
+              'arn:aws:ecs:us-east-1:123456789012:task/test-test1-202305101',
+          },
+        ],
+      });
+
+      ecsMock
+        .on(DescribeTasksCommand)
+        .resolvesOnce({
+          tasks: [
+            {
+              taskArn: 'arn:aws:ecs:us-east-1:123456789012:task/abc123',
+              lastStatus: 'PENDING',
+              containers: [
+                {
+                  name: 'migration',
+                  lastStatus: 'PENDING',
+                  exitCode: 0,
+                },
+              ],
+            },
+          ],
+        })
+        .resolvesOnce({
+          tasks: [
+            {
+              taskArn: 'arn:aws:ecs:us-east-1:123456789012:task/abc123',
+              lastStatus: 'STOPPED',
+              containers: [
+                {
+                  name: 'migration',
+                  lastStatus: 'STOPPED',
+                  exitCode: 0,
+                },
+              ],
+            },
+          ],
+        });
+
+      cloudWatchLogsMock
+        .on(GetLogEventsCommand)
+        .resolvesOnce({
+          events: [
+            {
+              message: 'test1',
+              timestamp: Date.now() + 1,
+            },
+          ],
+        })
+        .resolvesOnce({
+          events: [
+            {
+              message: 'test2',
+              timestamp: Date.now() + 2,
+            },
+          ],
+        });
+
+      const runner = new EcsRemoteRunner(new CLILogger('info'), {
+        ...migrationBase,
+        remote: {
+          ...migrationBase.remote,
+          config: {
+            ...migrationBase.remote.config,
+            assignPublicIp: 'ENABLED',
+          },
+        },
+      } as never);
+
+      await runner.run();
+
+      expect(stsMock).toHaveReceivedCommandTimes(GetCallerIdentityCommand, 1);
+      expect(execSyncMock).toHaveBeenCalledTimes(2);
+      expect(execSyncMock).toHaveBeenNthCalledWith(
+        1,
+        `aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws`,
+        { stdio: 'inherit' }
+      );
+      expect(execSyncMock).toHaveBeenNthCalledWith(
+        2,
+        `aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${accountId}.dkr.ecr.us-east-1.amazonaws.com`,
+        { stdio: 'inherit' }
+      );
+      expect(ecrMock).toHaveReceivedNthCommandWith(
+        1,
+        DescribeRepositoriesCommand,
+        {
+          repositoryNames: ['migrations'],
+        }
+      );
+      expect(ecrMock).toHaveReceivedNthCommandWith(2, CreateRepositoryCommand, {
+        repositoryName: 'migrations',
+      });
+      expect(mkdirSyncMock).toHaveBeenCalledWith(
+        'dist/apps/test/src/migrations/remote',
+        { recursive: true }
+      );
+      expect(copyFileSyncMock).toHaveBeenCalledWith(
+        path.join(__dirname, 'Dockerfile'),
+        'dist/apps/test/src/migrations/remote/Dockerfile'
+      );
+
+      expect(esbuildMock).toHaveBeenCalledTimes(2);
+      expect(esbuildMock).toHaveBeenNthCalledWith(1, {
+        format: 'cjs',
+        bundle: true,
+        minify: false,
+        sourcemap: false,
+        target: ['node18'],
+        entryPoints: [path.join(__dirname, 'wrapper.ts')],
+        outfile: 'dist/apps/test/src/migrations/remote/wrapper.js',
+        platform: 'node',
+      });
+      expect(esbuildMock).toHaveBeenNthCalledWith(2, {
+        format: 'cjs',
+        bundle: true,
+        minify: false,
+        sourcemap: false,
+        target: ['node18'],
+        entryPoints: ['apps/test/src/migrations/20230510-test1.ts'],
+        outfile: 'dist/apps/test/src/migrations/remote/migration.js',
+        platform: 'node',
+      });
+
+      expect(spawmMock).toHaveBeenCalledTimes(3);
+      expect(spawmMock).toHaveBeenNthCalledWith(
+        1,
+        'docker',
+        ['build', '--platform=linux/amd64', '-t', 'test-test1-20230510', '.'],
+        {
+          cwd: 'dist/apps/test/src/migrations/remote',
+          stdio: 'inherit',
+        }
+      );
+      expect(spawmMock).toHaveBeenNthCalledWith(
+        2,
+        'docker',
+        [
+          'tag',
+          'test-test1-20230510',
+          `${accountId}.dkr.ecr.us-east-1.amazonaws.com/migrations:test-test1-20230510`,
+        ],
+        {
+          cwd: 'dist/apps/test/src/migrations/remote',
+          stdio: 'inherit',
+        }
+      );
+      expect(spawmMock).toHaveBeenNthCalledWith(
+        3,
+        'docker',
+        [
+          'push',
+          `${accountId}.dkr.ecr.us-east-1.amazonaws.com/migrations:test-test1-20230510`,
+        ],
+        {
+          cwd: 'dist/apps/test/src/migrations/remote',
+          stdio: 'inherit',
+        }
+      );
+      expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
+        1,
+        CreateLogGroupCommand,
+        {
+          logGroupName: `/ecs/test/test1/20230510`,
+          tags: {
+            namespace: 'test',
+            name: 'test1',
+            version: '20230510',
+            source: 'migration',
+          },
+        }
+      );
+
+      expect(ecsMock).toHaveReceivedNthCommandWith(
+        1,
+        RegisterTaskDefinitionCommand,
+        {
+          containerDefinitions: [
+            {
+              environment: [
+                {
+                  name: 'LOG_LEVEL',
+                  value: 'info',
+                },
+                {
+                  name: 'ENV',
+                  value: 'test',
+                },
+                {
+                  name: 'MIGRATION_FILE_NAME',
+                  value: 'migration.js',
+                },
+                {
+                  name: 'OPERATION',
+                  value: 'run',
+                },
+              ],
+              image:
+                '123456789012.dkr.ecr.us-east-1.amazonaws.com/migrations:test-test1-20230510',
+              logConfiguration: {
+                logDriver: 'awslogs',
+                options: {
+                  'awslogs-group': '/ecs/test/test1/20230510',
+                  'awslogs-region': 'us-east-1',
+                  'awslogs-stream-prefix': 'ecs',
+                },
+              },
+              name: 'migration',
+            },
+          ],
+          cpu: '1024',
+          executionRoleArn:
+            'arn:aws:iam::123456789012:role/ecsTaskExecutionRole',
+          family: 'migration-test-test1-20230510-task',
+          memory: '2048',
+          networkMode: 'awsvpc',
+          requiresCompatibilities: ['FARGATE'],
+          taskRoleArn: 'arn:aws:iam::123456789012:role/ecsTaskRole',
+        }
+      );
+      expect(ecsMock).toHaveReceivedNthCommandWith(2, RunTaskCommand, {
+        cluster: 'test-cluster',
+        count: 1,
+        launchType: 'FARGATE',
+        networkConfiguration: {
+          awsvpcConfiguration: {
+            assignPublicIp: 'ENABLED',
             securityGroups: ['sg-1'],
             subnets: ['subnet-1', 'subnet-2'],
           },
@@ -1150,16 +1776,8 @@ describe('ecs remote runner', () => {
                   value: 'info',
                 },
                 {
-                  name: 'NODE_ENV',
+                  name: 'ENV',
                   value: 'test',
-                },
-                {
-                  name: 'KMS_KEY_ID',
-                  value: 'my-key-id',
-                },
-                {
-                  name: 'SM_ES_SECRET_ID',
-                  value: 'es-secret',
                 },
                 {
                   name: 'MIGRATION_FILE_NAME',
@@ -1444,16 +2062,8 @@ describe('ecs remote runner', () => {
                   value: 'info',
                 },
                 {
-                  name: 'NODE_ENV',
+                  name: 'ENV',
                   value: 'test',
-                },
-                {
-                  name: 'KMS_KEY_ID',
-                  value: 'my-key-id',
-                },
-                {
-                  name: 'SM_ES_SECRET_ID',
-                  value: 'es-secret',
                 },
                 {
                   name: 'MIGRATION_FILE_NAME',
@@ -1752,16 +2362,8 @@ describe('ecs remote runner', () => {
                   value: 'info',
                 },
                 {
-                  name: 'NODE_ENV',
+                  name: 'ENV',
                   value: 'test',
-                },
-                {
-                  name: 'KMS_KEY_ID',
-                  value: 'my-key-id',
-                },
-                {
-                  name: 'SM_ES_SECRET_ID',
-                  value: 'es-secret',
                 },
                 {
                   name: 'MIGRATION_FILE_NAME',

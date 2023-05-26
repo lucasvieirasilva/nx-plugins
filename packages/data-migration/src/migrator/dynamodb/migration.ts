@@ -444,7 +444,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
         })
       );
     } catch (e) {
-      if (e.code === 'NoSuchEntity') {
+      if (e.name === 'NoSuchEntityException') {
         return false;
       }
       throw e;
@@ -463,7 +463,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
         })
       );
     } catch (e) {
-      if (e.code === 'ResourceNotFoundException') {
+      if (e.name === 'ResourceNotFoundException') {
         return false;
       }
       throw e;
@@ -484,7 +484,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
 
       return Table;
     } catch (e) {
-      if (e.code === 'ResourceNotFoundException') {
+      if (e.name === 'ResourceNotFoundException') {
         return null;
       }
       throw e;
@@ -549,8 +549,6 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
             Variables: {
               TARGET_TABLE_NAME: destinationTableName,
               TRANSFORM_MODULE_PATH: './transform.js',
-              GET_TARGET_KEYS_EXPORT_NAME: 'getTargetKeys',
-              UPSERT_EXPORT_NAME: 'upsert',
               ENV: process.env.ENV,
               ...lambdaOptions.envVars,
             },

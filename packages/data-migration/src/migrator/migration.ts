@@ -1,4 +1,4 @@
-import { NetworkMode } from '@aws-sdk/client-ecs';
+import { NetworkMode, AssignPublicIp } from '@aws-sdk/client-ecs';
 import { CLILogger } from './logger';
 import { LifecycleHook } from './types';
 
@@ -22,6 +22,7 @@ export type RemoteEcsConfig = {
   networkMode: NetworkMode;
   subnetIds: RemoteConfigParam;
   securityGroupId: RemoteConfigParam;
+  assignPublicIp?: AssignPublicIp;
 };
 
 export type MigrationOptions = {

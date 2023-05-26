@@ -108,7 +108,7 @@ const rollbackWrapper = async () => {
 
 async function getMigration() {
   console.log(`Loading migration from ${process.env.MIGRATION_FILE_NAME}`);
-  const path = require.resolve(process.env.MIGRATION_FILE_NAME);
+  const path = require.resolve(`./${process.env.MIGRATION_FILE_NAME}`);
   console.log(`Resolved migration path to ${path}`);
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const migrationType = require(path);

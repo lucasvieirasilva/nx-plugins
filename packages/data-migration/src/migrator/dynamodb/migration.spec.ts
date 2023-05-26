@@ -87,8 +87,8 @@ import { DynamoDBMigrationBase } from './migration';
 import path from 'path';
 
 class AwsErrorMock extends Error {
-  constructor(public code: string) {
-    super(code);
+  constructor(public name: string) {
+    super(name);
   }
 }
 
@@ -1932,10 +1932,8 @@ describe('DynamoDBMigrationBase', () => {
           Environment: {
             Variables: {
               ENV: 'test',
-              GET_TARGET_KEYS_EXPORT_NAME: 'getTargetKeys',
               TARGET_TABLE_NAME: 'destination',
               TRANSFORM_MODULE_PATH: './transform.js',
-              UPSERT_EXPORT_NAME: 'upsert',
             },
           },
           FunctionName: 'migration-namespace-name-202304031-stream',
@@ -2325,10 +2323,8 @@ describe('DynamoDBMigrationBase', () => {
           Environment: {
             Variables: {
               ENV: 'test',
-              GET_TARGET_KEYS_EXPORT_NAME: 'getTargetKeys',
               TARGET_TABLE_NAME: 'destination',
               TRANSFORM_MODULE_PATH: './transform.js',
-              UPSERT_EXPORT_NAME: 'upsert',
             },
           },
           FunctionName: 'migration-namespace-name-202304031-stream',
@@ -2416,7 +2412,9 @@ describe('DynamoDBMigrationBase', () => {
       lambdaMock
         .on(GetFunctionCommand)
         .rejectsOnce(new AwsErrorMock('ResourceNotFoundException'));
-      iamMock.on(GetRoleCommand).rejectsOnce(new AwsErrorMock('NoSuchEntity'));
+      iamMock
+        .on(GetRoleCommand)
+        .rejectsOnce(new AwsErrorMock('NoSuchEntityException'));
 
       await migration.up();
 
@@ -2894,7 +2892,9 @@ describe('DynamoDBMigrationBase', () => {
 
       const iamMock = mockClient(IAMClient);
 
-      iamMock.on(GetRoleCommand).rejectsOnce(new AwsErrorMock('NoSuchEntity'));
+      iamMock
+        .on(GetRoleCommand)
+        .rejectsOnce(new AwsErrorMock('NoSuchEntityException'));
 
       await migration.up();
 
