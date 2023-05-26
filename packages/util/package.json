@@ -1,0 +1,11 @@
+{
+  "name": "@nxlv/util",
+  "description": "Shared utilities for @nxlv packages",
+  "version": "0.0.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:lucasvieirasilva/nx-plugins.git",
+    "directory": "packages/util"
+  }
+}
