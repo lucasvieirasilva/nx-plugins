@@ -3,7 +3,6 @@ import {
   ProjectGraph,
   ProjectGraphProcessorContext,
   joinPathFragments,
-  Workspace,
   ProjectsConfigurations,
   ProjectConfiguration,
 } from '@nrwl/devkit';
@@ -40,14 +39,14 @@ export type PyprojectTomlSource = {
 };
 
 export type PyprojectToml = {
-  tool: {
-    poetry: {
+  tool?: {
+    poetry?: {
       name: string;
       version: string;
-      packages: Array<{
+      packages?: Array<{
         include: string;
       }>;
-      dependencies: PyprojectTomlDependencies;
+      dependencies?: PyprojectTomlDependencies;
       group?: {
         [key: string]: {
           dependencies: PyprojectTomlDependencies;
@@ -68,7 +67,7 @@ export type PyprojectToml = {
 
 export const getDependents = (
   projectName: string,
-  workspace: Workspace | ProjectsConfigurations,
+  workspace: ProjectsConfigurations,
   cwd: string
 ): string[] => {
   const deps: string[] = [];
@@ -86,7 +85,7 @@ export const getDependents = (
 
 export const getDependencies = (
   projectName: string,
-  workspace: Workspace | ProjectsConfigurations,
+  workspace: ProjectsConfigurations,
   cwd: string
 ): Dependency[] => {
   const projectData = workspace.projects[projectName];
@@ -98,14 +97,14 @@ export const getDependencies = (
     const tomlData = getPyprojectData(pyprojectToml);
 
     resolveDependencies(
-      tomlData.tool.poetry.dependencies,
+      tomlData?.tool?.poetry?.dependencies,
       projectData,
       workspace,
       cwd,
       deps,
       'main'
     );
-    for (const group in tomlData.tool.poetry.group) {
+    for (const group in tomlData?.tool?.poetry?.group || {}) {
       resolveDependencies(
         tomlData.tool.poetry.group[group].dependencies,
         projectData,
@@ -125,7 +124,6 @@ export const processProjectGraph = (
   context: ProjectGraphProcessorContext
 ) => {
   const builder = new ProjectGraphBuilder(graph);
-
   for (const project in context.workspace.projects) {
     const deps = getDependencies(project, context.workspace, process.cwd());
 
@@ -136,11 +134,14 @@ export const processProjectGraph = (
 };
 
 const getPyprojectData = (pyprojectToml: string) => {
+  const content = readFileSync(pyprojectToml).toString('utf-8');
+  if (content.trim() === '') return {};
+
   return parse(readFileSync(pyprojectToml).toString('utf-8')) as PyprojectToml;
 };
 
 const checkProjectIsDependent = (
-  workspace: Workspace | ProjectsConfigurations,
+  workspace: ProjectsConfigurations,
   project: string,
   root: string,
   cwd: string
@@ -152,7 +153,7 @@ const checkProjectIsDependent = (
     const tomlData = getPyprojectData(pyprojectToml);
 
     let isDep = isProjectDependent(
-      tomlData.tool.poetry.dependencies,
+      tomlData?.tool?.poetry?.dependencies || {},
       projectData,
       root,
       cwd
@@ -160,7 +161,7 @@ const checkProjectIsDependent = (
 
     if (isDep) return true;
 
-    for (const group in tomlData.tool.poetry.group) {
+    for (const group in tomlData?.tool?.poetry?.group || {}) {
       isDep = isProjectDependent(
         tomlData.tool.poetry.group[group].dependencies,
         projectData,
@@ -200,7 +201,7 @@ const isProjectDependent = (
 const resolveDependencies = (
   dependencies: PyprojectTomlDependencies,
   projectData: ProjectConfiguration,
-  workspace: Workspace | ProjectsConfigurations,
+  workspace: ProjectsConfigurations,
   cwd: string,
   deps: Dependency[],
   category: string
@@ -216,7 +217,9 @@ const resolveDependencies = (
           path.normalize(path.relative(cwd, depAbsPath))
       );
 
-      deps.push({ name: depProjectName, category });
+      if (depProjectName) {
+        deps.push({ name: depProjectName, category });
+      }
     }
   }
 };
