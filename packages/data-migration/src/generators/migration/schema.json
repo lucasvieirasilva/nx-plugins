@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "cli": "nx",
+  "$id": "Migration",
+  "title": "",
+  "type": "object",
+  "properties": {
+    "project": {
+      "type": "string",
+      "description": "The name of the project you'd like to add to the migration",
+      "x-prompt": "What is the project you want to add to the migration?",
+      "x-priority": "important"
+    },
+    "namespace": {
+      "type": "string",
+      "description": "The namespace of the migration, the namespace must be unique for the environment (e.g. users)",
+      "x-prompt": "What is the migration namespace? (e.g. users)",
+      "x-priority": "important"
+    },
+    "name": {
+      "type": "string",
+      "description": "The name of the migration, this will be used to generate the migration file name (e.g. create-table)",
+      "x-prompt": "What is the migration name? (e.g. create-table)",
+      "x-priority": "important"
+    },
+    "description": {
+      "type": "string",
+      "description": "The description of the migration (e.g. Create User Table)",
+      "x-prompt": "What is the migration description? (e.g. Create User Table)"
+    },
+    "migrationsDir": {
+      "type": "string",
+      "description": "The directory where the migration files will be generated",
+      "default": "src/migrations"
+    },
+    "migrationProvider": {
+      "type": "string",
+      "description": "The directory where the migration files will be generated",
+      "default": "dynamodb",
+      "enum": ["standard", "dynamodb"],
+      "x-prompt": {
+        "type": "list",
+        "message": "What is the migration provider?",
+        "items": ["dynamodb", "standard"]
+      }
+    },
+    "lifecycleHook": {
+      "type": "string",
+      "description": "The lifecycle hook to run the migration",
+      "default": "post",
+      "enum": ["before:deploy", "after:deploy"],
+      "x-prompt": {
+        "type": "list",
+        "message": "What is the lifecycle hook to run the migration?",
+        "items": ["before:deploy", "after:deploy"]
+      }
+    },
+    "parentVersion": {
+      "type": "string",
+      "description": "The parent version of the migration, only applicable for after:deploy migrations",
+      "x-prompt": "What is the parent version of the migration, only applicable for after:deploy migrations?"
+    },
+    "addStream": {
+      "type": "boolean",
+      "description": "Add a stream to the migration, only available for dynamodb migrations (streams enable real-time data migration)",
+      "default": false,
+      "x-prompt": "Do you want to add a stream to the migration, only available for dynamodb migrations?"
+    },
+    "baseline": {
+      "type": "boolean",
+      "description": "Flag this migration as baseline",
+      "default": false,
+      "x-prompt": "Do you want to flag this migration as baseline?"
+    }
+  },
+  "required": ["project", "name", "namespace"]
+}

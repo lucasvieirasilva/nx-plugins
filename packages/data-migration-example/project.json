@@ -1,0 +1,30 @@
+{
+  "name": "data-migration-example",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/data-migration-example/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/data-migration-example/**/*.ts"]
+      }
+    },
+    "migrate": {
+      "executor": "@nxlv/data-migration:migrate",
+      "options": {
+        "cwd": "packages/data-migration-example",
+        "migrationsDir": "src/migrations"
+      }
+    },
+    "migrate-rollback": {
+      "executor": "@nxlv/data-migration:rollback",
+      "options": {
+        "cwd": "packages/data-migration-example",
+        "migrationsDir": "src/migrations"
+      }
+    }
+  },
+  "tags": ["example"]
+}

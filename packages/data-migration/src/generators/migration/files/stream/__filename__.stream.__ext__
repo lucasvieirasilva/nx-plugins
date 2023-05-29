@@ -1,0 +1,9 @@
+import { DynamoDBStreamHandler } from 'aws-lambda';
+
+export const handler: DynamoDBStreamHandler = async (event) => {
+  console.debug('Event', JSON.stringify(event));
+
+  // IMPLEMENT YOUR LOGIC HERE
+
+  console.log('Parsed records', event.Records.length);
+};

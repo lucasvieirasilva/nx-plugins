@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "cli": "nx",
+  "title": "Rollback executor",
+  "description": "",
+  "type": "object",
+  "properties": {
+    "env": {
+      "description": "The environment to use.",
+      "type": "string",
+      "default": "development"
+    },
+    "cwd": {
+      "description": "The directory where migrations are located.",
+      "type": "string"
+    },
+    "migrationsDir": {
+      "description": "The directory where migrations are located.",
+      "type": "string",
+      "default": "migrations"
+    },
+    "logLevel": {
+      "description": "The log level.",
+      "type": "string",
+      "default": "info",
+      "enum": ["error", "warn", "info", "debug"]
+    },
+    "lifecycleHook": {
+      "description": "The lifecycle hook to run.",
+      "type": "string",
+      "default": "before:deploy",
+      "enum": ["before:deploy", "after:deploy"]
+    },
+    "from": {
+      "description": "The namespace and version to rollback.",
+      "type": "string"
+    },
+    "to": {
+      "description": "The namespace and version to rollback to.",
+      "type": "string"
+    },
+    "yes": {
+      "description": "Skip confirmation prompt.",
+      "type": "boolean",
+      "default": false
+    },
+    "migrationTableName": {
+      "description": "The name of the table to store the migration states.",
+      "type": "string"
+    }
+  },
+  "required": ["env", "cwd", "from"]
+}

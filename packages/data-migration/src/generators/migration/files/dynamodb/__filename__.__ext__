@@ -1,0 +1,24 @@
+import {
+  Migration,
+  DynamoDBMigrationBase,
+  LifecycleHook,
+} from '@nxlv/data-migration';
+
+@Migration({
+  namespace: '<%= namespace %>',
+  version: <%= version %>,
+  name: '<%= name %>',
+  description: '<%= description %>',
+  lifecycleHook: LifecycleHook.<%= lifecycleHook %><%if (parentVersion) { %>,
+  parentVersion: <%= parentVersion %><% } %><%if (baseline) { %>,
+  baseline: <%= baseline %><% } %>
+})
+export default class extends DynamoDBMigrationBase {
+  async up(): Promise<void> {
+    this.logger.info(`To be implemented`);
+  }
+
+  async down(): Promise<void> {
+    this.logger.warn('To be implemented');
+  }
+}

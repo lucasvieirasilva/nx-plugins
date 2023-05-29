@@ -1,0 +1,283 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`migration generator should not update the project when the migration already exists 1`] = `
+"import { Migration, MigrationBase, LifecycleHook } from '@nxlv/data-migration';
+
+@Migration({
+  namespace: 'namespace',
+  version: 202301011,
+  name: 'migration-name',
+  description: '',
+  lifecycleHook: LifecycleHook.BEFORE_DEPLOY,
+})
+export default class extends MigrationBase {
+  async up(): Promise<void> {
+    this.logger.info(\`To be implemented\`);
+  }
+
+  async down(): Promise<void> {
+    this.logger.warn('To be implemented');
+  }
+}
+"
+`;
+
+exports[`migration generator should not update the project when the migration already exists 2`] = `
+"import { Migration, MigrationBase, LifecycleHook } from '@nxlv/data-migration';
+
+@Migration({
+  namespace: 'namespace',
+  version: 202301012,
+  name: 'migration-name',
+  description: '',
+  lifecycleHook: LifecycleHook.BEFORE_DEPLOY,
+})
+export default class extends MigrationBase {
+  async up(): Promise<void> {
+    this.logger.info(\`To be implemented\`);
+  }
+
+  async down(): Promise<void> {
+    this.logger.warn('To be implemented');
+  }
+}
+"
+`;
+
+exports[`migration generator should run successfully 1`] = `
+"import { Migration, MigrationBase, LifecycleHook } from '@nxlv/data-migration';
+
+@Migration({
+  namespace: 'namespace',
+  version: 202301011,
+  name: 'migration-name',
+  description: '',
+  lifecycleHook: LifecycleHook.BEFORE_DEPLOY,
+})
+export default class extends MigrationBase {
+  async up(): Promise<void> {
+    this.logger.info(\`To be implemented\`);
+  }
+
+  async down(): Promise<void> {
+    this.logger.warn('To be implemented');
+  }
+}
+"
+`;
+
+exports[`migration generator should run successfully 2`] = `
+"import { Migration, MigrationBase, LifecycleHook } from '@nxlv/data-migration';
+
+@Migration({
+  namespace: 'namespace',
+  version: 202301012,
+  name: 'migration-name',
+  description: '',
+  lifecycleHook: LifecycleHook.BEFORE_DEPLOY,
+})
+export default class extends MigrationBase {
+  async up(): Promise<void> {
+    this.logger.info(\`To be implemented\`);
+  }
+
+  async down(): Promise<void> {
+    this.logger.warn('To be implemented');
+  }
+}
+"
+`;
+
+exports[`migration generator should run successfully with after deploy lifecycle 1`] = `
+"import { Migration, MigrationBase, LifecycleHook } from '@nxlv/data-migration';
+
+@Migration({
+  namespace: 'namespace',
+  version: 202301011,
+  name: 'migration-name',
+  description: '',
+  lifecycleHook: LifecycleHook.AFTER_DEPLOY,
+})
+export default class extends MigrationBase {
+  async up(): Promise<void> {
+    this.logger.info(\`To be implemented\`);
+  }
+
+  async down(): Promise<void> {
+    this.logger.warn('To be implemented');
+  }
+}
+"
+`;
+
+exports[`migration generator should run successfully with after deploy lifecycle and parent version 1`] = `
+"import { Migration, MigrationBase, LifecycleHook } from '@nxlv/data-migration';
+
+@Migration({
+  namespace: 'namespace',
+  version: 202301011,
+  name: 'migration-name',
+  description: '',
+  lifecycleHook: LifecycleHook.AFTER_DEPLOY,
+  parentVersion: 202304031,
+})
+export default class extends MigrationBase {
+  async up(): Promise<void> {
+    this.logger.info(\`To be implemented\`);
+  }
+
+  async down(): Promise<void> {
+    this.logger.warn('To be implemented');
+  }
+}
+"
+`;
+
+exports[`migration generator should run successfully with after deploy lifecycle, dynamodb provider and stream 1`] = `
+"import {
+  Migration,
+  DynamoDBMigrationBase,
+  LifecycleHook,
+} from '@nxlv/data-migration';
+
+@Migration({
+  namespace: 'namespace',
+  version: 202301011,
+  name: 'migration-name',
+  description: '',
+  lifecycleHook: LifecycleHook.AFTER_DEPLOY,
+})
+export default class extends DynamoDBMigrationBase {
+  async up(): Promise<void> {
+    this.logger.info(\`To be implemented\`);
+  }
+
+  async down(): Promise<void> {
+    this.logger.warn('To be implemented');
+  }
+}
+"
+`;
+
+exports[`migration generator should run successfully with after deploy lifecycle, dynamodb provider and stream 2`] = `
+"import { DynamoDBStreamHandler } from 'aws-lambda';
+
+export const handler: DynamoDBStreamHandler = async (event) => {
+  console.debug('Event', JSON.stringify(event));
+
+  // IMPLEMENT YOUR LOGIC HERE
+
+  console.log('Parsed records', event.Records.length);
+};
+"
+`;
+
+exports[`migration generator should run successfully with baseline flag 1`] = `
+"import { Migration, MigrationBase, LifecycleHook } from '@nxlv/data-migration';
+
+@Migration({
+  namespace: 'namespace',
+  version: 202301011,
+  name: 'migration-name',
+  description: '',
+  lifecycleHook: LifecycleHook.BEFORE_DEPLOY,
+  baseline: true,
+})
+export default class extends MigrationBase {
+  async up(): Promise<void> {
+    this.logger.info(\`To be implemented\`);
+  }
+
+  async down(): Promise<void> {
+    this.logger.warn('To be implemented');
+  }
+}
+"
+`;
+
+exports[`migration generator should run successfully with custom migrations path 1`] = `
+"import { Migration, MigrationBase, LifecycleHook } from '@nxlv/data-migration';
+
+@Migration({
+  namespace: 'namespace',
+  version: 202301011,
+  name: 'migration-name',
+  description: '',
+  lifecycleHook: LifecycleHook.BEFORE_DEPLOY,
+})
+export default class extends MigrationBase {
+  async up(): Promise<void> {
+    this.logger.info(\`To be implemented\`);
+  }
+
+  async down(): Promise<void> {
+    this.logger.warn('To be implemented');
+  }
+}
+"
+`;
+
+exports[`migration generator should run successfully with dynamodb provider 1`] = `
+"import {
+  Migration,
+  DynamoDBMigrationBase,
+  LifecycleHook,
+} from '@nxlv/data-migration';
+
+@Migration({
+  namespace: 'namespace',
+  version: 202301011,
+  name: 'migration-name',
+  description: '',
+  lifecycleHook: LifecycleHook.BEFORE_DEPLOY,
+})
+export default class extends DynamoDBMigrationBase {
+  async up(): Promise<void> {
+    this.logger.info(\`To be implemented\`);
+  }
+
+  async down(): Promise<void> {
+    this.logger.warn('To be implemented');
+  }
+}
+"
+`;
+
+exports[`migration generator should run successfully with dynamodb provider and stream 1`] = `
+"import {
+  Migration,
+  DynamoDBMigrationBase,
+  LifecycleHook,
+} from '@nxlv/data-migration';
+
+@Migration({
+  namespace: 'namespace',
+  version: 202301011,
+  name: 'migration-name',
+  description: '',
+  lifecycleHook: LifecycleHook.BEFORE_DEPLOY,
+})
+export default class extends DynamoDBMigrationBase {
+  async up(): Promise<void> {
+    this.logger.info(\`To be implemented\`);
+  }
+
+  async down(): Promise<void> {
+    this.logger.warn('To be implemented');
+  }
+}
+"
+`;
+
+exports[`migration generator should run successfully with dynamodb provider and stream 2`] = `
+"import { DynamoDBStreamHandler } from 'aws-lambda';
+
+export const handler: DynamoDBStreamHandler = async (event) => {
+  console.debug('Event', JSON.stringify(event));
+
+  // IMPLEMENT YOUR LOGIC HERE
+
+  console.log('Parsed records', event.Records.length);
+};
+"
+`;

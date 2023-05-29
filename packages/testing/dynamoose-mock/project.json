@@ -1,0 +1,16 @@
+{
+  "name": "testing-dynamoose-mock",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/testing/dynamoose-mock/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/testing/dynamoose-mock/**/*.ts"]
+      }
+    }
+  },
+  "tags": []
+}
