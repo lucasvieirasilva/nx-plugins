@@ -45,7 +45,8 @@ export class CLILogger {
       const color = this.getLevelColor(level);
       const lv = color(`[${levelStr}]`.padEnd(7, ' '));
 
-      console[levelStr](`${chalk.bold(`[${currentTime}]:${lv}`)} ${message}`);
+      const prefix = chalk.bold(`[${currentTime}]:${lv}`);
+      console[levelStr](`${prefix} ${message}`);
     }
   }
 

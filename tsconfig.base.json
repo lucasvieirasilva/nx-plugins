@@ -15,6 +15,9 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@@nxlv/nx-plugins/data-migration-example": [
+        "packages/data-migration-example/src/index.ts"
+      ],
       "@nxlv/data-migration": ["packages/data-migration/src/index.ts"],
       "@nxlv/python": ["packages/nx-python/src/index.ts"],
       "@nxlv/testing/dynamoose-mock": [

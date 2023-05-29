@@ -7,13 +7,14 @@ export default {
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: '../../coverage/packages/data-migration',
+  testEnvironment: 'node',
   collectCoverage: true,
-  // collectCoverageFrom: [
-  //   './src/**/*.ts',
-  //   '!./src/**/*.d.ts',
-  //   '!./src/**/*.type.ts',
-  //   '!./src/**/index.ts',
-  // ],
+  collectCoverageFrom: [
+    './src/**/*.ts',
+    '!./src/**/*.d.ts',
+    '!./src/**/*.type.ts',
+    '!./src/**/index.ts',
+  ],
   coverageReporters: ['text', 'html', 'lcov'],
   coverageThreshold: {
     global: {

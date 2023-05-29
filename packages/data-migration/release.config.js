@@ -1,4 +1,4 @@
-const name = 'migration';
+const name = 'data-migration';
 const srcRoot = `packages/${name}`;
 
 module.exports = {

@@ -642,3 +642,7 @@ or attach the `arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePo
 ```
 
 And also, make sure that the task role has permission to access the resources that the migration needs to access.
+
+#### Examples
+
+[Here](https://github.com/lucasvieirasilva/nx-plugins/tree/main/packages/data-migration-example/src/migrations/) are some examples of how to use the data migration engine.

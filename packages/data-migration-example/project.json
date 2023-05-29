@@ -1,0 +1,40 @@
+{
+  "name": "data-migration-example",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/data-migration-example/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/data-migration-example",
+        "main": "packages/data-migration-example/src/index.ts",
+        "tsConfig": "packages/data-migration-example/tsconfig.lib.json",
+        "assets": ["packages/data-migration-example/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/data-migration-example/**/*.ts"]
+      }
+    },
+    "migrate": {
+      "executor": "@nxlv/data-migration:migrate",
+      "options": {
+        "cwd": "packages/data-migration-example",
+        "migrationsDir": "src/migrations"
+      }
+    },
+    "migrate-rollback": {
+      "executor": "@nxlv/data-migration:rollback",
+      "options": {
+        "cwd": "packages/data-migration-example",
+        "migrationsDir": "src/migrations"
+      }
+    }
+  },
+  "tags": ["example"]
+}

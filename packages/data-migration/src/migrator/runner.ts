@@ -77,29 +77,7 @@ export class MigratorRunner {
       migration.path = migrationFileRelative;
       migration.distPath = distFile;
 
-      if (_.isNil(migration.namespace) || _.isEmpty(migration.namespace)) {
-        throw new ManagedMigrationError(
-          `missing or empty namespace for migration: ${chalk.bold(
-            path.relative(this.cwd, migrationFile)
-          )}`
-        );
-      }
-
-      if (_.isNil(migration.version) || migration.version <= 0) {
-        throw new ManagedMigrationError(
-          `version must be more than 0 for migration: ${chalk.bold(
-            path.relative(this.cwd, migrationFile)
-          )}`
-        );
-      }
-
-      if (_.isNil(migration.name) || _.isEmpty(migration.name)) {
-        throw new ManagedMigrationError(
-          `missing or empty name for migration: ${chalk.bold(
-            path.relative(this.cwd, migrationFile)
-          )}`
-        );
-      }
+      this.checkMigrationRequiredProperties(migration, migrationFile);
 
       if (
         this.migrations.some(
@@ -130,6 +108,35 @@ export class MigratorRunner {
     }
 
     this.migrations = _.sortBy(this.migrations, (m) => m.version);
+  }
+
+  private checkMigrationRequiredProperties(
+    migration: MigrationBase,
+    migrationFile: string
+  ) {
+    if (_.isNil(migration.namespace) || _.isEmpty(migration.namespace)) {
+      throw new ManagedMigrationError(
+        `missing or empty namespace for migration: ${chalk.bold(
+          path.relative(this.cwd, migrationFile)
+        )}`
+      );
+    }
+
+    if (_.isNil(migration.version) || migration.version <= 0) {
+      throw new ManagedMigrationError(
+        `version must be more than 0 for migration: ${chalk.bold(
+          path.relative(this.cwd, migrationFile)
+        )}`
+      );
+    }
+
+    if (_.isNil(migration.name) || _.isEmpty(migration.name)) {
+      throw new ManagedMigrationError(
+        `missing or empty name for migration: ${chalk.bold(
+          path.relative(this.cwd, migrationFile)
+        )}`
+      );
+    }
   }
 
   public async getPendingMigrations() {
@@ -211,19 +218,12 @@ export class MigratorRunner {
     confirm = false
   ) {
     await this.init();
-    this.logger.info(
-      `Rollback migrations for namespace ${chalk.bold(
-        fromNamespace
-      )} from version ${chalk.bold(fromVersion)}` +
-        (toNamespace ? ` to namespace ${chalk.bold(toNamespace)}` : '') +
-        (toVersion ? ` to version ${chalk.bold(toVersion)}` : '')
+    this.checkRollbackOptions(
+      fromNamespace,
+      fromVersion,
+      toNamespace,
+      toVersion
     );
-
-    if (toNamespace && toNamespace !== fromNamespace) {
-      throw new ManagedMigrationError(
-        `Rollback to different namespace is not supported`
-      );
-    }
 
     const migrations = this.migrations.filter(
       (m) =>
@@ -240,7 +240,7 @@ export class MigratorRunner {
     const notImplementedMigrations = migrations.filter((m) =>
       _.isNil(
         stateMigrations.find(
-          (s) => s.namespace === m.namespace && s.version === s.version
+          (s) => s.namespace === m.namespace && s.version === m.version
         )
       )
     );
@@ -303,7 +303,8 @@ export class MigratorRunner {
       }
     }
 
-    for (const migration of pendingMigrations.reverse()) {
+    const migrationsToRollback = pendingMigrations.reverse();
+    for (const migration of migrationsToRollback) {
       try {
         this.logger.info(
           `Rollback migration ${chalk.bold(
@@ -353,6 +354,27 @@ export class MigratorRunner {
           )}: ${err.message}`
         );
       }
+    }
+  }
+
+  private checkRollbackOptions(
+    fromNamespace: string,
+    fromVersion: number,
+    toNamespace: string,
+    toVersion: number
+  ) {
+    this.logger.info(
+      `Rollback migrations for namespace ${chalk.bold(
+        fromNamespace
+      )} from version ${chalk.bold(fromVersion)}` +
+        (toNamespace ? ` to namespace ${chalk.bold(toNamespace)}` : '') +
+        (toVersion ? ` to version ${chalk.bold(toVersion)}` : '')
+    );
+
+    if (toNamespace && toNamespace !== fromNamespace) {
+      throw new ManagedMigrationError(
+        `Rollback to different namespace is not supported`
+      );
     }
   }
 
