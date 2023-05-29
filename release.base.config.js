@@ -15,13 +15,10 @@ const defineConfig = (name, srcRoot) => ({
     [
       '@semantic-release/exec',
       {
-        prepareCmd: 'npx nx format:write --uncommitted',
-      },
-    ],
-    [
-      '@semantic-release/exec',
-      {
-        prepareCmd: `node ./tools/scripts/update-version.js \${nextRelease.version} ./${srcRoot}/package.json`,
+        prepareCmd: [
+          `node ./tools/scripts/update-version.js \${nextRelease.version} ./${srcRoot}/package.json`,
+          'npx nx format:write --uncommitted',
+        ].join(' && '),
       },
     ],
     '@semantic-release/npm',

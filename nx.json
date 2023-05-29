@@ -1,6 +1,9 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "npmScope": "@nxlv/nx-plugins",
+  "implicitDependencies": {
+    "release.base.config.js": "*"
+  },
   "tasksRunnerOptions": {
     "default": {
       "runner": "nx/tasks-runners/default",
