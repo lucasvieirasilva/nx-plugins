@@ -1293,7 +1293,7 @@ describe('DynamoDBMigrationBase', () => {
         }
 
         async up() {
-          await this.enableStreamTransform('source', 'destination');
+          await this.enableStream('source', 'destination');
         }
 
         async down() {
@@ -1423,7 +1423,7 @@ describe('DynamoDBMigrationBase', () => {
         }
 
         async up() {
-          await this.enableStreamTransform('source', 'destination');
+          await this.enableStream('source', 'destination');
         }
 
         async down() {
@@ -1593,7 +1593,7 @@ describe('DynamoDBMigrationBase', () => {
         }
 
         async up() {
-          await this.enableStreamTransform('source', 'destination');
+          await this.enableStream('source', 'destination');
         }
 
         async down() {
@@ -1978,7 +1978,7 @@ describe('DynamoDBMigrationBase', () => {
         }
 
         async up() {
-          await this.enableStreamTransform('source', 'destination');
+          await this.enableStream('source', 'destination');
         }
 
         async down() {
@@ -2372,11 +2372,7 @@ describe('DynamoDBMigrationBase', () => {
         }
 
         async up() {
-          await this.removeStreamTransform(
-            'source',
-            'name',
-            this.parentVersion
-          );
+          await this.removeStream('source', 'name', this.parentVersion);
         }
 
         async down() {
@@ -2459,7 +2455,7 @@ describe('DynamoDBMigrationBase', () => {
         }
 
         async up() {
-          await this.removeStreamTransform('source', this.name, this.version);
+          await this.removeStream('source', this.name, this.version);
         }
 
         async down() {
@@ -2590,7 +2586,7 @@ describe('DynamoDBMigrationBase', () => {
         }
 
         async up() {
-          await this.removeStreamTransform('source', this.name, this.version);
+          await this.removeStream('source', this.name, this.version);
         }
 
         async down() {

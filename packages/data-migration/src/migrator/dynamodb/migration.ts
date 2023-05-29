@@ -307,7 +307,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
     );
   }
 
-  protected async enableStreamTransform(
+  protected async enableStream(
     sourceTableName: string,
     destinationTableName: string,
     options: StreamLambdaOptions = {}
@@ -381,7 +381,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
     );
   }
 
-  protected async removeStreamTransform(
+  protected async removeStream(
     sourceTableName: string,
     name: string,
     version: number,

@@ -212,7 +212,7 @@ npx nx g @nxlv/data-migration:migration \
   --migrationProvider=standard \
   --lifecycleHook=before:deploy \
   --parentVersion=202304051 \
-  --addTransform=true
+  --addStream=true
   --baseline=true
 ```
 
@@ -413,7 +413,7 @@ import {
 })
 export default class extends DynamoDBMigrationBase {
   async up(): Promise<void> {
-    await this.enableStreamTransform('my-table-v1', 'my-table-v2');
+    await this.enableStream('my-table-v1', 'my-table-v2');
 
     const items = await MyTableModel.scan().exec();
     for (const chunk of chunks(items, 25)) {
@@ -424,7 +424,7 @@ export default class extends DynamoDBMigrationBase {
   }
 
   async down(): Promise<void> {
-    await this.removeStreamTransform('my-table-v1', this.name, this.version);
+    await this.removeStream('my-table-v1', this.name, this.version);
   }
 }
 ```
@@ -464,11 +464,7 @@ import {
 })
 export default class extends DynamoDBMigrationBase {
   async up(): Promise<void> {
-    await this.removeStreamTransform(
-      'my-table-v1',
-      'migrate-data',
-      this.parentVersion
-    );
+    await this.removeStream('my-table-v1', 'migrate-data', this.parentVersion);
   }
 
   async down(): Promise<void> {
