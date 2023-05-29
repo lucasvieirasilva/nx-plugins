@@ -4,16 +4,6 @@
   "sourceRoot": "packages/data-migration-example/src",
   "projectType": "library",
   "targets": {
-    "build": {
-      "executor": "@nrwl/js:tsc",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/packages/data-migration-example",
-        "main": "packages/data-migration-example/src/index.ts",
-        "tsConfig": "packages/data-migration-example/tsconfig.lib.json",
-        "assets": ["packages/data-migration-example/*.md"]
-      }
-    },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
