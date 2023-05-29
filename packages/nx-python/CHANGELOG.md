@@ -1,3 +1,9 @@
+## [15.9.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.9.0...nx-python-v15.9.1) (2023-05-29)
+
+### Bug Fixes
+
+- **nx-python:** fix the dependency graph when there are Python projects not managed by the `@nxlv/python` ([#109](https://github.com/lucasvieirasilva/nx-plugins/issues/109)) ([2249a6c](https://github.com/lucasvieirasilva/nx-plugins/commit/2249a6cc6ba2025d8cc292657b24505064c8d3e4)), closes [#101](https://github.com/lucasvieirasilva/nx-plugins/issues/101)
+
 # [15.9.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.8.0...nx-python-v15.9.0) (2023-05-29)
 
 ### Features

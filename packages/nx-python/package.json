@@ -1,7 +1,7 @@
 {
   "name": "@nxlv/python",
   "description": "Custom NX Plugin to support the Python language",
-  "version": "15.9.0",
+  "version": "15.9.1",
   "main": "src/index.js",
   "generators": "./generators.json",
   "executors": "./executors.json",
