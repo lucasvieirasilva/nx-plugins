@@ -303,8 +303,7 @@ export class MigratorRunner {
       }
     }
 
-    const migrationsToRollback = pendingMigrations.reverse();
-    for (const migration of migrationsToRollback) {
+    for (const migration of [...pendingMigrations].reverse()) {
       try {
         this.logger.info(
           `Rollback migration ${chalk.bold(

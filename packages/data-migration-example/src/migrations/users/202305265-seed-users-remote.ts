@@ -25,17 +25,16 @@ import {
       memory: 1024,
       networkMode: 'awsvpc',
       executionRoleArn: {
-        value: 'arn:aws:iam::557763828095:role/ECSExecutionRole',
+        value: 'arn:aws:iam::123456789012:role/ECSExecutionRole',
       },
       securityGroupId: {
-        value: 'sg-03169b74dcfbaa171',
+        value: 'sg-abc123',
       },
       subnetIds: {
-        value:
-          'subnet-097b615616ac8f87e,subnet-0c5a21f47641cdba7,subnet-096ef534a29669a33',
+        value: 'subnet-abc123,subnet-abc123,subnet-abc123',
       },
       taskRoleArn: {
-        value: 'arn:aws:iam::557763828095:role/ECSTaskRole',
+        value: 'arn:aws:iam::123456789012:role/ECSTaskRole',
       },
       assignPublicIp: 'ENABLED',
     },
