@@ -97,14 +97,14 @@ export const getDependencies = (
     const tomlData = getPyprojectData(pyprojectToml);
 
     resolveDependencies(
-      tomlData?.tool?.poetry?.dependencies,
+      tomlData.tool?.poetry?.dependencies,
       projectData,
       workspace,
       cwd,
       deps,
       'main'
     );
-    for (const group in tomlData?.tool?.poetry?.group || {}) {
+    for (const group in tomlData.tool?.poetry?.group || {}) {
       resolveDependencies(
         tomlData.tool.poetry.group[group].dependencies,
         projectData,
@@ -153,7 +153,7 @@ const checkProjectIsDependent = (
     const tomlData = getPyprojectData(pyprojectToml);
 
     let isDep = isProjectDependent(
-      tomlData?.tool?.poetry?.dependencies || {},
+      tomlData.tool?.poetry?.dependencies,
       projectData,
       root,
       cwd
@@ -161,7 +161,7 @@ const checkProjectIsDependent = (
 
     if (isDep) return true;
 
-    for (const group in tomlData?.tool?.poetry?.group || {}) {
+    for (const group in tomlData.tool?.poetry?.group || {}) {
       isDep = isProjectDependent(
         tomlData.tool.poetry.group[group].dependencies,
         projectData,
