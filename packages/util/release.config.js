@@ -1,4 +1,4 @@
-import { defineConfig } from '../../release.base.config';
+const { defineConfig } = require('../../release.base.config');
 
 const name = 'util';
 const srcRoot = `packages/${name}`;
