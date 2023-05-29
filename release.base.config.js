@@ -1,4 +1,4 @@
-export const defineConfig = (name, srcRoot) => ({
+const defineConfig = (name, srcRoot) => ({
   branches: ['main'],
   pkgRoot: `dist/${srcRoot}`,
   tagFormat: `${name}-v\${version}`,
@@ -40,3 +40,7 @@ export const defineConfig = (name, srcRoot) => ({
     ],
   ],
 });
+
+module.exports = {
+  defineConfig,
+};
