@@ -1,3 +1,13 @@
+# [1.1.0](https://github.com/lucasvieirasilva/nx-plugins/compare/util-v1.0.0...util-v1.1.0) (2023-05-29)
+
+### Bug Fixes
+
+- **util:** fix changelog ([5cfa899](https://github.com/lucasvieirasilva/nx-plugins/commit/5cfa8993c0133be625d02c96b661016277af6c9a))
+
+### Features
+
+- **data-migration:** add data migration tool ([cd3de5a](https://github.com/lucasvieirasilva/nx-plugins/commit/cd3de5a6a7f8d7f8c5fe4e31b8a7d08fdc0ff3e2))
+
 # 1.0.0 (2023-05-26)
 
 ### Bug Fixes
