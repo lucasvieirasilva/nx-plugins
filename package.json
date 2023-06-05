@@ -61,7 +61,7 @@
     "@aws-sdk/client-dynamodb-streams": "^3.338.0",
     "@aws-sdk/client-ecr": "^3.338.0",
     "@aws-sdk/client-ecs": "^3.338.0",
-    "@aws-sdk/client-iam": "^3.338.0",
+    "@aws-sdk/client-iam": "^3.345.0",
     "@aws-sdk/client-lambda": "^3.338.0",
     "@aws-sdk/client-ssm": "^3.338.0",
     "@aws-sdk/client-sts": "^3.338.0",
