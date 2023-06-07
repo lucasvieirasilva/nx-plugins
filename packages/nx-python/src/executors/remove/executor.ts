@@ -1,9 +1,11 @@
 import { ExecutorContext } from '@nrwl/devkit';
 import chalk from 'chalk';
+import { existsSync } from 'fs-extra';
 import { updateDependencyTree } from '../../dependency/update-dependency';
 import {
   checkPoetryExecutable,
   getLocalDependencyConfig,
+  getPoetryVersion,
   getProjectTomlPath,
   parseToml,
   runPoetry,
@@ -18,6 +20,7 @@ export default async function executor(
   process.chdir(workspaceRoot);
   try {
     await checkPoetryExecutable();
+    const rootPyprojectToml = existsSync('pyproject.toml');
     const projectConfig = context.workspace.projects[context.projectName];
     console.log(
       chalk`\n  {bold Removing {bgBlue  ${options.name} } dependency...}\n`
@@ -37,9 +40,12 @@ export default async function executor(
       dependencyName = name;
     }
 
-    const removeArgs = ['remove', dependencyName].concat(
-      options.args ? options.args.split(' ') : []
-    );
+    const poetryVersion = await getPoetryVersion();
+    const hasLockOption = poetryVersion >= '1.5.0';
+
+    const removeArgs = ['remove', dependencyName]
+      .concat(options.args ? options.args.split(' ') : [])
+      .concat(rootPyprojectToml && hasLockOption ? ['--lock'] : []);
     runPoetry(removeArgs, { cwd: projectConfig.root });
 
     updateDependencyTree(context);
