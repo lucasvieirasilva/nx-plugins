@@ -1,3 +1,9 @@
+# [15.10.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.9.1...nx-python-v15.10.0) (2023-06-07)
+
+### Features
+
+- **nx-python:** add support for poetry remove --lock for poetry version >= 1.5.0 ([#118](https://github.com/lucasvieirasilva/nx-plugins/issues/118)) ([6d89f15](https://github.com/lucasvieirasilva/nx-plugins/commit/6d89f15394dfdff3a82e7234571faa15293c4d2d)), closes [#116](https://github.com/lucasvieirasilva/nx-plugins/issues/116)
+
 ## [15.9.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.9.0...nx-python-v15.9.1) (2023-05-29)
 
 ### Bug Fixes
