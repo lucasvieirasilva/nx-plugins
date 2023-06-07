@@ -8,7 +8,7 @@ jest.mock('command-exists', () => {
   };
 });
 
-import { checkPoetryExecutable, runPoetry } from './poetry';
+import { checkPoetryExecutable, runPoetry, getPoetryVersion } from './poetry';
 
 describe('Poetry Utils', () => {
   describe('Check Poetry Executable', () => {
@@ -113,5 +113,25 @@ describe('Poetry Utils', () => {
         stdio: 'inherit',
       });
     });
+  });
+
+  it('should get the poetry CLI version', async () => {
+    spawnSyncMock.mockReturnValueOnce({
+      status: 0,
+      stdout: Buffer.from('Poetry (version 1.5.0)'),
+    });
+
+    const version = await getPoetryVersion();
+
+    expect(version).toEqual('1.5.0');
+
+    spawnSyncMock.mockReturnValueOnce({
+      status: 0,
+      stdout: Buffer.from('\n\nSomething else\n\nPoetry (version 1.2.2)'),
+    });
+
+    const version2 = await getPoetryVersion();
+
+    expect(version2).toEqual('1.2.2');
   });
 });

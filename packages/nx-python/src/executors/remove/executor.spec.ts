@@ -7,6 +7,7 @@ import dedent from 'string-dedent';
 
 describe('Delete Executor', () => {
   let checkPoetryExecutableMock: jest.SpyInstance;
+  let getPoetryVersionMock: jest.SpyInstance;
 
   beforeAll(() => {
     console.log(chalk`init chalk`);
@@ -17,6 +18,9 @@ describe('Delete Executor', () => {
       poetryUtils,
       'checkPoetryExecutable'
     );
+    getPoetryVersionMock = jest
+      .spyOn(poetryUtils, 'getPoetryVersion')
+      .mockResolvedValue('1.5.0');
     checkPoetryExecutableMock.mockResolvedValue(undefined);
     spawnSyncMock.mockReturnValue({ status: 0 });
   });
@@ -414,5 +418,147 @@ version = "1.0.0"
       }
     );
     expect(output.success).toBe(false);
+  });
+
+  it('run remove target and should remove the dependency to the project using --lock when the root pyproject.toml is present (poetry version 1.5.0)', async () => {
+    fsMock({
+      'pyproject.toml': dedent`
+      [tool.poetry]
+      name = "app"
+      version = "1.0.0"
+
+        [tool.poetry.dependencies]
+        python = "^3.8"
+        app = { path = "apps/app", develop = true}
+      `,
+      'apps/app/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "app"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
+
+        [tool.poetry.dependencies]
+        python = "^3.8"
+        click = "^8.0"
+      `,
+    });
+
+    const options = {
+      name: 'click',
+      local: false,
+    };
+
+    const context = {
+      cwd: '',
+      root: '.',
+      isVerbose: false,
+      projectName: 'app',
+      workspace: {
+        npmScope: 'nxlv',
+        version: 2,
+        projects: {
+          app: {
+            root: 'apps/app',
+            targets: {},
+          },
+        },
+      },
+    };
+
+    const output = await executor(options, context);
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(
+      1,
+      'poetry',
+      ['remove', 'click', '--lock'],
+      {
+        cwd: 'apps/app',
+        shell: false,
+        stdio: 'inherit',
+      }
+    );
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(
+      2,
+      'poetry',
+      ['update', 'app'],
+      {
+        shell: false,
+        stdio: 'inherit',
+      }
+    );
+    expect(output.success).toBe(true);
+  });
+
+  it('run remove target and should remove the dependency to the project without using --lock when the root pyproject.toml is present (poetry version 1.4.0)', async () => {
+    fsMock({
+      'pyproject.toml': dedent`
+      [tool.poetry]
+      name = "app"
+      version = "1.0.0"
+
+        [tool.poetry.dependencies]
+        python = "^3.8"
+        app = { path = "apps/app", develop = true}
+      `,
+      'apps/app/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "app"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
+
+        [tool.poetry.dependencies]
+        python = "^3.8"
+        click = "^8.0"
+      `,
+    });
+
+    getPoetryVersionMock.mockResolvedValueOnce('1.4.0');
+
+    const options = {
+      name: 'click',
+      local: false,
+    };
+
+    const context = {
+      cwd: '',
+      root: '.',
+      isVerbose: false,
+      projectName: 'app',
+      workspace: {
+        npmScope: 'nxlv',
+        version: 2,
+        projects: {
+          app: {
+            root: 'apps/app',
+            targets: {},
+          },
+        },
+      },
+    };
+
+    const output = await executor(options, context);
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(
+      1,
+      'poetry',
+      ['remove', 'click'],
+      {
+        cwd: 'apps/app',
+        shell: false,
+        stdio: 'inherit',
+      }
+    );
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(
+      2,
+      'poetry',
+      ['update', 'app'],
+      {
+        shell: false,
+        stdio: 'inherit',
+      }
+    );
+    expect(output.success).toBe(true);
   });
 });

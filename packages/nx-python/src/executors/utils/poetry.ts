@@ -20,6 +20,19 @@ export async function checkPoetryExecutable() {
   }
 }
 
+export async function getPoetryVersion() {
+  const result = spawn.sync(POETRY_EXECUTABLE, ['--version']);
+  if (result.error) {
+    throw new Error(
+      'Poetry is not installed. Please install Poetry before running this command.'
+    );
+  }
+  const versionRegex = /version (\d+\.\d+\.\d+)/;
+  const match = result.stdout.toString().trim().match(versionRegex);
+  const version = match && match[1];
+  return version;
+}
+
 export function addLocalProjectToPoetryProject(
   targetConfig: ProjectConfiguration,
   dependencyConfig: ProjectConfiguration,
