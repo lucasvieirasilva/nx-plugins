@@ -115,23 +115,34 @@ describe('Poetry Utils', () => {
     });
   });
 
-  it('should get the poetry CLI version', async () => {
-    spawnSyncMock.mockReturnValueOnce({
-      status: 0,
-      stdout: Buffer.from('Poetry (version 1.5.0)'),
+  describe('Get Poetry Version', () => {
+    it('should get the poetry CLI version', async () => {
+      spawnSyncMock.mockReturnValueOnce({
+        status: 0,
+        stdout: Buffer.from('Poetry (version 1.5.0)'),
+      });
+
+      const version = await getPoetryVersion();
+
+      expect(version).toEqual('1.5.0');
+
+      spawnSyncMock.mockReturnValueOnce({
+        status: 0,
+        stdout: Buffer.from('\n\nSomething else\n\nPoetry (version 1.2.2)'),
+      });
+
+      const version2 = await getPoetryVersion();
+
+      expect(version2).toEqual('1.2.2');
     });
 
-    const version = await getPoetryVersion();
+    it('should throw an error when the status is not 0', async () => {
+      spawnSyncMock.mockReturnValueOnce({
+        status: 1,
+        error: true,
+      });
 
-    expect(version).toEqual('1.5.0');
-
-    spawnSyncMock.mockReturnValueOnce({
-      status: 0,
-      stdout: Buffer.from('\n\nSomething else\n\nPoetry (version 1.2.2)'),
+      await expect(getPoetryVersion()).rejects.toThrowError();
     });
-
-    const version2 = await getPoetryVersion();
-
-    expect(version2).toEqual('1.2.2');
   });
 });
