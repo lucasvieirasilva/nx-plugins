@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/schema",
   "cli": "nx",
   "$id": "NxPythonProject",
-  "title": "",
+  "title": "Generate a Python project (Deprecated, please use 'poetry-project' generator)",
   "type": "object",
   "properties": {
     "name": {

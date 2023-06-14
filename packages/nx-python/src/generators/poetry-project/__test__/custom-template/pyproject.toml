@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "<%= packageName %>"
+version = "1.0.0"
+description = "<%= description %>"
+
+  [[tool.poetry.packages]]
+  include = "<%= moduleName %>"
+
+  [tool.poetry.dependencies]
+  python = "<%- pyprojectPythonDependency %>"
+  autopep8 = "^1.5.7"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

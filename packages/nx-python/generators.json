@@ -6,12 +6,17 @@
     "project": {
       "factory": "./src/generators/project/generator",
       "schema": "./src/generators/project/schema.json",
-      "description": "python project generator"
+      "description": "python project generator (Legacy)"
     },
     "migrate-to-shared-venv": {
       "factory": "./src/generators/migrate-to-shared-venv/generator",
       "schema": "./src/generators/migrate-to-shared-venv/schema.json",
       "description": "Migrate Isolated Venv to Shared Venv"
+    },
+    "poetry-project": {
+      "factory": "./src/generators/poetry-project/generator",
+      "schema": "./src/generators/poetry-project/schema.json",
+      "description": "Python Poetry Project"
     }
   }
 }

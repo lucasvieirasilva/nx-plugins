@@ -1,7 +1,7 @@
 ---
 name: '📖 Documentation issue'
 about: Help improve our docs.
-labels: 'type: docs'
+labels: ['documentation', 'needs-triage']
 ---
 
 ### Documentation issue

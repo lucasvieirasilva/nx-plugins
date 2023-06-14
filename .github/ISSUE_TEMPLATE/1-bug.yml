@@ -1,6 +1,6 @@
 name: 🐞 Bug Report
 description: This form is to report unexpected behavior in of lucasvieirasilva/nx-plugins packages.
-labels: ['type: bug']
+labels: ['bug', 'needs-triage']
 body:
   - type: markdown
     attributes:

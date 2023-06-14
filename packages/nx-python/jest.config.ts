@@ -14,7 +14,7 @@ export default {
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: '../../coverage/packages/nx-python',
   collectCoverage: true,
-  collectCoverageFrom: ['./src/**/*.ts', '!./src/types.ts'],
+  // collectCoverageFrom: ['./src/**/*.ts', '!./src/types.ts'],
   coverageReporters: [
     'text',
     'html',
