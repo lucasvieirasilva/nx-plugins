@@ -1,6 +1,6 @@
 import { InstallExecutorSchema } from './schema';
 import { Logger } from '../utils/logger';
-import { ExecutorContext } from '@nrwl/devkit';
+import { ExecutorContext } from '@nx/devkit';
 import chalk from 'chalk';
 import path from 'path';
 import {

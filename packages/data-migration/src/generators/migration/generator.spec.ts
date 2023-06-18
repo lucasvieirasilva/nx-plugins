@@ -2,13 +2,13 @@ const globSync = jest.fn().mockReturnValue([]);
 
 jest.mock('glob', () => ({ globSync }));
 
-import { libraryGenerator } from '@nrwl/js';
-import { createTreeWithEmptyWorkspace } from '@nrwl/devkit/testing';
+import { libraryGenerator } from '@nx/js';
+import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import {
   Tree,
   readProjectConfiguration,
   updateProjectConfiguration,
-} from '@nrwl/devkit';
+} from '@nx/devkit';
 
 import generator from './generator';
 import { MigrationGeneratorSchema } from './schema';

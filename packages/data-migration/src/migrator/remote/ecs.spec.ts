@@ -27,7 +27,7 @@ jest.mock('cross-spawn', () => ({
   sync: spawmMock,
 }));
 
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+// eslint-disable-next-line @nx/enforce-module-boundaries
 import '@nxlv/testing/dynamoose-mock';
 import { STSClient, GetCallerIdentityCommand } from '@aws-sdk/client-sts';
 import {

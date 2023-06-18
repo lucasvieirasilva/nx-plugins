@@ -1,4 +1,4 @@
-import { ExecutorContext } from '@nrwl/devkit';
+import { ExecutorContext } from '@nx/devkit';
 import chalk from 'chalk';
 import { existsSync } from 'fs-extra';
 import { updateDependencyTree } from '../../dependency/update-dependency';

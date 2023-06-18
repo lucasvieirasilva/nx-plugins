@@ -1,8 +1,8 @@
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+// eslint-disable-next-line @nx/enforce-module-boundaries
 import '@nxlv/testing/dynamoose-mock';
 import { MigrateExecutorSchema } from './schema';
 import executor from './executor';
-import { ExecutorContext } from '@nrwl/devkit';
+import { ExecutorContext } from '@nx/devkit';
 import { MigratorRunner } from '../../migrator/runner';
 import { LifecycleHook } from '../../migrator';
 

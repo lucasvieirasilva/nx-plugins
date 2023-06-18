@@ -12,6 +12,6 @@
     "directory": "packages/nx-python"
   },
   "peerDependencies": {
-    "@nrwl/devkit": "^15.0.0"
+    "@nx/devkit": "^16.0.0"
   }
 }

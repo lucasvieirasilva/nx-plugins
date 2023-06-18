@@ -1,6 +1,6 @@
 import { processProjectGraph, getDependents } from './dependency-graph';
 import fsMock from 'mock-fs';
-import { ProjectGraphBuilder } from '@nrwl/devkit';
+import { ProjectGraphBuilder } from '@nx/devkit';
 import dedent from 'string-dedent';
 
 describe('nx-python dependency graph', () => {
@@ -46,7 +46,6 @@ describe('nx-python dependency graph', () => {
         type: 'app',
         data: {
           root: 'apps/app1',
-          files: [],
         },
       });
 
@@ -55,7 +54,6 @@ describe('nx-python dependency graph', () => {
         type: 'lib',
         data: {
           root: 'libs/dep1',
-          files: [],
         },
       });
 
@@ -110,7 +108,6 @@ describe('nx-python dependency graph', () => {
             type: 'app',
             data: {
               root: 'apps/app1',
-              files: [],
             },
           },
           dep1: {
@@ -118,7 +115,6 @@ describe('nx-python dependency graph', () => {
             type: 'lib',
             data: {
               root: 'libs/dep1',
-              files: [],
             },
           },
         },
@@ -152,7 +148,6 @@ describe('nx-python dependency graph', () => {
         type: 'app',
         data: {
           root: 'apps/app1',
-          files: [],
         },
       });
 
@@ -161,7 +156,6 @@ describe('nx-python dependency graph', () => {
         type: 'lib',
         data: {
           root: 'libs/dep1',
-          files: [],
         },
       });
 
@@ -208,7 +202,6 @@ describe('nx-python dependency graph', () => {
             type: 'app',
             data: {
               root: 'apps/app1',
-              files: [],
             },
           },
           dep1: {
@@ -216,7 +209,6 @@ describe('nx-python dependency graph', () => {
             type: 'lib',
             data: {
               root: 'libs/dep1',
-              files: [],
             },
           },
         },
@@ -250,7 +242,6 @@ describe('nx-python dependency graph', () => {
         type: 'app',
         data: {
           root: 'apps/app1',
-          files: [],
         },
       });
 
@@ -259,7 +250,6 @@ describe('nx-python dependency graph', () => {
         type: 'lib',
         data: {
           root: 'libs/dep1',
-          files: [],
         },
       });
 
@@ -306,7 +296,6 @@ describe('nx-python dependency graph', () => {
             type: 'app',
             data: {
               root: 'apps/app1',
-              files: [],
             },
           },
           dep1: {
@@ -314,7 +303,6 @@ describe('nx-python dependency graph', () => {
             type: 'lib',
             data: {
               root: 'libs/dep1',
-              files: [],
             },
           },
         },
@@ -388,7 +376,6 @@ describe('nx-python dependency graph', () => {
         type: 'app',
         data: {
           root: 'apps/app1',
-          files: [],
         },
       });
 
@@ -397,7 +384,6 @@ describe('nx-python dependency graph', () => {
         type: 'app',
         data: {
           root: 'apps/app2',
-          files: [],
         },
       });
 
@@ -406,7 +392,6 @@ describe('nx-python dependency graph', () => {
         type: 'lib',
         data: {
           root: 'libs/dep1',
-          files: [],
         },
       });
 
@@ -461,7 +446,6 @@ describe('nx-python dependency graph', () => {
             type: 'app',
             data: {
               root: 'apps/app1',
-              files: [],
             },
           },
           app2: {
@@ -469,7 +453,6 @@ describe('nx-python dependency graph', () => {
             type: 'app',
             data: {
               root: 'apps/app2',
-              files: [],
             },
           },
           dep1: {
@@ -477,7 +460,6 @@ describe('nx-python dependency graph', () => {
             type: 'lib',
             data: {
               root: 'libs/dep1',
-              files: [],
             },
           },
         },
@@ -521,7 +503,6 @@ describe('nx-python dependency graph', () => {
         type: 'app',
         data: {
           root: 'apps/app1',
-          files: [],
         },
       });
 
@@ -530,7 +511,6 @@ describe('nx-python dependency graph', () => {
         type: 'app',
         data: {
           root: 'apps/app2',
-          files: [],
         },
       });
 
@@ -539,7 +519,6 @@ describe('nx-python dependency graph', () => {
         type: 'lib',
         data: {
           root: 'libs/dep1',
-          files: [],
         },
       });
 
@@ -598,7 +577,6 @@ describe('nx-python dependency graph', () => {
             type: 'app',
             data: {
               root: 'apps/app1',
-              files: [],
             },
           },
           app2: {
@@ -606,7 +584,6 @@ describe('nx-python dependency graph', () => {
             type: 'app',
             data: {
               root: 'apps/app2',
-              files: [],
             },
           },
           dep1: {
@@ -614,7 +591,6 @@ describe('nx-python dependency graph', () => {
             type: 'lib',
             data: {
               root: 'libs/dep1',
-              files: [],
             },
           },
         },

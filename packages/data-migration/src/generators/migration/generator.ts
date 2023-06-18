@@ -5,7 +5,7 @@ import {
   generateFiles,
   readProjectConfiguration,
   Tree,
-} from '@nrwl/devkit';
+} from '@nx/devkit';
 import path from 'path';
 import { MigrationGeneratorSchema } from './schema';
 import { globSync } from 'glob';

@@ -1,5 +1,5 @@
 import { RollbackExecutorSchema } from './schema';
-import { ExecutorContext } from '@nrwl/devkit';
+import { ExecutorContext } from '@nx/devkit';
 import { CLILogger } from '../../migrator/logger';
 import path from 'path';
 

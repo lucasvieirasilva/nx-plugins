@@ -5,7 +5,7 @@ import {
   joinPathFragments,
   ProjectsConfigurations,
   ProjectConfiguration,
-} from '@nrwl/devkit';
+} from '@nx/devkit';
 import { readFileSync, existsSync } from 'fs';
 import { parse } from '@iarna/toml';
 import path from 'path';

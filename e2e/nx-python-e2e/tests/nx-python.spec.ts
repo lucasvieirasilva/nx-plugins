@@ -4,7 +4,7 @@ import {
   runNxCommandAsync,
   updateFile,
   checkFilesExist,
-} from '@nrwl/nx-plugin/testing';
+} from '@nx/plugin/testing';
 describe('nx-python e2e', () => {
   it('should create nx-python project', async () => {
     const app1 = 'app1';

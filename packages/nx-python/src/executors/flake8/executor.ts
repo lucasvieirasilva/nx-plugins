@@ -1,4 +1,4 @@
-import { ExecutorContext } from '@nrwl/devkit';
+import { ExecutorContext } from '@nx/devkit';
 import chalk from 'chalk';
 import { Logger } from '../utils/logger';
 import { Flake8ExecutorSchema } from './schema';

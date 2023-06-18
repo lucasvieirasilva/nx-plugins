@@ -1,7 +1,7 @@
 import { spawnSyncMock } from '../../utils/mocks/cross-spawn.mock';
 import * as poetryUtils from '../../executors/utils/poetry';
-import { Tree } from '@nrwl/devkit';
-import { createTreeWithEmptyWorkspace } from '@nrwl/devkit/testing';
+import { Tree } from '@nx/devkit';
+import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import generator from './generator';
 import projectGenerator from '../project/generator';
 

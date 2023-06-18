@@ -5,7 +5,7 @@ jest.mock('prompts', () => ({
   default: promptsMock,
 }));
 
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+// eslint-disable-next-line @nx/enforce-module-boundaries
 import { modelMock } from '@nxlv/testing/dynamoose-mock';
 import { CLILogger } from './logger';
 import { MigratorRunner } from './runner';
