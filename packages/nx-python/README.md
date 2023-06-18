@@ -151,7 +151,7 @@ By default, `@nxlv/python:poetry-project` generator defines linter and unit test
 }
 ```
 
-> The property names are the same as the options listed above.
+> The property names are the same as the options listed in the table above.
 
 #### Add a new dependency to a project
 
