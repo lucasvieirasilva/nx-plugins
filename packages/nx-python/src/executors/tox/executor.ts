@@ -1,4 +1,4 @@
-import { ExecutorContext } from '@nrwl/devkit';
+import { ExecutorContext } from '@nx/devkit';
 import { ToxExecutorSchema } from './schema';
 import buildExecutor from '../build/executor';
 import path from 'path';

@@ -5,14 +5,15 @@
   "sourceRoot": "e2e/data-migration-e2e/src",
   "targets": {
     "e2e": {
-      "executor": "@nrwl/nx-plugin:e2e",
+      "executor": "@nx/jest:jest",
       "options": {
-        "target": "data-migration:build",
-        "jestConfig": "e2e/data-migration-e2e/jest.config.ts"
-      }
+        "jestConfig": "e2e/data-migration-e2e/jest.config.ts",
+        "runInBand": true
+      },
+      "dependsOn": ["data-migration:build"]
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
+      "executor": "@nx/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": ["e2e/data-migration-e2e/**/*.ts"]

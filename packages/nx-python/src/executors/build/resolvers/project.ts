@@ -10,7 +10,7 @@ import { readFileSync } from 'fs-extra';
 import { parse } from '@iarna/toml';
 import { BuildExecutorSchema } from '../schema';
 import { getLoggingTab, includeDependencyPackage } from './utils';
-import { ExecutorContext } from '@nrwl/devkit';
+import { ExecutorContext } from '@nx/devkit';
 import { createHash } from 'crypto';
 
 export class ProjectDependencyResolver {

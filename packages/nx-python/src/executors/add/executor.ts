@@ -1,4 +1,4 @@
-import { ExecutorContext, ProjectConfiguration } from '@nrwl/devkit';
+import { ExecutorContext, ProjectConfiguration } from '@nx/devkit';
 import { AddExecutorSchema } from './schema';
 import chalk from 'chalk';
 import { updateDependencyTree } from '../../dependency/update-dependency';

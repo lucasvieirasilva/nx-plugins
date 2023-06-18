@@ -1,4 +1,4 @@
-import { ExecutorContext, ProjectConfiguration } from '@nrwl/devkit';
+import { ExecutorContext, ProjectConfiguration } from '@nx/devkit';
 import chalk from 'chalk';
 import spawn from 'cross-spawn';
 import path from 'path';

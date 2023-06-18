@@ -5,7 +5,7 @@ import {
   getProjects,
   Tree,
   ProjectConfiguration,
-} from '@nrwl/devkit';
+} from '@nx/devkit';
 import path from 'path';
 import { Schema } from './schema';
 import { parse, stringify } from '@iarna/toml';

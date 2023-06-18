@@ -8,7 +8,7 @@ import {
   ProjectConfiguration,
   readProjectConfiguration,
   Tree,
-} from '@nrwl/devkit';
+} from '@nx/devkit';
 import * as path from 'path';
 import { PoetryProjectGeneratorSchema } from './schema';
 import { checkPoetryExecutable, runPoetry } from '../../executors/utils/poetry';

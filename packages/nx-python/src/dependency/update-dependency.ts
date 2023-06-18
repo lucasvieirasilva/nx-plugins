@@ -1,4 +1,4 @@
-import { ExecutorContext, ProjectsConfigurations } from '@nrwl/devkit';
+import { ExecutorContext, ProjectsConfigurations } from '@nx/devkit';
 import chalk from 'chalk';
 import { getDependents, PyprojectToml } from '../graph/dependency-graph';
 import {
