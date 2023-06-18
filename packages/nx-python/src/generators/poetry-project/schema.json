@@ -44,12 +44,12 @@
     "pyenvPythonVersion": {
       "type": "string",
       "description": "Pyenv .python-version content",
-      "default": "3.8.11"
+      "default": "3.9.5"
     },
     "publishable": {
       "type": "boolean",
       "description": "Project is publishable",
-      "default": true
+      "default": false
     },
     "buildLockedVersions": {
       "type": "boolean",

@@ -315,11 +315,11 @@ function addTestDependencies(
   };
 }
 
-function updateRootPoetryLock(host: Tree, normalizedOptions: NormalizedSchema) {
+function updateRootPoetryLock(host: Tree) {
   if (host.exists('./pyproject.toml')) {
     console.log(chalk`  Updating root {bgBlue poetry.lock}...`);
-    const updateArgs = ['update', normalizedOptions.packageName];
-    runPoetry(updateArgs, { log: false });
+    runPoetry(['lock', '--no-update'], { log: false });
+    runPoetry(['install']);
     console.log(chalk`\n  {bgBlue poetry.lock} updated.\n`);
   }
 }
@@ -412,6 +412,6 @@ export default async function (
   await formatFiles(tree);
 
   return () => {
-    updateRootPoetryLock(tree, normalizedOptions);
+    updateRootPoetryLock(tree);
   };
 }

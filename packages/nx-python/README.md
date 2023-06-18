@@ -39,25 +39,119 @@ Example:
 #### Add a new Python Project
 
 ```shell
-nx generate @nxlv/python:project myproject
+nx generate @nxlv/python:poetry-project myproject
 ```
 
 #### Options
 
-| Option                           |   Type    | Description                                        | Required                               | Default       |
-| -------------------------------- | :-------: | -------------------------------------------------- | -------------------------------------- | ------------- |
-| `--type`                         | `string`  | Project type `application` or `library`            | `true`                                 | `application` |
-| `--description`                  | `string`  | Project description                                | `false`                                |               |
-| `--directory`                    | `string`  | A directory where the project is placed            | `false`                                |               |
-| `--packageName`                  | `string`  | Package name                                       | `true`                                 |               |
-| `--publishable`                  | `boolean` | Speficies if the project is publishable or not     | `false`                                | `true`        |
-| `--buildLockedVersions`          | `boolean` | Use locked versions for build dependencies         | `false`                                | `true`        |
-| `--buildBundleLocalDependencies` | `boolean` | Bundle local dependencies                          | `false`                                | `true`        |
-| `--customSource`                 | `boolean` | Speficies if the project uses custom PyPi registry | `false`                                | `false`       |
-| `--sourceName`                   | `string`  | Custom PyPi registry name                          | only if the `--customSource` is `true` |               |
-| `--sourceUrl`                    | `string`  | Custom PyPi registry url                           | only if the `--customSource` is `true` |               |
-| `--sourceSecondary`              | `boolean` | Custom PyPi registry secondary flag                | only if the `--customSource` is `true` | `true`        |
-| `--tags`                         | `string`  | Add tags to the project                            | `false`                                |               |
+| Option                           |   Type    | Description                                       | Required | Default                                  |
+| -------------------------------- | :-------: | ------------------------------------------------- | -------- | ---------------------------------------- |
+| `--directory`                    | `string`  | A directory where the project is placed           | `false`  | N/A                                      |
+| `--tags`                         | `string`  | Add tags to the project                           | `false`  | N/A                                      |
+| `--projectType`                  | `string`  | Project type `application` or `library`           | `true`   | `application`                            |
+| `--packageName`                  | `string`  | Poetry Package name                               | `false`  | `name` property (provided in the CLI)    |
+| `--moduleName`                   | `string`  | Project Source Module                             | `false`  | `name` property using `_` instead of `-` |
+| `--description`                  | `string`  | Project description                               | `false`  | N/A                                      |
+| `--pyprojectPythonDependency`    | `string`  | Python version range used in the `pyproject.toml` | `false`  | `>=3.9,<3.11` (Poetry syntax)            |
+| `--pyenvPythonVersion`           | `string`  | `.python-version` pyenv file content              | `false`  | `3.9.5`                                  |
+| `--publishable`                  | `boolean` | Specifies if the project is publishable or not    | `false`  | `true`                                   |
+| `--buildLockedVersions`          | `boolean` | Use locked versions for build dependencies        | `false`  | `true`                                   |
+| `--buildBundleLocalDependencies` | `boolean` | Bundle local dependencies                         | `false`  | `true`                                   |
+| `--linter`                       | `string`  | Linter framework (`flake8` or `none`)             | `false`  | `flake8`                                 |
+| `--unitTestRunner`               | `string`  | Unit Test Runner (`pytest` or `none`)             | `false`  | `pytest`                                 |
+| `--unitTestHtmlReport`           | `boolean` | Enable HTML Pytest Reports                        | `false`  | `true`                                   |
+| `--unitTestJUnitReport`          | `boolean` | Enable JUnit Pytest Reports                       | `false`  | `true`                                   |
+| `--codeCoverage`                 | `boolean` | Enable Code Coverage Reports                      | `false`  | `true`                                   |
+| `--codeCoverageHtmlReport`       | `boolean` | Enable Code Coverage HTML Reports                 | `false`  | `true`                                   |
+| `--codeCoverageXmlReport`        | `boolean` | Enable Code Coverage XML Reports                  | `false`  | `true`                                   |
+| `--codeCoverageThreshold`        | `number`  | Minimum Code Coverage Threshold                   | `false`  | N/A                                      |
+
+##### rootPyprojectDependencyGroup
+
+When the workspace is configured to use a shared virtual environment (see below), the `rootPyprojectDependencyGroup` option specifies the dependency group to be used in the root `pyproject.toml` file, by default, the main dependency group is used.
+
+###### Shared Virtual Environment
+
+By default, the `@nxlv/python` manages the projects individually, so, all the projects have their one set of dependencies and virtual environments.
+
+However, In some cases, we want to use a shared virtual environment for the entire workspace to save some installation time in your local environment and CI tool, we use this mode when the workspace contains many projects with the same dependencies and versions that don't conflict in the workspace level.
+
+To migrate to this mode, run the following command:
+
+```bash
+npx nx generate @nxlv/python:migrate-to-shared-venv
+```
+
+**Options**:
+
+| Option                  |   Type    | Description                                                                                      | Required | Default |
+| ----------------------- | :-------: | ------------------------------------------------------------------------------------------------ | -------- | ------- |
+| `--moveDevDependencies` | `boolean` | Specifies if migration moves the dev dependencies from the projects to the root `pyproject.toml` | `true`   | `true`  |
+
+After the migration is completed, the workspace does not have the `pyproject.toml` in the root directory, and all the local projects are referencing the root `pyproject.toml` file.
+
+> The projects still have their own `pyproject.toml` file to manage each project's dependencies, however, the package versions cannot conflict because the root `pyproject.toml` file is referencing all the dependencies.
+
+**Benefits**:
+
+- Save time in the local environment and CI tool
+- Reduce the size of the workspace
+- Reduce the number of dependencies installed in the local environment and CI tool
+- Single-version policy (recommended by Nx)
+- Better VSCode integration (currently, the VSCode Python extension doesn't support multiple virtual environments in the same workspace, it needs to switch between them manually)
+
+**Cons**:
+
+- Package versions cannot conflict at the workspace level
+- Local packages with the same module name don't work properly in the VSCode, because when the VSCode Python extension is activated, it uses the root `pyproject.toml` file to resolve the packages, so, it will use the first module found in the `pyproject.toml` file.
+
+##### devDependenciesProject
+
+This approach consists of moving all the dev dependencies from the projects to separate projects, this project is referenced in the root `pyproject.toml` and all the local projects as a dev dependency.
+
+**Benefits**:
+
+- Centralize the dev dependencies in a single project
+
+##### templateDir
+
+The `templateDir` option specifies a custom directory to be used as a template for the project, by default, the `@nxlv/python` has a built-in template folder that is used to generate the project.
+
+However, there are some cases where the developer wants to use different files or customize the way the project is generated without the need to create a custom generator based on the `@nxlv/python` generator.
+
+The files in the `templateDir` needs to follow the Nx generator convention by using [EJS](https://ejs.co/#docs) to customize the files based on the options provided by the `@nxlv/python`.
+
+###### Template variables
+
+All the options listed above are available as variables in the template files, for example, to use the `packageName` option in the template file, use `<%= packageName %>`.
+
+Additional variables are available in the template files:
+
+- `offsetFromRoot`: This variable contains the relative path from the project to the root directory. (e.g. for the project folder `apps/my-project` the `offsetFromRoot` value will be `../../`)
+- `projectRoot`: This variable contains the relative path of the project.
+- `individualPackage`: This variable is a boolean that indicates if the workspace is using a shared virtual environment or not.
+- `dot`: This variable is a string that contains a dot (`.`), it is used to create files that start with a dot (e.g. `__dot__gitignore.template`).
+- `template`: This variable is an empty string, this variable is usually combined with the `dot` variable, because the Nx generator file function only generates files with extensions, however, there are some cases where the file doesn't have an extension (e.g. `.gitignore`), so, the `template` variable is used to create files without an extension (e.g. `__dot__gitignore.template`).
+
+###### Global Default Options
+
+By default, `@nxlv/python:poetry-project` generator defines linter and unit test runner with all reports enabled by default, however, those default options can be globally changed by using the following configuration in the `nx.json` config file.
+
+```json
+{
+  ...
+  "generators": {
+    "@nxlv/python:poetry-project": {
+      "unitTestHtmlReport": false,
+      "codeCoverageThreshold": 100,
+      "devDependenciesProject": "shared-development"
+    }
+  }
+  ...
+}
+```
+
+> The property names are the same as the options listed above.
 
 #### Add a new dependency to a project
 
@@ -401,32 +495,3 @@ The `@nxlv/python:install` handles the `poetry install` command for a project.
 | `--cacheDir` | `string`  | Custom poetry install cache directory                | `false`  |         |
 | `--verbose`  | `boolean` | Use verbose mode in the install `poetry install -vv` | `false`  | `false` |
 | `--debug`    | `boolean` | Use debug mode in the install `poetry install -vvv`  | `false`  | `false` |
-
-#### tox
-
-The `@nxlv/python:tox` handles tox executions for a project.
-
-#### Options
-
-| Option     |   Type    | Description                      | Required | Default |
-| ---------- | :-------: | -------------------------------- | -------- | ------- |
-| `--silent` | `boolean` | Hide output text                 | `false`  | `false` |
-| `--args`   | `string`  | Custom arguments (e.g `-e py38`) | `false`  |         |
-
-### Shared Virtual Environment
-
-By default, the `@nxlv/python` manages the projects individually, so, all the projects have their one set of dependencies and virtual environments.
-
-However, In some cases, we want to use a shared virtual environment for the entire workspace to save some installation time in your local environment and CI tool, we use this mode when the workspace contains many projects with the same dependencies and versions that don't conflict in the workspace level.
-
-To migrate to this mode, run the following command:
-
-```bash
-npx nx generate @nxlv/python:migrate-to-shared-venv
-```
-
-#### Options
-
-| Option                  |   Type    | Description                                                                                      | Required | Default |
-| ----------------------- | :-------: | ------------------------------------------------------------------------------------------------ | -------- | ------- |
-| `--moveDevDependencies` | `boolean` | Specifies if migration moves the dev dependencies from the projects to the root `pyproject.toml` | `true`   | `true`  |

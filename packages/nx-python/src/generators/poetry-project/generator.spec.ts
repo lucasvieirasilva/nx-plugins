@@ -32,6 +32,8 @@ describe('application generator', () => {
   };
 
   beforeEach(() => {
+    jest.resetAllMocks();
+
     appTree = createTreeWithEmptyWorkspace({ layout: 'apps-libs' });
     checkPoetryExecutableMock = jest.spyOn(
       poetryUtils,
@@ -368,7 +370,17 @@ describe('application generator', () => {
 
       expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
 
-      expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['update', 'test'], {
+      expect(spawnSyncMock).toHaveBeenCalledTimes(2);
+      expect(spawnSyncMock).toHaveBeenNthCalledWith(
+        1,
+        'poetry',
+        ['lock', '--no-update'],
+        {
+          shell: false,
+          stdio: 'inherit',
+        }
+      );
+      expect(spawnSyncMock).toHaveBeenNthCalledWith(2, 'poetry', ['install'], {
         shell: false,
         stdio: 'inherit',
       });
@@ -410,7 +422,17 @@ describe('application generator', () => {
 
       expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
 
-      expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['update', 'test'], {
+      expect(spawnSyncMock).toHaveBeenCalledTimes(2);
+      expect(spawnSyncMock).toHaveBeenNthCalledWith(
+        1,
+        'poetry',
+        ['lock', '--no-update'],
+        {
+          shell: false,
+          stdio: 'inherit',
+        }
+      );
+      expect(spawnSyncMock).toHaveBeenNthCalledWith(2, 'poetry', ['install'], {
         shell: false,
         stdio: 'inherit',
       });
@@ -452,7 +474,17 @@ describe('application generator', () => {
 
       expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
 
-      expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['update', 'test'], {
+      expect(spawnSyncMock).toHaveBeenCalledTimes(2);
+      expect(spawnSyncMock).toHaveBeenNthCalledWith(
+        1,
+        'poetry',
+        ['lock', '--no-update'],
+        {
+          shell: false,
+          stdio: 'inherit',
+        }
+      );
+      expect(spawnSyncMock).toHaveBeenNthCalledWith(2, 'poetry', ['install'], {
         shell: false,
         stdio: 'inherit',
       });
@@ -497,7 +529,17 @@ describe('application generator', () => {
 
       expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
 
-      expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['update', 'test'], {
+      expect(spawnSyncMock).toHaveBeenCalledTimes(2);
+      expect(spawnSyncMock).toHaveBeenNthCalledWith(
+        1,
+        'poetry',
+        ['lock', '--no-update'],
+        {
+          shell: false,
+          stdio: 'inherit',
+        }
+      );
+      expect(spawnSyncMock).toHaveBeenNthCalledWith(2, 'poetry', ['install'], {
         shell: false,
         stdio: 'inherit',
       });
