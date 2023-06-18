@@ -1,0 +1,56 @@
+<%if (codeCoverage) { -%>
+[tool.coverage.run]
+branch = true
+source = [ "<%= moduleName %>" ]
+
+[tool.coverage.report]
+exclude_lines = ['if TYPE_CHECKING:']
+show_missing = true
+
+<% } -%>
+<%if (unitTestRunner === 'pytest' && pythonAddopts) { -%>
+[tool.pytest.ini_options]
+addopts = "<%- pythonAddopts %>"
+
+<% } -%>
+[tool.poetry]
+name = "<%= packageName %>"
+version = "1.0.0"
+description = "<%= description %>"
+authors = [ ]
+license = 'Proprietary'
+readme = 'README.md'
+
+  [[tool.poetry.packages]]
+  include = "<%= moduleName %>"
+
+  [tool.poetry.dependencies]
+  python = "<%- pyprojectPythonDependency %>"
+
+<%if (((individualPackage && !devDependenciesProject) && linter === 'flake8') || ((individualPackage && !devDependenciesProject) && unitTestRunner === 'pytest')) { -%>
+  [tool.poetry.group.dev.dependencies]
+  autopep8 = "2.0.2"
+<%if (individualPackage && !devDependenciesProject && linter === 'flake8') { -%>
+  flake8 = "6.0.0"
+<% } -%>
+<%if (individualPackage && !devDependenciesProject && unitTestRunner === 'pytest') { -%>
+  pytest = "7.3.1"
+  pytest-sugar = "0.9.7"
+<% } -%>
+<%if (individualPackage && !devDependenciesProject && unitTestRunner === 'pytest' && codeCoverage) { -%>
+  pytest-cov = "4.1.0"
+<% } -%>
+<%if (individualPackage && !devDependenciesProject && unitTestRunner === 'pytest' && codeCoverage && codeCoverageHtmlReport) { -%>
+  pytest-html = "3.2.0"
+<% } -%>
+
+<% } -%>
+<%if (devDependenciesProject !== '') { -%>
+  [tool.poetry.group.dev.dependencies.<%- devDependenciesProject %>]
+  path = "<%- devDependenciesProjectPath %>"
+  develop = true
+
+<% } -%>
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
