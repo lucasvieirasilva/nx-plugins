@@ -38,7 +38,7 @@ function normalizeOptions(
   const projectDirectory = options.directory
     ? `${names(options.directory).fileName}/${name}`
     : name;
-  const projectName = projectDirectory.replace(new RegExp('/', 'g'), '-');
+  const projectName = projectDirectory.replace(/\//g, '-');
   const projectRoot = `${
     options.projectType === 'application'
       ? getWorkspaceLayout(tree).appsDir
@@ -59,7 +59,7 @@ function normalizeOptions(
   }
 
   if (!options.moduleName) {
-    newOptions.moduleName = projectName.replace(new RegExp('-', 'g'), '_');
+    newOptions.moduleName = projectName.replace(/-/g, '_');
   }
 
   if (!options.packageName) {
@@ -80,8 +80,34 @@ function normalizeOptions(
     );
   }
 
-  let pythonAddopts = undefined;
+  const pythonAddopts = getPyTestAddopts(options, projectRoot);
 
+  if (options.unitTestRunner === 'none') {
+    newOptions.unitTestHtmlReport = false;
+    newOptions.unitTestJUnitReport = false;
+    newOptions.codeCoverage = false;
+    newOptions.codeCoverageHtmlReport = false;
+    newOptions.codeCoverageXmlReport = false;
+    newOptions.codeCoverageThreshold = undefined;
+  }
+
+  return {
+    ...options,
+    ...newOptions,
+    devDependenciesProject: options.devDependenciesProject || '',
+    individualPackage: !tree.exists('pyproject.toml'),
+    pythonAddopts,
+    projectName,
+    projectRoot,
+    projectDirectory,
+    parsedTags,
+  };
+}
+
+function getPyTestAddopts(
+  options: PoetryProjectGeneratorSchema,
+  projectRoot: string
+): string | undefined {
   if (options.unitTestRunner === 'pytest') {
     const args = [];
     const offset = offsetFromRoot(projectRoot);
@@ -113,29 +139,8 @@ function normalizeOptions(
       );
     }
 
-    pythonAddopts = args.join(' ');
+    return args.join(' ');
   }
-
-  if (options.unitTestRunner === 'none') {
-    newOptions.unitTestHtmlReport = false;
-    newOptions.unitTestJUnitReport = false;
-    newOptions.codeCoverage = false;
-    newOptions.codeCoverageHtmlReport = false;
-    newOptions.codeCoverageXmlReport = false;
-    newOptions.codeCoverageThreshold = undefined;
-  }
-
-  return {
-    ...options,
-    ...newOptions,
-    devDependenciesProject: options.devDependenciesProject || '',
-    individualPackage: !tree.exists('pyproject.toml'),
-    pythonAddopts,
-    projectName,
-    projectRoot,
-    projectDirectory,
-    parsedTags,
-  };
 }
 
 function addFiles(tree: Tree, options: NormalizedSchema) {
@@ -186,35 +191,6 @@ function updateRootPyprojectToml(
   host: Tree,
   normalizedOptions: NormalizedSchema
 ) {
-  if (normalizedOptions.devDependenciesProject) {
-    const projectConfig = readProjectConfiguration(
-      host,
-      normalizedOptions.devDependenciesProject
-    );
-    const devDepsPyprojectTomlPath = path.join(
-      projectConfig.root,
-      'pyproject.toml'
-    );
-
-    const devDepsPyprojectToml = parse(
-      host.read(devDepsPyprojectTomlPath, 'utf-8')
-    ) as PyprojectToml;
-
-    const { changed, dependencies } = addTestDependencies(
-      devDepsPyprojectToml.tool.poetry.dependencies,
-      normalizedOptions
-    );
-
-    if (changed) {
-      devDepsPyprojectToml.tool.poetry.dependencies = {
-        ...devDepsPyprojectToml.tool.poetry.dependencies,
-        ...dependencies,
-      };
-
-      host.write(devDepsPyprojectTomlPath, stringify(devDepsPyprojectToml));
-    }
-  }
-
   if (!normalizedOptions.individualPackage) {
     const rootPyprojectToml = parse(
       host.read('./pyproject.toml', 'utf-8')
@@ -263,6 +239,40 @@ function updateRootPyprojectToml(
     }
 
     host.write('./pyproject.toml', stringify(rootPyprojectToml));
+  }
+}
+
+function updateDevDependenciesProject(
+  host: Tree,
+  normalizedOptions: NormalizedSchema
+) {
+  if (normalizedOptions.devDependenciesProject) {
+    const projectConfig = readProjectConfiguration(
+      host,
+      normalizedOptions.devDependenciesProject
+    );
+    const devDepsPyprojectTomlPath = path.join(
+      projectConfig.root,
+      'pyproject.toml'
+    );
+
+    const devDepsPyprojectToml = parse(
+      host.read(devDepsPyprojectTomlPath, 'utf-8')
+    ) as PyprojectToml;
+
+    const { changed, dependencies } = addTestDependencies(
+      devDepsPyprojectToml.tool.poetry.dependencies,
+      normalizedOptions
+    );
+
+    if (changed) {
+      devDepsPyprojectToml.tool.poetry.dependencies = {
+        ...devDepsPyprojectToml.tool.poetry.dependencies,
+        ...dependencies,
+      };
+
+      host.write(devDepsPyprojectTomlPath, stringify(devDepsPyprojectToml));
+    }
   }
 }
 
@@ -408,6 +418,7 @@ export default async function (
     tags: normalizedOptions.parsedTags,
   });
   addFiles(tree, normalizedOptions);
+  updateDevDependenciesProject(tree, normalizedOptions);
   updateRootPyprojectToml(tree, normalizedOptions);
   await formatFiles(tree);
 
