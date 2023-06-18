@@ -1,3 +1,9 @@
+# [15.11.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.10.0...nx-python-v15.11.0) (2023-06-18)
+
+### Features
+
+- **nx-python:** add a new version of the poetry project generator ([#123](https://github.com/lucasvieirasilva/nx-plugins/issues/123)) ([c793b0d](https://github.com/lucasvieirasilva/nx-plugins/commit/c793b0d058e5c05f16c7ea74776530113d88be1a)), closes [#111](https://github.com/lucasvieirasilva/nx-plugins/issues/111) [#117](https://github.com/lucasvieirasilva/nx-plugins/issues/117)
+
 # [15.10.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.9.1...nx-python-v15.10.0) (2023-06-07)
 
 ### Features
