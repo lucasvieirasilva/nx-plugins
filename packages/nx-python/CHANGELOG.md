@@ -1,3 +1,9 @@
+# [16.1.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v16.0.0...nx-python-v16.1.0) (2023-07-03)
+
+### Features
+
+- **nx-python:** automatically activate shared virtual environment ([#138](https://github.com/lucasvieirasilva/nx-plugins/issues/138)) ([e275534](https://github.com/lucasvieirasilva/nx-plugins/commit/e275534a84ec14652b47ca8942a5cec55248282a)), closes [#132](https://github.com/lucasvieirasilva/nx-plugins/issues/132)
+
 # [16.0.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v15.11.0...nx-python-v16.0.0) (2023-06-18)
 
 ### Features
