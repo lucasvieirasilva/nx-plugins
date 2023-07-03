@@ -26,7 +26,7 @@ exports[`nx-python project generator should generate a python project into a dif
       ],
     },
     "docs": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "pydoc-markdown -p shared_test --render-toc > docs/source/api.md",
         "cwd": "apps/shared/test",
@@ -52,7 +52,7 @@ exports[`nx-python project generator should generate a python project into a dif
       ],
     },
     "lock": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry lock --no-update",
         "cwd": "apps/shared/test",
@@ -63,7 +63,7 @@ exports[`nx-python project generator should generate a python project into a dif
       "options": {},
     },
     "test": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
         "cwd": "apps/shared/test",
@@ -303,7 +303,7 @@ exports[`nx-python project generator should generate a python project with tags 
       ],
     },
     "docs": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "pydoc-markdown -p test --render-toc > docs/source/api.md",
         "cwd": "apps/test",
@@ -329,7 +329,7 @@ exports[`nx-python project generator should generate a python project with tags 
       ],
     },
     "lock": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry lock --no-update",
         "cwd": "apps/test",
@@ -340,7 +340,7 @@ exports[`nx-python project generator should generate a python project with tags 
       "options": {},
     },
     "test": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
         "cwd": "apps/test",
@@ -395,7 +395,7 @@ exports[`nx-python project generator should successfully generate a python libra
       ],
     },
     "docs": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "pydoc-markdown -p test --render-toc > docs/source/api.md",
         "cwd": "libs/test",
@@ -421,7 +421,7 @@ exports[`nx-python project generator should successfully generate a python libra
       ],
     },
     "lock": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry lock --no-update",
         "cwd": "libs/test",
@@ -432,7 +432,7 @@ exports[`nx-python project generator should successfully generate a python libra
       "options": {},
     },
     "test": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
         "cwd": "libs/test",
@@ -596,7 +596,7 @@ exports[`nx-python project generator should successfully generate a python libra
       ],
     },
     "docs": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "pydoc-markdown -p test --render-toc > docs/source/api.md",
         "cwd": "libs/test",
@@ -622,7 +622,7 @@ exports[`nx-python project generator should successfully generate a python libra
       ],
     },
     "lock": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry lock --no-update",
         "cwd": "libs/test",
@@ -633,7 +633,7 @@ exports[`nx-python project generator should successfully generate a python libra
       "options": {},
     },
     "test": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
         "cwd": "libs/test",
@@ -813,7 +813,7 @@ exports[`nx-python project generator should successfully generate a python libra
       ],
     },
     "docs": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "pydoc-markdown -p test --render-toc > docs/source/api.md",
         "cwd": "libs/test",
@@ -839,7 +839,7 @@ exports[`nx-python project generator should successfully generate a python libra
       ],
     },
     "lock": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry lock --no-update",
         "cwd": "libs/test",
@@ -850,7 +850,7 @@ exports[`nx-python project generator should successfully generate a python libra
       "options": {},
     },
     "test": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
         "cwd": "libs/test",
@@ -922,7 +922,7 @@ exports[`nx-python project generator should successfully generate a python proje
       ],
     },
     "docs": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "pydoc-markdown -p test --render-toc > docs/source/api.md",
         "cwd": "apps/test",
@@ -948,7 +948,7 @@ exports[`nx-python project generator should successfully generate a python proje
       ],
     },
     "lock": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry lock --no-update",
         "cwd": "apps/test",
@@ -959,7 +959,7 @@ exports[`nx-python project generator should successfully generate a python proje
       "options": {},
     },
     "test": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
         "cwd": "apps/test",
@@ -1123,7 +1123,7 @@ exports[`nx-python project generator should successfully generate a python proje
       ],
     },
     "docs": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "pydoc-markdown -p mymodule --render-toc > docs/source/api.md",
         "cwd": "apps/test",
@@ -1149,7 +1149,7 @@ exports[`nx-python project generator should successfully generate a python proje
       ],
     },
     "lock": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry lock --no-update",
         "cwd": "apps/test",
@@ -1160,7 +1160,7 @@ exports[`nx-python project generator should successfully generate a python proje
       "options": {},
     },
     "test": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
         "cwd": "apps/test",

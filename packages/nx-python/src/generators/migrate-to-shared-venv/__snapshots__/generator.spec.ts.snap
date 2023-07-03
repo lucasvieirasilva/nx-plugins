@@ -134,3 +134,44 @@ exports[`nx-python migrate-shared-venv generator should migrate an isolate venv 
 "3.8.11
 "
 `;
+
+exports[`nx-python migrate-shared-venv generator should migrate an isolate venv to shared venv with auto activate enabled 1`] = `
+"[tool.nx]
+autoActivate = true
+
+[tool.poetry]
+name = "@nxlv/nx-plugins"
+version = "1.0.0"
+description = ""
+authors = [ ]
+license = "Proprietary"
+readme = "README.md"
+
+  [tool.poetry.dependencies]
+  python = ">=3.8,<3.10"
+
+    [tool.poetry.dependencies.proj1]
+    path = "apps/proj1"
+    develop = true
+
+[tool.poetry.group.dev.dependencies]
+flake8 = "4.0.1"
+flake8-isort = "4.1.1"
+flake8-print = "5.0.0"
+flake8-pytest-style = "1.6.0"
+flake8-docstrings = "1.6.0"
+flake8-type-checking = "2.0.6"
+autopep8 = "1.5.7"
+pytest = "7.1.2"
+pytest-env = "0.6.2"
+pytest-cov = "3.0.0"
+pytest-html = "3.1.1"
+pytest-sugar = "0.9.5"
+tomli = "1.2.2"
+tox = "3.23.1"
+
+[build-system]
+requires = [ "poetry-core==1.1.0" ]
+build-backend = "poetry.core.masonry.api"
+"
+`;

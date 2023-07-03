@@ -4,7 +4,11 @@ import { Logger } from '../utils/logger';
 import { Flake8ExecutorSchema } from './schema';
 import path from 'path';
 import { mkdirsSync, existsSync, readFileSync, rmSync } from 'fs-extra';
-import { checkPoetryExecutable, runPoetry } from '../utils/poetry';
+import {
+  activateVenv,
+  checkPoetryExecutable,
+  runPoetry,
+} from '../utils/poetry';
 
 const logger = new Logger();
 
@@ -16,6 +20,7 @@ export default async function executor(
   const workspaceRoot = context.root;
   process.chdir(workspaceRoot);
   try {
+    activateVenv(workspaceRoot);
     await checkPoetryExecutable();
     logger.info(
       chalk`\n  {bold Running flake8 linting on project {bgBlue  ${context.projectName} }...}\n`

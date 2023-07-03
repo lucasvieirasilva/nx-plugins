@@ -84,9 +84,10 @@ npx nx generate @nxlv/python:migrate-to-shared-venv
 
 **Options**:
 
-| Option                  |   Type    | Description                                                                                      | Required | Default |
-| ----------------------- | :-------: | ------------------------------------------------------------------------------------------------ | -------- | ------- |
-| `--moveDevDependencies` | `boolean` | Specifies if migration moves the dev dependencies from the projects to the root `pyproject.toml` | `true`   | `true`  |
+| Option                  |   Type    | Description                                                                                                                                           | Required | Default |
+| ----------------------- | :-------: | ----------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------- |
+| `--moveDevDependencies` | `boolean` | Specifies if migration moves the dev dependencies from the projects to the root `pyproject.toml`                                                      | `true`   | `true`  |
+| `--autoActivate`        | `boolean` | Adds the `autoActivate` config in the root `pyproject.toml`, this flag is used to auto-activate the venv when the `@nxlv/python` executors are called | `true`   | `true`  |
 
 After the migration is completed, the workspace does not have the `pyproject.toml` in the root directory, and all the local projects are referencing the root `pyproject.toml` file.
 
@@ -495,3 +496,24 @@ The `@nxlv/python:install` handles the `poetry install` command for a project.
 | `--cacheDir` | `string`  | Custom poetry install cache directory                | `false`  |         |
 | `--verbose`  | `boolean` | Use verbose mode in the install `poetry install -vv` | `false`  | `false` |
 | `--debug`    | `boolean` | Use debug mode in the install `poetry install -vvv`  | `false`  | `false` |
+
+#### run-commands (same as `nx:run-commands`)
+
+The `@nxlv/python:run-commands` wraps the `nx:run-commands` default Nx executor and if the `autoActivate` option is set to `true` in the root `pyproject.toml` file, it will verify the the virtual environment is not activated, if no, it will activate the virtual environment before running the commands.
+
+> NOTE: This executor only changes the default `nx:run-commands` if the workspace is configured to use the Shared virtual environment mode and the `autoActivate` option is set to `true` in the root `pyproject.toml` file.
+> NOTE: The `autoActivate` option is set to `false` by default.
+
+root `pyproject.toml`
+
+```toml
+...
+[tool.nx]
+autoActivate = true
+
+...
+```
+
+The options and behavior are the same as the `nx:run-commands` executor.
+
+[See the Nx documentation for more information](https://nx.dev/packages/nx/executors/run-commands)

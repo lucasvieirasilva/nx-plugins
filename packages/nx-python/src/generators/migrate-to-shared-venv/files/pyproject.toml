@@ -1,3 +1,8 @@
+<%if (autoActivate) { -%>
+[tool.nx]
+autoActivate = true
+
+<% } -%>
 [tool.poetry]
 name = "<%= packageName %>"
 version = "1.0.0"

@@ -40,6 +40,9 @@ export type PyprojectTomlSource = {
 
 export type PyprojectToml = {
   tool?: {
+    nx?: {
+      autoActivate?: boolean;
+    };
     poetry?: {
       name: string;
       version: string;

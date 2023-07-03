@@ -36,7 +36,7 @@ exports[`application generator custom template dir should run successfully with 
       },
     },
     "lock": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry lock --no-update",
         "cwd": "apps/test",
@@ -115,7 +115,7 @@ exports[`application generator individual package should run successfully minima
       },
     },
     "lock": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry lock --no-update",
         "cwd": "apps/test",
@@ -212,7 +212,7 @@ exports[`application generator individual package should run successfully minima
       },
     },
     "lock": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry lock --no-update",
         "cwd": "libs/test",
@@ -309,7 +309,7 @@ exports[`application generator individual package should run successfully minima
       },
     },
     "lock": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry lock --no-update",
         "cwd": "apps/subdir/test",
@@ -409,7 +409,7 @@ exports[`application generator individual package should run successfully minima
       },
     },
     "lock": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry lock --no-update",
         "cwd": "apps/test",
@@ -515,7 +515,7 @@ exports[`application generator individual package should run successfully with f
       ],
     },
     "lock": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry lock --no-update",
         "cwd": "apps/test",
@@ -640,7 +640,7 @@ exports[`application generator individual package should run successfully with f
       ],
     },
     "lock": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry lock --no-update",
         "cwd": "apps/test",
@@ -651,7 +651,7 @@ exports[`application generator individual package should run successfully with f
       "options": {},
     },
     "test": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
         "cwd": "apps/test",
@@ -801,7 +801,7 @@ exports[`application generator individual package should run successfully with f
       ],
     },
     "lock": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry lock --no-update",
         "cwd": "apps/test",
@@ -812,7 +812,7 @@ exports[`application generator individual package should run successfully with f
       "options": {},
     },
     "test": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
         "cwd": "apps/test",
@@ -962,7 +962,7 @@ exports[`application generator individual package should run successfully with f
       ],
     },
     "lock": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry lock --no-update",
         "cwd": "apps/test",
@@ -973,7 +973,7 @@ exports[`application generator individual package should run successfully with f
       "options": {},
     },
     "test": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
         "cwd": "apps/test",
@@ -1123,7 +1123,7 @@ exports[`application generator individual package should run successfully with f
       ],
     },
     "lock": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry lock --no-update",
         "cwd": "apps/test",
@@ -1134,7 +1134,7 @@ exports[`application generator individual package should run successfully with f
       "options": {},
     },
     "test": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
         "cwd": "apps/test",
@@ -1284,7 +1284,7 @@ exports[`application generator individual package should run successfully with f
       ],
     },
     "lock": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry lock --no-update",
         "cwd": "apps/test",
@@ -1295,7 +1295,7 @@ exports[`application generator individual package should run successfully with f
       "options": {},
     },
     "test": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
         "cwd": "apps/test",
@@ -1445,7 +1445,7 @@ exports[`application generator individual package should run successfully with f
       ],
     },
     "lock": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry lock --no-update",
         "cwd": "apps/test",
@@ -1456,7 +1456,7 @@ exports[`application generator individual package should run successfully with f
       "options": {},
     },
     "test": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
         "cwd": "apps/test",
@@ -1593,7 +1593,7 @@ exports[`application generator individual package should run successfully with f
       ],
     },
     "lock": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry lock --no-update",
         "cwd": "apps/test",
@@ -1604,7 +1604,7 @@ exports[`application generator individual package should run successfully with f
       "options": {},
     },
     "test": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
         "cwd": "apps/test",
@@ -1741,7 +1741,7 @@ exports[`application generator individual package should run successfully with l
       ],
     },
     "lock": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry lock --no-update",
         "cwd": "apps/test",
@@ -1752,7 +1752,7 @@ exports[`application generator individual package should run successfully with l
       "options": {},
     },
     "test": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
         "cwd": "apps/test",
@@ -1947,7 +1947,7 @@ exports[`application generator individual package should run successfully with l
       ],
     },
     "lock": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry lock --no-update",
         "cwd": "apps/test",
@@ -1958,7 +1958,7 @@ exports[`application generator individual package should run successfully with l
       "options": {},
     },
     "test": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
         "cwd": "apps/test",
@@ -2145,7 +2145,7 @@ exports[`application generator shared virtual environment should run successfull
       },
     },
     "lock": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry lock --no-update",
         "cwd": "apps/test",
@@ -2262,7 +2262,7 @@ exports[`application generator shared virtual environment should run successfull
       },
     },
     "lock": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry lock --no-update",
         "cwd": "apps/test",
@@ -2379,7 +2379,7 @@ exports[`application generator shared virtual environment should run successfull
       },
     },
     "lock": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry lock --no-update",
         "cwd": "apps/test",
@@ -2497,7 +2497,7 @@ exports[`application generator shared virtual environment should run successfull
       },
     },
     "lock": {
-      "executor": "nx:run-commands",
+      "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry lock --no-update",
         "cwd": "apps/test",

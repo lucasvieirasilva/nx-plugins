@@ -344,7 +344,7 @@ export default async function (
 
   const targets: ProjectConfiguration['targets'] = {
     lock: {
-      executor: 'nx:run-commands',
+      executor: '@nxlv/python:run-commands',
       options: {
         command: 'poetry lock --no-update',
         cwd: normalizedOptions.projectRoot,
@@ -398,7 +398,7 @@ export default async function (
 
   if (options.unitTestRunner === 'pytest') {
     targets.test = {
-      executor: 'nx:run-commands',
+      executor: '@nxlv/python:run-commands',
       outputs: [
         `{workspaceRoot}/reports/${normalizedOptions.projectRoot}/unittests`,
         `{workspaceRoot}/coverage/${normalizedOptions.projectRoot}`,

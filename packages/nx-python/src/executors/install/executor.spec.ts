@@ -5,6 +5,7 @@ import path from 'path';
 
 describe('Install Executor', () => {
   let checkPoetryExecutableMock: jest.SpyInstance;
+
   const context = {
     cwd: '',
     root: '.',
@@ -23,11 +24,10 @@ describe('Install Executor', () => {
   };
 
   beforeEach(() => {
-    checkPoetryExecutableMock = jest.spyOn(
-      poetryUtils,
-      'checkPoetryExecutable'
-    );
-    checkPoetryExecutableMock.mockResolvedValue(undefined);
+    checkPoetryExecutableMock = jest
+      .spyOn(poetryUtils, 'checkPoetryExecutable')
+      .mockResolvedValue(undefined);
+
     spawnSyncMock.mockReturnValue({ status: 0 });
   });
 

@@ -18,6 +18,11 @@
       "type": "string",
       "description": "Pyenv .python-version content",
       "default": "3.9.5"
+    },
+    "autoActivate": {
+      "type": "boolean",
+      "description": "Specifies if the root pyproject toml should be automatically activated when running @nxlv/python executors",
+      "default": true
     }
   },
   "required": []

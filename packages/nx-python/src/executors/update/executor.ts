@@ -2,6 +2,7 @@ import { ExecutorContext, ProjectConfiguration } from '@nx/devkit';
 import chalk from 'chalk';
 import { UpdateExecutorSchema } from './schema';
 import {
+  activateVenv,
   checkPoetryExecutable,
   getLocalDependencyConfig,
   getProjectTomlPath,
@@ -20,6 +21,7 @@ export default async function executor(
   process.chdir(workspaceRoot);
 
   try {
+    activateVenv(workspaceRoot);
     await checkPoetryExecutable();
     const projectConfig = context.workspace.projects[context.projectName];
     const rootPyprojectToml = existsSync('pyproject.toml');

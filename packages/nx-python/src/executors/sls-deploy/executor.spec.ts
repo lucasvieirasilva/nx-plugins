@@ -1,9 +1,12 @@
 import chalk from 'chalk';
+import * as poetryUtils from '../utils/poetry';
 import { spawnSyncMock } from '../../utils/mocks/cross-spawn.mock';
 import executor from './executor';
 import fsMock from 'mock-fs';
 
 describe('Serverless Framework Deploy Executor', () => {
+  let activateVenvMock: jest.SpyInstance;
+
   const context = {
     cwd: '',
     root: '.',
@@ -25,6 +28,12 @@ describe('Serverless Framework Deploy Executor', () => {
     console.log(chalk`init chalk`);
   });
 
+  beforeEach(() => {
+    activateVenvMock = jest
+      .spyOn(poetryUtils, 'activateVenv')
+      .mockReturnValue(undefined);
+  });
+
   afterEach(() => {
     fsMock.restore();
     jest.resetAllMocks();
@@ -39,6 +48,7 @@ describe('Serverless Framework Deploy Executor', () => {
       },
       context
     );
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
@@ -56,6 +66,7 @@ describe('Serverless Framework Deploy Executor', () => {
       },
       context
     );
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
@@ -76,6 +87,7 @@ describe('Serverless Framework Deploy Executor', () => {
       },
       context
     );
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).toHaveBeenCalledWith(
       'npx',
       ['sls', 'deploy', '--stage', 'dev'],
@@ -104,6 +116,7 @@ describe('Serverless Framework Deploy Executor', () => {
       },
       context
     );
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).toHaveBeenCalledWith(
       'npx',
       ['sls', 'deploy', '--stage', 'dev'],
@@ -132,6 +145,7 @@ describe('Serverless Framework Deploy Executor', () => {
       },
       context
     );
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).toHaveBeenCalledWith(
       'npx',
       ['sls', 'deploy', '--stage', 'dev', '--verbose', '--force'],
