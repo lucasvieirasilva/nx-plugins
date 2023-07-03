@@ -29,6 +29,7 @@ describe('nx-python migrate-shared-venv generator', () => {
         moveDevDependencies: true,
         pyenvPythonVersion: '3.8.11',
         pyprojectPythonDependency: '>=3.8,<3.10',
+        autoActivate: false,
       })
     ).rejects.toThrow('poetry not found');
 
@@ -55,6 +56,7 @@ describe('nx-python migrate-shared-venv generator', () => {
       moveDevDependencies: true,
       pyenvPythonVersion: '3.8.11',
       pyprojectPythonDependency: '>=3.8,<3.10',
+      autoActivate: false,
     });
     task();
 
@@ -96,6 +98,7 @@ describe('nx-python migrate-shared-venv generator', () => {
       moveDevDependencies: true,
       pyenvPythonVersion: '3.8.11',
       pyprojectPythonDependency: '>=3.8,<3.10',
+      autoActivate: false,
     });
     task();
 
@@ -115,5 +118,33 @@ describe('nx-python migrate-shared-venv generator', () => {
       shell: false,
       stdio: 'inherit',
     });
+  });
+
+  it('should migrate an isolate venv to shared venv with auto activate enabled', async () => {
+    await projectGenerator(appTree, {
+      name: 'proj1',
+      type: 'application',
+      publishable: true,
+      customSource: false,
+      addDevDependencies: true,
+      moduleName: 'proj1',
+      packageName: 'proj1',
+      buildLockedVersions: true,
+      buildBundleLocalDependencies: true,
+      pyenvPythonVersion: '3.8.11',
+      pyprojectPythonDependency: '>=3.8,<3.10',
+      toxEnvlist: 'py38',
+    });
+
+    const task = await generator(appTree, {
+      moveDevDependencies: true,
+      pyenvPythonVersion: '3.8.11',
+      pyprojectPythonDependency: '>=3.8,<3.10',
+      autoActivate: true,
+    });
+    task();
+
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
   });
 });

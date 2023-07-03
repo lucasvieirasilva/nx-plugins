@@ -5,7 +5,11 @@ import path from 'path';
 import chalk from 'chalk';
 import { Logger } from '../utils/logger';
 import { readdirSync, existsSync } from 'fs-extra';
-import { checkPoetryExecutable, runPoetry } from '../utils/poetry';
+import {
+  activateVenv,
+  checkPoetryExecutable,
+  runPoetry,
+} from '../utils/poetry';
 
 const logger = new Logger();
 
@@ -17,6 +21,7 @@ export default async function executor(
   process.chdir(workspaceRoot);
   logger.setOptions(options);
   try {
+    activateVenv(workspaceRoot);
     await checkPoetryExecutable();
     const projectConfig = context.workspace.projects[context.projectName];
     const distFolder = path.join(projectConfig.root, 'dist');

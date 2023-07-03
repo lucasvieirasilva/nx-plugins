@@ -3,6 +3,7 @@ import chalk from 'chalk';
 import { existsSync } from 'fs-extra';
 import { updateDependencyTree } from '../../dependency/update-dependency';
 import {
+  activateVenv,
   checkPoetryExecutable,
   getLocalDependencyConfig,
   getPoetryVersion,
@@ -19,6 +20,7 @@ export default async function executor(
   const workspaceRoot = context.root;
   process.chdir(workspaceRoot);
   try {
+    activateVenv(workspaceRoot);
     await checkPoetryExecutable();
     const rootPyprojectToml = existsSync('pyproject.toml');
     const projectConfig = context.workspace.projects[context.projectName];

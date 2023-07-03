@@ -45,6 +45,11 @@
       "implementation": "./src/executors/sls-package/executor",
       "schema": "./src/executors/sls-package/schema.json",
       "description": "Serverless Package Wrapper Executor"
+    },
+    "run-commands": {
+      "implementation": "./src/executors/run-commands/executor",
+      "schema": "./src/executors/run-commands/schema.json",
+      "description": "Python Venv Run Commands Executor"
     }
   }
 }

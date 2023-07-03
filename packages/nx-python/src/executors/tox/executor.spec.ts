@@ -18,6 +18,7 @@ const options: ToxExecutorSchema = {
 
 describe('Tox Executor', () => {
   let checkPoetryExecutableMock: jest.SpyInstance;
+  let activateVenvMock: jest.SpyInstance;
 
   const context = {
     cwd: '.',
@@ -41,11 +42,12 @@ describe('Tox Executor', () => {
   });
 
   beforeEach(() => {
-    checkPoetryExecutableMock = jest.spyOn(
-      poetryUtils,
-      'checkPoetryExecutable'
-    );
-    checkPoetryExecutableMock.mockResolvedValue(undefined);
+    checkPoetryExecutableMock = jest
+      .spyOn(poetryUtils, 'checkPoetryExecutable')
+      .mockResolvedValue(undefined);
+    activateVenvMock = jest
+      .spyOn(poetryUtils, 'activateVenv')
+      .mockReturnValue(undefined);
     spawnSyncMock.mockReturnValue({ status: 0 });
   });
 
@@ -76,6 +78,7 @@ describe('Tox Executor', () => {
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(buildExecutorMock).not.toHaveBeenCalled();
     expect(spawnSyncMock).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
@@ -92,6 +95,7 @@ describe('Tox Executor', () => {
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(buildExecutorMock).toBeCalledWith(
       {
         silent: options.silent,
@@ -134,6 +138,7 @@ describe('Tox Executor', () => {
     );
 
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(buildExecutorMock).toBeCalledWith(
       {
         silent: options.silent,
@@ -165,6 +170,7 @@ describe('Tox Executor', () => {
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(buildExecutorMock).toBeCalledWith(
       {
         silent: options.silent,
@@ -188,6 +194,7 @@ describe('Tox Executor', () => {
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(buildExecutorMock).toBeCalledWith(
       {
         silent: options.silent,
@@ -215,6 +222,7 @@ describe('Tox Executor', () => {
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(buildExecutorMock).toBeCalledWith(
       {
         silent: options.silent,

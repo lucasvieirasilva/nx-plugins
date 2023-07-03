@@ -11,14 +11,18 @@ import { mkdirsSync, writeFileSync } from 'fs-extra';
 describe('Flake8 Executor', () => {
   let tmppath = null;
   let checkPoetryExecutableMock: jest.SpyInstance;
+  let activateVenvMock: jest.SpyInstance;
 
   beforeEach(() => {
     tmppath = join(tmpdir(), 'nx-python', 'flake8', uuid());
-    checkPoetryExecutableMock = jest.spyOn(
-      poetryUtils,
-      'checkPoetryExecutable'
-    );
-    checkPoetryExecutableMock.mockResolvedValue(undefined);
+    checkPoetryExecutableMock = jest
+      .spyOn(poetryUtils, 'checkPoetryExecutable')
+      .mockResolvedValue(undefined);
+
+    activateVenvMock = jest
+      .spyOn(poetryUtils, 'activateVenv')
+      .mockReturnValue(undefined);
+
     spawnSyncMock.mockReturnValue({ status: 0 });
   });
 
@@ -58,6 +62,7 @@ describe('Flake8 Executor', () => {
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
@@ -91,6 +96,7 @@ describe('Flake8 Executor', () => {
       }
     );
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).toHaveBeenCalledTimes(1);
     expect(output.success).toBe(true);
   });
@@ -125,6 +131,7 @@ describe('Flake8 Executor', () => {
       }
     );
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).toHaveBeenCalledTimes(1);
     expect(output.success).toBe(true);
   });
@@ -157,6 +164,7 @@ describe('Flake8 Executor', () => {
       }
     );
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).toHaveBeenCalledTimes(1);
     expect(output.success).toBe(false);
   });
@@ -193,6 +201,7 @@ describe('Flake8 Executor', () => {
       }
     );
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).toHaveBeenCalledTimes(1);
     expect(output.success).toBe(false);
   });

@@ -1,9 +1,12 @@
 import chalk from 'chalk';
+import * as poetryUtils from '../utils/poetry';
 import { spawnSyncMock } from '../../utils/mocks/cross-spawn.mock';
 import executor from './executor';
 import fsMock from 'mock-fs';
 
 describe('Serverless Framework Package Executor', () => {
+  let activateVenvMock: jest.SpyInstance;
+
   const context = {
     cwd: '',
     root: '.',
@@ -21,6 +24,12 @@ describe('Serverless Framework Package Executor', () => {
     },
   };
 
+  beforeEach(() => {
+    activateVenvMock = jest
+      .spyOn(poetryUtils, 'activateVenv')
+      .mockReturnValue(undefined);
+  });
+
   beforeAll(() => {
     console.log(chalk`init chalk`);
   });
@@ -37,6 +46,7 @@ describe('Serverless Framework Package Executor', () => {
       },
       context
     );
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
@@ -52,6 +62,7 @@ describe('Serverless Framework Package Executor', () => {
       },
       context
     );
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
@@ -70,6 +81,7 @@ describe('Serverless Framework Package Executor', () => {
       },
       context
     );
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).toHaveBeenCalledWith(
       'npx',
       ['sls', 'package', '--stage', 'dev'],
@@ -96,6 +108,7 @@ describe('Serverless Framework Package Executor', () => {
       },
       context
     );
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).toHaveBeenCalledWith(
       'npx',
       ['sls', 'package', '--stage', 'dev'],

@@ -18,7 +18,11 @@ import { tmpdir } from 'os';
 import { v4 as uuid } from 'uuid';
 import chalk from 'chalk';
 import { Logger } from '../utils/logger';
-import { checkPoetryExecutable, runPoetry } from '../utils/poetry';
+import {
+  activateVenv,
+  checkPoetryExecutable,
+  runPoetry,
+} from '../utils/poetry';
 import {
   LockedDependencyResolver,
   ProjectDependencyResolver,
@@ -35,6 +39,7 @@ export default async function executor(
   const workspaceRoot = context.root;
   process.chdir(workspaceRoot);
   try {
+    activateVenv(workspaceRoot);
     await checkPoetryExecutable();
     if (
       options.lockedVersions === true &&

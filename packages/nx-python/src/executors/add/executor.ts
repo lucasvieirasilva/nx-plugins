@@ -5,6 +5,7 @@ import { updateDependencyTree } from '../../dependency/update-dependency';
 import { existsSync } from 'fs-extra';
 import path from 'path';
 import {
+  activateVenv,
   addLocalProjectToPoetryProject,
   checkPoetryExecutable,
   getLocalDependencyConfig,
@@ -19,6 +20,7 @@ export default async function executor(
   const workspaceRoot = context.root;
   process.chdir(workspaceRoot);
   try {
+    activateVenv(workspaceRoot);
     await checkPoetryExecutable();
     const projectConfig = context.workspace.projects[context.projectName];
     const rootPyprojectToml = existsSync('pyproject.toml');

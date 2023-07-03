@@ -8,17 +8,19 @@ import dedent from 'string-dedent';
 
 describe('Add Executor', () => {
   let checkPoetryExecutableMock: jest.SpyInstance;
+  let activateVenvMock: jest.SpyInstance;
 
   beforeAll(() => {
     console.log(chalk`init chalk`);
   });
 
   beforeEach(() => {
-    checkPoetryExecutableMock = jest.spyOn(
-      poetryUtils,
-      'checkPoetryExecutable'
-    );
-    checkPoetryExecutableMock.mockResolvedValue(undefined);
+    checkPoetryExecutableMock = jest
+      .spyOn(poetryUtils, 'checkPoetryExecutable')
+      .mockResolvedValue(undefined);
+    activateVenvMock = jest
+      .spyOn(poetryUtils, 'activateVenv')
+      .mockReturnValue(undefined);
     spawnSyncMock.mockReturnValue({ status: 0 });
   });
 
@@ -54,6 +56,7 @@ describe('Add Executor', () => {
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
@@ -100,6 +103,7 @@ describe('Add Executor', () => {
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['add', 'numpy'], {
       cwd: 'apps/app',
       shell: false,
@@ -151,6 +155,7 @@ describe('Add Executor', () => {
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).toHaveBeenCalledWith(
       'poetry',
       ['add', 'numpy', '--group', 'dev'],
@@ -206,6 +211,7 @@ describe('Add Executor', () => {
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).toHaveBeenCalledWith(
       'poetry',
       ['add', 'numpy', '--extras=dev'],
@@ -256,6 +262,7 @@ version = "1.0.0"
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
@@ -302,6 +309,7 @@ version = "1.0.0"
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['add', 'numpy'], {
       cwd: 'apps/app',
       shell: false,
@@ -402,6 +410,7 @@ version = "1.0.0"
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).toHaveBeenCalledTimes(4);
     expect(spawnSyncMock).toHaveBeenNthCalledWith(
       1,
@@ -538,6 +547,7 @@ version = "1.0.0"
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).toHaveBeenCalledTimes(4);
     expect(spawnSyncMock).toHaveBeenNthCalledWith(
       1,
@@ -632,6 +642,7 @@ version = "1.0.0"
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).toHaveBeenCalledTimes(1);
     expect(spawnSyncMock).toHaveBeenNthCalledWith(
       1,
@@ -697,6 +708,7 @@ version = "1.0.0"
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).toHaveBeenCalledTimes(1);
     expect(spawnSyncMock).toHaveBeenNthCalledWith(
       1,
@@ -766,6 +778,7 @@ version = "1.0.0"
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).toHaveBeenCalledTimes(1);
     expect(spawnSyncMock).toHaveBeenNthCalledWith(
       1,
@@ -836,6 +849,7 @@ version = "1.0.0"
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).toHaveBeenCalledTimes(1);
     expect(spawnSyncMock).toHaveBeenNthCalledWith(
       1,
@@ -901,6 +915,7 @@ version = "1.0.0"
     const output = await executor(options, context);
     expect(output.success).toBe(true);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).toHaveBeenCalledTimes(1);
     expect(spawnSyncMock).toHaveBeenNthCalledWith(
       1,
@@ -964,6 +979,7 @@ version = "1.0.0"
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).toHaveBeenCalledWith(
       'poetry',
       ['add', 'numpy', '--group', 'dev'],
@@ -1024,6 +1040,7 @@ version = "1.0.0"
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).toHaveBeenNthCalledWith(
       1,
       'poetry',

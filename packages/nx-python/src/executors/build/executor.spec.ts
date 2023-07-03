@@ -15,6 +15,7 @@ import dedent from 'string-dedent';
 describe('Build Executor', () => {
   let buildPath = null;
   let checkPoetryExecutableMock: jest.SpyInstance;
+  let activateVenvMock: jest.SpyInstance;
 
   beforeAll(() => {
     console.log(chalk`init chalk`);
@@ -23,11 +24,15 @@ describe('Build Executor', () => {
   beforeEach(() => {
     uuidMock.mockReturnValue('abc');
     buildPath = join(tmpdir(), 'nx-python', 'build', 'abc');
-    checkPoetryExecutableMock = jest.spyOn(
-      poetryUtils,
-      'checkPoetryExecutable'
-    );
-    checkPoetryExecutableMock.mockResolvedValue(undefined);
+
+    checkPoetryExecutableMock = jest
+      .spyOn(poetryUtils, 'checkPoetryExecutable')
+      .mockResolvedValue(undefined);
+
+    activateVenvMock = jest
+      .spyOn(poetryUtils, 'activateVenv')
+      .mockReturnValue(undefined);
+
     spawnSyncMock.mockReturnValue({ status: 0 });
   });
 
@@ -68,6 +73,7 @@ describe('Build Executor', () => {
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
@@ -104,6 +110,7 @@ describe('Build Executor', () => {
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(spawnSyncMock).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
@@ -248,6 +255,7 @@ describe('Build Executor', () => {
       });
 
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.');
       expect(existsSync(buildPath)).toBeTruthy();
       expect(existsSync(`${buildPath}/app`)).toBeTruthy();
       expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
@@ -364,6 +372,7 @@ describe('Build Executor', () => {
       });
 
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.');
       expect(existsSync(buildPath)).toBeTruthy();
       expect(existsSync(`${buildPath}/app`)).toBeTruthy();
       expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['build'], {
@@ -475,6 +484,7 @@ describe('Build Executor', () => {
       });
 
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.');
       expect(existsSync(buildPath)).toBeTruthy();
       expect(existsSync(`${buildPath}/app`)).toBeTruthy();
       expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['build'], {
@@ -585,6 +595,7 @@ describe('Build Executor', () => {
 
       expect(output.success).toBe(true);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.');
       expect(existsSync(buildPath)).toBeTruthy();
       expect(existsSync(`${buildPath}/app`)).toBeTruthy();
       expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['build'], {
@@ -684,6 +695,7 @@ describe('Build Executor', () => {
       });
 
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.');
       expect(output.success).toBe(false);
     });
 
@@ -825,6 +837,7 @@ describe('Build Executor', () => {
       });
 
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.');
       expect(existsSync(buildPath)).toBeTruthy();
       expect(existsSync(`${buildPath}/app`)).toBeTruthy();
       expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
@@ -995,6 +1008,7 @@ describe('Build Executor', () => {
       });
 
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.');
       expect(output.success).toBe(true);
       expect(existsSync(buildPath)).toBeTruthy();
       expect(existsSync(`${buildPath}/app`)).toBeTruthy();
@@ -1130,6 +1144,7 @@ describe('Build Executor', () => {
       });
 
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.');
       expect(existsSync(buildPath)).toBeTruthy();
       expect(existsSync(`${buildPath}/app`)).toBeTruthy();
       expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
@@ -1224,6 +1239,7 @@ describe('Build Executor', () => {
         },
       });
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.');
       expect(output.success).toBe(false);
     });
 
@@ -1293,6 +1309,7 @@ describe('Build Executor', () => {
       });
 
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.');
       expect(existsSync(buildPath)).not.toBeTruthy();
       expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['build'], {
         cwd: buildPath,
@@ -1357,6 +1374,7 @@ describe('Build Executor', () => {
       });
 
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.');
       expect(output.success).toBe(false);
     });
   });
@@ -1433,6 +1451,7 @@ describe('Build Executor', () => {
       });
 
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.');
       expect(output.success).toBe(false);
       expect(existsSync(buildPath)).toBeTruthy();
     });
@@ -1511,6 +1530,7 @@ describe('Build Executor', () => {
       });
 
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.');
       expect(output.success).toBe(true);
       expect(existsSync(buildPath)).toBeTruthy();
       expect(existsSync(`${buildPath}/app`)).toBeTruthy();
@@ -1623,6 +1643,7 @@ describe('Build Executor', () => {
       });
 
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.');
       expect(output.success).toBe(true);
       expect(existsSync(buildPath)).toBeTruthy();
       expect(existsSync(`${buildPath}/app`)).toBeTruthy();
@@ -1767,6 +1788,7 @@ describe('Build Executor', () => {
       });
 
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.');
       expect(output.success).toBe(true);
       expect(existsSync(buildPath)).toBeTruthy();
       expect(existsSync(`${buildPath}/app`)).toBeTruthy();
@@ -2012,6 +2034,7 @@ describe('Build Executor', () => {
       });
 
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.');
       expect(output.success).toBe(true);
       expect(existsSync(buildPath)).toBeTruthy();
       expect(existsSync(`${buildPath}/app`)).toBeTruthy();
