@@ -26,6 +26,7 @@ interface NormalizedSchema extends PoetryProjectGeneratorSchema {
   projectDirectory: string;
   individualPackage: boolean;
   devDependenciesProjectPath?: string;
+  devDependenciesProjectPkgName?: string;
   pythonAddopts?: string;
   parsedTags: string[];
 }
@@ -91,11 +92,21 @@ function normalizeOptions(
     newOptions.codeCoverageThreshold = undefined;
   }
 
+  let devDependenciesProjectPkgName: string | undefined;
+  if (options.devDependenciesProject) {
+    const { pyprojectToml } = getPyprojectTomlByProjectName(
+      tree,
+      options.devDependenciesProject
+    );
+    devDependenciesProjectPkgName = pyprojectToml.tool.poetry.name;
+  }
+
   return {
     ...options,
     ...newOptions,
     devDependenciesProject: options.devDependenciesProject || '',
     individualPackage: !tree.exists('pyproject.toml'),
+    devDependenciesProjectPkgName,
     pythonAddopts,
     projectName,
     projectRoot,
@@ -247,33 +258,36 @@ function updateDevDependenciesProject(
   normalizedOptions: NormalizedSchema
 ) {
   if (normalizedOptions.devDependenciesProject) {
-    const projectConfig = readProjectConfiguration(
+    const { pyprojectToml, pyprojectTomlPath } = getPyprojectTomlByProjectName(
       host,
       normalizedOptions.devDependenciesProject
     );
-    const devDepsPyprojectTomlPath = path.join(
-      projectConfig.root,
-      'pyproject.toml'
-    );
-
-    const devDepsPyprojectToml = parse(
-      host.read(devDepsPyprojectTomlPath, 'utf-8')
-    ) as PyprojectToml;
 
     const { changed, dependencies } = addTestDependencies(
-      devDepsPyprojectToml.tool.poetry.dependencies,
+      pyprojectToml.tool.poetry.dependencies,
       normalizedOptions
     );
 
     if (changed) {
-      devDepsPyprojectToml.tool.poetry.dependencies = {
-        ...devDepsPyprojectToml.tool.poetry.dependencies,
+      pyprojectToml.tool.poetry.dependencies = {
+        ...pyprojectToml.tool.poetry.dependencies,
         ...dependencies,
       };
 
-      host.write(devDepsPyprojectTomlPath, stringify(devDepsPyprojectToml));
+      host.write(pyprojectTomlPath, stringify(pyprojectToml));
     }
   }
+}
+
+function getPyprojectTomlByProjectName(host: Tree, projectName: string) {
+  const projectConfig = readProjectConfiguration(host, projectName);
+  const pyprojectTomlPath = path.join(projectConfig.root, 'pyproject.toml');
+
+  const pyprojectToml = parse(
+    host.read(pyprojectTomlPath, 'utf-8')
+  ) as PyprojectToml;
+
+  return { pyprojectToml, pyprojectTomlPath };
 }
 
 function addTestDependencies(

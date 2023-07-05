@@ -280,6 +280,34 @@ describe('application generator', () => {
       );
     });
 
+    it('should run successfully with linting and testing options with a dev dependency project with custom package name', async () => {
+      await generator(appTree, {
+        ...options,
+        projectType: 'library',
+        name: 'dev-lib',
+        directory: 'shared',
+        packageName: 'custom-shared-dev-lib',
+      });
+
+      await generator(appTree, {
+        ...options,
+        linter: 'flake8',
+        unitTestRunner: 'pytest',
+        codeCoverage: true,
+        codeCoverageHtmlReport: true,
+        codeCoverageXmlReport: true,
+        codeCoverageThreshold: 100,
+        unitTestJUnitReport: true,
+        unitTestHtmlReport: true,
+        devDependenciesProject: 'shared-dev-lib',
+      });
+
+      expect(appTree.exists(`apps/test/pyproject.toml`)).toBeTruthy();
+      expect(
+        appTree.read(`apps/test/pyproject.toml`, 'utf8')
+      ).toMatchSnapshot();
+    });
+
     it('should run successfully with linting and testing options with an existing dev dependency project', async () => {
       await generator(appTree, {
         ...options,
