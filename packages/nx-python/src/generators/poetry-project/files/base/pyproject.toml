@@ -46,7 +46,7 @@ readme = 'README.md'
 
 <% } -%>
 <%if (devDependenciesProject !== '') { -%>
-  [tool.poetry.group.dev.dependencies.<%- devDependenciesProject %>]
+  [tool.poetry.group.dev.dependencies.<%- devDependenciesProjectPkgName %>]
   path = "<%- devDependenciesProjectPath %>"
   develop = true
 

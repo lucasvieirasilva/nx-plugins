@@ -1,3 +1,5 @@
+"""Hello unit test module."""
+
 from <%= moduleName %>.hello import hello
 
 
