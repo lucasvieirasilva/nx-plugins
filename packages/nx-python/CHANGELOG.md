@@ -1,3 +1,9 @@
+## [16.1.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v16.1.0...nx-python-v16.1.1) (2023-07-05)
+
+### Bug Fixes
+
+- **nx-python:** `poetry-project` resolve the dev package name when `devDependenciesProject` is provided ([#140](https://github.com/lucasvieirasilva/nx-plugins/issues/140)) ([bca618d](https://github.com/lucasvieirasilva/nx-plugins/commit/bca618dfad60d11a3ccf7037d0a1bb858d973587))
+
 # [16.1.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v16.0.0...nx-python-v16.1.0) (2023-07-03)
 
 ### Features
