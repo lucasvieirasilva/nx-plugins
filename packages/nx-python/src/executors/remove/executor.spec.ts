@@ -489,12 +489,16 @@ version = "1.0.0"
     expect(spawnSyncMock).toHaveBeenNthCalledWith(
       2,
       'poetry',
-      ['update', 'app'],
+      ['lock', '--no-update'],
       {
         shell: false,
         stdio: 'inherit',
       }
     );
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(3, 'poetry', ['install'], {
+      shell: false,
+      stdio: 'inherit',
+    });
     expect(output.success).toBe(true);
   });
 
@@ -562,12 +566,16 @@ version = "1.0.0"
     expect(spawnSyncMock).toHaveBeenNthCalledWith(
       2,
       'poetry',
-      ['update', 'app'],
+      ['lock', '--no-update'],
       {
         shell: false,
         stdio: 'inherit',
       }
     );
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(3, 'poetry', ['install'], {
+      shell: false,
+      stdio: 'inherit',
+    });
     expect(output.success).toBe(true);
   });
 });

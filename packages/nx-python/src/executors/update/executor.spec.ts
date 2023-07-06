@@ -641,12 +641,16 @@ version = "1.0.0"
     expect(spawnSyncMock).toHaveBeenNthCalledWith(
       2,
       'poetry',
-      ['update', 'app'],
+      ['lock', '--no-update'],
       {
         shell: false,
         stdio: 'inherit',
       }
     );
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(3, 'poetry', ['install'], {
+      shell: false,
+      stdio: 'inherit',
+    });
     expect(output.success).toBe(true);
   });
 
@@ -752,7 +756,7 @@ version = "1.0.0"
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).toHaveBeenCalledTimes(5);
+    expect(spawnSyncMock).toHaveBeenCalledTimes(6);
     expect(spawnSyncMock).toHaveBeenNthCalledWith(
       1,
       'poetry',
@@ -796,12 +800,16 @@ version = "1.0.0"
     expect(spawnSyncMock).toHaveBeenNthCalledWith(
       5,
       'poetry',
-      ['update', 'shared1'],
+      ['lock', '--no-update'],
       {
         shell: false,
         stdio: 'inherit',
       }
     );
+    expect(spawnSyncMock).toHaveBeenNthCalledWith(6, 'poetry', ['install'], {
+      shell: false,
+      stdio: 'inherit',
+    });
     expect(output.success).toBe(true);
   });
 });

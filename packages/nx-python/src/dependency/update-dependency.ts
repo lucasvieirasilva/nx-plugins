@@ -32,7 +32,8 @@ export function updateDependencyTree(context: ExecutorContext) {
         chalk`\nUpdating root {bold pyproject.toml} dependency {bold ${pkgName}}`
       );
 
-      runPoetry(['update', pkgName]);
+      runPoetry(['lock', '--no-update']);
+      runPoetry(['install']);
     }
   }
 }
