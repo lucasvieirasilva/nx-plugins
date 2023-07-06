@@ -72,7 +72,7 @@
     "archiver": "^5.3.1",
     "aws-lambda": "^1.0.7",
     "aws-sdk": "^2.1384.0",
-    "chalk": "^4.1.1",
+    "chalk": "^5.3.0",
     "command-exists": "^1.2.9",
     "cross-spawn": "^7.0.3",
     "dynamoose": "^3.2.0",
