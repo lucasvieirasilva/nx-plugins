@@ -1,3 +1,9 @@
+## [16.1.2](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v16.1.1...nx-python-v16.1.2) (2023-07-06)
+
+### Bug Fixes
+
+- **nx-python:** use poetry lock and poetry install when add/update/remove a package ([#141](https://github.com/lucasvieirasilva/nx-plugins/issues/141)) ([e90a857](https://github.com/lucasvieirasilva/nx-plugins/commit/e90a857bebcea353f65cda612c07628c3528acb1))
+
 ## [16.1.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v16.1.0...nx-python-v16.1.1) (2023-07-05)
 
 ### Bug Fixes
