@@ -64,7 +64,7 @@
     "@aws-sdk/client-iam": "^3.348.0",
     "@aws-sdk/client-lambda": "^3.348.0",
     "@aws-sdk/client-ssm": "^3.348.0",
-    "@aws-sdk/client-sts": "^3.348.0",
+    "@aws-sdk/client-sts": "^3.405.0",
     "@aws-sdk/lib-dynamodb": "^3.338.0",
     "@aws-sdk/util-dynamodb": "^3.338.0",
     "@iarna/toml": "^2.2.5",
