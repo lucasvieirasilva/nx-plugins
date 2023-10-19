@@ -1,3 +1,9 @@
+## [16.1.4](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v16.1.3...nx-python-v16.1.4) (2023-10-19)
+
+### Bug Fixes
+
+- **nx-python:** fix shared virtual environment documentation ([#176](https://github.com/lucasvieirasilva/nx-plugins/issues/176)) ([8ea6a81](https://github.com/lucasvieirasilva/nx-plugins/commit/8ea6a81828a0d222db3d1d2d98ad6bb15d3ebcc9)), closes [#174](https://github.com/lucasvieirasilva/nx-plugins/issues/174)
+
 ## [16.1.3](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v16.1.2...nx-python-v16.1.3) (2023-10-19)
 
 ### Bug Fixes
