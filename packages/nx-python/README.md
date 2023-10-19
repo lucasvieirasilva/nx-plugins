@@ -89,7 +89,7 @@ npx nx generate @nxlv/python:migrate-to-shared-venv
 | `--moveDevDependencies` | `boolean` | Specifies if migration moves the dev dependencies from the projects to the root `pyproject.toml`                                                      | `true`   | `true`  |
 | `--autoActivate`        | `boolean` | Adds the `autoActivate` config in the root `pyproject.toml`, this flag is used to auto-activate the venv when the `@nxlv/python` executors are called | `true`   | `true`  |
 
-After the migration is completed, the workspace does not have the `pyproject.toml` in the root directory, and all the local projects are referencing the root `pyproject.toml` file.
+After the migration is completed, the workspace now has a `pyproject.toml` in the root directory, and all the local projects are referencing the root `pyproject.toml` file.
 
 > The projects still have their own `pyproject.toml` file to manage each project's dependencies, however, the package versions cannot conflict because the root `pyproject.toml` file is referencing all the dependencies.
 
