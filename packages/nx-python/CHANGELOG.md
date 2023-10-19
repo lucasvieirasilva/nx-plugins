@@ -1,3 +1,9 @@
+## [16.1.3](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v16.1.2...nx-python-v16.1.3) (2023-10-19)
+
+### Bug Fixes
+
+- **nx-python:** add tslib explicitly to the package.json using caret ([#175](https://github.com/lucasvieirasilva/nx-plugins/issues/175)) ([90339b2](https://github.com/lucasvieirasilva/nx-plugins/commit/90339b2a40fb52e10947cb494127cbfed395da5e)), closes [#173](https://github.com/lucasvieirasilva/nx-plugins/issues/173)
+
 ## [16.1.2](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v16.1.1...nx-python-v16.1.2) (2023-07-06)
 
 ### Bug Fixes
