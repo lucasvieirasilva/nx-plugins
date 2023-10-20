@@ -446,6 +446,31 @@ To identify if the package is publishable, the executor checks `project.json` fi
 
 If the `publish` option is set to `false` and the `--bundleLocalDependencies=false` option is used, the executor will bundle the package.
 
+###### Project configuration examples
+
+Exclude `devDependencies`.
+
+```json
+// ...
+    "build": {
+      "executor": "@nxlv/python:build",
+      "outputs": ["{projectRoot}/dist"],
+      "dependsOn": ["install"],
+      "options": {
+        "outputPath": "libs/lib1/dist",
+        "publish": false,
+        "lockedVersions": true,
+        "bundleLocalDependencies": true
+      },
+      "configurations": {
+        "prod": {
+          "devDependencies": false
+        }
+      }
+    },
+// ...
+```
+
 ###### Custom source specification
 
 In addition when adding dependencies in this way its also possible to configure a custom source for a package. This works similar to the `publish` option in that its specified on the target dependencies build options. To use this set the `customSourceName` and `customSourceUrl` to valid values for the source to retrieve the package from for each package stored on a custom Pypi.
