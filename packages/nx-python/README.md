@@ -53,6 +53,7 @@ nx generate @nxlv/python:poetry-project myproject
 | `--moduleName`                   | `string`  | Project Source Module                             | `false`  | `name` property using `_` instead of `-` |
 | `--description`                  | `string`  | Project description                               | `false`  | N/A                                      |
 | `--pyprojectPythonDependency`    | `string`  | Python version range used in the `pyproject.toml` | `false`  | `>=3.9,<3.11` (Poetry syntax)            |
+| `--rootPyprojectDependencyGroup` | `string`  | Root `pyproject.toml` dependency group            | `false`  | `main`                                   |
 | `--pyenvPythonVersion`           | `string`  | `.python-version` pyenv file content              | `false`  | `3.9.5`                                  |
 | `--publishable`                  | `boolean` | Specifies if the project is publishable or not    | `false`  | `true`                                   |
 | `--buildLockedVersions`          | `boolean` | Use locked versions for build dependencies        | `false`  | `true`                                   |
