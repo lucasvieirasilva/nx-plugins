@@ -33,6 +33,7 @@ jobs:
       - name: Merge coverage
         if: env.NO_COVERAGE_RUN != 'true'
         run: |
+          echo "$NO_COVERAGE_RUN"
           node ./tools/scripts/coverageMerger.js
       - name: Coveralls
         if: env.NO_COVERAGE_RUN != 'true'
