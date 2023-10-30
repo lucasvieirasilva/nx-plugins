@@ -25,6 +25,10 @@
 
 - [@nxlv/util](packages/util/README.md)
 
+## Want to help?
+
+If you want to file a bug or submit a PR, read up on our [guidelines for contributing](./CONTRIBUTING.md) that will help you get started.
+
 ## Prerequisites
 
 - [Python 3.7+](https://www.python.org/)
