@@ -33,7 +33,7 @@ jobs:
       - name: Merge coverage
         if: env.NO_COVERAGE_RUN != 'true'
         run: |
-          printenv
+          npx nx print-affected --select=projects
           node ./tools/scripts/coverageMerger.js
       - name: Coveralls
         if: env.NO_COVERAGE_RUN != 'true'
