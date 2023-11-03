@@ -1,3 +1,9 @@
+# [2.1.0](https://github.com/lucasvieirasilva/nx-plugins/compare/data-migration-v2.0.2...data-migration-v2.1.0) (2023-11-03)
+
+### Features
+
+- **data-migration:** remove destination table from stream migration ([c72f945](https://github.com/lucasvieirasilva/nx-plugins/commit/c72f945298426c432ecf0ab6419df8d0f71b6b37))
+
 ## [2.0.2](https://github.com/lucasvieirasilva/nx-plugins/compare/data-migration-v2.0.1...data-migration-v2.0.2) (2023-11-03)
 
 ### Bug Fixes
