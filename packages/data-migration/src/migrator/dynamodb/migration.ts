@@ -309,7 +309,6 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
 
   protected async enableStream(
     sourceTableName: string,
-    destinationTableName: string,
     options: StreamLambdaOptions = {}
   ) {
     const defaults: StreamLambdaOptions = {
@@ -326,13 +325,6 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
     const { Table: sourceTable } = await this.client.send(
       new DescribeTableCommand({
         TableName: sourceTableName,
-      })
-    );
-
-    this.logger.debug(`Describing table ${destinationTableName}`);
-    const { Table: destinationTable } = await this.client.send(
-      new DescribeTableCommand({
-        TableName: destinationTableName,
       })
     );
 
@@ -362,8 +354,6 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
     if (!resolvedOptions.iamRoleArn) {
       resolvedOptions.iamRoleArn = await this.createLambdaStreamIamRole(
         streamArn,
-        sourceTable,
-        destinationTable,
         resolvedOptions.iamPolicyStatements
       );
     }
@@ -371,7 +361,6 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
     await this.createStreamLambdaFunction(
       functionName,
       zipPath,
-      destinationTableName,
       streamArn,
       resolvedOptions
     );
@@ -522,7 +511,6 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
   private async createStreamLambdaFunction(
     functionName: string,
     zipPath: string,
-    destinationTableName: string,
     streamArn: string,
     lambdaOptions: StreamLambdaOptions
   ) {
@@ -547,8 +535,6 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
           Tags: this.getLambdaTags(),
           Environment: {
             Variables: {
-              TARGET_TABLE_NAME: destinationTableName,
-              TRANSFORM_MODULE_PATH: './transform.js',
               ENV: process.env.ENV,
               ...lambdaOptions.envVars,
             },
@@ -570,8 +556,6 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
 
   private async createLambdaStreamIamRole(
     streamArn: string,
-    sourceTable: TableDescription,
-    destinationTable: TableDescription,
     additionalStatments: Record<string, unknown>[]
   ) {
     const iamClient = new IAMClient({ region: this.region });
@@ -640,18 +624,12 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
                 'dynamodb:Query',
                 'dynamodb:Scan',
                 'dynamodb:Describe*',
-              ],
-              Resource: [sourceTable.TableArn, destinationTable.TableArn],
-            },
-            {
-              Effect: 'Allow',
-              Action: [
                 'dynamodb:DeleteItem',
                 'dynamodb:PutItem',
                 'dynamodb:UpdateItem',
                 'dynamodb:BatchWrite*',
               ],
-              Resource: [destinationTable.TableArn],
+              Resource: ['*'],
             },
             {
               Effect: 'Allow',
