@@ -11,6 +11,5 @@ export default {
       },
     ],
   },
-  moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../coverage/e2e/nx-python-e2e',
+  moduleFileExtensions: ['ts', 'js', 'html']
 };
