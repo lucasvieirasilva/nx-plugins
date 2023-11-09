@@ -9,7 +9,7 @@ export function includeDependencyPackage(
   buildTomlData: PyprojectToml
 ) {
   for (const pkg of tomlData.tool.poetry.packages) {
-    const pkgFolder = join(root, pkg.include);
+    const pkgFolder = join(root, pkg.from ?? '', pkg.include);
     const buildPackageFolder = join(buildFolderPath, pkg.include);
 
     copySync(pkgFolder, buildPackageFolder);
