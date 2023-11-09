@@ -53,6 +53,7 @@ nx generate @nxlv/python:poetry-project myproject
 | `--moduleName`                   | `string`  | Project Source Module                             | `false`  | `name` property using `_` instead of `-` |
 | `--description`                  | `string`  | Project description                               | `false`  | N/A                                      |
 | `--pyprojectPythonDependency`    | `string`  | Python version range used in the `pyproject.toml` | `false`  | `>=3.9,<3.11` (Poetry syntax)            |
+| `--rootPyprojectDependencyGroup` | `string`  | Root `pyproject.toml` dependency group            | `false`  | `main`                                   |
 | `--pyenvPythonVersion`           | `string`  | `.python-version` pyenv file content              | `false`  | `3.9.5`                                  |
 | `--publishable`                  | `boolean` | Specifies if the project is publishable or not    | `false`  | `true`                                   |
 | `--buildLockedVersions`          | `boolean` | Use locked versions for build dependencies        | `false`  | `true`                                   |
@@ -444,6 +445,31 @@ version = "1.0.0"
 To identify if the package is publishable, the executor checks `project.json` file, property `targets.build.options.publish`.
 
 If the `publish` option is set to `false` and the `--bundleLocalDependencies=false` option is used, the executor will bundle the package.
+
+###### Project configuration examples
+
+Exclude `devDependencies`.
+
+```json
+// ...
+    "build": {
+      "executor": "@nxlv/python:build",
+      "outputs": ["{projectRoot}/dist"],
+      "dependsOn": ["install"],
+      "options": {
+        "outputPath": "libs/lib1/dist",
+        "publish": false,
+        "lockedVersions": true,
+        "bundleLocalDependencies": true
+      },
+      "configurations": {
+        "prod": {
+          "devDependencies": false
+        }
+      }
+    },
+// ...
+```
 
 ###### Custom source specification
 
