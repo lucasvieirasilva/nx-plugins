@@ -413,7 +413,7 @@ import {
 })
 export default class extends DynamoDBMigrationBase {
   async up(): Promise<void> {
-    await this.enableStream('my-table-v1', 'my-table-v2');
+    await this.enableStream('my-table-v1');
 
     const items = await MyTableModel.scan().exec();
     for (const chunk of chunks(items, 25)) {

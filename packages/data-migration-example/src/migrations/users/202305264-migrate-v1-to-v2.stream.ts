@@ -10,6 +10,8 @@ import {
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
 
+const TARGET_TABLE_NAME = 'example-users-v2';
+
 export const handler: DynamoDBStreamHandler = async (event) => {
   console.debug('Event', JSON.stringify(event));
 
@@ -22,7 +24,7 @@ export const handler: DynamoDBStreamHandler = async (event) => {
 
       await docClient.send(
         new PutCommand({
-          TableName: process.env['TARGET_TABLE_NAME'],
+          TableName: TARGET_TABLE_NAME,
           Item: {
             userId: item['id'],
             name: item['name'],
@@ -37,7 +39,7 @@ export const handler: DynamoDBStreamHandler = async (event) => {
 
       await docClient.send(
         new DeleteCommand({
-          TableName: process.env['TARGET_TABLE_NAME'],
+          TableName: TARGET_TABLE_NAME,
           Key: {
             userId: keys['id'],
           },

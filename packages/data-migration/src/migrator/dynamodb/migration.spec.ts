@@ -1293,7 +1293,7 @@ describe('DynamoDBMigrationBase', () => {
         }
 
         async up() {
-          await this.enableStream('source', 'destination');
+          await this.enableStream('source');
         }
 
         async down() {
@@ -1306,21 +1306,12 @@ describe('DynamoDBMigrationBase', () => {
       const dynamoDbMock = mockClient(DynamoDBClient);
       const dynamodbStreamsMock = mockClient(DynamoDBStreamsClient);
 
-      dynamoDbMock
-        .on(DescribeTableCommand)
-        .resolvesOnce({
-          Table: {
-            TableName: 'source',
-            TableArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
-          },
-        })
-        .resolvesOnce({
-          Table: {
-            TableName: 'destination',
-            TableArn:
-              'arn:aws:dynamodb:us-east-1:123456789012:table/destination',
-          },
-        });
+      dynamoDbMock.on(DescribeTableCommand).resolvesOnce({
+        Table: {
+          TableName: 'source',
+          TableArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
+        },
+      });
 
       dynamoDbMock.on(ListTagsOfResourceCommand).resolvesOnce({
         Tags: [],
@@ -1341,15 +1332,8 @@ describe('DynamoDBMigrationBase', () => {
           TableName: 'source',
         }
       );
-      expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        2,
-        DescribeTableCommand,
-        {
-          TableName: 'destination',
-        }
-      );
 
-      expect(dynamoDbMock).toHaveReceivedNthCommandWith(3, UpdateTableCommand, {
+      expect(dynamoDbMock).toHaveReceivedNthCommandWith(2, UpdateTableCommand, {
         TableName: 'source',
         StreamSpecification: {
           StreamEnabled: true,
@@ -1358,14 +1342,14 @@ describe('DynamoDBMigrationBase', () => {
       });
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        4,
+        3,
         ListTagsOfResourceCommand,
         {
           ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
         }
       );
 
-      expect(dynamoDbMock).toHaveReceivedNthCommandWith(5, TagResourceCommand, {
+      expect(dynamoDbMock).toHaveReceivedNthCommandWith(4, TagResourceCommand, {
         ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
         Tags: [
           {
@@ -1423,7 +1407,7 @@ describe('DynamoDBMigrationBase', () => {
         }
 
         async up() {
-          await this.enableStream('source', 'destination');
+          await this.enableStream('source');
         }
 
         async down() {
@@ -1436,25 +1420,16 @@ describe('DynamoDBMigrationBase', () => {
       const dynamoDbMock = mockClient(DynamoDBClient);
       const dynamodbStreamsMock = mockClient(DynamoDBStreamsClient);
 
-      dynamoDbMock
-        .on(DescribeTableCommand)
-        .resolvesOnce({
-          Table: {
-            TableName: 'source',
-            TableArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
-            StreamSpecification: {
-              StreamEnabled: true,
-              StreamViewType: 'NEW_AND_OLD_IMAGES',
-            },
+      dynamoDbMock.on(DescribeTableCommand).resolvesOnce({
+        Table: {
+          TableName: 'source',
+          TableArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
+          StreamSpecification: {
+            StreamEnabled: true,
+            StreamViewType: 'NEW_AND_OLD_IMAGES',
           },
-        })
-        .resolvesOnce({
-          Table: {
-            TableName: 'destination',
-            TableArn:
-              'arn:aws:dynamodb:us-east-1:123456789012:table/destination',
-          },
-        });
+        },
+      });
 
       dynamoDbMock.on(ListTagsOfResourceCommand).resolvesOnce({
         Tags: [],
@@ -1494,25 +1469,17 @@ describe('DynamoDBMigrationBase', () => {
           TableName: 'source',
         }
       );
-      expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        2,
-        DescribeTableCommand,
-        {
-          TableName: 'destination',
-        }
-      );
-
       expect(dynamoDbMock).not.toHaveReceivedCommand(UpdateTableCommand);
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        3,
+        2,
         ListTagsOfResourceCommand,
         {
           ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
         }
       );
 
-      expect(dynamoDbMock).toHaveReceivedNthCommandWith(4, TagResourceCommand, {
+      expect(dynamoDbMock).toHaveReceivedNthCommandWith(3, TagResourceCommand, {
         ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
         Tags: [
           {
@@ -1593,7 +1560,7 @@ describe('DynamoDBMigrationBase', () => {
         }
 
         async up() {
-          await this.enableStream('source', 'destination');
+          await this.enableStream('source');
         }
 
         async down() {
@@ -1608,25 +1575,16 @@ describe('DynamoDBMigrationBase', () => {
       const iamMock = mockClient(IAMClient);
       const lambdaMock = mockClient(LambdaClient);
 
-      dynamoDbMock
-        .on(DescribeTableCommand)
-        .resolvesOnce({
-          Table: {
-            TableName: 'source',
-            TableArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
-            StreamSpecification: {
-              StreamEnabled: true,
-              StreamViewType: 'NEW_AND_OLD_IMAGES',
-            },
+      dynamoDbMock.on(DescribeTableCommand).resolvesOnce({
+        Table: {
+          TableName: 'source',
+          TableArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
+          StreamSpecification: {
+            StreamEnabled: true,
+            StreamViewType: 'NEW_AND_OLD_IMAGES',
           },
-        })
-        .resolvesOnce({
-          Table: {
-            TableName: 'destination',
-            TableArn:
-              'arn:aws:dynamodb:us-east-1:123456789012:table/destination',
-          },
-        });
+        },
+      });
 
       dynamoDbMock.on(ListTagsOfResourceCommand).resolves({
         Tags: [],
@@ -1697,25 +1655,18 @@ describe('DynamoDBMigrationBase', () => {
           TableName: 'source',
         }
       );
-      expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        2,
-        DescribeTableCommand,
-        {
-          TableName: 'destination',
-        }
-      );
 
       expect(dynamoDbMock).not.toHaveReceivedCommand(UpdateTableCommand);
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        3,
+        2,
         ListTagsOfResourceCommand,
         {
           ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
         }
       );
 
-      expect(dynamoDbMock).toHaveReceivedNthCommandWith(4, TagResourceCommand, {
+      expect(dynamoDbMock).toHaveReceivedNthCommandWith(3, TagResourceCommand, {
         ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
         Tags: [
           {
@@ -1859,23 +1810,12 @@ describe('DynamoDBMigrationBase', () => {
                 'dynamodb:Query',
                 'dynamodb:Scan',
                 'dynamodb:Describe*',
-              ],
-              Resource: [
-                'arn:aws:dynamodb:us-east-1:123456789012:table/source',
-                'arn:aws:dynamodb:us-east-1:123456789012:table/destination',
-              ],
-            },
-            {
-              Effect: 'Allow',
-              Action: [
                 'dynamodb:DeleteItem',
                 'dynamodb:PutItem',
                 'dynamodb:UpdateItem',
                 'dynamodb:BatchWrite*',
               ],
-              Resource: [
-                'arn:aws:dynamodb:us-east-1:123456789012:table/destination',
-              ],
+              Resource: ['*'],
             },
             {
               Effect: 'Allow',
@@ -1932,8 +1872,6 @@ describe('DynamoDBMigrationBase', () => {
           Environment: {
             Variables: {
               ENV: 'test',
-              TARGET_TABLE_NAME: 'destination',
-              TRANSFORM_MODULE_PATH: './transform.js',
             },
           },
           FunctionName: 'migration-namespace-name-202304031-stream',
@@ -1978,7 +1916,7 @@ describe('DynamoDBMigrationBase', () => {
         }
 
         async up() {
-          await this.enableStream('source', 'destination');
+          await this.enableStream('source');
         }
 
         async down() {
@@ -1993,25 +1931,16 @@ describe('DynamoDBMigrationBase', () => {
       const iamMock = mockClient(IAMClient);
       const lambdaMock = mockClient(LambdaClient);
 
-      dynamoDbMock
-        .on(DescribeTableCommand)
-        .resolvesOnce({
-          Table: {
-            TableName: 'source',
-            TableArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
-            StreamSpecification: {
-              StreamEnabled: true,
-              StreamViewType: 'KEYS_ONLY',
-            },
+      dynamoDbMock.on(DescribeTableCommand).resolvesOnce({
+        Table: {
+          TableName: 'source',
+          TableArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
+          StreamSpecification: {
+            StreamEnabled: true,
+            StreamViewType: 'KEYS_ONLY',
           },
-        })
-        .resolvesOnce({
-          Table: {
-            TableName: 'destination',
-            TableArn:
-              'arn:aws:dynamodb:us-east-1:123456789012:table/destination',
-          },
-        });
+        },
+      });
 
       dynamoDbMock.on(ListTagsOfResourceCommand).resolves({
         Tags: [],
@@ -2082,15 +2011,8 @@ describe('DynamoDBMigrationBase', () => {
           TableName: 'source',
         }
       );
-      expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        2,
-        DescribeTableCommand,
-        {
-          TableName: 'destination',
-        }
-      );
 
-      expect(dynamoDbMock).toHaveReceivedNthCommandWith(3, UpdateTableCommand, {
+      expect(dynamoDbMock).toHaveReceivedNthCommandWith(2, UpdateTableCommand, {
         TableName: 'source',
         StreamSpecification: {
           StreamEnabled: true,
@@ -2099,14 +2021,14 @@ describe('DynamoDBMigrationBase', () => {
       });
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        4,
+        3,
         ListTagsOfResourceCommand,
         {
           ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
         }
       );
 
-      expect(dynamoDbMock).toHaveReceivedNthCommandWith(5, TagResourceCommand, {
+      expect(dynamoDbMock).toHaveReceivedNthCommandWith(4, TagResourceCommand, {
         ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
         Tags: [
           {
@@ -2250,23 +2172,12 @@ describe('DynamoDBMigrationBase', () => {
                 'dynamodb:Query',
                 'dynamodb:Scan',
                 'dynamodb:Describe*',
-              ],
-              Resource: [
-                'arn:aws:dynamodb:us-east-1:123456789012:table/source',
-                'arn:aws:dynamodb:us-east-1:123456789012:table/destination',
-              ],
-            },
-            {
-              Effect: 'Allow',
-              Action: [
                 'dynamodb:DeleteItem',
                 'dynamodb:PutItem',
                 'dynamodb:UpdateItem',
                 'dynamodb:BatchWrite*',
               ],
-              Resource: [
-                'arn:aws:dynamodb:us-east-1:123456789012:table/destination',
-              ],
+              Resource: ['*'],
             },
             {
               Effect: 'Allow',
@@ -2323,8 +2234,6 @@ describe('DynamoDBMigrationBase', () => {
           Environment: {
             Variables: {
               ENV: 'test',
-              TARGET_TABLE_NAME: 'destination',
-              TRANSFORM_MODULE_PATH: './transform.js',
             },
           },
           FunctionName: 'migration-namespace-name-202304031-stream',

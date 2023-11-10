@@ -11,6 +11,7 @@
         "outputPath": "dist/packages/data-migration",
         "main": "packages/data-migration/src/index.ts",
         "tsConfig": "packages/data-migration/tsconfig.lib.json",
+        "buildableProjectDepsInPackageJsonType": "dependencies",
         "assets": [
           "packages/data-migration/*.md",
           {

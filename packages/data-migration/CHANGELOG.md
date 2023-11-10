@@ -1,3 +1,15 @@
+## [2.0.2](https://github.com/lucasvieirasilva/nx-plugins/compare/data-migration-v2.0.1...data-migration-v2.0.2) (2023-11-03)
+
+### Bug Fixes
+
+- **data-migration:** remove mocks from build package and move peer dependencies to dependencies ([ac755f2](https://github.com/lucasvieirasilva/nx-plugins/commit/ac755f2f40efa7ae13551eb7ccf8b03d2842316a))
+
+## [2.0.1](https://github.com/lucasvieirasilva/nx-plugins/compare/data-migration-v2.0.0...data-migration-v2.0.1) (2023-11-03)
+
+### Bug Fixes
+
+- **data-migration:** add tslib explicitly to package dependencies using caret ([f667df0](https://github.com/lucasvieirasilva/nx-plugins/commit/f667df0a4b0568b20f301e9ee48b40cda939c390))
+
 # [2.0.0](https://github.com/lucasvieirasilva/nx-plugins/compare/data-migration-v1.0.0...data-migration-v2.0.0) (2023-06-18)
 
 ### Features

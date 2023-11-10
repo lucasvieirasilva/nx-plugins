@@ -27,7 +27,7 @@ export default class extends DynamoDBMigrationBase {
   }
 
   async up(): Promise<void> {
-    await this.enableStream('example-users', 'example-users-v2');
+    await this.enableStream('example-users');
 
     this.logger.info('Migrating users from v1 to v2');
     let count = 0;

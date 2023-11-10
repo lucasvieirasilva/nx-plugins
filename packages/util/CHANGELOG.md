@@ -1,3 +1,9 @@
+## [2.0.1](https://github.com/lucasvieirasilva/nx-plugins/compare/util-v2.0.0...util-v2.0.1) (2023-11-03)
+
+### Bug Fixes
+
+- **util:** add tslib explicitly to package dependencies using caret ([218e5da](https://github.com/lucasvieirasilva/nx-plugins/commit/218e5daacb82e19b58dce5818f81bed7c06ae94c))
+
 # [2.0.0](https://github.com/lucasvieirasilva/nx-plugins/compare/util-v1.1.0...util-v2.0.0) (2023-06-18)
 
 ### Features
