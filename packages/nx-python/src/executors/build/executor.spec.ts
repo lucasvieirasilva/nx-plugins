@@ -882,6 +882,132 @@ describe('Build Executor', () => {
       expect(output.success).toBe(true);
     });
 
+    it('should build python project with local dependencies that specify a "from" directory', async () => {
+      fsMock({
+        'apps/app/.venv/pyvenv.cfg': 'fake',
+        'apps/app/app/index.py': 'print("Hello from app")',
+        'apps/app/poetry.lock': dedent`
+        [[package]]
+        name = "dep1"
+        version = "1.0.0"
+        description = "Dep1"
+        category = "main"
+        optional = false
+        python-versions = "^3.8"
+        develop = false
+
+        [package.source]
+        type = "directory"
+        url = "../../libs/dep1"
+        `,
+        'apps/app/pyproject.toml': dedent`
+        [tool.poetry]
+        name = "app"
+        version = "1.0.0"
+          [[tool.poetry.packages]]
+          include = "app"
+
+          [tool.poetry.dependencies]
+          python = "^3.8"
+          dep1 = { path = "../../libs/dep1" }
+        `,
+
+        'libs/dep1/src/dep1/index.py': 'print("Hello from dep1")',
+        'libs/dep1/pyproject.toml': dedent`
+        [tool.poetry]
+        name = "dep1"
+        version = "1.0.0"
+
+          [[tool.poetry.packages]]
+          include = "dep1"
+          from = "src"
+
+          [tool.poetry.dependencies]
+          python = "^3.8"
+        `,
+      });
+
+      spawnSyncMock.mockImplementation((_, args, opts) => {
+        if (args[0] == 'build') {
+          spawnBuildMockImpl(opts);
+        } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
+          writeFileSync(
+            join(buildPath, 'requirements.txt'),
+            dedent`
+              dep1 @ file://${process.cwd()}/libs/dep1
+            `
+          );
+        }
+        return { status: 0 };
+      });
+
+      const options: BuildExecutorSchema = {
+        ignorePaths: ['.venv', '.tox', 'tests/'],
+        silent: false,
+        outputPath: 'dist/apps/app',
+        keepBuildFolder: true,
+        devDependencies: false,
+        lockedVersions: true,
+        bundleLocalDependencies: true,
+      };
+
+      const output = await executor(options, {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        workspace: {
+          version: 2,
+          npmScope: 'nxlv',
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+            dep1: {
+              root: 'libs/dep1',
+              targets: {},
+            },
+          },
+        },
+      });
+
+      expect(checkPoetryExecutableMock).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(existsSync(buildPath)).toBeTruthy();
+      expect(existsSync(`${buildPath}/app`)).toBeTruthy();
+      expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
+      expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
+      expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['build'], {
+        cwd: buildPath,
+        shell: false,
+        stdio: 'inherit',
+      });
+
+      const projectTomlData = parse(
+        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8')
+      ) as PyprojectToml;
+
+      expect(projectTomlData.tool.poetry.packages).toStrictEqual([
+        {
+          include: 'app',
+        },
+        {
+          include: 'dep1',
+        },
+      ]);
+
+      expect(projectTomlData.tool.poetry.dependencies).toStrictEqual({
+        python: '^3.8',
+      });
+
+      expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual(
+        {}
+      );
+
+      expect(output.success).toBe(true);
+    });
+
     it('should build python project with local dependencies and extras', async () => {
       fsMock({
         'apps/app/.venv/pyvenv.cfg': 'fake',
