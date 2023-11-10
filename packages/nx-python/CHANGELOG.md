@@ -1,3 +1,9 @@
+# [16.3.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v16.2.0...nx-python-v16.3.0) (2023-11-10)
+
+### Features
+
+- **nx-python:** add `projectNameAndRootFormat` parameter to poetry project generator ([#186](https://github.com/lucasvieirasilva/nx-plugins/issues/186)) ([e0dffbe](https://github.com/lucasvieirasilva/nx-plugins/commit/e0dffbefb98374a99da4fded9a5d1c6c6c53edc4)), closes [#182](https://github.com/lucasvieirasilva/nx-plugins/issues/182)
+
 # [16.2.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v16.1.4...nx-python-v16.2.0) (2023-11-10)
 
 ### Features
