@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "title": "Ruff Check executor",
+  "description": "Run ruff check on the given folders/files, this executor forwards all arguments to ruff check, see https://docs.astral.sh/ruff/linter/#ruff-check for more details.",
+  "type": "object",
+  "properties": {
+    "lintFilePatterns": {
+      "type": "array",
+      "description": "File patterns to check (relative path to the project root)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "__unparsed__": {
+      "hidden": true,
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "$default": {
+        "$source": "unparsed"
+      },
+      "x-priority": "internal"
+    }
+  },
+  "required": ["lintFilePatterns"]
+}

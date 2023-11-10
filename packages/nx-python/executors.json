@@ -50,6 +50,11 @@
       "implementation": "./src/executors/run-commands/executor",
       "schema": "./src/executors/run-commands/schema.json",
       "description": "Python Venv Run Commands Executor"
+    },
+    "ruff-check": {
+      "implementation": "./src/executors/ruff-check/executor",
+      "schema": "./src/executors/ruff-check/schema.json",
+      "description": "Ruff Check Executor"
     }
   }
 }
