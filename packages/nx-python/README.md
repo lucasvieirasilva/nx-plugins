@@ -42,29 +42,60 @@ Example:
 nx generate @nxlv/python:poetry-project myproject
 ```
 
+**NOTE**: On Nx **v16.8.0** or higher, the generators are prompting the user to choose how Nx will calculate where the project should be located, by using the `--projectNameAndRootFormat` with `as-provided` or `derived`.
+
+The `as-provided` option uses the `--directory` option to calculate the project root, so, if the `--directory` option is not provided, the project root will be the same as the project name, and the project name will be the same as provided in the `--name` option.
+
+Example 1: `nx generate @nxlv/python:poetry-project myproject` will generate the project in the `myproject` folder with the name `myproject`.
+Example 2: `nx generate @nxlv/python:poetry-project myproject --directory=api` will generate the project in the `api` folder with the name `myproject`.
+
+The `derived` option uses the combination of the workspace layout, `--directory` option, and `--name` to calculate the name and root of the project.
+
+Example 1: `nx generate @nxlv/python:poetry-project myproject` will generate the project in the `apps/myproject` folder with the name `myproject`.
+Example 2: `nx generate @nxlv/python:poetry-project myproject --directory=api` will generate the project in the `apps/api/myproject` folder with the name `api-myproject`.
+
+**NOTE**: The `derived` option is the default option for now, however, the `as-provided` option will be the default option in the future.
+
+To make the `as-provided` option the default option, add the following configuration in the `nx.json` file:
+
+```json
+{
+  ...
+  "generators": {
+    "@nxlv/python:poetry-project": {
+      "projectNameAndRootFormat": "as-provided"
+    }
+  }
+  ...
+}
+```
+
+Nx documentation reference: <https://nx.dev/deprecated/as-provided-vs-derived#project-generators>
+
 #### Options
 
-| Option                           |   Type    | Description                                       | Required | Default                                  |
-| -------------------------------- | :-------: | ------------------------------------------------- | -------- | ---------------------------------------- |
-| `--directory`                    | `string`  | A directory where the project is placed           | `false`  | N/A                                      |
-| `--tags`                         | `string`  | Add tags to the project                           | `false`  | N/A                                      |
-| `--projectType`                  | `string`  | Project type `application` or `library`           | `true`   | `application`                            |
-| `--packageName`                  | `string`  | Poetry Package name                               | `false`  | `name` property (provided in the CLI)    |
-| `--moduleName`                   | `string`  | Project Source Module                             | `false`  | `name` property using `_` instead of `-` |
-| `--description`                  | `string`  | Project description                               | `false`  | N/A                                      |
-| `--pyprojectPythonDependency`    | `string`  | Python version range used in the `pyproject.toml` | `false`  | `>=3.9,<3.11` (Poetry syntax)            |
-| `--pyenvPythonVersion`           | `string`  | `.python-version` pyenv file content              | `false`  | `3.9.5`                                  |
-| `--publishable`                  | `boolean` | Specifies if the project is publishable or not    | `false`  | `true`                                   |
-| `--buildLockedVersions`          | `boolean` | Use locked versions for build dependencies        | `false`  | `true`                                   |
-| `--buildBundleLocalDependencies` | `boolean` | Bundle local dependencies                         | `false`  | `true`                                   |
-| `--linter`                       | `string`  | Linter framework (`flake8`, `ruff` or `none`)     | `false`  | `flake8`                                 |
-| `--unitTestRunner`               | `string`  | Unit Test Runner (`pytest` or `none`)             | `false`  | `pytest`                                 |
-| `--unitTestHtmlReport`           | `boolean` | Enable HTML Pytest Reports                        | `false`  | `true`                                   |
-| `--unitTestJUnitReport`          | `boolean` | Enable JUnit Pytest Reports                       | `false`  | `true`                                   |
-| `--codeCoverage`                 | `boolean` | Enable Code Coverage Reports                      | `false`  | `true`                                   |
-| `--codeCoverageHtmlReport`       | `boolean` | Enable Code Coverage HTML Reports                 | `false`  | `true`                                   |
-| `--codeCoverageXmlReport`        | `boolean` | Enable Code Coverage XML Reports                  | `false`  | `true`                                   |
-| `--codeCoverageThreshold`        | `number`  | Minimum Code Coverage Threshold                   | `false`  | N/A                                      |
+| Option                           |   Type    | Description                                                                                                                                                                            | Required | Default                                  |
+| -------------------------------- | :-------: | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ---------------------------------------- |
+| `--directory`                    | `string`  | A directory where the project is placed                                                                                                                                                | `false`  | N/A                                      |
+| `--tags`                         | `string`  | Add tags to the project                                                                                                                                                                | `false`  | N/A                                      |
+| `--projectType`                  | `string`  | Project type `application` or `library`                                                                                                                                                | `true`   | `application`                            |
+| `--packageName`                  | `string`  | Poetry Package name                                                                                                                                                                    | `false`  | `name` property (provided in the CLI)    |
+| `--moduleName`                   | `string`  | Project Source Module                                                                                                                                                                  | `false`  | `name` property using `_` instead of `-` |
+| `--description`                  | `string`  | Project description                                                                                                                                                                    | `false`  | N/A                                      |
+| `--pyprojectPythonDependency`    | `string`  | Python version range used in the `pyproject.toml`                                                                                                                                      | `false`  | `>=3.9,<3.11` (Poetry syntax)            |
+| `--pyenvPythonVersion`           | `string`  | `.python-version` pyenv file content                                                                                                                                                   | `false`  | `3.9.5`                                  |
+| `--publishable`                  | `boolean` | Specifies if the project is publishable or not                                                                                                                                         | `false`  | `true`                                   |
+| `--buildLockedVersions`          | `boolean` | Use locked versions for build dependencies                                                                                                                                             | `false`  | `true`                                   |
+| `--buildBundleLocalDependencies` | `boolean` | Bundle local dependencies                                                                                                                                                              | `false`  | `true`                                   |
+| `--linter`                       | `string`  | Linter framework (`flake8`, `ruff` or `none`)                                                                                                                                          | `false`  | `flake8`                                 |
+| `--unitTestRunner`               | `string`  | Unit Test Runner (`pytest` or `none`)                                                                                                                                                  | `false`  | `pytest`                                 |
+| `--unitTestHtmlReport`           | `boolean` | Enable HTML Pytest Reports                                                                                                                                                             | `false`  | `true`                                   |
+| `--unitTestJUnitReport`          | `boolean` | Enable JUnit Pytest Reports                                                                                                                                                            | `false`  | `true`                                   |
+| `--codeCoverage`                 | `boolean` | Enable Code Coverage Reports                                                                                                                                                           | `false`  | `true`                                   |
+| `--codeCoverageHtmlReport`       | `boolean` | Enable Code Coverage HTML Reports                                                                                                                                                      | `false`  | `true`                                   |
+| `--codeCoverageXmlReport`        | `boolean` | Enable Code Coverage XML Reports                                                                                                                                                       | `false`  | `true`                                   |
+| `--codeCoverageThreshold`        | `number`  | Minimum Code Coverage Threshold                                                                                                                                                        | `false`  | N/A                                      |
+| `--projectNameAndRootFormat`     | `string`  | Whether to generate the project name and root directory as provided (`as-provided`) or generate them composing their values and taking the configured layout into account (`derived`). | `false`  | `derived`                                |
 
 ##### rootPyprojectDependencyGroup
 

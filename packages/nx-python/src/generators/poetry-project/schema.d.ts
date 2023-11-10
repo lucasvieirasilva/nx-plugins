@@ -22,4 +22,5 @@ export interface PoetryProjectGeneratorSchema {
   tags?: string;
   directory?: string;
   templateDir?: string;
+  projectNameAndRootFormat: 'as-provided' | 'derived';
 }

@@ -23,7 +23,6 @@ import _ from 'lodash';
 interface NormalizedSchema extends PoetryProjectGeneratorSchema {
   projectName: string;
   projectRoot: string;
-  projectDirectory: string;
   individualPackage: boolean;
   devDependenciesProjectPath?: string;
   devDependenciesProjectPkgName?: string;
@@ -35,16 +34,11 @@ function normalizeOptions(
   tree: Tree,
   options: PoetryProjectGeneratorSchema
 ): NormalizedSchema {
-  const name = names(options.name).fileName;
-  const projectDirectory = options.directory
-    ? `${names(options.directory).fileName}/${name}`
-    : name;
-  const projectName = projectDirectory.replace(/\//g, '-');
-  const projectRoot = `${
-    options.projectType === 'application'
-      ? getWorkspaceLayout(tree).appsDir
-      : getWorkspaceLayout(tree).libsDir
-  }/${projectDirectory}`;
+  const { projectName, projectRoot } = calculateProjectNameAndRoot(
+    options,
+    tree
+  );
+
   const parsedTags = options.tags
     ? options.tags.split(',').map((s) => s.trim())
     : [];
@@ -110,9 +104,31 @@ function normalizeOptions(
     pythonAddopts,
     projectName,
     projectRoot,
-    projectDirectory,
     parsedTags,
   };
+}
+
+function calculateProjectNameAndRoot(
+  options: PoetryProjectGeneratorSchema,
+  tree: Tree
+) {
+  let projectName = options.name;
+  let projectRoot = options.directory || options.name;
+
+  if (options.projectNameAndRootFormat === 'derived') {
+    const name = names(options.name).fileName;
+    const projectDirectory = options.directory
+      ? `${names(options.directory).fileName}/${name}`
+      : name;
+    projectName = projectDirectory.replace(/\//g, '-');
+    projectRoot = `${
+      options.projectType === 'application'
+        ? getWorkspaceLayout(tree).appsDir
+        : getWorkspaceLayout(tree).libsDir
+    }/${projectDirectory}`;
+  }
+
+  return { projectName, projectRoot };
 }
 
 function getPyTestAddopts(

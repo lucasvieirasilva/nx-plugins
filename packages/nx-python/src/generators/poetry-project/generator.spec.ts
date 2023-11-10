@@ -29,6 +29,7 @@ describe('application generator', () => {
     codeCoverage: false,
     codeCoverageHtmlReport: false,
     codeCoverageXmlReport: false,
+    projectNameAndRootFormat: 'derived',
   };
 
   beforeEach(() => {
@@ -49,6 +50,47 @@ describe('application generator', () => {
     expect(generator(appTree, options)).rejects.toThrow('poetry not found');
 
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
+  });
+
+  describe('as-provided', () => {
+    it('should run successfully minimal configuration', async () => {
+      await generator(appTree, {
+        ...options,
+        name: 'my-app-test',
+        directory: 'src/app/test',
+        projectNameAndRootFormat: 'as-provided',
+      });
+      const config = readProjectConfiguration(appTree, 'my-app-test');
+      expect(config).toMatchSnapshot();
+
+      const projectDirectory = 'src/app/test';
+      const moduleName = 'my_app_test';
+
+      assertGeneratedFilesBase(appTree, projectDirectory, moduleName);
+
+      expect(
+        appTree.exists(`${projectDirectory}/tests/test_hello.py`)
+      ).toBeFalsy();
+    });
+
+    it('should run successfully minimal configuration without directory', async () => {
+      await generator(appTree, {
+        ...options,
+        name: 'my-app-test',
+        projectNameAndRootFormat: 'as-provided',
+      });
+      const config = readProjectConfiguration(appTree, 'my-app-test');
+      expect(config).toMatchSnapshot();
+
+      const projectDirectory = 'my-app-test';
+      const moduleName = 'my_app_test';
+
+      assertGeneratedFilesBase(appTree, projectDirectory, moduleName);
+
+      expect(
+        appTree.exists(`${projectDirectory}/tests/test_hello.py`)
+      ).toBeFalsy();
+    });
   });
 
   describe('individual package', () => {
