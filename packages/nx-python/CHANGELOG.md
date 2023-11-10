@@ -1,3 +1,9 @@
+## [16.3.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v16.3.0...nx-python-v16.3.1) (2023-11-10)
+
+### Bug Fixes
+
+- **nx-python:** handle "from" for packages in pyproject.toml during the build process ([#184](https://github.com/lucasvieirasilva/nx-plugins/issues/184)) ([5d9a99f](https://github.com/lucasvieirasilva/nx-plugins/commit/5d9a99f5963e328038158edb299d1f0d2716f07c))
+
 # [16.3.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v16.2.0...nx-python-v16.3.0) (2023-11-10)
 
 ### Features
