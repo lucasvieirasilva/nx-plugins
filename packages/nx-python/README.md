@@ -57,7 +57,7 @@ nx generate @nxlv/python:poetry-project myproject
 | `--publishable`                  | `boolean` | Specifies if the project is publishable or not    | `false`  | `true`                                   |
 | `--buildLockedVersions`          | `boolean` | Use locked versions for build dependencies        | `false`  | `true`                                   |
 | `--buildBundleLocalDependencies` | `boolean` | Bundle local dependencies                         | `false`  | `true`                                   |
-| `--linter`                       | `string`  | Linter framework (`flake8` or `none`)             | `false`  | `flake8`                                 |
+| `--linter`                       | `string`  | Linter framework (`flake8`, `ruff` or `none`)     | `false`  | `flake8`                                 |
 | `--unitTestRunner`               | `string`  | Unit Test Runner (`pytest` or `none`)             | `false`  | `pytest`                                 |
 | `--unitTestHtmlReport`           | `boolean` | Enable HTML Pytest Reports                        | `false`  | `true`                                   |
 | `--unitTestJUnitReport`          | `boolean` | Enable JUnit Pytest Reports                       | `false`  | `true`                                   |
