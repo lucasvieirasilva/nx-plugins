@@ -1,3 +1,9 @@
+# [16.2.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v16.1.4...nx-python-v16.2.0) (2023-11-10)
+
+### Features
+
+- **nx-python:** add ruff check executor and project generator ([#185](https://github.com/lucasvieirasilva/nx-plugins/issues/185)) ([9e631a2](https://github.com/lucasvieirasilva/nx-plugins/commit/9e631a2df0525b9808bb31bf7af8b7ec73346c6e)), closes [#170](https://github.com/lucasvieirasilva/nx-plugins/issues/170)
+
 ## [16.1.4](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v16.1.3...nx-python-v16.1.4) (2023-10-19)
 
 ### Bug Fixes
