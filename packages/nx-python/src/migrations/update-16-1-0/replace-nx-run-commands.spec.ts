@@ -37,6 +37,7 @@ describe('16-1-0-replace-nx-run-commands migration', () => {
       codeCoverage: false,
       codeCoverageHtmlReport: false,
       codeCoverageXmlReport: false,
+      projectNameAndRootFormat: 'derived',
     });
 
     const projectConfig = readProjectConfiguration(tree, 'test');
