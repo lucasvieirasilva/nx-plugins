@@ -2,7 +2,6 @@ import { ExecutorContext } from '@nx/devkit';
 import chalk from 'chalk';
 import { Logger } from '../utils/logger';
 import { RuffCheckExecutorSchema } from './schema';
-import path from 'path';
 import {
   POETRY_EXECUTABLE,
   activateVenv,
@@ -31,7 +30,7 @@ export default async function executor(
       .concat(options.lintFilePatterns)
       .concat(options.__unparsed__);
 
-    await runCheck(commandArgs, projectConfig.root);
+    runCheck(commandArgs, projectConfig.root);
 
     return {
       success: true,
