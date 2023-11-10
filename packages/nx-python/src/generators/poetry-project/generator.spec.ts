@@ -127,6 +127,17 @@ describe('application generator', () => {
       assertGeneratedFilesFlake8(appTree, 'apps/test');
     });
 
+    it('should run successfully with ruff linter', async () => {
+      await generator(appTree, {
+        ...options,
+        linter: 'ruff',
+      });
+      const config = readProjectConfiguration(appTree, 'test');
+      expect(config).toMatchSnapshot();
+
+      assertGeneratedFilesBase(appTree, 'apps/test', 'test');
+    });
+
     it('should run successfully with flake8 linter and pytest with no reports', async () => {
       await generator(appTree, {
         ...options,
@@ -138,6 +149,19 @@ describe('application generator', () => {
 
       assertGeneratedFilesBase(appTree, 'apps/test', 'test');
       assertGeneratedFilesFlake8(appTree, 'apps/test');
+      assertGeneratedFilesPyTest(appTree, 'apps/test');
+    });
+
+    it('should run successfully with ruff linter and pytest with no reports', async () => {
+      await generator(appTree, {
+        ...options,
+        linter: 'ruff',
+        unitTestRunner: 'pytest',
+      });
+      const config = readProjectConfiguration(appTree, 'test');
+      expect(config).toMatchSnapshot();
+
+      assertGeneratedFilesBase(appTree, 'apps/test', 'test');
       assertGeneratedFilesPyTest(appTree, 'apps/test');
     });
 
@@ -245,7 +269,7 @@ describe('application generator', () => {
       assertGeneratedFilesPyTest(appTree, 'apps/test');
     });
 
-    it('should run successfully with linting and testing options with a dev dependency project', async () => {
+    it('should run successfully with linting (flake8) and testing options with a dev dependency project', async () => {
       await generator(appTree, {
         ...options,
         projectType: 'library',
@@ -271,6 +295,40 @@ describe('application generator', () => {
 
       assertGeneratedFilesBase(appTree, 'apps/test', 'test');
       assertGeneratedFilesFlake8(appTree, 'apps/test');
+      assertGeneratedFilesPyTest(appTree, 'apps/test');
+
+      assertGeneratedFilesBase(
+        appTree,
+        'libs/shared/dev-lib',
+        'shared_dev_lib'
+      );
+    });
+
+    it('should run successfully with linting (ruff) and testing options with a dev dependency project', async () => {
+      await generator(appTree, {
+        ...options,
+        projectType: 'library',
+        name: 'dev-lib',
+        directory: 'shared',
+      });
+
+      await generator(appTree, {
+        ...options,
+        linter: 'ruff',
+        unitTestRunner: 'pytest',
+        codeCoverage: true,
+        codeCoverageHtmlReport: true,
+        codeCoverageXmlReport: true,
+        codeCoverageThreshold: 100,
+        unitTestJUnitReport: true,
+        unitTestHtmlReport: true,
+        devDependenciesProject: 'shared-dev-lib',
+      });
+
+      const config = readProjectConfiguration(appTree, 'test');
+      expect(config).toMatchSnapshot();
+
+      assertGeneratedFilesBase(appTree, 'apps/test', 'test');
       assertGeneratedFilesPyTest(appTree, 'apps/test');
 
       assertGeneratedFilesBase(

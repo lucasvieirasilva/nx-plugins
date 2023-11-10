@@ -28,14 +28,10 @@ export default async function executor(
     const projectConfig = context.workspace.projects[context.projectName];
 
     const commandArgs = ['run', 'ruff', 'check']
-      .concat(
-        options.lintFilePatterns.map((pattern) =>
-          path.join(projectConfig.root, pattern)
-        )
-      )
+      .concat(options.lintFilePatterns)
       .concat(options.__unparsed__);
 
-    await runCheck(commandArgs, workspaceRoot);
+    await runCheck(commandArgs, projectConfig.root);
 
     return {
       success: true,

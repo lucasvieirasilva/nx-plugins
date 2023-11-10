@@ -300,6 +300,10 @@ function addTestDependencies(
     dependencies['flake8'] = '6.0.0';
   }
 
+  if (normalizedOptions.linter === 'ruff' && !dependencies['ruff']) {
+    dependencies['ruff'] = '0.1.5';
+  }
+
   if (!dependencies['autopep8']) {
     dependencies['autopep8'] = '2.0.2';
   }
@@ -406,6 +410,18 @@ export default async function (
       ],
       options: {
         outputFile: `reports/${normalizedOptions.projectRoot}/pylint.txt`,
+      },
+    };
+  }
+
+  if (options.linter === 'ruff') {
+    targets.lint = {
+      executor: '@nxlv/python:ruff-check',
+      outputs: [],
+      options: {
+        lintFilePatterns: [normalizedOptions.moduleName].concat(
+          options.unitTestRunner === 'pytest' ? ['tests'] : []
+        ),
       },
     };
   }

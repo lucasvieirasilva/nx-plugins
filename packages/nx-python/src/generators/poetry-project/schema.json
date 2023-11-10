@@ -64,7 +64,7 @@
       "type": "string",
       "description": "Project linter",
       "default": "flake8",
-      "enum": ["flake8", "none"]
+      "enum": ["flake8", "ruff", "none"]
     },
     "unitTestRunner": {
       "type": "string",

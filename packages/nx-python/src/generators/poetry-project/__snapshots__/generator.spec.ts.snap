@@ -1710,7 +1710,7 @@ def test_hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with linting and testing options with a dev dependency project 1`] = `
+exports[`application generator individual package should run successfully with linting (flake8) and testing options with a dev dependency project 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -1784,14 +1784,14 @@ exports[`application generator individual package should run successfully with l
 }
 `;
 
-exports[`application generator individual package should run successfully with linting and testing options with a dev dependency project 2`] = `
+exports[`application generator individual package should run successfully with linting (flake8) and testing options with a dev dependency project 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator individual package should run successfully with linting and testing options with a dev dependency project 3`] = `
+exports[`application generator individual package should run successfully with linting (flake8) and testing options with a dev dependency project 3`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "test" ]
@@ -1827,7 +1827,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator individual package should run successfully with linting and testing options with a dev dependency project 4`] = `
+exports[`application generator individual package should run successfully with linting (flake8) and testing options with a dev dependency project 4`] = `
 """"Sample Hello World application."""
 
 
@@ -1837,12 +1837,12 @@ def hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with linting and testing options with a dev dependency project 5`] = `
+exports[`application generator individual package should run successfully with linting (flake8) and testing options with a dev dependency project 5`] = `
 "3.9.5
 "
 `;
 
-exports[`application generator individual package should run successfully with linting and testing options with a dev dependency project 6`] = `
+exports[`application generator individual package should run successfully with linting (flake8) and testing options with a dev dependency project 6`] = `
 "[flake8]
 exclude =
 	.git,
@@ -1857,7 +1857,7 @@ max-line-length = 120
 "
 `;
 
-exports[`application generator individual package should run successfully with linting and testing options with a dev dependency project 7`] = `
+exports[`application generator individual package should run successfully with linting (flake8) and testing options with a dev dependency project 7`] = `
 """"Hello unit test module."""
 
 from test.hello import hello
@@ -1869,14 +1869,14 @@ def test_hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with linting and testing options with a dev dependency project 8`] = `
+exports[`application generator individual package should run successfully with linting (flake8) and testing options with a dev dependency project 8`] = `
 "# shared-dev-lib
 
 Project description here.
 "
 `;
 
-exports[`application generator individual package should run successfully with linting and testing options with a dev dependency project 9`] = `
+exports[`application generator individual package should run successfully with linting (flake8) and testing options with a dev dependency project 9`] = `
 "[tool.poetry]
 name = "shared-dev-lib"
 version = "1.0.0"
@@ -1903,7 +1903,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator individual package should run successfully with linting and testing options with a dev dependency project 10`] = `
+exports[`application generator individual package should run successfully with linting (flake8) and testing options with a dev dependency project 10`] = `
 """"Sample Hello World application."""
 
 
@@ -1913,7 +1913,201 @@ def hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with linting and testing options with a dev dependency project 11`] = `
+exports[`application generator individual package should run successfully with linting (flake8) and testing options with a dev dependency project 11`] = `
+"3.9.5
+"
+`;
+
+exports[`application generator individual package should run successfully with linting (ruff) and testing options with a dev dependency project 1`] = `
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "test",
+  "projectType": "application",
+  "root": "apps/test",
+  "sourceRoot": "apps/test/test",
+  "tags": [],
+  "targets": {
+    "add": {
+      "executor": "@nxlv/python:add",
+      "options": {},
+    },
+    "build": {
+      "executor": "@nxlv/python:build",
+      "options": {
+        "bundleLocalDependencies": false,
+        "lockedVersions": false,
+        "outputPath": "apps/test/dist",
+        "publish": false,
+      },
+      "outputs": [
+        "{projectRoot}/dist",
+      ],
+    },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "args": "",
+        "cacheDir": ".cache/pypoetry",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
+    },
+    "lint": {
+      "executor": "@nxlv/python:ruff-check",
+      "options": {
+        "lintFilePatterns": [
+          "test",
+          "tests",
+        ],
+      },
+      "outputs": [],
+    },
+    "lock": {
+      "executor": "@nxlv/python:run-commands",
+      "options": {
+        "command": "poetry lock --no-update",
+        "cwd": "apps/test",
+      },
+    },
+    "remove": {
+      "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "test": {
+      "executor": "@nxlv/python:run-commands",
+      "options": {
+        "command": "poetry run pytest tests/",
+        "cwd": "apps/test",
+      },
+      "outputs": [
+        "{workspaceRoot}/reports/apps/test/unittests",
+        "{workspaceRoot}/coverage/apps/test",
+      ],
+    },
+    "update": {
+      "executor": "@nxlv/python:update",
+      "options": {},
+    },
+  },
+}
+`;
+
+exports[`application generator individual package should run successfully with linting (ruff) and testing options with a dev dependency project 2`] = `
+"# test
+
+Project description here.
+"
+`;
+
+exports[`application generator individual package should run successfully with linting (ruff) and testing options with a dev dependency project 3`] = `
+"[tool.coverage.run]
+branch = true
+source = [ "test" ]
+
+[tool.coverage.report]
+exclude_lines = ['if TYPE_CHECKING:']
+show_missing = true
+
+[tool.pytest.ini_options]
+addopts = "--cov --cov-fail-under=100 --cov-report html:'../../coverage/apps/test/html' --cov-report xml:'../../coverage/apps/test/coverage.xml' --html='../../reports/apps/test/unittests/html/index.html' --junitxml='../../reports/apps/test/unittests/junit.xml'"
+
+[tool.poetry]
+name = "test"
+version = "1.0.0"
+description = "Automatically generated by Nx."
+authors = [ ]
+license = 'Proprietary'
+readme = 'README.md'
+
+  [[tool.poetry.packages]]
+  include = "test"
+
+  [tool.poetry.dependencies]
+  python = ">=3.9,<3.11"
+
+  [tool.poetry.group.dev.dependencies.shared-dev-lib]
+  path = "../../libs/shared/dev-lib"
+  develop = true
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+"
+`;
+
+exports[`application generator individual package should run successfully with linting (ruff) and testing options with a dev dependency project 4`] = `
+""""Sample Hello World application."""
+
+
+def hello():
+    """Return a friendly greeting."""
+    return "Hello test"
+"
+`;
+
+exports[`application generator individual package should run successfully with linting (ruff) and testing options with a dev dependency project 5`] = `
+"3.9.5
+"
+`;
+
+exports[`application generator individual package should run successfully with linting (ruff) and testing options with a dev dependency project 6`] = `
+""""Hello unit test module."""
+
+from test.hello import hello
+
+
+def test_hello():
+    """Test the hello function."""
+    assert hello() == "Hello test"
+"
+`;
+
+exports[`application generator individual package should run successfully with linting (ruff) and testing options with a dev dependency project 7`] = `
+"# shared-dev-lib
+
+Project description here.
+"
+`;
+
+exports[`application generator individual package should run successfully with linting (ruff) and testing options with a dev dependency project 8`] = `
+"[tool.poetry]
+name = "shared-dev-lib"
+version = "1.0.0"
+description = "Automatically generated by Nx."
+authors = [ ]
+license = "Proprietary"
+readme = "README.md"
+
+  [[tool.poetry.packages]]
+  include = "shared_dev_lib"
+
+  [tool.poetry.dependencies]
+  python = ">=3.9,<3.11"
+  ruff = "0.1.5"
+  autopep8 = "2.0.2"
+  pytest = "7.3.1"
+  pytest-sugar = "0.9.7"
+  pytest-cov = "4.1.0"
+  pytest-html = "3.2.0"
+
+[build-system]
+requires = [ "poetry-core" ]
+build-backend = "poetry.core.masonry.api"
+"
+`;
+
+exports[`application generator individual package should run successfully with linting (ruff) and testing options with a dev dependency project 9`] = `
+""""Sample Hello World application."""
+
+
+def hello():
+    """Return a friendly greeting."""
+    return "Hello shared-dev-lib"
+"
+`;
+
+exports[`application generator individual package should run successfully with linting (ruff) and testing options with a dev dependency project 10`] = `
 "3.9.5
 "
 `;
@@ -2160,6 +2354,312 @@ def hello():
 
 exports[`application generator individual package should run successfully with linting and testing options with an existing dev dependency project 11`] = `
 "3.9.5
+"
+`;
+
+exports[`application generator individual package should run successfully with ruff linter 1`] = `
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "test",
+  "projectType": "application",
+  "root": "apps/test",
+  "sourceRoot": "apps/test/test",
+  "tags": [],
+  "targets": {
+    "add": {
+      "executor": "@nxlv/python:add",
+      "options": {},
+    },
+    "build": {
+      "executor": "@nxlv/python:build",
+      "options": {
+        "bundleLocalDependencies": false,
+        "lockedVersions": false,
+        "outputPath": "apps/test/dist",
+        "publish": false,
+      },
+      "outputs": [
+        "{projectRoot}/dist",
+      ],
+    },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "args": "",
+        "cacheDir": ".cache/pypoetry",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
+    },
+    "lint": {
+      "executor": "@nxlv/python:ruff-check",
+      "options": {
+        "lintFilePatterns": [
+          "test",
+        ],
+      },
+      "outputs": [],
+    },
+    "lock": {
+      "executor": "@nxlv/python:run-commands",
+      "options": {
+        "command": "poetry lock --no-update",
+        "cwd": "apps/test",
+      },
+    },
+    "remove": {
+      "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "update": {
+      "executor": "@nxlv/python:update",
+      "options": {},
+    },
+  },
+}
+`;
+
+exports[`application generator individual package should run successfully with ruff linter 2`] = `
+"# test
+
+Project description here.
+"
+`;
+
+exports[`application generator individual package should run successfully with ruff linter 3`] = `
+"[tool.poetry]
+name = "test"
+version = "1.0.0"
+description = "Automatically generated by Nx."
+authors = [ ]
+license = 'Proprietary'
+readme = 'README.md'
+
+  [[tool.poetry.packages]]
+  include = "test"
+
+  [tool.poetry.dependencies]
+  python = ">=3.9,<3.11"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+exclude = [
+  ".ruff_cache",
+  ".svn",
+  ".tox",
+  ".venv",
+  "dist",
+]
+
+line-length = 88
+indent-width = 4
+
+[tool.ruff.lint]
+select = [
+  # pycodestyle
+  "E",
+  # Pyflakes
+  "F",
+  # pyupgrade
+  "UP",
+  # flake8-bugbear
+  "B",
+  # flake8-simplify
+  "SIM",
+  # isort
+  "I",
+]
+ignore = []
+
+fixable = ["ALL"]
+unfixable = []
+"
+`;
+
+exports[`application generator individual package should run successfully with ruff linter 4`] = `
+""""Sample Hello World application."""
+
+
+def hello():
+    """Return a friendly greeting."""
+    return "Hello test"
+"
+`;
+
+exports[`application generator individual package should run successfully with ruff linter 5`] = `
+"3.9.5
+"
+`;
+
+exports[`application generator individual package should run successfully with ruff linter and pytest with no reports 1`] = `
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "test",
+  "projectType": "application",
+  "root": "apps/test",
+  "sourceRoot": "apps/test/test",
+  "tags": [],
+  "targets": {
+    "add": {
+      "executor": "@nxlv/python:add",
+      "options": {},
+    },
+    "build": {
+      "executor": "@nxlv/python:build",
+      "options": {
+        "bundleLocalDependencies": false,
+        "lockedVersions": false,
+        "outputPath": "apps/test/dist",
+        "publish": false,
+      },
+      "outputs": [
+        "{projectRoot}/dist",
+      ],
+    },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "args": "",
+        "cacheDir": ".cache/pypoetry",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
+    },
+    "lint": {
+      "executor": "@nxlv/python:ruff-check",
+      "options": {
+        "lintFilePatterns": [
+          "test",
+          "tests",
+        ],
+      },
+      "outputs": [],
+    },
+    "lock": {
+      "executor": "@nxlv/python:run-commands",
+      "options": {
+        "command": "poetry lock --no-update",
+        "cwd": "apps/test",
+      },
+    },
+    "remove": {
+      "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "test": {
+      "executor": "@nxlv/python:run-commands",
+      "options": {
+        "command": "poetry run pytest tests/",
+        "cwd": "apps/test",
+      },
+      "outputs": [
+        "{workspaceRoot}/reports/apps/test/unittests",
+        "{workspaceRoot}/coverage/apps/test",
+      ],
+    },
+    "update": {
+      "executor": "@nxlv/python:update",
+      "options": {},
+    },
+  },
+}
+`;
+
+exports[`application generator individual package should run successfully with ruff linter and pytest with no reports 2`] = `
+"# test
+
+Project description here.
+"
+`;
+
+exports[`application generator individual package should run successfully with ruff linter and pytest with no reports 3`] = `
+"[tool.poetry]
+name = "test"
+version = "1.0.0"
+description = "Automatically generated by Nx."
+authors = [ ]
+license = 'Proprietary'
+readme = 'README.md'
+
+  [[tool.poetry.packages]]
+  include = "test"
+
+  [tool.poetry.dependencies]
+  python = ">=3.9,<3.11"
+
+  [tool.poetry.group.dev.dependencies]
+  autopep8 = "2.0.2"
+  ruff = "0.1.5"
+  pytest = "7.3.1"
+  pytest-sugar = "0.9.7"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+exclude = [
+  ".ruff_cache",
+  ".svn",
+  ".tox",
+  ".venv",
+  "dist",
+]
+
+line-length = 88
+indent-width = 4
+
+[tool.ruff.lint]
+select = [
+  # pycodestyle
+  "E",
+  # Pyflakes
+  "F",
+  # pyupgrade
+  "UP",
+  # flake8-bugbear
+  "B",
+  # flake8-simplify
+  "SIM",
+  # isort
+  "I",
+]
+ignore = []
+
+fixable = ["ALL"]
+unfixable = []
+"
+`;
+
+exports[`application generator individual package should run successfully with ruff linter and pytest with no reports 4`] = `
+""""Sample Hello World application."""
+
+
+def hello():
+    """Return a friendly greeting."""
+    return "Hello test"
+"
+`;
+
+exports[`application generator individual package should run successfully with ruff linter and pytest with no reports 5`] = `
+"3.9.5
+"
+`;
+
+exports[`application generator individual package should run successfully with ruff linter and pytest with no reports 6`] = `
+""""Hello unit test module."""
+
+from test.hello import hello
+
+
+def test_hello():
+    """Test the hello function."""
+    assert hello() == "Hello test"
 "
 `;
 

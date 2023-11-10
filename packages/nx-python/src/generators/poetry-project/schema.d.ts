@@ -9,7 +9,7 @@ export interface PoetryProjectGeneratorSchema {
   publishable: boolean;
   buildLockedVersions: boolean;
   buildBundleLocalDependencies: boolean;
-  linter: 'flake8' | 'none';
+  linter: 'flake8' | 'ruff' | 'none';
   unitTestRunner: 'pytest' | 'none';
   devDependenciesProject?: string;
   rootPyprojectDependencyGroup: string;
