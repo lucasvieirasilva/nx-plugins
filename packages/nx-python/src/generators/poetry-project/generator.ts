@@ -34,20 +34,10 @@ function normalizeOptions(
   tree: Tree,
   options: PoetryProjectGeneratorSchema
 ): NormalizedSchema {
-  let projectName = options.name;
-  let projectRoot = options.directory || options.name;
-  if (options.projectNameAndRootFormat === 'derived') {
-    const name = names(options.name).fileName;
-    const projectDirectory = options.directory
-      ? `${names(options.directory).fileName}/${name}`
-      : name;
-    projectName = projectDirectory.replace(/\//g, '-');
-    projectRoot = `${
-      options.projectType === 'application'
-        ? getWorkspaceLayout(tree).appsDir
-        : getWorkspaceLayout(tree).libsDir
-    }/${projectDirectory}`;
-  }
+  const { projectName, projectRoot } = calculateProjectNameAndRoot(
+    options,
+    tree
+  );
 
   const parsedTags = options.tags
     ? options.tags.split(',').map((s) => s.trim())
@@ -116,6 +106,29 @@ function normalizeOptions(
     projectRoot,
     parsedTags,
   };
+}
+
+function calculateProjectNameAndRoot(
+  options: PoetryProjectGeneratorSchema,
+  tree: Tree
+) {
+  let projectName = options.name;
+  let projectRoot = options.directory || options.name;
+
+  if (options.projectNameAndRootFormat === 'derived') {
+    const name = names(options.name).fileName;
+    const projectDirectory = options.directory
+      ? `${names(options.directory).fileName}/${name}`
+      : name;
+    projectName = projectDirectory.replace(/\//g, '-');
+    projectRoot = `${
+      options.projectType === 'application'
+        ? getWorkspaceLayout(tree).appsDir
+        : getWorkspaceLayout(tree).libsDir
+    }/${projectDirectory}`;
+  }
+
+  return { projectName, projectRoot };
 }
 
 function getPyTestAddopts(
