@@ -47,7 +47,7 @@ export function updateDependents(
   updatedProjects: string[] = []
 ) {
   updatedProjects.push(projectName);
-  const deps = getDependents(projectName, workspace, workspaceRoot);
+  const deps = getDependents(projectName, workspace.projects, workspaceRoot);
 
   for (const dep of deps) {
     if (updatedProjects.includes(dep)) {

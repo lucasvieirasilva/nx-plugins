@@ -11,7 +11,6 @@
         "outputPath": "dist/packages/data-migration",
         "main": "packages/data-migration/src/index.ts",
         "tsConfig": "packages/data-migration/tsconfig.lib.json",
-        "buildableProjectDepsInPackageJsonType": "dependencies",
         "assets": [
           "packages/data-migration/*.md",
           {
@@ -38,29 +37,14 @@
       }
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": [
-          "packages/data-migration/**/*.ts",
-          "packages/data-migration/generators.json",
-          "packages/data-migration/executors.json",
-          "packages/data-migration/package.json"
-        ]
-      }
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
     },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "packages/data-migration/jest.config.ts",
-        "passWithNoTests": true
-      },
-      "configurations": {
-        "ci": {
-          "ci": true,
-          "codeCoverage": true
-        }
+        "jestConfig": "packages/data-migration/jest.config.ts"
       }
     },
     "release": {

@@ -236,7 +236,6 @@ describe('Build Executor', () => {
         projectName: 'app',
         workspace: {
           version: 2,
-          npmScope: 'nxlv',
           projects: {
             app: {
               root: 'apps/app',
@@ -361,7 +360,6 @@ describe('Build Executor', () => {
         projectName: 'app',
         workspace: {
           version: 2,
-          npmScope: 'nxlv',
           projects: {
             app: {
               root: 'apps/app',
@@ -473,7 +471,6 @@ describe('Build Executor', () => {
         projectName: 'app',
         workspace: {
           version: 2,
-          npmScope: 'nxlv',
           projects: {
             app: {
               root: 'apps/app',
@@ -583,7 +580,6 @@ describe('Build Executor', () => {
         projectName: 'app',
         workspace: {
           version: 2,
-          npmScope: 'nxlv',
           projects: {
             app: {
               root: 'apps/app',
@@ -684,7 +680,6 @@ describe('Build Executor', () => {
         projectName: 'app',
         workspace: {
           version: 2,
-          npmScope: 'nxlv',
           projects: {
             app: {
               root: 'apps/app',
@@ -818,7 +813,6 @@ describe('Build Executor', () => {
         projectName: 'app',
         workspace: {
           version: 2,
-          npmScope: 'nxlv',
           projects: {
             app: {
               root: 'apps/app',
@@ -958,7 +952,6 @@ describe('Build Executor', () => {
         projectName: 'app',
         workspace: {
           version: 2,
-          npmScope: 'nxlv',
           projects: {
             app: {
               root: 'apps/app',
@@ -1119,7 +1112,6 @@ describe('Build Executor', () => {
         projectName: 'app',
         workspace: {
           version: 2,
-          npmScope: 'nxlv',
           projects: {
             app: {
               root: 'apps/app',
@@ -1259,7 +1251,6 @@ describe('Build Executor', () => {
         projectName: 'app',
         workspace: {
           version: 2,
-          npmScope: 'nxlv',
           projects: {
             app: {
               root: 'apps/app',
@@ -1355,7 +1346,6 @@ describe('Build Executor', () => {
         projectName: 'app',
         workspace: {
           version: 2,
-          npmScope: 'nxlv',
           projects: {
             app: {
               root: 'apps/app',
@@ -1424,7 +1414,6 @@ describe('Build Executor', () => {
         projectName: 'app',
         workspace: {
           version: 2,
-          npmScope: 'nxlv',
           projects: {
             app: {
               root: 'apps/app',
@@ -1489,7 +1478,6 @@ describe('Build Executor', () => {
         projectName: 'app',
         workspace: {
           version: 2,
-          npmScope: 'nxlv',
           projects: {
             app: {
               root: 'apps/app',
@@ -1566,7 +1554,6 @@ describe('Build Executor', () => {
         projectName: 'app',
         workspace: {
           version: 2,
-          npmScope: 'nxlv',
           projects: {
             app: {
               root: 'apps/app',
@@ -1642,7 +1629,6 @@ describe('Build Executor', () => {
         projectName: 'app',
         workspace: {
           version: 2,
-          npmScope: 'nxlv',
           projects: {
             app: {
               root: 'apps/app',
@@ -1748,7 +1734,6 @@ describe('Build Executor', () => {
         projectName: 'app',
         workspace: {
           version: 2,
-          npmScope: 'nxlv',
           projects: {
             app: {
               root: 'apps/app',
@@ -1881,7 +1866,6 @@ describe('Build Executor', () => {
         projectName: 'app',
         workspace: {
           version: 2,
-          npmScope: 'nxlv',
           projects: {
             app: {
               root: 'apps/app',
@@ -2089,7 +2073,6 @@ describe('Build Executor', () => {
         projectName: 'app',
         workspace: {
           version: 2,
-          npmScope: 'nxlv',
           projects: {
             app: {
               root: 'apps/app',

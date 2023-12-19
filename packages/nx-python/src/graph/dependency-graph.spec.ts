@@ -1,6 +1,5 @@
-import { processProjectGraph, getDependents } from './dependency-graph';
+import { createDependencies, getDependents } from './dependency-graph';
 import fsMock from 'mock-fs';
-import { ProjectGraphBuilder } from '@nx/devkit';
 import dedent from 'string-dedent';
 
 describe('nx-python dependency graph', () => {
@@ -39,24 +38,6 @@ describe('nx-python dependency graph', () => {
       `,
       });
 
-      const mockBuilder = new ProjectGraphBuilder(null);
-
-      mockBuilder.addNode({
-        name: 'app1',
-        type: 'app',
-        data: {
-          root: 'apps/app1',
-        },
-      });
-
-      mockBuilder.addNode({
-        name: 'dep1',
-        type: 'lib',
-        data: {
-          root: 'libs/dep1',
-        },
-      });
-
       const projects = {
         app1: {
           root: 'apps/app1',
@@ -76,49 +57,28 @@ describe('nx-python dependency graph', () => {
         },
       };
 
-      const result = processProjectGraph(mockBuilder.graph, {
-        projectsConfigurations: {
-          projects,
-          version: 2,
-        },
+      const result = createDependencies(null, {
+        externalNodes: {},
+        workspaceRoot: '.',
+        projects,
         nxJsonConfiguration: {},
-        fileMap: {},
-        filesToProcess: {},
-        workspace: {
-          projects,
-          version: 2,
-          npmScope: 'test',
+        fileMap: {
+          nonProjectFiles: [],
+          projectFileMap: {},
+        },
+        filesToProcess: {
+          nonProjectFiles: [],
+          projectFileMap: {},
         },
       });
 
-      expect(result).toStrictEqual({
-        dependencies: {
-          app1: [
-            {
-              source: 'app1',
-              target: 'dep1',
-              type: 'implicit',
-            },
-          ],
+      expect(result).toStrictEqual([
+        {
+          source: 'app1',
+          target: 'dep1',
+          type: 'implicit',
         },
-        externalNodes: {},
-        nodes: {
-          app1: {
-            name: 'app1',
-            type: 'app',
-            data: {
-              root: 'apps/app1',
-            },
-          },
-          dep1: {
-            name: 'dep1',
-            type: 'lib',
-            data: {
-              root: 'libs/dep1',
-            },
-          },
-        },
-      });
+      ]);
     });
 
     it('should link dev dependencies in the graph', async () => {
@@ -141,24 +101,6 @@ describe('nx-python dependency graph', () => {
       `,
       });
 
-      const mockBuilder = new ProjectGraphBuilder(null);
-
-      mockBuilder.addNode({
-        name: 'app1',
-        type: 'app',
-        data: {
-          root: 'apps/app1',
-        },
-      });
-
-      mockBuilder.addNode({
-        name: 'dep1',
-        type: 'lib',
-        data: {
-          root: 'libs/dep1',
-        },
-      });
-
       const projects = {
         app1: {
           root: 'apps/app1',
@@ -170,49 +112,28 @@ describe('nx-python dependency graph', () => {
         },
       };
 
-      const result = processProjectGraph(mockBuilder.graph, {
-        projectsConfigurations: {
-          projects,
-          version: 2,
-        },
+      const result = createDependencies(null, {
+        externalNodes: {},
+        workspaceRoot: '.',
+        projects,
         nxJsonConfiguration: {},
-        fileMap: {},
-        filesToProcess: {},
-        workspace: {
-          projects,
-          version: 2,
-          npmScope: 'test',
+        fileMap: {
+          nonProjectFiles: [],
+          projectFileMap: {},
+        },
+        filesToProcess: {
+          nonProjectFiles: [],
+          projectFileMap: {},
         },
       });
 
-      expect(result).toStrictEqual({
-        dependencies: {
-          app1: [
-            {
-              source: 'app1',
-              target: 'dep1',
-              type: 'implicit',
-            },
-          ],
+      expect(result).toStrictEqual([
+        {
+          source: 'app1',
+          target: 'dep1',
+          type: 'implicit',
         },
-        externalNodes: {},
-        nodes: {
-          app1: {
-            name: 'app1',
-            type: 'app',
-            data: {
-              root: 'apps/app1',
-            },
-          },
-          dep1: {
-            name: 'dep1',
-            type: 'lib',
-            data: {
-              root: 'libs/dep1',
-            },
-          },
-        },
-      });
+      ]);
     });
 
     it('should link arbitrary groups dependencies in the graph', async () => {
@@ -235,24 +156,6 @@ describe('nx-python dependency graph', () => {
       `,
       });
 
-      const mockBuilder = new ProjectGraphBuilder(null);
-
-      mockBuilder.addNode({
-        name: 'app1',
-        type: 'app',
-        data: {
-          root: 'apps/app1',
-        },
-      });
-
-      mockBuilder.addNode({
-        name: 'dep1',
-        type: 'lib',
-        data: {
-          root: 'libs/dep1',
-        },
-      });
-
       const projects = {
         app1: {
           root: 'apps/app1',
@@ -264,72 +167,47 @@ describe('nx-python dependency graph', () => {
         },
       };
 
-      const result = processProjectGraph(mockBuilder.graph, {
-        projectsConfigurations: {
-          projects,
-          version: 2,
-        },
+      const result = createDependencies(null, {
+        externalNodes: {},
+        workspaceRoot: '.',
+        projects,
         nxJsonConfiguration: {},
-        fileMap: {},
-        filesToProcess: {},
-        workspace: {
-          projects,
-          version: 2,
-          npmScope: 'test',
+        fileMap: {
+          nonProjectFiles: [],
+          projectFileMap: {},
+        },
+        filesToProcess: {
+          nonProjectFiles: [],
+          projectFileMap: {},
         },
       });
 
-      expect(result).toStrictEqual({
-        dependencies: {
-          app1: [
-            {
-              source: 'app1',
-              target: 'dep1',
-              type: 'implicit',
-            },
-          ],
+      expect(result).toStrictEqual([
+        {
+          source: 'app1',
+          target: 'dep1',
+          type: 'implicit',
         },
-        externalNodes: {},
-        nodes: {
-          app1: {
-            name: 'app1',
-            type: 'app',
-            data: {
-              root: 'apps/app1',
-            },
-          },
-          dep1: {
-            name: 'dep1',
-            type: 'lib',
-            data: {
-              root: 'libs/dep1',
-            },
-          },
-        },
-      });
+      ]);
     });
 
     it('should progress the dependency graph for an empty project', async () => {
-      const result = processProjectGraph(null, {
-        projectsConfigurations: {
-          projects: {},
-          version: 2,
-        },
+      const result = createDependencies(null, {
+        externalNodes: {},
+        workspaceRoot: '.',
+        projects: {},
         nxJsonConfiguration: {},
-        fileMap: {},
-        filesToProcess: {},
-        workspace: {
-          projects: {},
-          version: 2,
-          npmScope: 'test',
+        fileMap: {
+          nonProjectFiles: [],
+          projectFileMap: {},
+        },
+        filesToProcess: {
+          nonProjectFiles: [],
+          projectFileMap: {},
         },
       });
 
-      expect(result).toStrictEqual({
-        dependencies: {},
-        externalNodes: {},
-        nodes: {},
-      });
+      expect(result).toStrictEqual([]);
     });
 
     it('should progress the dependency graph when there is an app that is not managed by @nxlv/python', async () => {
@@ -369,32 +247,6 @@ describe('nx-python dependency graph', () => {
       `,
       });
 
-      const mockBuilder = new ProjectGraphBuilder(null);
-
-      mockBuilder.addNode({
-        name: 'app1',
-        type: 'app',
-        data: {
-          root: 'apps/app1',
-        },
-      });
-
-      mockBuilder.addNode({
-        name: 'app2',
-        type: 'app',
-        data: {
-          root: 'apps/app2',
-        },
-      });
-
-      mockBuilder.addNode({
-        name: 'dep1',
-        type: 'lib',
-        data: {
-          root: 'libs/dep1',
-        },
-      });
-
       const projects = {
         app1: {
           root: 'apps/app1',
@@ -414,56 +266,28 @@ describe('nx-python dependency graph', () => {
         },
       };
 
-      const result = processProjectGraph(mockBuilder.graph, {
-        projectsConfigurations: {
-          projects,
-          version: 2,
-        },
+      const result = createDependencies(null, {
+        externalNodes: {},
+        workspaceRoot: '.',
+        projects,
         nxJsonConfiguration: {},
-        fileMap: {},
-        filesToProcess: {},
-        workspace: {
-          projects,
-          version: 2,
-          npmScope: 'test',
+        fileMap: {
+          nonProjectFiles: [],
+          projectFileMap: {},
+        },
+        filesToProcess: {
+          nonProjectFiles: [],
+          projectFileMap: {},
         },
       });
 
-      expect(result).toStrictEqual({
-        dependencies: {
-          app1: [
-            {
-              source: 'app1',
-              target: 'dep1',
-              type: 'implicit',
-            },
-          ],
+      expect(result).toStrictEqual([
+        {
+          source: 'app1',
+          target: 'dep1',
+          type: 'implicit',
         },
-        externalNodes: {},
-        nodes: {
-          app1: {
-            name: 'app1',
-            type: 'app',
-            data: {
-              root: 'apps/app1',
-            },
-          },
-          app2: {
-            name: 'app2',
-            type: 'app',
-            data: {
-              root: 'apps/app2',
-            },
-          },
-          dep1: {
-            name: 'dep1',
-            type: 'lib',
-            data: {
-              root: 'libs/dep1',
-            },
-          },
-        },
-      });
+      ]);
     });
 
     it('should progress the dependency graph when there is an app with an empty pyproject.toml', async () => {
@@ -496,32 +320,6 @@ describe('nx-python dependency graph', () => {
       `,
       });
 
-      const mockBuilder = new ProjectGraphBuilder(null);
-
-      mockBuilder.addNode({
-        name: 'app1',
-        type: 'app',
-        data: {
-          root: 'apps/app1',
-        },
-      });
-
-      mockBuilder.addNode({
-        name: 'app2',
-        type: 'app',
-        data: {
-          root: 'apps/app2',
-        },
-      });
-
-      mockBuilder.addNode({
-        name: 'dep1',
-        type: 'lib',
-        data: {
-          root: 'libs/dep1',
-        },
-      });
-
       const projects = {
         app1: {
           root: 'apps/app1',
@@ -545,56 +343,28 @@ describe('nx-python dependency graph', () => {
         },
       };
 
-      const result = processProjectGraph(mockBuilder.graph, {
-        projectsConfigurations: {
-          projects,
-          version: 2,
-        },
+      const result = createDependencies(null, {
+        externalNodes: {},
+        workspaceRoot: '.',
+        projects,
         nxJsonConfiguration: {},
-        fileMap: {},
-        filesToProcess: {},
-        workspace: {
-          projects,
-          version: 2,
-          npmScope: 'test',
+        fileMap: {
+          nonProjectFiles: [],
+          projectFileMap: {},
+        },
+        filesToProcess: {
+          nonProjectFiles: [],
+          projectFileMap: {},
         },
       });
 
-      expect(result).toStrictEqual({
-        dependencies: {
-          app1: [
-            {
-              source: 'app1',
-              target: 'dep1',
-              type: 'implicit',
-            },
-          ],
+      expect(result).toStrictEqual([
+        {
+          source: 'app1',
+          target: 'dep1',
+          type: 'implicit',
         },
-        externalNodes: {},
-        nodes: {
-          app1: {
-            name: 'app1',
-            type: 'app',
-            data: {
-              root: 'apps/app1',
-            },
-          },
-          app2: {
-            name: 'app2',
-            type: 'app',
-            data: {
-              root: 'apps/app2',
-            },
-          },
-          dep1: {
-            name: 'dep1',
-            type: 'lib',
-            data: {
-              root: 'libs/dep1',
-            },
-          },
-        },
-      });
+      ]);
     });
   });
 
@@ -629,14 +399,7 @@ describe('nx-python dependency graph', () => {
         },
       };
 
-      const result = getDependents(
-        'dep1',
-        {
-          projects,
-          version: 2,
-        },
-        '.'
-      );
+      const result = getDependents('dep1', projects, '.');
 
       expect(result).toStrictEqual(['app1']);
     });
@@ -664,14 +427,7 @@ describe('nx-python dependency graph', () => {
         },
       };
 
-      const result = getDependents(
-        'dep1',
-        {
-          projects,
-          version: 2,
-        },
-        '.'
-      );
+      const result = getDependents('dep1', projects, '.');
 
       expect(result).toStrictEqual([]);
     });

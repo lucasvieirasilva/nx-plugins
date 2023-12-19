@@ -1,8 +1,8 @@
 import * as nxPython from './index';
 
 describe('nx-python index', () => {
-  it('should have processProjectGraph', async () => {
-    expect(nxPython.processProjectGraph).toBeTruthy();
-    expect(nxPython.processProjectGraph instanceof Function).toBeTruthy();
+  it('should have createDependencies', async () => {
+    expect(nxPython.createDependencies).toBeTruthy();
+    expect(nxPython.createDependencies instanceof Function).toBeTruthy();
   });
 });

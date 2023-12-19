@@ -49,7 +49,6 @@ describe('Flake8 Executor', () => {
       isVerbose: false,
       projectName: 'app',
       workspace: {
-        npmScope: 'nxlv',
         version: 2,
         projects: {
           app: {
@@ -85,7 +84,6 @@ describe('Flake8 Executor', () => {
         projectName: 'app',
         workspace: {
           version: 2,
-          npmScope: 'nxlv',
           projects: {
             app: {
               root: 'apps/app',
@@ -120,7 +118,6 @@ describe('Flake8 Executor', () => {
         projectName: 'app',
         workspace: {
           version: 2,
-          npmScope: 'nxlv',
           projects: {
             app: {
               root: 'apps/app',
@@ -153,7 +150,6 @@ describe('Flake8 Executor', () => {
         projectName: 'app',
         workspace: {
           version: 2,
-          npmScope: 'nxlv',
           projects: {
             app: {
               root: 'apps/app',
@@ -190,7 +186,6 @@ describe('Flake8 Executor', () => {
         projectName: 'app',
         workspace: {
           version: 2,
-          npmScope: 'nxlv',
           projects: {
             app: {
               root: 'apps/app',

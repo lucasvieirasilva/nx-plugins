@@ -43,7 +43,6 @@ describe('Ruff Check Executor', () => {
       isVerbose: false,
       projectName: 'app',
       workspace: {
-        npmScope: 'nxlv',
         version: 2,
         projects: {
           app: {
@@ -76,7 +75,6 @@ describe('Ruff Check Executor', () => {
         projectName: 'app',
         workspace: {
           version: 2,
-          npmScope: 'nxlv',
           projects: {
             app: {
               root: 'apps/app',
@@ -112,7 +110,6 @@ describe('Ruff Check Executor', () => {
         projectName: 'app',
         workspace: {
           version: 2,
-          npmScope: 'nxlv',
           projects: {
             app: {
               root: 'apps/app',

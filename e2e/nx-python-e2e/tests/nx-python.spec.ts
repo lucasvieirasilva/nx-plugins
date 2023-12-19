@@ -35,8 +35,8 @@ describe('nx-python e2e', () => {
 
     expect(() =>
       checkFilesExist(
-        `apps/${app1}/dist/${app1.replace('-', '_')}-1.0.0-py3-none-any.whl`,
-        `apps/${app1}/dist/${app1}-1.0.0.tar.gz`
+        `${app1}/dist/${app1.replace('-', '_')}-1.0.0-py3-none-any.whl`,
+        `${app1}/dist/${app1}-1.0.0.tar.gz`
       )
     ).not.toThrow();
   }, 3000000);
@@ -69,8 +69,8 @@ describe('nx-python e2e', () => {
 
     expect(() =>
       checkFilesExist(
-        `apps/${app1}/dist/${app1.replace('-', '_')}-1.0.0-py3-none-any.whl`,
-        `apps/${app1}/dist/${app1}-1.0.0.tar.gz`
+        `${app1}/dist/${app1.replace('-', '_')}-1.0.0-py3-none-any.whl`,
+        `${app1}/dist/${app1}-1.0.0.tar.gz`
       )
     ).not.toThrow();
   }, 3000000);
@@ -100,8 +100,6 @@ describe('nx-python e2e', () => {
         'src/app1',
         '--linter',
         'ruff',
-        '--projectNameAndRootFormat',
-        'as-provided',
       ].join(' ')
     );
 
@@ -120,8 +118,6 @@ describe('nx-python e2e', () => {
         'src/lib1',
         '--linter',
         'ruff',
-        '--projectNameAndRootFormat',
-        'as-provided',
       ].join(' ')
     );
 
@@ -175,8 +171,8 @@ describe('nx-python e2e', () => {
 
     expect(() =>
       checkFilesExist(
-        `apps/${app1}/dist/${app1.replace('-', '_')}-1.0.0-py3-none-any.whl`,
-        `apps/${app1}/dist/${app1}-1.0.0.tar.gz`
+        `${app1}/dist/${app1.replace('-', '_')}-1.0.0-py3-none-any.whl`,
+        `${app1}/dist/${app1}-1.0.0.tar.gz`
       )
     ).not.toThrow();
   }, 3000000);
@@ -218,8 +214,8 @@ describe('nx-python e2e', () => {
 
       expect(() =>
         checkFilesExist(
-          `apps/${app1}/dist/${app1.replace('-', '_')}-1.0.0-py3-none-any.whl`,
-          `apps/${app1}/dist/${app1}-1.0.0.tar.gz`
+          `${app1}/dist/${app1.replace('-', '_')}-1.0.0-py3-none-any.whl`,
+          `${app1}/dist/${app1}-1.0.0.tar.gz`
         )
       ).not.toThrow();
 
@@ -264,8 +260,8 @@ describe('nx-python e2e', () => {
 
       expect(() =>
         checkFilesExist(
-          `apps/${app1}/dist/${app1.replace('-', '_')}-1.0.0-py3-none-any.whl`,
-          `apps/${app1}/dist/${app1}-1.0.0.tar.gz`
+          `${app1}/dist/${app1.replace('-', '_')}-1.0.0-py3-none-any.whl`,
+          `${app1}/dist/${app1}-1.0.0.tar.gz`
         )
       ).not.toThrow();
 

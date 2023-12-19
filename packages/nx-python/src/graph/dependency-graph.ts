@@ -1,14 +1,13 @@
 import {
-  ProjectGraphBuilder,
-  ProjectGraph,
-  ProjectGraphProcessorContext,
   joinPathFragments,
-  ProjectsConfigurations,
   ProjectConfiguration,
+  ImplicitDependency,
+  DependencyType,
 } from '@nx/devkit';
 import { readFileSync, existsSync } from 'fs';
 import { parse } from '@iarna/toml';
 import path from 'path';
+import { CreateDependencies } from 'nx/src/utils/nx-plugin';
 
 export type PyprojectTomlDependency =
   | string
@@ -71,15 +70,15 @@ export type PyprojectToml = {
 
 export const getDependents = (
   projectName: string,
-  workspace: ProjectsConfigurations,
+  projects: Record<string, ProjectConfiguration>,
   cwd: string
 ): string[] => {
   const deps: string[] = [];
 
-  const { root } = workspace.projects[projectName];
+  const { root } = projects[projectName];
 
-  for (const project in workspace.projects) {
-    if (checkProjectIsDependent(workspace, project, root, cwd)) {
+  for (const project in projects) {
+    if (checkProjectIsDependent(projects, project, root, cwd)) {
       deps.push(project);
     }
   }
@@ -89,10 +88,10 @@ export const getDependents = (
 
 export const getDependencies = (
   projectName: string,
-  workspace: ProjectsConfigurations,
+  projects: Record<string, ProjectConfiguration>,
   cwd: string
 ): Dependency[] => {
-  const projectData = workspace.projects[projectName];
+  const projectData = projects[projectName];
   const pyprojectToml = joinPathFragments(projectData.root, 'pyproject.toml');
 
   const deps: Dependency[] = [];
@@ -103,7 +102,7 @@ export const getDependencies = (
     resolveDependencies(
       tomlData.tool?.poetry?.dependencies,
       projectData,
-      workspace,
+      projects,
       cwd,
       deps,
       'main'
@@ -112,7 +111,7 @@ export const getDependencies = (
       resolveDependencies(
         tomlData.tool.poetry.group[group].dependencies,
         projectData,
-        workspace,
+        projects,
         cwd,
         deps,
         group
@@ -123,20 +122,6 @@ export const getDependencies = (
   return deps;
 };
 
-export const processProjectGraph = (
-  graph: ProjectGraph,
-  context: ProjectGraphProcessorContext
-) => {
-  const builder = new ProjectGraphBuilder(graph);
-  for (const project in context.workspace.projects) {
-    const deps = getDependencies(project, context.workspace, process.cwd());
-
-    deps.forEach((dep) => builder.addImplicitDependency(project, dep.name));
-  }
-
-  return builder.graph;
-};
-
 const getPyprojectData = (pyprojectToml: string) => {
   const content = readFileSync(pyprojectToml).toString('utf-8');
   if (content.trim() === '') return {};
@@ -145,12 +130,12 @@ const getPyprojectData = (pyprojectToml: string) => {
 };
 
 const checkProjectIsDependent = (
-  workspace: ProjectsConfigurations,
+  projects: Record<string, ProjectConfiguration>,
   project: string,
   root: string,
   cwd: string
 ): boolean => {
-  const projectData = workspace.projects[project];
+  const projectData = projects[project];
   const pyprojectToml = joinPathFragments(projectData.root, 'pyproject.toml');
 
   if (existsSync(pyprojectToml)) {
@@ -205,7 +190,7 @@ const isProjectDependent = (
 const resolveDependencies = (
   dependencies: PyprojectTomlDependencies,
   projectData: ProjectConfiguration,
-  workspace: ProjectsConfigurations,
+  projects: Record<string, ProjectConfiguration>,
   cwd: string,
   deps: Dependency[],
   category: string
@@ -215,9 +200,9 @@ const resolveDependencies = (
 
     if (depData instanceof Object && depData.path) {
       const depAbsPath = path.resolve(projectData.root, depData.path);
-      const depProjectName = Object.keys(workspace.projects).find(
+      const depProjectName = Object.keys(projects).find(
         (proj) =>
-          path.normalize(workspace.projects[proj].root) ===
+          path.normalize(projects[proj].root) ===
           path.normalize(path.relative(cwd, depAbsPath))
       );
 
@@ -226,4 +211,21 @@ const resolveDependencies = (
       }
     }
   }
+};
+
+export const createDependencies: CreateDependencies = (_, context) => {
+  const result: ImplicitDependency[] = [];
+
+  for (const project in context.projects) {
+    const deps = getDependencies(project, context.projects, process.cwd());
+
+    deps.forEach((dep) => {
+      result.push({
+        source: project,
+        target: dep.name,
+        type: DependencyType.implicit,
+      });
+    });
+  }
+  return result;
 };

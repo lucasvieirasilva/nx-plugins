@@ -8,7 +8,8 @@
       "executor": "@nx/jest:jest",
       "options": {
         "jestConfig": "e2e/nx-python-e2e/jest.config.ts",
-        "runInBand": true
+        "runInBand": true,
+        "passWithNoTests": false
       },
       "dependsOn": ["nx-python:build"]
     }
