@@ -54,22 +54,6 @@ The `derived` option uses the combination of the workspace layout, `--directory`
 Example 1: `nx generate @nxlv/python:poetry-project myproject` will generate the project in the `apps/myproject` folder with the name `myproject`.
 Example 2: `nx generate @nxlv/python:poetry-project myproject --directory=api` will generate the project in the `apps/api/myproject` folder with the name `api-myproject`.
 
-**NOTE**: The `derived` option is the default option for now, however, the `as-provided` option will be the default option in the future.
-
-To make the `as-provided` option the default option, add the following configuration in the `nx.json` file:
-
-```json
-{
-  ...
-  "generators": {
-    "@nxlv/python:poetry-project": {
-      "projectNameAndRootFormat": "as-provided"
-    }
-  }
-  ...
-}
-```
-
 Nx documentation reference: <https://nx.dev/deprecated/as-provided-vs-derived#project-generators>
 
 #### Options
@@ -95,7 +79,7 @@ Nx documentation reference: <https://nx.dev/deprecated/as-provided-vs-derived#pr
 | `--codeCoverageHtmlReport`       | `boolean` | Enable Code Coverage HTML Reports                                                                                                                                                      | `false`  | `true`                                   |
 | `--codeCoverageXmlReport`        | `boolean` | Enable Code Coverage XML Reports                                                                                                                                                       | `false`  | `true`                                   |
 | `--codeCoverageThreshold`        | `number`  | Minimum Code Coverage Threshold                                                                                                                                                        | `false`  | N/A                                      |
-| `--projectNameAndRootFormat`     | `string`  | Whether to generate the project name and root directory as provided (`as-provided`) or generate them composing their values and taking the configured layout into account (`derived`). | `false`  | `derived`                                |
+| `--projectNameAndRootFormat`     | `string`  | Whether to generate the project name and root directory as provided (`as-provided`) or generate them composing their values and taking the configured layout into account (`derived`). | `false`  | `as-provided`                            |
 
 ##### rootPyprojectDependencyGroup
 
