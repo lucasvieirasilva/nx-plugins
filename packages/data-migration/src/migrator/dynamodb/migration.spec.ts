@@ -949,7 +949,9 @@ describe('DynamoDBMigrationBase', () => {
 
       const timeoutMock = jest
         .spyOn(global, 'setTimeout')
-        .mockImplementation((fn) => fn() as unknown as NodeJS.Timeout);
+        .mockImplementation(
+          (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout
+        );
 
       await migration.up();
 
@@ -1022,7 +1024,9 @@ describe('DynamoDBMigrationBase', () => {
 
       const timeoutMock = jest
         .spyOn(global, 'setTimeout')
-        .mockImplementation((fn) => fn() as unknown as NodeJS.Timeout);
+        .mockImplementation(
+          (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout
+        );
 
       await expect(migration.up()).rejects.toThrowError(
         'Timeout waiting for backup namespace-name-202304031-migration-backup to be created'
@@ -1094,7 +1098,9 @@ describe('DynamoDBMigrationBase', () => {
 
       const timeoutMock = jest
         .spyOn(global, 'setTimeout')
-        .mockImplementation((fn) => fn() as unknown as NodeJS.Timeout);
+        .mockImplementation(
+          (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout
+        );
 
       await expect(migration.up()).rejects.toThrowError(
         'Backup namespace-name-202304031-migration-backup was deleted externally'
@@ -1642,7 +1648,9 @@ describe('DynamoDBMigrationBase', () => {
 
       jest
         .spyOn(global, 'setTimeout')
-        .mockImplementation((fn) => fn() as unknown as NodeJS.Timeout);
+        .mockImplementation(
+          (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout
+        );
 
       fsReadFileSyncMock.mockReturnValue('content');
 
@@ -1998,7 +2006,9 @@ describe('DynamoDBMigrationBase', () => {
 
       jest
         .spyOn(global, 'setTimeout')
-        .mockImplementation((fn) => fn() as unknown as NodeJS.Timeout);
+        .mockImplementation(
+          (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout
+        );
 
       fsReadFileSyncMock.mockReturnValue('content');
 
@@ -2989,7 +2999,9 @@ describe('DynamoDBMigrationBase', () => {
 
       const timeoutMock = jest
         .spyOn(global, 'setTimeout')
-        .mockImplementation((fn) => fn() as unknown as NodeJS.Timeout);
+        .mockImplementation(
+          (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout
+        );
 
       const migration = new MyMigration();
       await migration.up();
@@ -3026,7 +3038,9 @@ describe('DynamoDBMigrationBase', () => {
 
       const timeoutMock = jest
         .spyOn(global, 'setTimeout')
-        .mockImplementation((fn) => fn() as unknown as NodeJS.Timeout);
+        .mockImplementation(
+          (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout
+        );
 
       const migration = new MyMigration();
       await migration.up();
@@ -3061,7 +3075,9 @@ describe('DynamoDBMigrationBase', () => {
 
       const timeoutMock = jest
         .spyOn(global, 'setTimeout')
-        .mockImplementation((fn) => fn() as unknown as NodeJS.Timeout);
+        .mockImplementation(
+          (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout
+        );
 
       const migration = new MyMigration();
       await expect(migration.up()).rejects.toThrowError(
