@@ -1,3 +1,13 @@
+# [17.0.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v16.3.1...nx-python-v17.0.0) (2023-12-21)
+
+### Features
+
+- migrate to Nx 17 ([#189](https://github.com/lucasvieirasilva/nx-plugins/issues/189)) ([d38ea54](https://github.com/lucasvieirasilva/nx-plugins/commit/d38ea544aa284df6b0978d6cc76668dee30bac38)), closes [#188](https://github.com/lucasvieirasilva/nx-plugins/issues/188)
+
+### BREAKING CHANGES
+
+- The entire workspace needs to be migrated to Nx 17.
+
 ## [16.3.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v16.3.0...nx-python-v16.3.1) (2023-11-10)
 
 ### Bug Fixes
