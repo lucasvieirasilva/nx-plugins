@@ -8,16 +8,14 @@
       "executor": "@nx/jest:jest",
       "options": {
         "jestConfig": "e2e/data-migration-e2e/jest.config.ts",
-        "runInBand": true
+        "runInBand": true,
+        "passWithNoTests": false
       },
       "dependsOn": ["data-migration:build"]
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["e2e/data-migration-e2e/**/*.ts"]
-      }
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
     }
   },
   "tags": [],

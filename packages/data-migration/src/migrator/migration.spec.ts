@@ -41,7 +41,9 @@ describe('Migration', () => {
     const migration = new TestMigration() as MigrationBase;
     const timeoutMock = jest
       .spyOn(global, 'setTimeout')
-      .mockImplementation((fn) => fn() as unknown as NodeJS.Timeout);
+      .mockImplementation(
+        (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout
+      );
 
     await migration.sleep(1);
 

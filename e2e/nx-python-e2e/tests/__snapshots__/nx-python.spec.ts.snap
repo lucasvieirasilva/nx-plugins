@@ -16,15 +16,15 @@ readme = "README.md"
   python = ">=3.9,<3.11"
 
     [tool.poetry.dependencies.app1]
-    path = "apps/app1"
+    path = "app1"
     develop = true
 
     [tool.poetry.dependencies.lib1]
-    path = "libs/lib1"
+    path = "lib1"
     develop = true
 
     [tool.poetry.dependencies.lib2]
-    path = "libs/lib2"
+    path = "lib2"
     develop = true
 
 [tool.poetry.group.dev.dependencies]
@@ -57,15 +57,15 @@ readme = "README.md"
   python = ">=3.9,<3.11"
 
     [tool.poetry.dependencies.app1]
-    path = "apps/app1"
+    path = "app1"
     develop = true
 
     [tool.poetry.dependencies.lib1]
-    path = "libs/lib1"
+    path = "lib1"
     develop = true
 
     [tool.poetry.dependencies.lib2]
-    path = "libs/lib2"
+    path = "lib2"
     develop = true
 
 [tool.poetry.group.dev.dependencies]

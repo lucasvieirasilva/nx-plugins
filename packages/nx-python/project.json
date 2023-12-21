@@ -42,24 +42,14 @@
       }
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": [
-          "packages/nx-python/**/*.ts",
-          "packages/nx-python/generators.json",
-          "packages/nx-python/executors.json",
-          "packages/nx-python/package.json",
-          "packages/nx-python/migrations.json"
-        ]
-      }
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
     },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "packages/nx-python/jest.config.ts",
-        "passWithNoTests": true
+        "jestConfig": "packages/nx-python/jest.config.ts"
       }
     },
     "release": {
