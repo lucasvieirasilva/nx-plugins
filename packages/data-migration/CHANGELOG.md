@@ -1,3 +1,13 @@
+# [3.0.0](https://github.com/lucasvieirasilva/nx-plugins/compare/data-migration-v2.1.0...data-migration-v3.0.0) (2023-12-21)
+
+### Features
+
+- migrate to Nx 17 ([#189](https://github.com/lucasvieirasilva/nx-plugins/issues/189)) ([d38ea54](https://github.com/lucasvieirasilva/nx-plugins/commit/d38ea544aa284df6b0978d6cc76668dee30bac38)), closes [#188](https://github.com/lucasvieirasilva/nx-plugins/issues/188)
+
+### BREAKING CHANGES
+
+- The entire workspace needs to be migrated to Nx 17.
+
 # [2.1.0](https://github.com/lucasvieirasilva/nx-plugins/compare/data-migration-v2.0.2...data-migration-v2.1.0) (2023-11-03)
 
 ### Features
