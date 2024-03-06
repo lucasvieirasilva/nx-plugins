@@ -24,7 +24,7 @@
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/exec": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
-    "@semantic-release/github": "^9.2.6",
+    "@semantic-release/github": "^8.0.7",
     "@swc-node/register": "1.9.0",
     "@swc/cli": "0.3.10",
     "@swc/core": "1.4.5",
