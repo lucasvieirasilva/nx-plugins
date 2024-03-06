@@ -24,7 +24,9 @@ jobs:
       - run: npm ci
 
       - run: npx nx format:check
-      - run: npx nx affected -t lint test build
+      - run: npx nx affected:lint
+      - run: npx nx affected:test
+      - run: npx nx affected:build
       - run: |
           echo "NO_COVERAGE_RUN=$(if [ -z "$(npx nx print-affected --select=projects)" ]; then echo "true"; else echo "false";fi)" >> $GITHUB_ENV
       - name: Merge coverage

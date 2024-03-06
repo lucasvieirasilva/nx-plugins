@@ -25,6 +25,16 @@ export default defineConfig({
 
     reporters: ['default'],
     coverage: {
+      enabled: true,
+      reporter: [
+        'text',
+        'html',
+        'cobertura',
+        'clover',
+        'json',
+        'json-summary',
+        'lcov',
+      ],
       reportsDirectory: '../../coverage/packages/data-migration',
       provider: 'v8',
     },
