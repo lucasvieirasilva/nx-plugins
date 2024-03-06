@@ -1,3 +1,13 @@
+# [18.0.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v17.0.0...nx-python-v18.0.0) (2024-03-06)
+
+### Features
+
+- add support for nx 18.x ([#192](https://github.com/lucasvieirasilva/nx-plugins/issues/192)) ([03b9aa0](https://github.com/lucasvieirasilva/nx-plugins/commit/03b9aa066ec8b3c755de18db6d2a11c569b921c4)), closes [#191](https://github.com/lucasvieirasilva/nx-plugins/issues/191)
+
+### BREAKING CHANGES
+
+- To use this version the nx workspace needs to be migrated to version 18.x
+
 # [17.0.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v16.3.1...nx-python-v17.0.0) (2023-12-21)
 
 ### Features
