@@ -5,7 +5,7 @@ export type TargetKey<T, HashKey extends keyof T, Rangekey extends keyof T> = {
 export type GetTargetKeys<
   T,
   HashKey extends keyof T,
-  Rangekey extends keyof T
+  Rangekey extends keyof T,
 > = (
-  keys: Pick<T, HashKey | Rangekey>
+  keys: Pick<T, HashKey | Rangekey>,
 ) => Promise<TargetKey<T, HashKey, Rangekey>>;

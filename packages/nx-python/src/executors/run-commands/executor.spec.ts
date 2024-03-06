@@ -1,5 +1,7 @@
-jest.mock('nx/src/executors/run-commands/run-commands.impl');
-jest.mock('../utils/poetry');
+import { vi } from 'vitest';
+
+vi.mock('nx/src/executors/run-commands/run-commands.impl');
+vi.mock('../utils/poetry');
 
 import executor from './executor';
 
@@ -29,10 +31,10 @@ describe('run commands executor', () => {
     await executor(options, context);
 
     expect((await import('../utils/poetry')).activateVenv).toHaveBeenCalledWith(
-      context.root
+      context.root,
     );
     expect(
-      (await import('nx/src/executors/run-commands/run-commands.impl')).default
+      (await import('nx/src/executors/run-commands/run-commands.impl')).default,
     ).toHaveBeenCalledWith(options, context);
   });
 });

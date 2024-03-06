@@ -41,7 +41,7 @@ export default class extends DynamoDBMigrationBase {
               },
             })),
           },
-        })
+        }),
       );
     }
   }
@@ -61,7 +61,7 @@ export default class extends DynamoDBMigrationBase {
               },
             })),
           },
-        })
+        }),
       );
     }
   }

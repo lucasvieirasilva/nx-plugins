@@ -6,7 +6,7 @@ import { activateVenv } from '../utils/poetry';
 
 export default async function executor(
   options: RunCommandsOptions,
-  context: ExecutorContext
+  context: ExecutorContext,
 ) {
   activateVenv(context.root);
   return baseExecutor(options, context);

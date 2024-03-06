@@ -15,7 +15,7 @@ const logger = new Logger();
 
 export default async function executor(
   options: ToxExecutorSchema,
-  context: ExecutorContext
+  context: ExecutorContext,
 ) {
   const workspaceRoot = context.root;
   process.chdir(workspaceRoot);
@@ -36,7 +36,7 @@ export default async function executor(
         lockedVersions: true,
         bundleLocalDependencies: true,
       },
-      context
+      context,
     );
 
     if (!buildResult.success) {
@@ -48,22 +48,22 @@ export default async function executor(
     }
 
     const packageFile = readdirSync(distFolder).find((file) =>
-      file.endsWith('.tar.gz')
+      file.endsWith('.tar.gz'),
     );
 
     if (!packageFile) {
       throw new Error(
-        chalk`No package file {blue.bold *.tar.gz} found in the {bold ${distFolder}}`
+        chalk`No package file {blue.bold *.tar.gz} found in the {bold ${distFolder}}`,
       );
     }
 
     const packagePath = path.relative(
       projectConfig.root,
-      path.join(distFolder, packageFile)
+      path.join(distFolder, packageFile),
     );
 
     const toxArgs = ['run', 'tox', '--installpkg', packagePath].concat(
-      options.args ? options.args.split(' ') : []
+      options.args ? options.args.split(' ') : [],
     );
     runPoetry(toxArgs, { cwd: projectConfig.root });
 

@@ -5,7 +5,7 @@ import path from 'path';
 
 export default async function runExecutor(
   options: RollbackExecutorSchema,
-  context: ExecutorContext
+  context: ExecutorContext,
 ) {
   process.env.ENV = options.env;
   if (options.migrationTableName) {
@@ -15,7 +15,7 @@ export default async function runExecutor(
   const migrationsPath = path.join(
     context.cwd,
     options.cwd,
-    options.migrationsDir
+    options.migrationsDir,
   );
 
   const logger = new CLILogger(options.logLevel);
@@ -26,7 +26,7 @@ export default async function runExecutor(
       context.cwd,
       migrationsPath,
       logger,
-      options.lifecycleHook
+      options.lifecycleHook,
     );
 
     const [fromNamespace, fromVersion] = options.from.split(':');
@@ -39,7 +39,7 @@ export default async function runExecutor(
       parseInt(fromVersion),
       toNamespace,
       toVersion ? parseInt(toVersion) : undefined,
-      options.yes
+      options.yes,
     );
     return {
       success: true,

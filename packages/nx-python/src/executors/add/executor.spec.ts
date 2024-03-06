@@ -1,32 +1,42 @@
-import { spawnSyncMock } from '../../utils/mocks/cross-spawn.mock';
+import { vi, MockInstance } from 'vitest';
+import '../../utils/mocks/cross-spawn.mock';
 import * as poetryUtils from '../utils/poetry';
 import executor from './executor';
 import fsMock from 'mock-fs';
 import chalk from 'chalk';
 import { parseToml } from '../utils/poetry';
 import dedent from 'string-dedent';
+import spawn from 'cross-spawn';
 
 describe('Add Executor', () => {
-  let checkPoetryExecutableMock: jest.SpyInstance;
-  let activateVenvMock: jest.SpyInstance;
+  let checkPoetryExecutableMock: MockInstance;
+  let activateVenvMock: MockInstance;
 
   beforeAll(() => {
     console.log(chalk`init chalk`);
   });
 
   beforeEach(() => {
-    checkPoetryExecutableMock = jest
+    checkPoetryExecutableMock = vi
       .spyOn(poetryUtils, 'checkPoetryExecutable')
       .mockResolvedValue(undefined);
-    activateVenvMock = jest
+    activateVenvMock = vi
       .spyOn(poetryUtils, 'activateVenv')
       .mockReturnValue(undefined);
-    spawnSyncMock.mockReturnValue({ status: 0 });
+    vi.mocked(spawn.sync).mockReturnValue({
+      status: 0,
+      output: [''],
+      pid: 0,
+      signal: null,
+      stderr: null,
+      stdout: null,
+    });
+    vi.spyOn(process, 'chdir').mockReturnValue(undefined);
   });
 
   afterEach(() => {
     fsMock.restore();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it('should return success false when the poetry is not installed', async () => {
@@ -57,7 +67,7 @@ describe('Add Executor', () => {
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).not.toHaveBeenCalled();
+    expect(spawn.sync).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
 
@@ -104,7 +114,7 @@ describe('Add Executor', () => {
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['add', 'numpy'], {
+    expect(spawn.sync).toHaveBeenCalledWith('poetry', ['add', 'numpy'], {
       cwd: 'apps/app',
       shell: false,
       stdio: 'inherit',
@@ -156,14 +166,14 @@ describe('Add Executor', () => {
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).toHaveBeenCalledWith(
+    expect(spawn.sync).toHaveBeenCalledWith(
       'poetry',
       ['add', 'numpy', '--group', 'dev'],
       {
         cwd: 'apps/app',
         shell: false,
         stdio: 'inherit',
-      }
+      },
     );
     expect(output.success).toBe(true);
   });
@@ -212,14 +222,14 @@ describe('Add Executor', () => {
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).toHaveBeenCalledWith(
+    expect(spawn.sync).toHaveBeenCalledWith(
       'poetry',
       ['add', 'numpy', '--extras=dev'],
       {
         cwd: 'apps/app',
         shell: false,
         stdio: 'inherit',
-      }
+      },
     );
     expect(output.success).toBe(true);
   });
@@ -263,7 +273,7 @@ version = "1.0.0"
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).not.toHaveBeenCalled();
+    expect(spawn.sync).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
 
@@ -281,7 +291,7 @@ version = "1.0.0"
 `,
     });
 
-    spawnSyncMock.mockImplementation(() => {
+    vi.mocked(spawn.sync).mockImplementation(() => {
       throw new Error('fake error');
     });
 
@@ -310,7 +320,7 @@ version = "1.0.0"
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['add', 'numpy'], {
+    expect(spawn.sync).toHaveBeenCalledWith('poetry', ['add', 'numpy'], {
       cwd: 'apps/app',
       shell: false,
       stdio: 'inherit',
@@ -411,18 +421,13 @@ version = "1.0.0"
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).toHaveBeenCalledTimes(4);
-    expect(spawnSyncMock).toHaveBeenNthCalledWith(
-      1,
-      'poetry',
-      ['add', 'numpy'],
-      {
-        cwd: 'libs/shared1',
-        shell: false,
-        stdio: 'inherit',
-      }
-    );
-    expect(spawnSyncMock).toHaveBeenNthCalledWith(
+    expect(spawn.sync).toHaveBeenCalledTimes(4);
+    expect(spawn.sync).toHaveBeenNthCalledWith(1, 'poetry', ['add', 'numpy'], {
+      cwd: 'libs/shared1',
+      shell: false,
+      stdio: 'inherit',
+    });
+    expect(spawn.sync).toHaveBeenNthCalledWith(
       2,
       'poetry',
       ['update', 'shared1'],
@@ -430,9 +435,9 @@ version = "1.0.0"
         cwd: 'libs/lib1',
         shell: false,
         stdio: 'inherit',
-      }
+      },
     );
-    expect(spawnSyncMock).toHaveBeenNthCalledWith(
+    expect(spawn.sync).toHaveBeenNthCalledWith(
       3,
       'poetry',
       ['update', 'lib1'],
@@ -440,9 +445,9 @@ version = "1.0.0"
         cwd: 'apps/app',
         shell: false,
         stdio: 'inherit',
-      }
+      },
     );
-    expect(spawnSyncMock).toHaveBeenNthCalledWith(
+    expect(spawn.sync).toHaveBeenNthCalledWith(
       4,
       'poetry',
       ['update', 'lib1'],
@@ -450,7 +455,7 @@ version = "1.0.0"
         cwd: 'apps/app1',
         shell: false,
         stdio: 'inherit',
-      }
+      },
     );
     expect(output.success).toBe(true);
   });
@@ -548,18 +553,13 @@ version = "1.0.0"
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).toHaveBeenCalledTimes(4);
-    expect(spawnSyncMock).toHaveBeenNthCalledWith(
-      1,
-      'poetry',
-      ['add', 'numpy'],
-      {
-        cwd: 'libs/shared1',
-        shell: false,
-        stdio: 'inherit',
-      }
-    );
-    expect(spawnSyncMock).toHaveBeenNthCalledWith(
+    expect(spawn.sync).toHaveBeenCalledTimes(4);
+    expect(spawn.sync).toHaveBeenNthCalledWith(1, 'poetry', ['add', 'numpy'], {
+      cwd: 'libs/shared1',
+      shell: false,
+      stdio: 'inherit',
+    });
+    expect(spawn.sync).toHaveBeenNthCalledWith(
       2,
       'poetry',
       ['update', 'shared1'],
@@ -567,9 +567,9 @@ version = "1.0.0"
         cwd: 'libs/lib1',
         shell: false,
         stdio: 'inherit',
-      }
+      },
     );
-    expect(spawnSyncMock).toHaveBeenNthCalledWith(
+    expect(spawn.sync).toHaveBeenNthCalledWith(
       3,
       'poetry',
       ['update', 'lib1'],
@@ -577,9 +577,9 @@ version = "1.0.0"
         cwd: 'apps/app',
         shell: false,
         stdio: 'inherit',
-      }
+      },
     );
-    expect(spawnSyncMock).toHaveBeenNthCalledWith(
+    expect(spawn.sync).toHaveBeenNthCalledWith(
       4,
       'poetry',
       ['update', 'lib1'],
@@ -587,7 +587,7 @@ version = "1.0.0"
         cwd: 'apps/app1',
         shell: false,
         stdio: 'inherit',
-      }
+      },
     );
     expect(output.success).toBe(true);
   });
@@ -643,8 +643,8 @@ version = "1.0.0"
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).toHaveBeenCalledTimes(1);
-    expect(spawnSyncMock).toHaveBeenNthCalledWith(
+    expect(spawn.sync).toHaveBeenCalledTimes(1);
+    expect(spawn.sync).toHaveBeenNthCalledWith(
       1,
       'poetry',
       ['update', 'lib1'],
@@ -652,7 +652,7 @@ version = "1.0.0"
         cwd: 'apps/app',
         shell: false,
         stdio: 'inherit',
-      }
+      },
     );
     expect(output.success).toBe(true);
   });
@@ -709,8 +709,8 @@ version = "1.0.0"
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).toHaveBeenCalledTimes(1);
-    expect(spawnSyncMock).toHaveBeenNthCalledWith(
+    expect(spawn.sync).toHaveBeenCalledTimes(1);
+    expect(spawn.sync).toHaveBeenNthCalledWith(
       1,
       'poetry',
       ['update', 'lib1'],
@@ -718,7 +718,7 @@ version = "1.0.0"
         cwd: 'apps/app',
         shell: false,
         stdio: 'inherit',
-      }
+      },
     );
     expect(output.success).toBe(true);
   });
@@ -779,8 +779,8 @@ version = "1.0.0"
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).toHaveBeenCalledTimes(1);
-    expect(spawnSyncMock).toHaveBeenNthCalledWith(
+    expect(spawn.sync).toHaveBeenCalledTimes(1);
+    expect(spawn.sync).toHaveBeenNthCalledWith(
       1,
       'poetry',
       ['update', 'lib1'],
@@ -788,12 +788,12 @@ version = "1.0.0"
         cwd: 'apps/app',
         shell: false,
         stdio: 'inherit',
-      }
+      },
     );
     expect(output.success).toBe(true);
   });
 
-  it('run add target with local dependency with extras', async () => {
+  it('run add target with local dependency with extras group dev', async () => {
     fsMock({
       'apps/app/pyproject.toml': dedent`
       [tool.poetry]
@@ -850,8 +850,8 @@ version = "1.0.0"
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).toHaveBeenCalledTimes(1);
-    expect(spawnSyncMock).toHaveBeenNthCalledWith(
+    expect(spawn.sync).toHaveBeenCalledTimes(1);
+    expect(spawn.sync).toHaveBeenNthCalledWith(
       1,
       'poetry',
       ['update', 'lib1'],
@@ -859,7 +859,7 @@ version = "1.0.0"
         cwd: 'apps/app',
         shell: false,
         stdio: 'inherit',
-      }
+      },
     );
     expect(output.success).toBe(true);
   });
@@ -916,8 +916,8 @@ version = "1.0.0"
     expect(output.success).toBe(true);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).toHaveBeenCalledTimes(1);
-    expect(spawnSyncMock).toHaveBeenNthCalledWith(
+    expect(spawn.sync).toHaveBeenCalledTimes(1);
+    expect(spawn.sync).toHaveBeenNthCalledWith(
       1,
       'poetry',
       ['update', 'dgx-devops-lib1'],
@@ -925,7 +925,7 @@ version = "1.0.0"
         cwd: 'apps/app',
         shell: false,
         stdio: 'inherit',
-      }
+      },
     );
 
     const {
@@ -980,14 +980,14 @@ version = "1.0.0"
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).toHaveBeenCalledWith(
+    expect(spawn.sync).toHaveBeenCalledWith(
       'poetry',
       ['add', 'numpy', '--group', 'dev'],
       {
         cwd: 'apps/app',
         shell: false,
         stdio: 'inherit',
-      }
+      },
     );
     expect(output.success).toBe(true);
   });
@@ -1041,7 +1041,7 @@ version = "1.0.0"
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).toHaveBeenNthCalledWith(
+    expect(spawn.sync).toHaveBeenNthCalledWith(
       1,
       'poetry',
       ['add', 'numpy', '--lock'],
@@ -1049,18 +1049,18 @@ version = "1.0.0"
         cwd: 'apps/app',
         shell: false,
         stdio: 'inherit',
-      }
+      },
     );
-    expect(spawnSyncMock).toHaveBeenNthCalledWith(
+    expect(spawn.sync).toHaveBeenNthCalledWith(
       2,
       'poetry',
       ['lock', '--no-update'],
       {
         shell: false,
         stdio: 'inherit',
-      }
+      },
     );
-    expect(spawnSyncMock).toHaveBeenNthCalledWith(3, 'poetry', ['install'], {
+    expect(spawn.sync).toHaveBeenNthCalledWith(3, 'poetry', ['install'], {
       shell: false,
       stdio: 'inherit',
     });

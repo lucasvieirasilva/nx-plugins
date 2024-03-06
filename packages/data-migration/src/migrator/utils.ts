@@ -4,7 +4,7 @@ import { SSMClient, GetParameterCommand } from '@aws-sdk/client-ssm';
 const ssm = new SSMClient({});
 
 export const resolveConfigParam = async (
-  param: RemoteConfigParam
+  param: RemoteConfigParam,
 ): Promise<string> => {
   const type = param.type || 'plain';
 
@@ -19,7 +19,7 @@ export const resolveConfigParam = async (
         new GetParameterCommand({
           Name: param.value,
           WithDecryption: param.decrypt || false,
-        })
+        }),
       );
 
       return Value;

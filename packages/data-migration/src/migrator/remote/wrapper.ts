@@ -20,7 +20,7 @@ const wrapper = async () => {
         startDate: new Date(),
         migrationPath: migration.path,
       },
-      { overwrite: true }
+      { overwrite: true },
     );
 
     await migration.up();
@@ -33,10 +33,10 @@ const wrapper = async () => {
       {
         status: MigrationStatus.SUCCESS,
         endDate: new Date(),
-      }
+      },
     );
     logger.info(
-      `Migration ${migration.namespace}:${migration.name}:${migration.version} successfully completed`
+      `Migration ${migration.namespace}:${migration.name}:${migration.version} successfully completed`,
     );
   } catch (err) {
     logger.debug(JSON.stringify(err));
@@ -49,7 +49,7 @@ const wrapper = async () => {
         status: MigrationStatus.ERROR,
         endDate: new Date(),
         errorMessage: err.message,
-      }
+      },
     );
 
     logger.info('Rolling back migration');
@@ -72,7 +72,7 @@ const rollbackWrapper = async () => {
       {
         status: MigrationStatus.ROLLBACK_RUNNING,
         rollbackStartDate: new Date(),
-      }
+      },
     );
 
     await migration.down();
@@ -85,7 +85,7 @@ const rollbackWrapper = async () => {
       {
         status: MigrationStatus.ROLLBACK_SUCCESS,
         rollbackEndDate: new Date(),
-      }
+      },
     );
   } catch (err) {
     logger.debug(JSON.stringify(err));
@@ -98,10 +98,10 @@ const rollbackWrapper = async () => {
         status: MigrationStatus.ROLLBACK_ERROR,
         rollbackEndDate: new Date(),
         errorMessage: err.message,
-      }
+      },
     );
     throw new ManagedMigrationError(
-      `Failed to rollback migration ${migration.namespace}:${migration.name}:${migration.version}: ${err.message}`
+      `Failed to rollback migration ${migration.namespace}:${migration.name}:${migration.version}: ${err.message}`,
     );
   }
 };

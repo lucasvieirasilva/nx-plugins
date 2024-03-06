@@ -17,7 +17,7 @@ export default class extends DynamoDBMigrationBase {
     await this.removeStream(
       'example-users',
       'migrate-v1-to-v2',
-      this.parentVersion as number
+      this.parentVersion as number,
     );
   }
 

@@ -18,7 +18,7 @@ export class MigratorRunner {
     private readonly cwd: string,
     private readonly migrationsPath: string,
     private readonly logger: CLILogger,
-    private readonly lifecycleHook: LifecycleHook
+    private readonly lifecycleHook: LifecycleHook,
   ) {}
 
   private async loadMigrations() {
@@ -28,11 +28,11 @@ export class MigratorRunner {
         cwd: this.cwd,
         absolute: true,
         ignore: ['**/*.stream.ts', '**/*.model.ts', '**/*.schema.ts'],
-      }
+      },
     );
 
     const pkg = JSON.parse(
-      fs.readFileSync(path.join(this.cwd, 'package.json')).toString('utf-8')
+      fs.readFileSync(path.join(this.cwd, 'package.json')).toString('utf-8'),
     );
     const external = [
       '@nxlv/data-migration',
@@ -44,11 +44,11 @@ export class MigratorRunner {
       const migrationFileRelative = path.relative(this.cwd, migrationFile);
       const distFile = path.join(
         'dist',
-        migrationFileRelative.replace('.ts', '.js')
+        migrationFileRelative.replace('.ts', '.js'),
       );
 
       this.logger.debug(
-        `Compiling ${migrationFileRelative} migration using esbuild`
+        `Compiling ${migrationFileRelative} migration using esbuild`,
       );
       const buildStart = Date.now();
       await esbuild.build({
@@ -65,13 +65,13 @@ export class MigratorRunner {
       this.logger.debug(
         `Migration ${migrationFileRelative} compiled in ${
           Date.now() - buildStart
-        }ms`
+        }ms`,
       );
 
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const migrationType = require(require.resolve(
-        path.join(this.cwd, distFile)
-      ));
+      const migrationType = require(
+        require.resolve(path.join(this.cwd, distFile)),
+      );
       const migration = new migrationType.default() as MigrationBase;
       migration.logger = this.logger;
       migration.path = migrationFileRelative;
@@ -83,21 +83,21 @@ export class MigratorRunner {
         this.migrations.some(
           (m) =>
             m.namespace === migration.namespace &&
-            m.version === migration.version
+            m.version === migration.version,
         )
       ) {
         throw new ManagedMigrationError(
           `Duplicate migration found: ${chalk.bold(
-            `${migration.namespace}:${migration.name}:${migration.version}`
-          )}`
+            `${migration.namespace}:${migration.name}:${migration.version}`,
+          )}`,
         );
       }
 
       if ((await migration.condition()) === false) {
         this.logger.info(
           `Skipping migration ${chalk.bold(
-            `${migration.namespace}:${migration.name}:${migration.version}`
-          )} as condition is not met`
+            `${migration.namespace}:${migration.name}:${migration.version}`,
+          )} as condition is not met`,
         );
         continue;
       }
@@ -112,29 +112,29 @@ export class MigratorRunner {
 
   private checkMigrationRequiredProperties(
     migration: MigrationBase,
-    migrationFile: string
+    migrationFile: string,
   ) {
     if (_.isNil(migration.namespace) || _.isEmpty(migration.namespace)) {
       throw new ManagedMigrationError(
         `missing or empty namespace for migration: ${chalk.bold(
-          path.relative(this.cwd, migrationFile)
-        )}`
+          path.relative(this.cwd, migrationFile),
+        )}`,
       );
     }
 
     if (_.isNil(migration.version) || migration.version <= 0) {
       throw new ManagedMigrationError(
         `version must be more than 0 for migration: ${chalk.bold(
-          path.relative(this.cwd, migrationFile)
-        )}`
+          path.relative(this.cwd, migrationFile),
+        )}`,
       );
     }
 
     if (_.isNil(migration.name) || _.isEmpty(migration.name)) {
       throw new ManagedMigrationError(
         `missing or empty name for migration: ${chalk.bold(
-          path.relative(this.cwd, migrationFile)
-        )}`
+          path.relative(this.cwd, migrationFile),
+        )}`,
       );
     }
   }
@@ -148,7 +148,7 @@ export class MigratorRunner {
       this.migrations.map(({ namespace, version }) => ({
         namespace,
         version,
-      }))
+      })),
     );
 
     const pendingMigrations = this.migrations.filter(
@@ -157,32 +157,32 @@ export class MigratorRunner {
           (state) =>
             state.namespace === migration.namespace &&
             state.version === migration.version &&
-            state.status === MigrationStatus.SUCCESS
-        )
+            state.status === MigrationStatus.SUCCESS,
+        ),
     );
 
     const baselinesGroupByNamespace = _.groupBy(
       _.orderBy(pendingMigrations, ['version'], ['desc']).filter(
-        (m) => m.baseline === true
+        (m) => m.baseline === true,
       ),
-      (m) => m.namespace
+      (m) => m.namespace,
     );
 
     for (const [namespace, migrations] of Object.entries(
-      baselinesGroupByNamespace
+      baselinesGroupByNamespace,
     )) {
       const lastBaseline = migrations[0];
 
       if (result.filter((m) => m.namespace === namespace).length === 0) {
         const dropVersions = pendingMigrations.filter(
-          (m) => m.namespace === namespace && m.version < lastBaseline.version
+          (m) => m.namespace === namespace && m.version < lastBaseline.version,
         );
 
         for (const dropVersion of dropVersions) {
           this.logger.info(
             `Dropping migration ${chalk.bold(
-              `${dropVersion.namespace}:${dropVersion.name}:${dropVersion.version}`
-            )} as it is not part of the baseline`
+              `${dropVersion.namespace}:${dropVersion.name}:${dropVersion.version}`,
+            )} as it is not part of the baseline`,
           );
           pendingMigrations.splice(pendingMigrations.indexOf(dropVersion), 1);
         }
@@ -191,8 +191,8 @@ export class MigratorRunner {
         for (const migration of migrations) {
           this.logger.debug(
             `Dropping migration ${chalk.bold(
-              `${migration.namespace}:${migration.name}:${migration.version}`
-            )} as this environment already has migrations from this namespace`
+              `${migration.namespace}:${migration.name}:${migration.version}`,
+            )} as this environment already has migrations from this namespace`,
           );
           pendingMigrations.splice(pendingMigrations.indexOf(migration), 1);
         }
@@ -204,7 +204,7 @@ export class MigratorRunner {
 
   async init() {
     this.logger.info(
-      `Resolving migrations from ${chalk.bold(this.migrationsPath)}`
+      `Resolving migrations from ${chalk.bold(this.migrationsPath)}`,
     );
     await this.loadMigrations();
     this.logger.info(`Found ${chalk.bold(this.migrations.length)} migrations`);
@@ -215,14 +215,14 @@ export class MigratorRunner {
     fromVersion: number,
     toNamespace?: string,
     toVersion?: number,
-    confirm = false
+    confirm = false,
   ) {
     await this.init();
     this.checkRollbackOptions(
       fromNamespace,
       fromVersion,
       toNamespace,
-      toVersion
+      toVersion,
     );
 
     const migrations = this.migrations.filter(
@@ -230,19 +230,19 @@ export class MigratorRunner {
         m.lifecycleHook === this.lifecycleHook &&
         m.namespace === fromNamespace &&
         m.version >= fromVersion &&
-        m.version <= (toVersion ?? m.version)
+        m.version <= (toVersion ?? m.version),
     );
 
     const stateMigrations = await MigrationStateModel.batchGet(
-      migrations.map(({ namespace, version }) => ({ namespace, version }))
+      migrations.map(({ namespace, version }) => ({ namespace, version })),
     );
 
     const notImplementedMigrations = migrations.filter((m) =>
       _.isNil(
         stateMigrations.find(
-          (s) => s.namespace === m.namespace && s.version === m.version
-        )
-      )
+          (s) => s.namespace === m.namespace && s.version === m.version,
+        ),
+      ),
     );
     const alreadyRolledBackMigrations = migrations.filter(
       (m) =>
@@ -251,22 +251,22 @@ export class MigratorRunner {
             (s) =>
               s.namespace === m.namespace &&
               s.version === m.version &&
-              s.status === MigrationStatus.ROLLBACK_SUCCESS
-          )
-        )
+              s.status === MigrationStatus.ROLLBACK_SUCCESS,
+          ),
+        ),
     );
 
     const pendingMigrations = migrations.filter(
       (m) =>
         !notImplementedMigrations.includes(m) &&
-        !alreadyRolledBackMigrations.includes(m)
+        !alreadyRolledBackMigrations.includes(m),
     );
 
     if (notImplementedMigrations.length > 0) {
       this.logger.warn(
         `Cannot rollback the following migrations because they are not applied: \n\n   - ${notImplementedMigrations
           .map((m) => chalk.bold(`${m.namespace}:${m.name}:${m.version}`))
-          .join('\n   - ')}\n`
+          .join('\n   - ')}\n`,
       );
     }
 
@@ -274,7 +274,7 @@ export class MigratorRunner {
       this.logger.warn(
         `Cannot rollback the following migrations because they are already rolled back: \n\n   - ${alreadyRolledBackMigrations
           .map((m) => chalk.bold(`${m.namespace}:${m.name}:${m.version}`))
-          .join('\n   - ')}\n`
+          .join('\n   - ')}\n`,
       );
     }
 
@@ -286,7 +286,7 @@ export class MigratorRunner {
     this.logger.info(
       `Rollback migrations: \n\n   - ${pendingMigrations
         .map((m) => chalk.bold(`${m.namespace}:${m.name}:${m.version}`))
-        .join('\n   - ')}\n`
+        .join('\n   - ')}\n`,
     );
 
     if (!confirm) {
@@ -307,8 +307,8 @@ export class MigratorRunner {
       try {
         this.logger.info(
           `Rollback migration ${chalk.bold(
-            `${migration.namespace}:${migration.name}:${migration.version}`
-          )}`
+            `${migration.namespace}:${migration.name}:${migration.version}`,
+          )}`,
         );
 
         await MigrationStateModel.update(
@@ -319,7 +319,7 @@ export class MigratorRunner {
           {
             status: MigrationStatus.ROLLBACK_RUNNING,
             rollbackStartDate: new Date(),
-          }
+          },
         );
 
         await migration.down();
@@ -332,7 +332,7 @@ export class MigratorRunner {
           {
             status: MigrationStatus.ROLLBACK_SUCCESS,
             rollbackEndDate: new Date(),
-          }
+          },
         );
       } catch (err) {
         this.logger.debug(JSON.stringify(err));
@@ -345,12 +345,12 @@ export class MigratorRunner {
             status: MigrationStatus.ROLLBACK_ERROR,
             rollbackEndDate: new Date(),
             errorMessage: err.message,
-          }
+          },
         );
         throw new ManagedMigrationError(
           `Failed to rollback migration ${chalk.bold(
-            `${migration.namespace}:${migration.name}:${migration.version}`
-          )}: ${err.message}`
+            `${migration.namespace}:${migration.name}:${migration.version}`,
+          )}: ${err.message}`,
         );
       }
     }
@@ -360,19 +360,19 @@ export class MigratorRunner {
     fromNamespace: string,
     fromVersion: number,
     toNamespace: string,
-    toVersion: number
+    toVersion: number,
   ) {
     this.logger.info(
       `Rollback migrations for namespace ${chalk.bold(
-        fromNamespace
+        fromNamespace,
       )} from version ${chalk.bold(fromVersion)}` +
         (toNamespace ? ` to namespace ${chalk.bold(toNamespace)}` : '') +
-        (toVersion ? ` to version ${chalk.bold(toVersion)}` : '')
+        (toVersion ? ` to version ${chalk.bold(toVersion)}` : ''),
     );
 
     if (toNamespace && toNamespace !== fromNamespace) {
       throw new ManagedMigrationError(
-        `Rollback to different namespace is not supported`
+        `Rollback to different namespace is not supported`,
       );
     }
   }
@@ -387,13 +387,13 @@ export class MigratorRunner {
     }
 
     this.logger.info(
-      `Running ${chalk.bold(pendingMigrations.length)} pending migrations`
+      `Running ${chalk.bold(pendingMigrations.length)} pending migrations`,
     );
     for (const migration of pendingMigrations) {
       this.logger.info(
         `Running migration ${chalk.bold(
-          `${migration.namespace}:${migration.name}:${migration.version}`
-        )}`
+          `${migration.namespace}:${migration.name}:${migration.version}`,
+        )}`,
       );
 
       if (migration.remote) {
@@ -404,7 +404,7 @@ export class MigratorRunner {
           }
           default: {
             throw new ManagedMigrationError(
-              `Unsupported remote type ${migration.remote.type}`
+              `Unsupported remote type ${migration.remote.type}`,
             );
           }
         }
@@ -421,7 +421,7 @@ export class MigratorRunner {
             startDate: new Date(),
             migrationPath: migration.path,
           },
-          { overwrite: true }
+          { overwrite: true },
         );
 
         await migration.up();
@@ -434,12 +434,12 @@ export class MigratorRunner {
           {
             status: MigrationStatus.SUCCESS,
             endDate: new Date(),
-          }
+          },
         );
         this.logger.info(
           `Migration ${chalk.bold(
-            `${migration.namespace}:${migration.name}:${migration.version}`
-          )} successfully completed`
+            `${migration.namespace}:${migration.name}:${migration.version}`,
+          )} successfully completed`,
         );
       } catch (err) {
         this.logger.debug(JSON.stringify(err));
@@ -452,7 +452,7 @@ export class MigratorRunner {
             status: MigrationStatus.ERROR,
             endDate: new Date(),
             errorMessage: err.message,
-          }
+          },
         );
 
         this.logger.info('Rolling back migration');
@@ -460,7 +460,7 @@ export class MigratorRunner {
         this.logger.info('Rollback complete');
 
         throw new ManagedMigrationError(
-          `Error running migration: ${err.message}`
+          `Error running migration: ${err.message}`,
         );
       }
     }

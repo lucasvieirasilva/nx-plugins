@@ -33,7 +33,7 @@ const logger = new Logger();
 
 export default async function executor(
   options: BuildExecutorSchema,
-  context: ExecutorContext
+  context: ExecutorContext,
 ) {
   logger.setOptions(options);
   const workspaceRoot = context.root;
@@ -46,12 +46,12 @@ export default async function executor(
       options.bundleLocalDependencies === false
     ) {
       throw new Error(
-        'Not supported operations, you cannot use lockedVersions without bundleLocalDependencies'
+        'Not supported operations, you cannot use lockedVersions without bundleLocalDependencies',
       );
     }
 
     logger.info(
-      chalk`\n  {bold Building project {bgBlue  ${context.projectName} }...}\n`
+      chalk`\n  {bold Building project {bgBlue  ${context.projectName} }...}\n`,
     );
 
     const { root } = context.workspace.projects[context.projectName];
@@ -72,7 +72,7 @@ export default async function executor(
     const buildPyProjectToml = join(buildFolderPath, 'pyproject.toml');
 
     const buildTomlData = parse(
-      readFileSync(buildPyProjectToml).toString('utf-8')
+      readFileSync(buildPyProjectToml).toString('utf-8'),
     ) as PyprojectToml;
 
     const deps = resolveDependencies(
@@ -81,7 +81,7 @@ export default async function executor(
       buildFolderPath,
       buildTomlData,
       workspaceRoot,
-      context
+      context,
     );
 
     const pythonDependency = buildTomlData.tool.poetry.dependencies.python;
@@ -114,7 +114,7 @@ export default async function executor(
     removeSync(options.outputPath);
     mkdirSync(options.outputPath, { recursive: true });
     logger.info(
-      chalk`  Artifacts generated at {bold ${options.outputPath}} folder`
+      chalk`  Artifacts generated at {bold ${options.outputPath}} folder`,
     );
     copySync(distFolder, options.outputPath);
 
@@ -155,7 +155,7 @@ function resolveDependencies(
   buildFolderPath: string,
   buildTomlData: PyprojectToml,
   workspaceRoot: string,
-  context: ExecutorContext
+  context: ExecutorContext,
 ) {
   if (options.lockedVersions) {
     return new LockedDependencyResolver(logger).resolve(
@@ -163,13 +163,13 @@ function resolveDependencies(
       buildFolderPath,
       buildTomlData,
       options.devDependencies,
-      workspaceRoot
+      workspaceRoot,
     );
   } else {
     return new ProjectDependencyResolver(logger, options, context).resolve(
       root,
       buildFolderPath,
-      buildTomlData
+      buildTomlData,
     );
   }
 }

@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`nx-python migrate-shared-venv generator should migrate an isolate venv to shared venv 1`] = `
+exports[`nx-python migrate-shared-venv generator > should migrate an isolate venv to shared venv 1`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "proj1" ]
@@ -33,7 +33,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`nx-python migrate-shared-venv generator should migrate an isolate venv to shared venv 2`] = `
+exports[`nx-python migrate-shared-venv generator > should migrate an isolate venv to shared venv 2`] = `
 "[tool.poetry]
 name = "@nxlv/nx-plugins"
 version = "1.0.0"
@@ -71,12 +71,12 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`nx-python migrate-shared-venv generator should migrate an isolate venv to shared venv 3`] = `
+exports[`nx-python migrate-shared-venv generator > should migrate an isolate venv to shared venv 3`] = `
 "3.8.11
 "
 `;
 
-exports[`nx-python migrate-shared-venv generator should migrate an isolate venv to shared venv project without dev dependencies 1`] = `
+exports[`nx-python migrate-shared-venv generator > should migrate an isolate venv to shared venv project without dev dependencies 1`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "proj1" ]
@@ -108,7 +108,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`nx-python migrate-shared-venv generator should migrate an isolate venv to shared venv project without dev dependencies 2`] = `
+exports[`nx-python migrate-shared-venv generator > should migrate an isolate venv to shared venv project without dev dependencies 2`] = `
 "[tool.poetry]
 name = "@nxlv/nx-plugins"
 version = "1.0.0"
@@ -130,12 +130,12 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`nx-python migrate-shared-venv generator should migrate an isolate venv to shared venv project without dev dependencies 3`] = `
+exports[`nx-python migrate-shared-venv generator > should migrate an isolate venv to shared venv project without dev dependencies 3`] = `
 "3.8.11
 "
 `;
 
-exports[`nx-python migrate-shared-venv generator should migrate an isolate venv to shared venv with auto activate enabled 1`] = `
+exports[`nx-python migrate-shared-venv generator > should migrate an isolate venv to shared venv with auto activate enabled 1`] = `
 "[tool.nx]
 autoActivate = true
 

@@ -33,7 +33,7 @@ function updatePyprojectRoot(host: Tree, options: Schema): LockUpdateTask[] {
   const postGeneratorTasks = [];
 
   const rootPyprojectToml = parse(
-    host.read('pyproject.toml').toString()
+    host.read('pyproject.toml').toString(),
   ) as PyprojectToml;
 
   for (const project of getProjects(host)) {
@@ -41,7 +41,7 @@ function updatePyprojectRoot(host: Tree, options: Schema): LockUpdateTask[] {
     const pyprojectTomlPath = path.join(projectConfig.root, 'pyproject.toml');
     if (host.exists(pyprojectTomlPath)) {
       const pyprojectToml = parse(
-        host.read(pyprojectTomlPath).toString()
+        host.read(pyprojectTomlPath).toString(),
       ) as PyprojectToml;
 
       rootPyprojectToml.tool.poetry.dependencies[
@@ -57,8 +57,8 @@ function updatePyprojectRoot(host: Tree, options: Schema): LockUpdateTask[] {
             rootPyprojectToml,
             host,
             pyprojectTomlPath,
-            projectConfig
-          )
+            projectConfig,
+          ),
         );
       }
     }
@@ -74,7 +74,7 @@ function moveDevDependencies(
   rootPyprojectToml: PyprojectToml,
   host: Tree,
   pyprojectTomlPath: string,
-  projectConfig: ProjectConfiguration
+  projectConfig: ProjectConfiguration,
 ) {
   const devDependencies =
     pyprojectToml.tool.poetry.group?.dev?.dependencies || {};
@@ -95,7 +95,7 @@ function moveDevDependencies(
 
   return () => {
     console.log(
-      chalk`  Updating ${pyprojectToml.tool.poetry.name} {bgBlue poetry.lock}...`
+      chalk`  Updating ${pyprojectToml.tool.poetry.name} {bgBlue poetry.lock}...`,
     );
     const lockArgs = ['lock', '--no-update'];
     runPoetry(lockArgs, { cwd: projectConfig.root, log: false });

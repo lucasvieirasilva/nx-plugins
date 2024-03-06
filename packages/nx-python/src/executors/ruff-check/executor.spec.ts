@@ -1,23 +1,33 @@
+import { vi, MockInstance } from 'vitest';
 import chalk from 'chalk';
-import { spawnSyncMock } from '../../utils/mocks/cross-spawn.mock';
+import '../../utils/mocks/cross-spawn.mock';
 import * as poetryUtils from '../utils/poetry';
 import fsMock from 'mock-fs';
 import executor from './executor';
+import spawn from 'cross-spawn';
 
 describe('Ruff Check Executor', () => {
-  let checkPoetryExecutableMock: jest.SpyInstance;
-  let activateVenvMock: jest.SpyInstance;
+  let checkPoetryExecutableMock: MockInstance;
+  let activateVenvMock: MockInstance;
 
   beforeEach(() => {
-    checkPoetryExecutableMock = jest
+    checkPoetryExecutableMock = vi
       .spyOn(poetryUtils, 'checkPoetryExecutable')
       .mockResolvedValue(undefined);
 
-    activateVenvMock = jest
+    activateVenvMock = vi
       .spyOn(poetryUtils, 'activateVenv')
       .mockReturnValue(undefined);
 
-    spawnSyncMock.mockReturnValue({ status: 0 });
+    vi.mocked(spawn.sync).mockReturnValue({
+      status: 0,
+      output: [''],
+      pid: 0,
+      signal: null,
+      stderr: null,
+      stdout: null,
+    });
+    vi.spyOn(process, 'chdir').mockReturnValue(undefined);
   });
 
   beforeAll(() => {
@@ -26,7 +36,7 @@ describe('Ruff Check Executor', () => {
 
   afterEach(() => {
     fsMock.restore();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it('should return success false when the poetry is not installed', async () => {
@@ -56,12 +66,19 @@ describe('Ruff Check Executor', () => {
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).not.toHaveBeenCalled();
+    expect(spawn.sync).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
 
   it('should execute ruff check linting', async () => {
-    spawnSyncMock.mockReturnValueOnce({ status: 0 });
+    vi.mocked(spawn.sync).mockReturnValueOnce({
+      status: 0,
+      output: [''],
+      pid: 0,
+      signal: null,
+      stderr: null,
+      stdout: null,
+    });
 
     const output = await executor(
       {
@@ -82,12 +99,12 @@ describe('Ruff Check Executor', () => {
             },
           },
         },
-      }
+      },
     );
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).toHaveBeenCalledTimes(1);
-    expect(spawnSyncMock).toHaveBeenCalledWith('poetry run ruff check app', {
+    expect(spawn.sync).toHaveBeenCalledTimes(1);
+    expect(spawn.sync).toHaveBeenCalledWith('poetry run ruff check app', {
       cwd: 'apps/app',
       shell: true,
       stdio: 'inherit',
@@ -96,7 +113,14 @@ describe('Ruff Check Executor', () => {
   });
 
   it('should fail to execute ruff check linting ', async () => {
-    spawnSyncMock.mockReturnValueOnce({ status: 1 });
+    vi.mocked(spawn.sync).mockReturnValueOnce({
+      status: 1,
+      output: [''],
+      pid: 0,
+      signal: null,
+      stderr: null,
+      stdout: null,
+    });
 
     const output = await executor(
       {
@@ -117,12 +141,12 @@ describe('Ruff Check Executor', () => {
             },
           },
         },
-      }
+      },
     );
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).toHaveBeenCalledTimes(1);
-    expect(spawnSyncMock).toHaveBeenCalledWith('poetry run ruff check app', {
+    expect(spawn.sync).toHaveBeenCalledTimes(1);
+    expect(spawn.sync).toHaveBeenCalledWith('poetry run ruff check app', {
       cwd: 'apps/app',
       shell: true,
       stdio: 'inherit',

@@ -1,13 +1,14 @@
+import { vi } from 'vitest';
 import { Logger } from './logger';
 
 describe('Executor logger', () => {
   let consoleSpy = null;
   beforeEach(() => {
-    consoleSpy = jest.spyOn(console, 'info');
+    consoleSpy = vi.spyOn(console, 'info');
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it('should print the message in the console', () => {

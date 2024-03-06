@@ -14,10 +14,7 @@ describe('dynamodb-migration e2e', () => {
   // on a unique project in the workspace, such that they
   // are not dependant on one another.
   beforeAll(() => {
-    ensureNxProject(
-      '@nxlv/dynamodb-python',
-      'dist/packages/dynamodb-migration'
-    );
+    ensureNxProject('@nxlv/data-migration', 'dist/packages/dynamodb-migration');
   });
 
   afterAll(() => {
@@ -29,7 +26,7 @@ describe('dynamodb-migration e2e', () => {
   it('should create dynamodb-migration', async () => {
     const project = uniq('dynamodb-migration');
     await runNxCommandAsync(
-      `generate @nxlv/dynamodb-python:dynamodb-migration ${project}`
+      `generate @nxlv/data-migration:dynamodb-migration ${project}`,
     );
     const result = await runNxCommandAsync(`build ${project}`);
     expect(result.stdout).toContain('Executor ran');
@@ -39,10 +36,10 @@ describe('dynamodb-migration e2e', () => {
     it('should create src in the specified directory', async () => {
       const project = uniq('dynamodb-migration');
       await runNxCommandAsync(
-        `generate @nxlv/dynamodb-python:dynamodb-migration ${project} --directory subdir`
+        `generate @nxlv/data-migration:dynamodb-migration ${project} --directory subdir`,
       );
       expect(() =>
-        checkFilesExist(`libs/subdir/${project}/src/index.ts`)
+        checkFilesExist(`libs/subdir/${project}/src/index.ts`),
       ).not.toThrow();
     }, 120000);
   });
@@ -51,11 +48,11 @@ describe('dynamodb-migration e2e', () => {
     it('should add tags to the project', async () => {
       const projectName = uniq('dynamodb-migration');
       ensureNxProject(
-        '@nxlv/dynamodb-python',
-        'dist/packages/dynamodb-migration'
+        '@nxlv/data-migration',
+        'dist/packages/dynamodb-migration',
       );
       await runNxCommandAsync(
-        `generate @nxlv/dynamodb-python:dynamodb-migration ${projectName} --tags e2etag,e2ePackage`
+        `generate @nxlv/data-migration:dynamodb-migration ${projectName} --tags e2etag,e2ePackage`,
       );
       const project = readJson(`libs/${projectName}/project.json`);
       expect(project.tags).toEqual(['e2etag', 'e2ePackage']);

@@ -13,7 +13,7 @@ const logger = new Logger();
 
 export default async function executor(
   options: InstallExecutorSchema,
-  context: ExecutorContext
+  context: ExecutorContext,
 ) {
   logger.setOptions(options);
   const workspaceRoot = context.root;
@@ -30,7 +30,7 @@ export default async function executor(
     }
 
     const installArgs = ['install', verboseArg].concat(
-      options.args ? options.args.split(' ') : []
+      options.args ? options.args.split(' ') : [],
     );
 
     const execOpts: RunPoetryOptions = {

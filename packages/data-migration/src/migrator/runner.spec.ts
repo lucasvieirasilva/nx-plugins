@@ -1,12 +1,13 @@
-const promptsMock = jest.fn();
+import { vi } from 'vitest';
 
-jest.mock('prompts', () => ({
+const promptsMock = vi.hoisted(() => vi.fn());
+
+vi.mock('prompts', () => ({
   __esModule: true,
   default: promptsMock,
 }));
 
-// eslint-disable-next-line @nx/enforce-module-boundaries
-import { modelMock } from '@nxlv/testing/dynamoose-mock';
+import { modelMock } from '../__mocks__/dynamoose.mock';
 import { CLILogger } from './logger';
 import { MigratorRunner } from './runner';
 import path from 'path';
@@ -17,11 +18,9 @@ describe('MigratorRunner', () => {
   const logger = new CLILogger('info');
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
-    jest
-      .useFakeTimers()
-      .setSystemTime(new Date('2023-01-01 12:00:00').getTime());
+    vi.useFakeTimers().setSystemTime(new Date('2023-01-01 12:00:00').getTime());
   });
 
   it('should be defined', () => {
@@ -29,7 +28,7 @@ describe('MigratorRunner', () => {
       process.cwd(),
       path.join(__dirname, '__mocks__'),
       logger,
-      LifecycleHook.BEFORE_DEPLOY
+      LifecycleHook.BEFORE_DEPLOY,
     );
 
     expect(migratorRunner).toBeDefined();
@@ -41,7 +40,7 @@ describe('MigratorRunner', () => {
         process.cwd(),
         path.join(__dirname, '__mocks__', 'success'),
         logger,
-        LifecycleHook.BEFORE_DEPLOY
+        LifecycleHook.BEFORE_DEPLOY,
       );
 
       await migratorRunner.init();
@@ -54,7 +53,7 @@ describe('MigratorRunner', () => {
         process.cwd(),
         path.join(__dirname, '__mocks__', 'success'),
         logger,
-        LifecycleHook.AFTER_DEPLOY
+        LifecycleHook.AFTER_DEPLOY,
       );
 
       await migratorRunner.run();
@@ -67,7 +66,7 @@ describe('MigratorRunner', () => {
         process.cwd(),
         path.join(__dirname, '__mocks__', 'condition-false'),
         logger,
-        LifecycleHook.BEFORE_DEPLOY
+        LifecycleHook.BEFORE_DEPLOY,
       );
 
       await migratorRunner.run();
@@ -80,7 +79,7 @@ describe('MigratorRunner', () => {
         process.cwd(),
         path.join(__dirname, '__mocks__', 'condition-true'),
         logger,
-        LifecycleHook.BEFORE_DEPLOY
+        LifecycleHook.BEFORE_DEPLOY,
       );
 
       await migratorRunner.init();
@@ -93,11 +92,11 @@ describe('MigratorRunner', () => {
         process.cwd(),
         path.join(__dirname, '__mocks__', 'missing-namespace'),
         logger,
-        LifecycleHook.BEFORE_DEPLOY
+        LifecycleHook.BEFORE_DEPLOY,
       );
 
       expect(migratorRunner.init()).rejects.toThrowError(
-        'missing or empty namespace for migration'
+        'missing or empty namespace for migration',
       );
     });
 
@@ -106,11 +105,11 @@ describe('MigratorRunner', () => {
         process.cwd(),
         path.join(__dirname, '__mocks__', 'missing-version'),
         logger,
-        LifecycleHook.BEFORE_DEPLOY
+        LifecycleHook.BEFORE_DEPLOY,
       );
 
       expect(migratorRunner.init()).rejects.toThrowError(
-        'version must be more than 0 for migration'
+        'version must be more than 0 for migration',
       );
     });
 
@@ -119,11 +118,11 @@ describe('MigratorRunner', () => {
         process.cwd(),
         path.join(__dirname, '__mocks__', 'missing-name'),
         logger,
-        LifecycleHook.BEFORE_DEPLOY
+        LifecycleHook.BEFORE_DEPLOY,
       );
 
       expect(migratorRunner.init()).rejects.toThrowError(
-        'missing or empty name for migration'
+        'missing or empty name for migration',
       );
     });
 
@@ -132,11 +131,11 @@ describe('MigratorRunner', () => {
         process.cwd(),
         path.join(__dirname, '__mocks__', 'duplicates'),
         logger,
-        LifecycleHook.BEFORE_DEPLOY
+        LifecycleHook.BEFORE_DEPLOY,
       );
 
       expect(migratorRunner.init()).rejects.toThrowError(
-        'Duplicate migration found'
+        'Duplicate migration found',
       );
     });
 
@@ -147,7 +146,7 @@ describe('MigratorRunner', () => {
         process.cwd(),
         path.join(__dirname, '__mocks__', 'baseline'),
         logger,
-        LifecycleHook.BEFORE_DEPLOY
+        LifecycleHook.BEFORE_DEPLOY,
       );
 
       await migratorRunner.init();
@@ -168,7 +167,7 @@ describe('MigratorRunner', () => {
         process.cwd(),
         path.join(__dirname, '__mocks__', 'baseline-multiple-namespace'),
         logger,
-        LifecycleHook.BEFORE_DEPLOY
+        LifecycleHook.BEFORE_DEPLOY,
       );
 
       await migratorRunner.init();
@@ -206,7 +205,7 @@ describe('MigratorRunner', () => {
         process.cwd(),
         path.join(__dirname, '__mocks__', 'baseline'),
         logger,
-        LifecycleHook.BEFORE_DEPLOY
+        LifecycleHook.BEFORE_DEPLOY,
       );
 
       await migratorRunner.init();
@@ -227,7 +226,7 @@ describe('MigratorRunner', () => {
         process.cwd(),
         path.join(__dirname, '__mocks__', 'success-multiple-namespace'),
         logger,
-        LifecycleHook.BEFORE_DEPLOY
+        LifecycleHook.BEFORE_DEPLOY,
       );
 
       await migratorRunner.init();
@@ -254,7 +253,7 @@ describe('MigratorRunner', () => {
         process.cwd(),
         path.join(__dirname, '__mocks__', 'success'),
         logger,
-        LifecycleHook.BEFORE_DEPLOY
+        LifecycleHook.BEFORE_DEPLOY,
       );
 
       await migratorRunner.run();
@@ -274,7 +273,7 @@ describe('MigratorRunner', () => {
         process.cwd(),
         path.join(__dirname, '__mocks__', 'success'),
         logger,
-        LifecycleHook.BEFORE_DEPLOY
+        LifecycleHook.BEFORE_DEPLOY,
       );
 
       await migratorRunner.run();
@@ -288,7 +287,7 @@ describe('MigratorRunner', () => {
           description: undefined,
           migrationPath: path.join(
             path.relative(process.cwd(), __dirname),
-            '__mocks__/success/20230101-test1.ts'
+            '__mocks__/success/20230101-test1.ts',
           ),
           name: 'test1',
           namespace: 'test',
@@ -296,11 +295,11 @@ describe('MigratorRunner', () => {
           status: 'RUNNING',
           version: 20230101,
         },
-        { overwrite: true }
+        { overwrite: true },
       );
       expect(modelMock.update).toHaveBeenCalledWith(
         { namespace: 'test', version: 20230101 },
-        { endDate: new Date(), status: 'SUCCESS' }
+        { endDate: new Date(), status: 'SUCCESS' },
       );
     });
 
@@ -311,11 +310,11 @@ describe('MigratorRunner', () => {
         process.cwd(),
         path.join(__dirname, '__mocks__', 'failure'),
         logger,
-        LifecycleHook.BEFORE_DEPLOY
+        LifecycleHook.BEFORE_DEPLOY,
       );
 
       await expect(migratorRunner.run()).rejects.toThrowError(
-        'Error running migration'
+        'Error running migration',
       );
 
       expect(modelMock.batchGet).toHaveBeenCalledWith([
@@ -326,7 +325,7 @@ describe('MigratorRunner', () => {
           description: undefined,
           migrationPath: path.join(
             path.relative(process.cwd(), __dirname),
-            '__mocks__/failure/20230101-test1.ts'
+            '__mocks__/failure/20230101-test1.ts',
           ),
           name: 'test1',
           namespace: 'test',
@@ -334,11 +333,11 @@ describe('MigratorRunner', () => {
           status: 'RUNNING',
           version: 20230101,
         },
-        { overwrite: true }
+        { overwrite: true },
       );
       expect(modelMock.update).toHaveBeenCalledWith(
         { namespace: 'test', version: 20230101 },
-        { endDate: new Date(), status: 'ERROR', errorMessage: 'up' }
+        { endDate: new Date(), status: 'ERROR', errorMessage: 'up' },
       );
     });
 
@@ -349,11 +348,11 @@ describe('MigratorRunner', () => {
         process.cwd(),
         path.join(__dirname, '__mocks__', 'invalid-remote-type'),
         logger,
-        LifecycleHook.BEFORE_DEPLOY
+        LifecycleHook.BEFORE_DEPLOY,
       );
 
       await expect(migratorRunner.run()).rejects.toThrowError(
-        'Unsupported remote type invalid'
+        'Unsupported remote type invalid',
       );
     });
 
@@ -364,10 +363,10 @@ describe('MigratorRunner', () => {
         process.cwd(),
         path.join(__dirname, '__mocks__', 'ecs-remote'),
         logger,
-        LifecycleHook.BEFORE_DEPLOY
+        LifecycleHook.BEFORE_DEPLOY,
       );
 
-      const runMock = jest
+      const runMock = vi
         .spyOn(EcsRemoteRunner.prototype, 'run')
         .mockResolvedValueOnce(null);
 
@@ -383,33 +382,33 @@ describe('MigratorRunner', () => {
         process.cwd(),
         path.join(__dirname, '__mocks__', 'success'),
         logger,
-        LifecycleHook.BEFORE_DEPLOY
+        LifecycleHook.BEFORE_DEPLOY,
       );
 
       await expect(
-        migratorRunner.rollback('test', 20230101, 'test2', 20230101)
+        migratorRunner.rollback('test', 20230101, 'test2', 20230101),
       ).rejects.toThrowError(
-        'Rollback to different namespace is not supported'
+        'Rollback to different namespace is not supported',
       );
     });
 
     it('should not rollback then when there is not equal or greater the version than what was specified', async () => {
-      const infoMock = jest.spyOn(console, 'info');
+      const infoMock = vi.spyOn(console, 'info');
       const migratorRunner = new MigratorRunner(
         process.cwd(),
         path.join(__dirname, '__mocks__', 'success'),
         logger,
-        LifecycleHook.BEFORE_DEPLOY
+        LifecycleHook.BEFORE_DEPLOY,
       );
 
       await migratorRunner.rollback('test', 20230102);
       expect(infoMock).toHaveBeenLastCalledWith(
-        expect.stringContaining('No migrations to rollback')
+        expect.stringContaining('No migrations to rollback'),
       );
     });
 
     it('should not rollback when the version specified is not applied yet', async () => {
-      const infoMock = jest.spyOn(console, 'info');
+      const infoMock = vi.spyOn(console, 'info');
 
       modelMock.batchGet.mockResolvedValueOnce([]);
 
@@ -417,17 +416,17 @@ describe('MigratorRunner', () => {
         process.cwd(),
         path.join(__dirname, '__mocks__', 'success'),
         logger,
-        LifecycleHook.BEFORE_DEPLOY
+        LifecycleHook.BEFORE_DEPLOY,
       );
 
       await migratorRunner.rollback('test', 20230101);
       expect(infoMock).toHaveBeenLastCalledWith(
-        expect.stringContaining('No migrations to rollback')
+        expect.stringContaining('No migrations to rollback'),
       );
     });
 
     it('should not rollback when the version is already rolled back', async () => {
-      const infoMock = jest.spyOn(console, 'info');
+      const infoMock = vi.spyOn(console, 'info');
 
       modelMock.batchGet.mockResolvedValueOnce([
         {
@@ -442,17 +441,17 @@ describe('MigratorRunner', () => {
         process.cwd(),
         path.join(__dirname, '__mocks__', 'success'),
         logger,
-        LifecycleHook.BEFORE_DEPLOY
+        LifecycleHook.BEFORE_DEPLOY,
       );
 
       await migratorRunner.rollback('test', 20230101);
       expect(infoMock).toHaveBeenLastCalledWith(
-        expect.stringContaining('No migrations to rollback')
+        expect.stringContaining('No migrations to rollback'),
       );
     });
 
     it('should not rollback when the user reject the confirm prompt', async () => {
-      const infoMock = jest.spyOn(console, 'info');
+      const infoMock = vi.spyOn(console, 'info');
       promptsMock.mockResolvedValueOnce({ value: false });
 
       modelMock.batchGet.mockResolvedValueOnce([
@@ -468,12 +467,12 @@ describe('MigratorRunner', () => {
         process.cwd(),
         path.join(__dirname, '__mocks__', 'success'),
         logger,
-        LifecycleHook.BEFORE_DEPLOY
+        LifecycleHook.BEFORE_DEPLOY,
       );
 
       await migratorRunner.rollback('test', 20230101);
       expect(infoMock).toHaveBeenLastCalledWith(
-        expect.stringContaining('Rollback migrations cancelled')
+        expect.stringContaining('Rollback migrations cancelled'),
       );
       expect(promptsMock).toHaveBeenCalledWith({
         initial: false,
@@ -499,7 +498,7 @@ describe('MigratorRunner', () => {
         process.cwd(),
         path.join(__dirname, '__mocks__', 'success'),
         logger,
-        LifecycleHook.BEFORE_DEPLOY
+        LifecycleHook.BEFORE_DEPLOY,
       );
 
       await migratorRunner.rollback('test', 20230101);
@@ -518,12 +517,12 @@ describe('MigratorRunner', () => {
           namespace: 'test',
           version: 20230101,
         },
-        { rollbackStartDate: new Date(), status: 'ROLLBACK_RUNNING' }
+        { rollbackStartDate: new Date(), status: 'ROLLBACK_RUNNING' },
       );
       expect(modelMock.update).toHaveBeenNthCalledWith(
         2,
         { namespace: 'test', version: 20230101 },
-        { rollbackEndDate: new Date(), status: 'ROLLBACK_SUCCESS' }
+        { rollbackEndDate: new Date(), status: 'ROLLBACK_SUCCESS' },
       );
     });
 
@@ -541,11 +540,11 @@ describe('MigratorRunner', () => {
         process.cwd(),
         path.join(__dirname, '__mocks__', 'rollback-failure'),
         logger,
-        LifecycleHook.BEFORE_DEPLOY
+        LifecycleHook.BEFORE_DEPLOY,
       );
 
       await expect(
-        migratorRunner.rollback('test', 20230101, 'test', 20230101, true)
+        migratorRunner.rollback('test', 20230101, 'test', 20230101, true),
       ).rejects.toThrowError('down');
 
       expect(promptsMock).not.toHaveBeenCalled();
@@ -556,7 +555,7 @@ describe('MigratorRunner', () => {
           namespace: 'test',
           version: 20230101,
         },
-        { rollbackStartDate: new Date(), status: 'ROLLBACK_RUNNING' }
+        { rollbackStartDate: new Date(), status: 'ROLLBACK_RUNNING' },
       );
       expect(modelMock.update).toHaveBeenNthCalledWith(
         2,
@@ -565,7 +564,7 @@ describe('MigratorRunner', () => {
           rollbackEndDate: new Date(),
           status: 'ROLLBACK_ERROR',
           errorMessage: 'down',
-        }
+        },
       );
     });
   });

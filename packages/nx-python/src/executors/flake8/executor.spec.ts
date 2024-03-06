@@ -1,5 +1,6 @@
+import { vi, MockInstance } from 'vitest';
 import chalk from 'chalk';
-import { spawnSyncMock } from '../../utils/mocks/cross-spawn.mock';
+import '../../utils/mocks/cross-spawn.mock';
 import * as poetryUtils from '../utils/poetry';
 import fsMock from 'mock-fs';
 import executor from './executor';
@@ -7,23 +8,33 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
 import { mkdirsSync, writeFileSync } from 'fs-extra';
+import spawn from 'cross-spawn';
 
 describe('Flake8 Executor', () => {
   let tmppath = null;
-  let checkPoetryExecutableMock: jest.SpyInstance;
-  let activateVenvMock: jest.SpyInstance;
+  let checkPoetryExecutableMock: MockInstance;
+  let activateVenvMock: MockInstance;
 
   beforeEach(() => {
     tmppath = join(tmpdir(), 'nx-python', 'flake8', uuid());
-    checkPoetryExecutableMock = jest
+    checkPoetryExecutableMock = vi
       .spyOn(poetryUtils, 'checkPoetryExecutable')
       .mockResolvedValue(undefined);
 
-    activateVenvMock = jest
+    activateVenvMock = vi
       .spyOn(poetryUtils, 'activateVenv')
       .mockReturnValue(undefined);
 
-    spawnSyncMock.mockReturnValue({ status: 0 });
+    vi.mocked(spawn.sync).mockReturnValue({
+      status: 0,
+      output: [''],
+      pid: 0,
+      signal: null,
+      stderr: null,
+      stdout: null,
+    });
+
+    vi.spyOn(process, 'chdir').mockReturnValue(undefined);
   });
 
   beforeAll(() => {
@@ -32,7 +43,7 @@ describe('Flake8 Executor', () => {
 
   afterEach(() => {
     fsMock.restore();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it('should return success false when the poetry is not installed', async () => {
@@ -62,14 +73,22 @@ describe('Flake8 Executor', () => {
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).not.toHaveBeenCalled();
+    expect(spawn.sync).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
 
   it('should execute flake8 linting', async () => {
     const outputFile = join(tmppath, 'reports/apps/app/pylint.txt');
-    spawnSyncMock.mockImplementation(() => {
+    vi.mocked(spawn.sync).mockImplementation(() => {
       writeFileSync(outputFile, '', { encoding: 'utf8' });
+      return {
+        status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
+      };
     });
 
     const output = await executor(
@@ -91,19 +110,28 @@ describe('Flake8 Executor', () => {
             },
           },
         },
-      }
+      },
     );
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).toHaveBeenCalledTimes(1);
+    expect(spawn.sync).toHaveBeenCalledTimes(1);
     expect(output.success).toBe(true);
   });
 
   it('should execute flake8 linting when the reports folder already exists', async () => {
     mkdirsSync(join(tmppath, 'reports/apps/app'));
-    const outputFile = join(tmppath, 'reports/apps/app/pylint.txt');
-    spawnSyncMock.mockImplementation(() => {
+    const outputFile = join(tmppath, 'reports/apps/app/pylint.vi.mocked(txt');
+    vi.mocked(spawn.sync).mockImplementation(() => {
       writeFileSync(outputFile, '', { encoding: 'utf8' });
+
+      return {
+        status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
+      };
     });
 
     const output = await executor(
@@ -125,16 +153,16 @@ describe('Flake8 Executor', () => {
             },
           },
         },
-      }
+      },
     );
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).toHaveBeenCalledTimes(1);
+    expect(spawn.sync).toHaveBeenCalledTimes(1);
     expect(output.success).toBe(true);
   });
 
   it('should returns a error when run the flake8 CLI', async () => {
-    spawnSyncMock.mockImplementation(() => {
+    vi.mocked(spawn.sync).mockImplementation(() => {
       throw new Error('Some error');
     });
 
@@ -157,21 +185,27 @@ describe('Flake8 Executor', () => {
             },
           },
         },
-      }
+      },
     );
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).toHaveBeenCalledTimes(1);
+    expect(spawn.sync).toHaveBeenCalledTimes(1);
     expect(output.success).toBe(false);
   });
 
   it('should execute flake8 linting with pylint content more than 1 line', async () => {
     mkdirsSync(join(tmppath, 'reports/apps/app'));
     const outputFile = join(tmppath, 'reports/apps/app/pylint.txt');
-    writeFileSync(outputFile, '', { encoding: 'utf8' });
-
-    spawnSyncMock.mockImplementation(() => {
+    vi.mocked(spawn.sync).mockImplementation(() => {
       writeFileSync(outputFile, 'test\n', { encoding: 'utf8' });
+      return {
+        status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
+      };
     });
 
     const output = await executor(
@@ -193,11 +227,11 @@ describe('Flake8 Executor', () => {
             },
           },
         },
-      }
+      },
     );
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).toHaveBeenCalledTimes(1);
+    expect(spawn.sync).toHaveBeenCalledTimes(1);
     expect(output.success).toBe(false);
   });
 });

@@ -24,7 +24,7 @@ export interface NormalizedSchema extends Schema {
 
 export function normalizeOptions(
   host: Tree,
-  options: Schema
+  options: Schema,
 ): NormalizedSchema {
   const name = names(options.name).fileName;
   const projectDirectory = options.directory
@@ -70,7 +70,7 @@ function addFiles(host: Tree, options: NormalizedSchema) {
     host,
     path.join(__dirname, 'files'),
     options.projectRoot,
-    templateOptions
+    templateOptions,
   );
 }
 
@@ -78,13 +78,13 @@ function addPackageSource(normalizedOptions: NormalizedSchema, host: Tree) {
   if (normalizedOptions.customSource) {
     if (!normalizedOptions.sourceName || !normalizedOptions.sourceUrl) {
       throw new Error(
-        "Fields 'sourceName', 'sourceUrl' are required when the flag 'customSource' is true"
+        "Fields 'sourceName', 'sourceUrl' are required when the flag 'customSource' is true",
       );
     }
 
     const pyprojectTomlPath = path.join(
       normalizedOptions.projectRoot,
-      'pyproject.toml'
+      'pyproject.toml',
     );
 
     const pyprojectTomlContent = host.read(pyprojectTomlPath).toString('utf-8');
@@ -106,11 +106,11 @@ function addPackageSource(normalizedOptions: NormalizedSchema, host: Tree) {
 
 function updateRootPyprojectToml(
   host: Tree,
-  normalizedOptions: NormalizedSchema
+  normalizedOptions: NormalizedSchema,
 ) {
   if (host.exists('./pyproject.toml')) {
     const rootPyprojectToml = parse(
-      host.read('pyproject.toml', 'utf-8')
+      host.read('pyproject.toml', 'utf-8'),
     ) as PyprojectToml;
     rootPyprojectToml.tool.poetry.dependencies[normalizedOptions.packageName] =
       {

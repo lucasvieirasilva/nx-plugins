@@ -15,7 +15,7 @@ export class CLILogger {
 
   constructor(public readonly level: string) {
     const key = Object.entries(Levels).find(
-      ([objectKey]) => objectKey === level
+      ([objectKey]) => objectKey === level,
     );
     if (!_.isNil(key) && key.length > 0) {
       this.logLevel = key[1] as Levels;

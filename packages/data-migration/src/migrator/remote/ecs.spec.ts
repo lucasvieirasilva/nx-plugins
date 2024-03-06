@@ -1,34 +1,47 @@
-const execSyncMock = jest.fn();
+import { vi } from 'vitest';
 
-jest.mock('child_process', () => ({
+const execSyncMock = vi.hoisted(() => vi.fn());
+
+vi.mock('child_process', () => ({
   execSync: execSyncMock,
 }));
 
-const mkdirSyncMock = jest.fn();
-const copyFileSyncMock = jest.fn();
-const existsSyncMock = jest.fn();
-
-jest.mock('fs', () => ({
-  ...jest.requireActual('fs'),
-  mkdirSync: mkdirSyncMock,
-  copyFileSync: copyFileSyncMock,
-  existsSync: existsSyncMock,
+const { mkdirSyncMock, copyFileSyncMock, existsSyncMock } = vi.hoisted(() => ({
+  mkdirSyncMock: vi.fn(),
+  copyFileSyncMock: vi.fn(),
+  existsSyncMock: vi.fn(),
 }));
 
-const esbuildMock = jest.fn();
+vi.mock('fs', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('fs')>();
 
-jest.mock('esbuild', () => ({
-  build: esbuildMock,
+  return {
+    ...actual,
+    default: {
+      mkdirSync: mkdirSyncMock,
+      copyFileSync: copyFileSyncMock,
+      existsSync: existsSyncMock,
+    },
+  };
+});
+
+const esbuildMock = vi.hoisted(() => vi.fn());
+
+vi.mock('esbuild', () => ({
+  default: {
+    build: esbuildMock,
+  },
 }));
 
-const spawmMock = jest.fn();
+const spawmMock = vi.hoisted(() => vi.fn());
 
-jest.mock('cross-spawn', () => ({
-  sync: spawmMock,
+vi.mock('cross-spawn', () => ({
+  default: {
+    sync: spawmMock,
+  },
 }));
 
-// eslint-disable-next-line @nx/enforce-module-boundaries
-import '@nxlv/testing/dynamoose-mock';
+import '../../__mocks__/dynamoose.mock';
 import { STSClient, GetCallerIdentityCommand } from '@aws-sdk/client-sts';
 import {
   ECRClient,
@@ -98,10 +111,10 @@ describe('ecs remote runner', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    jest
-      .useFakeTimers()
-      .setSystemTime(new Date('2021-05-10T12:00:00Z').getTime());
+    vi.clearAllMocks();
+    vi.useFakeTimers().setSystemTime(
+      new Date('2021-05-10T12:00:00Z').getTime(),
+    );
     process.env = {
       ...originalEnv,
       ENV: 'test',
@@ -211,7 +224,7 @@ describe('ecs remote runner', () => {
 
       const runner = new EcsRemoteRunner(
         new CLILogger('info'),
-        migrationBase as never
+        migrationBase as never,
       );
 
       await runner.run();
@@ -221,30 +234,30 @@ describe('ecs remote runner', () => {
       expect(execSyncMock).toHaveBeenNthCalledWith(
         1,
         `aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws`,
-        { stdio: 'inherit' }
+        { stdio: 'inherit' },
       );
       expect(execSyncMock).toHaveBeenNthCalledWith(
         2,
         `aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${accountId}.dkr.ecr.us-east-1.amazonaws.com`,
-        { stdio: 'inherit' }
+        { stdio: 'inherit' },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(
         1,
         DescribeRepositoriesCommand,
         {
           repositoryNames: ['migrations'],
-        }
+        },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(2, CreateRepositoryCommand, {
         repositoryName: 'migrations',
       });
       expect(mkdirSyncMock).toHaveBeenCalledWith(
         'dist/apps/test/src/migrations/remote',
-        { recursive: true }
+        { recursive: true },
       );
       expect(copyFileSyncMock).toHaveBeenCalledWith(
         path.join(__dirname, 'Dockerfile'),
-        'dist/apps/test/src/migrations/remote/Dockerfile'
+        'dist/apps/test/src/migrations/remote/Dockerfile',
       );
 
       expect(esbuildMock).toHaveBeenCalledTimes(2);
@@ -277,7 +290,7 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(spawmMock).toHaveBeenNthCalledWith(
         2,
@@ -290,7 +303,7 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(spawmMock).toHaveBeenNthCalledWith(
         3,
@@ -302,7 +315,7 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
         1,
@@ -315,7 +328,7 @@ describe('ecs remote runner', () => {
             version: '20230510',
             source: 'migration',
           },
-        }
+        },
       );
 
       expect(ecsMock).toHaveReceivedNthCommandWith(
@@ -363,7 +376,7 @@ describe('ecs remote runner', () => {
           networkMode: 'awsvpc',
           requiresCompatibilities: ['FARGATE'],
           taskRoleArn: 'arn:aws:iam::123456789012:role/ecsTaskRole',
-        }
+        },
       );
       expect(ecsMock).toHaveReceivedNthCommandWith(2, RunTaskCommand, {
         cluster: 'test-cluster',
@@ -397,7 +410,7 @@ describe('ecs remote runner', () => {
           logGroupName: '/ecs/test/test1/20230510',
           logStreamName: 'ecs/migration/abc123',
           startTime: Date.now(),
-        }
+        },
       );
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
         3,
@@ -407,7 +420,7 @@ describe('ecs remote runner', () => {
           logGroupName: '/ecs/test/test1/20230510',
           logStreamName: 'ecs/migration/abc123',
           startTime: Date.now() + 2,
-        }
+        },
       );
 
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
@@ -415,7 +428,7 @@ describe('ecs remote runner', () => {
         DeleteLogGroupCommand,
         {
           logGroupName: '/ecs/test/test1/20230510',
-        }
+        },
       );
       expect(ecsMock).toHaveReceivedNthCommandWith(
         5,
@@ -423,7 +436,7 @@ describe('ecs remote runner', () => {
         {
           taskDefinition:
             'arn:aws:ecs:us-east-1:123456789012:task-definition/test-test1-202305101:1',
-        }
+        },
       );
     });
 
@@ -525,7 +538,7 @@ describe('ecs remote runner', () => {
 
       const runner = new EcsRemoteRunner(
         new CLILogger('info'),
-        migrationBase as never
+        migrationBase as never,
       );
 
       await runner.run();
@@ -535,30 +548,30 @@ describe('ecs remote runner', () => {
       expect(execSyncMock).toHaveBeenNthCalledWith(
         1,
         `aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws`,
-        { stdio: 'inherit' }
+        { stdio: 'inherit' },
       );
       expect(execSyncMock).toHaveBeenNthCalledWith(
         2,
         `aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${accountId}.dkr.ecr.us-east-1.amazonaws.com`,
-        { stdio: 'inherit' }
+        { stdio: 'inherit' },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(
         1,
         DescribeRepositoriesCommand,
         {
           repositoryNames: ['migrations'],
-        }
+        },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(2, CreateRepositoryCommand, {
         repositoryName: 'migrations',
       });
       expect(mkdirSyncMock).toHaveBeenCalledWith(
         'dist/apps/test/src/migrations/remote',
-        { recursive: true }
+        { recursive: true },
       );
       expect(copyFileSyncMock).toHaveBeenCalledWith(
         path.join(__dirname, 'Dockerfile'),
-        'dist/apps/test/src/migrations/remote/Dockerfile'
+        'dist/apps/test/src/migrations/remote/Dockerfile',
       );
 
       expect(esbuildMock).toHaveBeenCalledTimes(2);
@@ -591,7 +604,7 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(spawmMock).toHaveBeenNthCalledWith(
         2,
@@ -604,7 +617,7 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(spawmMock).toHaveBeenNthCalledWith(
         3,
@@ -616,7 +629,7 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
         1,
@@ -629,7 +642,7 @@ describe('ecs remote runner', () => {
             version: '20230510',
             source: 'migration',
           },
-        }
+        },
       );
 
       expect(ecsMock).toHaveReceivedNthCommandWith(
@@ -677,7 +690,7 @@ describe('ecs remote runner', () => {
           networkMode: 'awsvpc',
           requiresCompatibilities: ['FARGATE'],
           taskRoleArn: 'arn:aws:iam::123456789012:role/ecsTaskRole',
-        }
+        },
       );
       expect(ecsMock).toHaveReceivedNthCommandWith(2, RunTaskCommand, {
         cluster: 'test-cluster',
@@ -711,7 +724,7 @@ describe('ecs remote runner', () => {
           logGroupName: '/ecs/test/test1/20230510',
           logStreamName: 'ecs/migration/abc123',
           startTime: Date.now(),
-        }
+        },
       );
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
         3,
@@ -721,7 +734,7 @@ describe('ecs remote runner', () => {
           logGroupName: '/ecs/test/test1/20230510',
           logStreamName: 'ecs/migration/abc123',
           startTime: Date.now() + 2,
-        }
+        },
       );
 
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
@@ -729,7 +742,7 @@ describe('ecs remote runner', () => {
         DeleteLogGroupCommand,
         {
           logGroupName: '/ecs/test/test1/20230510',
-        }
+        },
       );
       expect(ecsMock).toHaveReceivedNthCommandWith(
         5,
@@ -737,7 +750,7 @@ describe('ecs remote runner', () => {
         {
           taskDefinition:
             'arn:aws:ecs:us-east-1:123456789012:task-definition/test-test1-202305101:1',
-        }
+        },
       );
     });
 
@@ -853,30 +866,30 @@ describe('ecs remote runner', () => {
       expect(execSyncMock).toHaveBeenNthCalledWith(
         1,
         `aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws`,
-        { stdio: 'inherit' }
+        { stdio: 'inherit' },
       );
       expect(execSyncMock).toHaveBeenNthCalledWith(
         2,
         `aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${accountId}.dkr.ecr.us-east-1.amazonaws.com`,
-        { stdio: 'inherit' }
+        { stdio: 'inherit' },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(
         1,
         DescribeRepositoriesCommand,
         {
           repositoryNames: ['migrations'],
-        }
+        },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(2, CreateRepositoryCommand, {
         repositoryName: 'migrations',
       });
       expect(mkdirSyncMock).toHaveBeenCalledWith(
         'dist/apps/test/src/migrations/remote',
-        { recursive: true }
+        { recursive: true },
       );
       expect(copyFileSyncMock).toHaveBeenCalledWith(
         path.join(__dirname, 'Dockerfile'),
-        'dist/apps/test/src/migrations/remote/Dockerfile'
+        'dist/apps/test/src/migrations/remote/Dockerfile',
       );
 
       expect(esbuildMock).toHaveBeenCalledTimes(2);
@@ -909,7 +922,7 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(spawmMock).toHaveBeenNthCalledWith(
         2,
@@ -922,7 +935,7 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(spawmMock).toHaveBeenNthCalledWith(
         3,
@@ -934,7 +947,7 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
         1,
@@ -947,7 +960,7 @@ describe('ecs remote runner', () => {
             version: '20230510',
             source: 'migration',
           },
-        }
+        },
       );
 
       expect(ecsMock).toHaveReceivedNthCommandWith(
@@ -995,7 +1008,7 @@ describe('ecs remote runner', () => {
           networkMode: 'awsvpc',
           requiresCompatibilities: ['FARGATE'],
           taskRoleArn: 'arn:aws:iam::123456789012:role/ecsTaskRole',
-        }
+        },
       );
       expect(ecsMock).toHaveReceivedNthCommandWith(2, RunTaskCommand, {
         cluster: 'test-cluster',
@@ -1029,7 +1042,7 @@ describe('ecs remote runner', () => {
           logGroupName: '/ecs/test/test1/20230510',
           logStreamName: 'ecs/migration/abc123',
           startTime: Date.now(),
-        }
+        },
       );
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
         3,
@@ -1039,7 +1052,7 @@ describe('ecs remote runner', () => {
           logGroupName: '/ecs/test/test1/20230510',
           logStreamName: 'ecs/migration/abc123',
           startTime: Date.now() + 2,
-        }
+        },
       );
 
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
@@ -1047,7 +1060,7 @@ describe('ecs remote runner', () => {
         DeleteLogGroupCommand,
         {
           logGroupName: '/ecs/test/test1/20230510',
-        }
+        },
       );
       expect(ecsMock).toHaveReceivedNthCommandWith(
         5,
@@ -1055,7 +1068,7 @@ describe('ecs remote runner', () => {
         {
           taskDefinition:
             'arn:aws:ecs:us-east-1:123456789012:task-definition/test-test1-202305101:1',
-        }
+        },
       );
     });
 
@@ -1076,7 +1089,7 @@ describe('ecs remote runner', () => {
 
       const runner = new EcsRemoteRunner(
         new CLILogger('info'),
-        migrationBase as never
+        migrationBase as never,
       );
 
       await expect(runner.run()).rejects.toThrow('Invalid parameter');
@@ -1086,19 +1099,19 @@ describe('ecs remote runner', () => {
       expect(execSyncMock).toHaveBeenNthCalledWith(
         1,
         `aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws`,
-        { stdio: 'inherit' }
+        { stdio: 'inherit' },
       );
       expect(execSyncMock).toHaveBeenNthCalledWith(
         2,
         `aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${accountId}.dkr.ecr.us-east-1.amazonaws.com`,
-        { stdio: 'inherit' }
+        { stdio: 'inherit' },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(
         1,
         DescribeRepositoriesCommand,
         {
           repositoryNames: ['migrations'],
-        }
+        },
       );
       expect(ecrMock).not.toHaveReceivedCommand(CreateRepositoryCommand);
       expect(mkdirSyncMock).not.toHaveBeenCalled();
@@ -1106,17 +1119,17 @@ describe('ecs remote runner', () => {
       expect(esbuildMock).not.toHaveBeenCalled();
       expect(spawmMock).not.toHaveBeenCalled();
       expect(cloudWatchLogsMock).not.toHaveReceivedCommand(
-        CreateLogGroupCommand
+        CreateLogGroupCommand,
       );
       expect(ecsMock).not.toHaveReceivedCommand(RegisterTaskDefinitionCommand);
       expect(ecsMock).not.toHaveReceivedCommand(RunTaskCommand);
       expect(ecsMock).not.toHaveReceivedCommand(DescribeTasksCommand);
       expect(cloudWatchLogsMock).not.toHaveReceivedCommand(GetLogEventsCommand);
       expect(cloudWatchLogsMock).not.toHaveReceivedCommand(
-        DeleteLogGroupCommand
+        DeleteLogGroupCommand,
       );
       expect(ecsMock).not.toHaveReceivedCommand(
-        DeregisterTaskDefinitionCommand
+        DeregisterTaskDefinitionCommand,
       );
     });
 
@@ -1139,11 +1152,11 @@ describe('ecs remote runner', () => {
 
       const runner = new EcsRemoteRunner(
         new CLILogger('info'),
-        migrationBase as never
+        migrationBase as never,
       );
 
       await expect(runner.run()).rejects.toThrow(
-        'Failed to build docker image'
+        'Failed to build docker image',
       );
 
       expect(stsMock).toHaveReceivedCommandTimes(GetCallerIdentityCommand, 1);
@@ -1151,28 +1164,28 @@ describe('ecs remote runner', () => {
       expect(execSyncMock).toHaveBeenNthCalledWith(
         1,
         `aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws`,
-        { stdio: 'inherit' }
+        { stdio: 'inherit' },
       );
       expect(execSyncMock).toHaveBeenNthCalledWith(
         2,
         `aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${accountId}.dkr.ecr.us-east-1.amazonaws.com`,
-        { stdio: 'inherit' }
+        { stdio: 'inherit' },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(
         1,
         DescribeRepositoriesCommand,
         {
           repositoryNames: ['migrations'],
-        }
+        },
       );
       expect(ecrMock).not.toHaveReceivedCommand(CreateRepositoryCommand);
       expect(mkdirSyncMock).toHaveBeenCalledWith(
         'dist/apps/test/src/migrations/remote',
-        { recursive: true }
+        { recursive: true },
       );
       expect(copyFileSyncMock).toHaveBeenCalledWith(
         path.join(__dirname, 'Dockerfile'),
-        'dist/apps/test/src/migrations/remote/Dockerfile'
+        'dist/apps/test/src/migrations/remote/Dockerfile',
       );
 
       expect(esbuildMock).toHaveBeenCalledTimes(2);
@@ -1204,20 +1217,20 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(cloudWatchLogsMock).not.toHaveReceivedCommand(
-        CreateLogGroupCommand
+        CreateLogGroupCommand,
       );
       expect(ecsMock).not.toHaveReceivedCommand(RegisterTaskDefinitionCommand);
       expect(ecsMock).not.toHaveReceivedCommand(RunTaskCommand);
       expect(ecsMock).not.toHaveReceivedCommand(DescribeTasksCommand);
       expect(cloudWatchLogsMock).not.toHaveReceivedCommand(GetLogEventsCommand);
       expect(cloudWatchLogsMock).not.toHaveReceivedCommand(
-        DeleteLogGroupCommand
+        DeleteLogGroupCommand,
       );
       expect(ecsMock).not.toHaveReceivedCommand(
-        DeregisterTaskDefinitionCommand
+        DeregisterTaskDefinitionCommand,
       );
     });
 
@@ -1244,11 +1257,11 @@ describe('ecs remote runner', () => {
 
       const runner = new EcsRemoteRunner(
         new CLILogger('info'),
-        migrationBase as never
+        migrationBase as never,
       );
 
       await expect(runner.run()).rejects.toThrow(
-        'Failed to tag the docker image'
+        'Failed to tag the docker image',
       );
 
       expect(stsMock).toHaveReceivedCommandTimes(GetCallerIdentityCommand, 1);
@@ -1256,28 +1269,28 @@ describe('ecs remote runner', () => {
       expect(execSyncMock).toHaveBeenNthCalledWith(
         1,
         `aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws`,
-        { stdio: 'inherit' }
+        { stdio: 'inherit' },
       );
       expect(execSyncMock).toHaveBeenNthCalledWith(
         2,
         `aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${accountId}.dkr.ecr.us-east-1.amazonaws.com`,
-        { stdio: 'inherit' }
+        { stdio: 'inherit' },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(
         1,
         DescribeRepositoriesCommand,
         {
           repositoryNames: ['migrations'],
-        }
+        },
       );
       expect(ecrMock).not.toHaveReceivedCommand(CreateRepositoryCommand);
       expect(mkdirSyncMock).toHaveBeenCalledWith(
         'dist/apps/test/src/migrations/remote',
-        { recursive: true }
+        { recursive: true },
       );
       expect(copyFileSyncMock).toHaveBeenCalledWith(
         path.join(__dirname, 'Dockerfile'),
-        'dist/apps/test/src/migrations/remote/Dockerfile'
+        'dist/apps/test/src/migrations/remote/Dockerfile',
       );
 
       expect(esbuildMock).toHaveBeenCalledTimes(2);
@@ -1309,7 +1322,7 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(spawmMock).toHaveBeenNthCalledWith(
         2,
@@ -1322,20 +1335,20 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(cloudWatchLogsMock).not.toHaveReceivedCommand(
-        CreateLogGroupCommand
+        CreateLogGroupCommand,
       );
       expect(ecsMock).not.toHaveReceivedCommand(RegisterTaskDefinitionCommand);
       expect(ecsMock).not.toHaveReceivedCommand(RunTaskCommand);
       expect(ecsMock).not.toHaveReceivedCommand(DescribeTasksCommand);
       expect(cloudWatchLogsMock).not.toHaveReceivedCommand(GetLogEventsCommand);
       expect(cloudWatchLogsMock).not.toHaveReceivedCommand(
-        DeleteLogGroupCommand
+        DeleteLogGroupCommand,
       );
       expect(ecsMock).not.toHaveReceivedCommand(
-        DeregisterTaskDefinitionCommand
+        DeregisterTaskDefinitionCommand,
       );
     });
 
@@ -1365,11 +1378,11 @@ describe('ecs remote runner', () => {
 
       const runner = new EcsRemoteRunner(
         new CLILogger('info'),
-        migrationBase as never
+        migrationBase as never,
       );
 
       await expect(runner.run()).rejects.toThrow(
-        'Failed to push the docker image'
+        'Failed to push the docker image',
       );
 
       expect(stsMock).toHaveReceivedCommandTimes(GetCallerIdentityCommand, 1);
@@ -1377,28 +1390,28 @@ describe('ecs remote runner', () => {
       expect(execSyncMock).toHaveBeenNthCalledWith(
         1,
         `aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws`,
-        { stdio: 'inherit' }
+        { stdio: 'inherit' },
       );
       expect(execSyncMock).toHaveBeenNthCalledWith(
         2,
         `aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${accountId}.dkr.ecr.us-east-1.amazonaws.com`,
-        { stdio: 'inherit' }
+        { stdio: 'inherit' },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(
         1,
         DescribeRepositoriesCommand,
         {
           repositoryNames: ['migrations'],
-        }
+        },
       );
       expect(ecrMock).not.toHaveReceivedCommand(CreateRepositoryCommand);
       expect(mkdirSyncMock).toHaveBeenCalledWith(
         'dist/apps/test/src/migrations/remote',
-        { recursive: true }
+        { recursive: true },
       );
       expect(copyFileSyncMock).toHaveBeenCalledWith(
         path.join(__dirname, 'Dockerfile'),
-        'dist/apps/test/src/migrations/remote/Dockerfile'
+        'dist/apps/test/src/migrations/remote/Dockerfile',
       );
 
       expect(esbuildMock).toHaveBeenCalledTimes(2);
@@ -1430,7 +1443,7 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(spawmMock).toHaveBeenNthCalledWith(
         2,
@@ -1443,7 +1456,7 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(spawmMock).toHaveBeenNthCalledWith(
         3,
@@ -1455,20 +1468,20 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(cloudWatchLogsMock).not.toHaveReceivedCommand(
-        CreateLogGroupCommand
+        CreateLogGroupCommand,
       );
       expect(ecsMock).not.toHaveReceivedCommand(RegisterTaskDefinitionCommand);
       expect(ecsMock).not.toHaveReceivedCommand(RunTaskCommand);
       expect(ecsMock).not.toHaveReceivedCommand(DescribeTasksCommand);
       expect(cloudWatchLogsMock).not.toHaveReceivedCommand(GetLogEventsCommand);
       expect(cloudWatchLogsMock).not.toHaveReceivedCommand(
-        DeleteLogGroupCommand
+        DeleteLogGroupCommand,
       );
       expect(ecsMock).not.toHaveReceivedCommand(
-        DeregisterTaskDefinitionCommand
+        DeregisterTaskDefinitionCommand,
       );
     });
 
@@ -1502,7 +1515,7 @@ describe('ecs remote runner', () => {
 
       const runner = new EcsRemoteRunner(
         new CLILogger('info'),
-        migrationBase as never
+        migrationBase as never,
       );
 
       await expect(runner.run()).rejects.toThrow('fail');
@@ -1512,28 +1525,28 @@ describe('ecs remote runner', () => {
       expect(execSyncMock).toHaveBeenNthCalledWith(
         1,
         `aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws`,
-        { stdio: 'inherit' }
+        { stdio: 'inherit' },
       );
       expect(execSyncMock).toHaveBeenNthCalledWith(
         2,
         `aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${accountId}.dkr.ecr.us-east-1.amazonaws.com`,
-        { stdio: 'inherit' }
+        { stdio: 'inherit' },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(
         1,
         DescribeRepositoriesCommand,
         {
           repositoryNames: ['migrations'],
-        }
+        },
       );
       expect(ecrMock).not.toHaveReceivedCommand(CreateRepositoryCommand);
       expect(mkdirSyncMock).toHaveBeenCalledWith(
         'dist/apps/test/src/migrations/remote',
-        { recursive: true }
+        { recursive: true },
       );
       expect(copyFileSyncMock).toHaveBeenCalledWith(
         path.join(__dirname, 'Dockerfile'),
-        'dist/apps/test/src/migrations/remote/Dockerfile'
+        'dist/apps/test/src/migrations/remote/Dockerfile',
       );
 
       expect(esbuildMock).toHaveBeenCalledTimes(2);
@@ -1565,7 +1578,7 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(spawmMock).toHaveBeenNthCalledWith(
         2,
@@ -1578,7 +1591,7 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(spawmMock).toHaveBeenNthCalledWith(
         3,
@@ -1590,7 +1603,7 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
         1,
@@ -1603,17 +1616,17 @@ describe('ecs remote runner', () => {
             version: '20230510',
             source: 'migration',
           },
-        }
+        },
       );
       expect(ecsMock).not.toHaveReceivedCommand(RegisterTaskDefinitionCommand);
       expect(ecsMock).not.toHaveReceivedCommand(RunTaskCommand);
       expect(ecsMock).not.toHaveReceivedCommand(DescribeTasksCommand);
       expect(cloudWatchLogsMock).not.toHaveReceivedCommand(GetLogEventsCommand);
       expect(cloudWatchLogsMock).not.toHaveReceivedCommand(
-        DeleteLogGroupCommand
+        DeleteLogGroupCommand,
       );
       expect(ecsMock).not.toHaveReceivedCommand(
-        DeregisterTaskDefinitionCommand
+        DeregisterTaskDefinitionCommand,
       );
     });
 
@@ -1658,11 +1671,11 @@ describe('ecs remote runner', () => {
 
       const runner = new EcsRemoteRunner(
         new CLILogger('info'),
-        migrationBase as never
+        migrationBase as never,
       );
 
       await expect(runner.run()).rejects.toThrowError(
-        'Failed to run migration test:test1:20230510: no tasks returned'
+        'Failed to run migration test:test1:20230510: no tasks returned',
       );
 
       expect(stsMock).toHaveReceivedCommandTimes(GetCallerIdentityCommand, 1);
@@ -1670,28 +1683,28 @@ describe('ecs remote runner', () => {
       expect(execSyncMock).toHaveBeenNthCalledWith(
         1,
         `aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws`,
-        { stdio: 'inherit' }
+        { stdio: 'inherit' },
       );
       expect(execSyncMock).toHaveBeenNthCalledWith(
         2,
         `aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${accountId}.dkr.ecr.us-east-1.amazonaws.com`,
-        { stdio: 'inherit' }
+        { stdio: 'inherit' },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(
         1,
         DescribeRepositoriesCommand,
         {
           repositoryNames: ['migrations'],
-        }
+        },
       );
       expect(ecrMock).not.toHaveReceivedCommand(CreateRepositoryCommand);
       expect(mkdirSyncMock).toHaveBeenCalledWith(
         'dist/apps/test/src/migrations/remote',
-        { recursive: true }
+        { recursive: true },
       );
       expect(copyFileSyncMock).toHaveBeenCalledWith(
         path.join(__dirname, 'Dockerfile'),
-        'dist/apps/test/src/migrations/remote/Dockerfile'
+        'dist/apps/test/src/migrations/remote/Dockerfile',
       );
 
       expect(esbuildMock).toHaveBeenCalledTimes(2);
@@ -1723,7 +1736,7 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(spawmMock).toHaveBeenNthCalledWith(
         2,
@@ -1736,7 +1749,7 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(spawmMock).toHaveBeenNthCalledWith(
         3,
@@ -1748,7 +1761,7 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
         1,
@@ -1761,7 +1774,7 @@ describe('ecs remote runner', () => {
             version: '20230510',
             source: 'migration',
           },
-        }
+        },
       );
 
       expect(ecsMock).toHaveReceivedNthCommandWith(
@@ -1809,7 +1822,7 @@ describe('ecs remote runner', () => {
           networkMode: 'awsvpc',
           requiresCompatibilities: ['FARGATE'],
           taskRoleArn: 'arn:aws:iam::123456789012:role/ecsTaskRole',
-        }
+        },
       );
       expect(ecsMock).toHaveReceivedNthCommandWith(2, RunTaskCommand, {
         cluster: 'test-cluster',
@@ -1833,7 +1846,7 @@ describe('ecs remote runner', () => {
         DeleteLogGroupCommand,
         {
           logGroupName: '/ecs/test/test1/20230510',
-        }
+        },
       );
       expect(ecsMock).toHaveReceivedNthCommandWith(
         3,
@@ -1841,7 +1854,7 @@ describe('ecs remote runner', () => {
         {
           taskDefinition:
             'arn:aws:ecs:us-east-1:123456789012:task-definition/test-test1-202305101:1',
-        }
+        },
       );
     });
 
@@ -1941,11 +1954,11 @@ describe('ecs remote runner', () => {
 
       const runner = new EcsRemoteRunner(
         new CLILogger('info'),
-        migrationBase as never
+        migrationBase as never,
       );
 
       await expect(runner.run()).rejects.toThrowError(
-        'task exited with non-zero exit code 9'
+        'task exited with non-zero exit code 9',
       );
 
       expect(stsMock).toHaveReceivedCommandTimes(GetCallerIdentityCommand, 1);
@@ -1953,30 +1966,30 @@ describe('ecs remote runner', () => {
       expect(execSyncMock).toHaveBeenNthCalledWith(
         1,
         `aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws`,
-        { stdio: 'inherit' }
+        { stdio: 'inherit' },
       );
       expect(execSyncMock).toHaveBeenNthCalledWith(
         2,
         `aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${accountId}.dkr.ecr.us-east-1.amazonaws.com`,
-        { stdio: 'inherit' }
+        { stdio: 'inherit' },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(
         1,
         DescribeRepositoriesCommand,
         {
           repositoryNames: ['migrations'],
-        }
+        },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(2, CreateRepositoryCommand, {
         repositoryName: 'migrations',
       });
       expect(mkdirSyncMock).toHaveBeenCalledWith(
         'dist/apps/test/src/migrations/remote',
-        { recursive: true }
+        { recursive: true },
       );
       expect(copyFileSyncMock).toHaveBeenCalledWith(
         path.join(__dirname, 'Dockerfile'),
-        'dist/apps/test/src/migrations/remote/Dockerfile'
+        'dist/apps/test/src/migrations/remote/Dockerfile',
       );
 
       expect(esbuildMock).toHaveBeenCalledTimes(2);
@@ -2009,7 +2022,7 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(spawmMock).toHaveBeenNthCalledWith(
         2,
@@ -2022,7 +2035,7 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(spawmMock).toHaveBeenNthCalledWith(
         3,
@@ -2034,7 +2047,7 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
         1,
@@ -2047,7 +2060,7 @@ describe('ecs remote runner', () => {
             version: '20230510',
             source: 'migration',
           },
-        }
+        },
       );
 
       expect(ecsMock).toHaveReceivedNthCommandWith(
@@ -2095,7 +2108,7 @@ describe('ecs remote runner', () => {
           networkMode: 'awsvpc',
           requiresCompatibilities: ['FARGATE'],
           taskRoleArn: 'arn:aws:iam::123456789012:role/ecsTaskRole',
-        }
+        },
       );
       expect(ecsMock).toHaveReceivedNthCommandWith(2, RunTaskCommand, {
         cluster: 'test-cluster',
@@ -2129,7 +2142,7 @@ describe('ecs remote runner', () => {
           logGroupName: '/ecs/test/test1/20230510',
           logStreamName: 'ecs/migration/abc123',
           startTime: Date.now(),
-        }
+        },
       );
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
         3,
@@ -2139,7 +2152,7 @@ describe('ecs remote runner', () => {
           logGroupName: '/ecs/test/test1/20230510',
           logStreamName: 'ecs/migration/abc123',
           startTime: Date.now(),
-        }
+        },
       );
 
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
@@ -2147,7 +2160,7 @@ describe('ecs remote runner', () => {
         DeleteLogGroupCommand,
         {
           logGroupName: '/ecs/test/test1/20230510',
-        }
+        },
       );
       expect(ecsMock).toHaveReceivedNthCommandWith(
         5,
@@ -2155,7 +2168,7 @@ describe('ecs remote runner', () => {
         {
           taskDefinition:
             'arn:aws:ecs:us-east-1:123456789012:task-definition/test-test1-202305101:1',
-        }
+        },
       );
     });
 
@@ -2239,11 +2252,11 @@ describe('ecs remote runner', () => {
         .rejectsOnce(new Error('test'))
         .rejectsOnce(new Error('test'));
 
-      const warnSpy = jest.spyOn(CLILogger.prototype, 'warn');
+      const warnSpy = vi.spyOn(CLILogger.prototype, 'warn');
 
       const runner = new EcsRemoteRunner(
         new CLILogger('info'),
-        migrationBase as never
+        migrationBase as never,
       );
 
       await runner.run();
@@ -2253,30 +2266,30 @@ describe('ecs remote runner', () => {
       expect(execSyncMock).toHaveBeenNthCalledWith(
         1,
         `aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws`,
-        { stdio: 'inherit' }
+        { stdio: 'inherit' },
       );
       expect(execSyncMock).toHaveBeenNthCalledWith(
         2,
         `aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${accountId}.dkr.ecr.us-east-1.amazonaws.com`,
-        { stdio: 'inherit' }
+        { stdio: 'inherit' },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(
         1,
         DescribeRepositoriesCommand,
         {
           repositoryNames: ['migrations'],
-        }
+        },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(2, CreateRepositoryCommand, {
         repositoryName: 'migrations',
       });
       expect(mkdirSyncMock).toHaveBeenCalledWith(
         'dist/apps/test/src/migrations/remote',
-        { recursive: true }
+        { recursive: true },
       );
       expect(copyFileSyncMock).toHaveBeenCalledWith(
         path.join(__dirname, 'Dockerfile'),
-        'dist/apps/test/src/migrations/remote/Dockerfile'
+        'dist/apps/test/src/migrations/remote/Dockerfile',
       );
 
       expect(esbuildMock).toHaveBeenCalledTimes(2);
@@ -2309,7 +2322,7 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(spawmMock).toHaveBeenNthCalledWith(
         2,
@@ -2322,7 +2335,7 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(spawmMock).toHaveBeenNthCalledWith(
         3,
@@ -2334,7 +2347,7 @@ describe('ecs remote runner', () => {
         {
           cwd: 'dist/apps/test/src/migrations/remote',
           stdio: 'inherit',
-        }
+        },
       );
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
         1,
@@ -2347,7 +2360,7 @@ describe('ecs remote runner', () => {
             version: '20230510',
             source: 'migration',
           },
-        }
+        },
       );
 
       expect(ecsMock).toHaveReceivedNthCommandWith(
@@ -2395,7 +2408,7 @@ describe('ecs remote runner', () => {
           networkMode: 'awsvpc',
           requiresCompatibilities: ['FARGATE'],
           taskRoleArn: 'arn:aws:iam::123456789012:role/ecsTaskRole',
-        }
+        },
       );
       expect(ecsMock).toHaveReceivedNthCommandWith(2, RunTaskCommand, {
         cluster: 'test-cluster',
@@ -2429,7 +2442,7 @@ describe('ecs remote runner', () => {
           logGroupName: '/ecs/test/test1/20230510',
           logStreamName: 'ecs/migration/abc123',
           startTime: Date.now(),
-        }
+        },
       );
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
         3,
@@ -2439,7 +2452,7 @@ describe('ecs remote runner', () => {
           logGroupName: '/ecs/test/test1/20230510',
           logStreamName: 'ecs/migration/abc123',
           startTime: Date.now(),
-        }
+        },
       );
       expect(warnSpy).toHaveBeenCalledTimes(2);
 
@@ -2448,7 +2461,7 @@ describe('ecs remote runner', () => {
         DeleteLogGroupCommand,
         {
           logGroupName: '/ecs/test/test1/20230510',
-        }
+        },
       );
       expect(ecsMock).toHaveReceivedNthCommandWith(
         5,
@@ -2456,7 +2469,7 @@ describe('ecs remote runner', () => {
         {
           taskDefinition:
             'arn:aws:ecs:us-east-1:123456789012:task-definition/test-test1-202305101:1',
-        }
+        },
       );
     });
   });

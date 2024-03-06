@@ -15,7 +15,7 @@ import {
 
 export default async function executor(
   options: AddExecutorSchema,
-  context: ExecutorContext
+  context: ExecutorContext,
 ) {
   const workspaceRoot = context.root;
   process.chdir(workspaceRoot);
@@ -27,7 +27,7 @@ export default async function executor(
 
     if (options.local) {
       console.log(
-        chalk`\n  {bold Adding {bgBlue  ${options.name} } workspace dependency...}\n`
+        chalk`\n  {bold Adding {bgBlue  ${options.name} } workspace dependency...}\n`,
       );
       updateLocalProject(
         context,
@@ -35,17 +35,17 @@ export default async function executor(
         projectConfig,
         rootPyprojectToml,
         options.group,
-        options.extras
+        options.extras,
       );
     } else {
       console.log(
-        chalk`\n  {bold Adding {bgBlue  ${options.name} } dependency...}\n`
+        chalk`\n  {bold Adding {bgBlue  ${options.name} } dependency...}\n`,
       );
       const installArgs = ['add', options.name]
         .concat(options.group ? ['--group', options.group] : [])
         .concat(options.args ? options.args.split(' ') : [])
         .concat(
-          options.extras ? options.extras.map((ex) => `--extras=${ex}`) : []
+          options.extras ? options.extras.map((ex) => `--extras=${ex}`) : [],
         )
         .concat(rootPyprojectToml ? ['--lock'] : []);
 
@@ -55,7 +55,7 @@ export default async function executor(
     updateDependencyTree(context);
 
     console.log(
-      chalk`\n  {green.bold '${options.name}'} {green dependency has been successfully added to the project}\n`
+      chalk`\n  {green.bold '${options.name}'} {green dependency has been successfully added to the project}\n`,
     );
 
     return {
@@ -75,13 +75,13 @@ function updateLocalProject(
   projectConfig: ProjectConfiguration,
   updateLockOnly: boolean,
   group?: string,
-  extras?: string[]
+  extras?: string[],
 ) {
   const dependencyConfig = getLocalDependencyConfig(context, dependencyName);
 
   const dependencyPath = path.relative(
     projectConfig.root,
-    dependencyConfig.root
+    dependencyConfig.root,
   );
 
   const dependencyPkgName = addLocalProjectToPoetryProject(
@@ -89,7 +89,7 @@ function updateLocalProject(
     dependencyConfig,
     dependencyPath,
     group,
-    extras
+    extras,
   );
   updateProject(dependencyPkgName, projectConfig.root, updateLockOnly);
 }

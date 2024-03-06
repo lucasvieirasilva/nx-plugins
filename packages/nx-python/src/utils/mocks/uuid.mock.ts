@@ -1,6 +1,8 @@
-export const uuidMock = jest.fn();
+import { vi } from 'vitest';
 
-jest.mock('uuid', () => {
+export const uuidMock = vi.fn();
+
+vi.mock('uuid', () => {
   return {
     v4: uuidMock,
   };

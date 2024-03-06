@@ -5,7 +5,7 @@ import path from 'path';
 
 export default async function runExecutor(
   options: MigrateExecutorSchema,
-  context: ExecutorContext
+  context: ExecutorContext,
 ) {
   process.env.ENV = options.env;
   if (options.migrationTableName) {
@@ -15,7 +15,7 @@ export default async function runExecutor(
   const migrationsPath = path.join(
     context.cwd,
     options.cwd,
-    options.migrationsDir
+    options.migrationsDir,
   );
 
   const logger = new CLILogger(options.logLevel);
@@ -26,7 +26,7 @@ export default async function runExecutor(
       context.cwd,
       migrationsPath,
       logger,
-      options.lifecycleHook
+      options.lifecycleHook,
     );
 
     await runner.run();

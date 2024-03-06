@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`migration generator should not update the project when the migration already exists 1`] = `
+exports[`migration generator > should not update the project when the migration already exists 1`] = `
 "import { Migration, MigrationBase, LifecycleHook } from '@nxlv/data-migration';
 
 @Migration({
@@ -22,7 +22,7 @@ export default class extends MigrationBase {
 "
 `;
 
-exports[`migration generator should not update the project when the migration already exists 2`] = `
+exports[`migration generator > should not update the project when the migration already exists 2`] = `
 "import { Migration, MigrationBase, LifecycleHook } from '@nxlv/data-migration';
 
 @Migration({
@@ -44,7 +44,7 @@ export default class extends MigrationBase {
 "
 `;
 
-exports[`migration generator should run successfully 1`] = `
+exports[`migration generator > should run successfully 1`] = `
 "import { Migration, MigrationBase, LifecycleHook } from '@nxlv/data-migration';
 
 @Migration({
@@ -66,7 +66,7 @@ export default class extends MigrationBase {
 "
 `;
 
-exports[`migration generator should run successfully 2`] = `
+exports[`migration generator > should run successfully 2`] = `
 "import { Migration, MigrationBase, LifecycleHook } from '@nxlv/data-migration';
 
 @Migration({
@@ -88,7 +88,7 @@ export default class extends MigrationBase {
 "
 `;
 
-exports[`migration generator should run successfully with after deploy lifecycle 1`] = `
+exports[`migration generator > should run successfully with after deploy lifecycle 1`] = `
 "import { Migration, MigrationBase, LifecycleHook } from '@nxlv/data-migration';
 
 @Migration({
@@ -110,7 +110,7 @@ export default class extends MigrationBase {
 "
 `;
 
-exports[`migration generator should run successfully with after deploy lifecycle and parent version 1`] = `
+exports[`migration generator > should run successfully with after deploy lifecycle and parent version 1`] = `
 "import { Migration, MigrationBase, LifecycleHook } from '@nxlv/data-migration';
 
 @Migration({
@@ -133,7 +133,7 @@ export default class extends MigrationBase {
 "
 `;
 
-exports[`migration generator should run successfully with after deploy lifecycle, dynamodb provider and stream 1`] = `
+exports[`migration generator > should run successfully with after deploy lifecycle, dynamodb provider and stream 1`] = `
 "import {
   Migration,
   DynamoDBMigrationBase,
@@ -159,7 +159,7 @@ export default class extends DynamoDBMigrationBase {
 "
 `;
 
-exports[`migration generator should run successfully with after deploy lifecycle, dynamodb provider and stream 2`] = `
+exports[`migration generator > should run successfully with after deploy lifecycle, dynamodb provider and stream 2`] = `
 "import { DynamoDBStreamHandler } from 'aws-lambda';
 
 export const handler: DynamoDBStreamHandler = async (event) => {
@@ -172,7 +172,7 @@ export const handler: DynamoDBStreamHandler = async (event) => {
 "
 `;
 
-exports[`migration generator should run successfully with baseline flag 1`] = `
+exports[`migration generator > should run successfully with baseline flag 1`] = `
 "import { Migration, MigrationBase, LifecycleHook } from '@nxlv/data-migration';
 
 @Migration({
@@ -195,7 +195,7 @@ export default class extends MigrationBase {
 "
 `;
 
-exports[`migration generator should run successfully with custom migrations path 1`] = `
+exports[`migration generator > should run successfully with custom migrations path 1`] = `
 "import { Migration, MigrationBase, LifecycleHook } from '@nxlv/data-migration';
 
 @Migration({
@@ -217,7 +217,7 @@ export default class extends MigrationBase {
 "
 `;
 
-exports[`migration generator should run successfully with dynamodb provider 1`] = `
+exports[`migration generator > should run successfully with dynamodb provider 1`] = `
 "import {
   Migration,
   DynamoDBMigrationBase,
@@ -243,7 +243,7 @@ export default class extends DynamoDBMigrationBase {
 "
 `;
 
-exports[`migration generator should run successfully with dynamodb provider and stream 1`] = `
+exports[`migration generator > should run successfully with dynamodb provider and stream 1`] = `
 "import {
   Migration,
   DynamoDBMigrationBase,
@@ -269,7 +269,7 @@ export default class extends DynamoDBMigrationBase {
 "
 `;
 
-exports[`migration generator should run successfully with dynamodb provider and stream 2`] = `
+exports[`migration generator > should run successfully with dynamodb provider and stream 2`] = `
 "import { DynamoDBStreamHandler } from 'aws-lambda';
 
 export const handler: DynamoDBStreamHandler = async (event) => {

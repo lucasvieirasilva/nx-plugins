@@ -1,5 +1,6 @@
+import { vi, MockInstance } from 'vitest';
 import { BuildExecutorSchema } from './schema';
-import { spawnSyncMock } from '../../utils/mocks/cross-spawn.mock';
+import '../../utils/mocks/cross-spawn.mock';
 import { uuidMock } from '../../utils/mocks/uuid.mock';
 import * as poetryUtils from '../utils/poetry';
 import executor from './executor';
@@ -11,11 +12,13 @@ import { tmpdir } from 'os';
 import chalk from 'chalk';
 import { PyprojectToml } from '../../graph/dependency-graph';
 import dedent from 'string-dedent';
+import spawn from 'cross-spawn';
+import { SpawnSyncOptions } from 'child_process';
 
 describe('Build Executor', () => {
   let buildPath = null;
-  let checkPoetryExecutableMock: jest.SpyInstance;
-  let activateVenvMock: jest.SpyInstance;
+  let checkPoetryExecutableMock: MockInstance;
+  let activateVenvMock: MockInstance;
 
   beforeAll(() => {
     console.log(chalk`init chalk`);
@@ -25,20 +28,28 @@ describe('Build Executor', () => {
     uuidMock.mockReturnValue('abc');
     buildPath = join(tmpdir(), 'nx-python', 'build', 'abc');
 
-    checkPoetryExecutableMock = jest
+    checkPoetryExecutableMock = vi
       .spyOn(poetryUtils, 'checkPoetryExecutable')
       .mockResolvedValue(undefined);
 
-    activateVenvMock = jest
+    activateVenvMock = vi
       .spyOn(poetryUtils, 'activateVenv')
       .mockReturnValue(undefined);
 
-    spawnSyncMock.mockReturnValue({ status: 0 });
+    vi.mocked(spawn.sync).mockReturnValue({
+      status: 0,
+      output: [''],
+      pid: 0,
+      signal: null,
+      stderr: null,
+      stdout: null,
+    });
+    vi.spyOn(process, 'chdir').mockReturnValue(undefined);
   });
 
   afterEach(() => {
     fsMock.restore();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it('should return success false when the poetry is not installed', async () => {
@@ -74,7 +85,7 @@ describe('Build Executor', () => {
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).not.toHaveBeenCalled();
+    expect(spawn.sync).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
 
@@ -111,7 +122,7 @@ describe('Build Executor', () => {
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).not.toHaveBeenCalled();
+    expect(spawn.sync).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
 
@@ -202,7 +213,7 @@ describe('Build Executor', () => {
         `,
       });
 
-      spawnSyncMock.mockImplementation((_, args, opts) => {
+      vi.mocked(spawn.sync).mockImplementation((_, args, opts) => {
         if (args[0] == 'build') {
           spawnBuildMockImpl(opts);
         } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
@@ -213,10 +224,17 @@ describe('Build Executor', () => {
             dep1 @ file://${process.cwd()}/libs/dep1
             numpy==1.21.0; python_version >= "3.8" and python_version < "4.0"
 
-          `
+          `,
           );
         }
-        return { status: 0 };
+        return {
+          status: 0,
+          output: [''],
+          pid: 0,
+          signal: null,
+          stderr: null,
+          stdout: null,
+        };
       });
 
       const options: BuildExecutorSchema = {
@@ -259,14 +277,14 @@ describe('Build Executor', () => {
       expect(existsSync(`${buildPath}/app`)).toBeTruthy();
       expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
       expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
-      expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['build'], {
+      expect(spawn.sync).toHaveBeenCalledWith('poetry', ['build'], {
         cwd: buildPath,
         shell: false,
         stdio: 'inherit',
       });
 
       const projectTomlData = parse(
-        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8')
+        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8'),
       ) as PyprojectToml;
 
       expect(projectTomlData.tool.poetry.packages).toStrictEqual([
@@ -288,7 +306,7 @@ describe('Build Executor', () => {
         },
       });
       expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual(
-        {}
+        {},
       );
 
       expect(output.success).toBe(true);
@@ -329,7 +347,7 @@ describe('Build Executor', () => {
         `,
       });
 
-      spawnSyncMock.mockImplementation((_, args, opts) => {
+      vi.mocked(spawn.sync).mockImplementation((_, args, opts) => {
         if (args[0] == 'build') {
           spawnBuildMockImpl(opts);
         } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
@@ -337,10 +355,17 @@ describe('Build Executor', () => {
             join(buildPath, 'requirements.txt'),
             dedent`
             django @ git+https://github.com/django/django.git@d54717118360e8679aa2bd0c5a1625f3e84712ba ; python_version >= "3.8" and python_version < "3.10"
-          `
+          `,
           );
         }
-        return { status: 0 };
+        return {
+          status: 0,
+          output: [''],
+          pid: 0,
+          signal: null,
+          stderr: null,
+          stdout: null,
+        };
       });
 
       const options: BuildExecutorSchema = {
@@ -373,14 +398,14 @@ describe('Build Executor', () => {
       expect(activateVenvMock).toHaveBeenCalledWith('.');
       expect(existsSync(buildPath)).toBeTruthy();
       expect(existsSync(`${buildPath}/app`)).toBeTruthy();
-      expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['build'], {
+      expect(spawn.sync).toHaveBeenCalledWith('poetry', ['build'], {
         cwd: buildPath,
         shell: false,
         stdio: 'inherit',
       });
 
       const projectTomlData = parse(
-        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8')
+        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8'),
       ) as PyprojectToml;
 
       expect(projectTomlData.tool.poetry.packages).toStrictEqual([
@@ -399,7 +424,7 @@ describe('Build Executor', () => {
         },
       });
       expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual(
-        {}
+        {},
       );
 
       expect(output.success).toBe(true);
@@ -440,7 +465,7 @@ describe('Build Executor', () => {
         `,
       });
 
-      spawnSyncMock.mockImplementation((_, args, opts) => {
+      vi.mocked(spawn.sync).mockImplementation((_, args, opts) => {
         if (args[0] == 'build') {
           spawnBuildMockImpl(opts);
         } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
@@ -448,10 +473,17 @@ describe('Build Executor', () => {
             join(buildPath, 'requirements.txt'),
             dedent`
             django @ git+https://github.com/django/django.git"
-          `
+          `,
           );
         }
-        return { status: 0 };
+        return {
+          status: 0,
+          output: [''],
+          pid: 0,
+          signal: null,
+          stderr: null,
+          stdout: null,
+        };
       });
 
       const options: BuildExecutorSchema = {
@@ -484,14 +516,14 @@ describe('Build Executor', () => {
       expect(activateVenvMock).toHaveBeenCalledWith('.');
       expect(existsSync(buildPath)).toBeTruthy();
       expect(existsSync(`${buildPath}/app`)).toBeTruthy();
-      expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['build'], {
+      expect(spawn.sync).toHaveBeenCalledWith('poetry', ['build'], {
         cwd: buildPath,
         shell: false,
         stdio: 'inherit',
       });
 
       const projectTomlData = parse(
-        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8')
+        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8'),
       ) as PyprojectToml;
 
       expect(projectTomlData.tool.poetry.packages).toStrictEqual([
@@ -508,7 +540,7 @@ describe('Build Executor', () => {
         },
       });
       expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual(
-        {}
+        {},
       );
 
       expect(output.success).toBe(true);
@@ -549,7 +581,7 @@ describe('Build Executor', () => {
         `,
       });
 
-      spawnSyncMock.mockImplementation((_, args, opts) => {
+      vi.mocked(spawn.sync).mockImplementation((_, args, opts) => {
         if (args[0] == 'build') {
           spawnBuildMockImpl(opts);
         } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
@@ -557,10 +589,17 @@ describe('Build Executor', () => {
             join(buildPath, 'requirements.txt'),
             dedent`
             django[argon2] @ git+https://github.com/django/django.git"
-          `
+          `,
           );
         }
-        return { status: 0 };
+        return {
+          status: 0,
+          output: [''],
+          pid: 0,
+          signal: null,
+          stderr: null,
+          stdout: null,
+        };
       });
 
       const options: BuildExecutorSchema = {
@@ -594,14 +633,14 @@ describe('Build Executor', () => {
       expect(activateVenvMock).toHaveBeenCalledWith('.');
       expect(existsSync(buildPath)).toBeTruthy();
       expect(existsSync(`${buildPath}/app`)).toBeTruthy();
-      expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['build'], {
+      expect(spawn.sync).toHaveBeenCalledWith('poetry', ['build'], {
         cwd: buildPath,
         shell: false,
         stdio: 'inherit',
       });
 
       const projectTomlData = parse(
-        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8')
+        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8'),
       ) as PyprojectToml;
 
       expect(projectTomlData.tool.poetry.packages).toStrictEqual([
@@ -619,7 +658,7 @@ describe('Build Executor', () => {
         },
       });
       expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual(
-        {}
+        {},
       );
     });
 
@@ -649,7 +688,7 @@ describe('Build Executor', () => {
         `,
       });
 
-      spawnSyncMock.mockImplementation((_, args, opts) => {
+      vi.mocked(spawn.sync).mockImplementation((_, args, opts) => {
         if (args[0] == 'build') {
           spawnBuildMockImpl(opts);
         } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
@@ -657,10 +696,17 @@ describe('Build Executor', () => {
             join(buildPath, 'requirements.txt'),
             dedent`
             django @ git+https://github.com/django/django.git"
-          `
+          `,
           );
         }
-        return { status: 0 };
+        return {
+          status: 0,
+          output: [''],
+          pid: 0,
+          signal: null,
+          stderr: null,
+          stdout: null,
+        };
       });
 
       const options: BuildExecutorSchema = {
@@ -779,7 +825,7 @@ describe('Build Executor', () => {
         `,
       });
 
-      spawnSyncMock.mockImplementation((_, args, opts) => {
+      vi.mocked(spawn.sync).mockImplementation((_, args, opts) => {
         if (args[0] == 'build') {
           spawnBuildMockImpl(opts);
         } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
@@ -790,10 +836,17 @@ describe('Build Executor', () => {
               dep1 @ file://${process.cwd()}/libs/dep1
               numpy==1.21.0; python_version >= "3.8" and python_version < "4.0"
 
-            `
+            `,
           );
         }
-        return { status: 0 };
+        return {
+          status: 0,
+          output: [''],
+          pid: 0,
+          signal: null,
+          stderr: null,
+          stdout: null,
+        };
       });
 
       const options: BuildExecutorSchema = {
@@ -836,14 +889,14 @@ describe('Build Executor', () => {
       expect(existsSync(`${buildPath}/app`)).toBeTruthy();
       expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
       expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
-      expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['build'], {
+      expect(spawn.sync).toHaveBeenCalledWith('poetry', ['build'], {
         cwd: buildPath,
         shell: false,
         stdio: 'inherit',
       });
 
       const projectTomlData = parse(
-        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8')
+        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8'),
       ) as PyprojectToml;
 
       expect(projectTomlData.tool.poetry.packages).toStrictEqual([
@@ -870,7 +923,7 @@ describe('Build Executor', () => {
         },
       });
       expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual(
-        {}
+        {},
       );
 
       expect(output.success).toBe(true);
@@ -921,7 +974,7 @@ describe('Build Executor', () => {
         `,
       });
 
-      spawnSyncMock.mockImplementation((_, args, opts) => {
+      vi.mocked(spawn.sync).mockImplementation((_, args, opts) => {
         if (args[0] == 'build') {
           spawnBuildMockImpl(opts);
         } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
@@ -929,10 +982,17 @@ describe('Build Executor', () => {
             join(buildPath, 'requirements.txt'),
             dedent`
               dep1 @ file://${process.cwd()}/libs/dep1
-            `
+            `,
           );
         }
-        return { status: 0 };
+        return {
+          status: 0,
+          output: [''],
+          pid: 0,
+          signal: null,
+          stderr: null,
+          stdout: null,
+        };
       });
 
       const options: BuildExecutorSchema = {
@@ -971,14 +1031,14 @@ describe('Build Executor', () => {
       expect(existsSync(`${buildPath}/app`)).toBeTruthy();
       expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
       expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
-      expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['build'], {
+      expect(spawn.sync).toHaveBeenCalledWith('poetry', ['build'], {
         cwd: buildPath,
         shell: false,
         stdio: 'inherit',
       });
 
       const projectTomlData = parse(
-        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8')
+        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8'),
       ) as PyprojectToml;
 
       expect(projectTomlData.tool.poetry.packages).toStrictEqual([
@@ -995,7 +1055,7 @@ describe('Build Executor', () => {
       });
 
       expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual(
-        {}
+        {},
       );
 
       expect(output.success).toBe(true);
@@ -1078,7 +1138,7 @@ describe('Build Executor', () => {
         `,
       });
 
-      spawnSyncMock.mockImplementation((_, args, opts) => {
+      vi.mocked(spawn.sync).mockImplementation((_, args, opts) => {
         if (args[0] == 'build') {
           spawnBuildMockImpl(opts);
         } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
@@ -1089,10 +1149,17 @@ describe('Build Executor', () => {
               pendulum==2.1.2
               dep1 @ file://${process.cwd()}/libs/dep1
               numpy==1.21.0; python_version >= "3.8" and python_version < "4.0"
-            `
+            `,
           );
         }
-        return { status: 0 };
+        return {
+          status: 0,
+          output: [''],
+          pid: 0,
+          signal: null,
+          stderr: null,
+          stdout: null,
+        };
       });
 
       const options: BuildExecutorSchema = {
@@ -1132,7 +1199,7 @@ describe('Build Executor', () => {
       expect(existsSync(`${buildPath}/app`)).toBeTruthy();
       expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
       expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
-      expect(spawnSyncMock).toHaveBeenNthCalledWith(
+      expect(spawn.sync).toHaveBeenNthCalledWith(
         1,
         'poetry',
         [
@@ -1150,16 +1217,16 @@ describe('Build Executor', () => {
           cwd: 'apps/app',
           shell: false,
           stdio: 'inherit',
-        }
+        },
       );
-      expect(spawnSyncMock).toHaveBeenNthCalledWith(2, 'poetry', ['build'], {
+      expect(spawn.sync).toHaveBeenNthCalledWith(2, 'poetry', ['build'], {
         cwd: buildPath,
         shell: false,
         stdio: 'inherit',
       });
 
       const projectTomlData = parse(
-        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8')
+        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8'),
       ) as PyprojectToml;
 
       expect(projectTomlData.tool.poetry.packages).toStrictEqual([
@@ -1190,7 +1257,7 @@ describe('Build Executor', () => {
       });
 
       expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual(
-        {}
+        {},
       );
     });
 
@@ -1220,7 +1287,7 @@ describe('Build Executor', () => {
         `,
       });
 
-      spawnSyncMock.mockImplementation((_, args, opts) => {
+      vi.mocked(spawn.sync).mockImplementation((_, args, opts) => {
         if (args[0] == 'build') {
           spawnBuildMockImpl(opts);
         } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
@@ -1228,10 +1295,17 @@ describe('Build Executor', () => {
             join(buildPath, 'requirements.txt'),
             dedent`
               moto[s3,sqs]==2.3.2
-            `
+            `,
           );
         }
-        return { status: 0 };
+        return {
+          status: 0,
+          output: [''],
+          pid: 0,
+          signal: null,
+          stderr: null,
+          stdout: null,
+        };
       });
 
       const options: BuildExecutorSchema = {
@@ -1265,14 +1339,14 @@ describe('Build Executor', () => {
       expect(existsSync(buildPath)).toBeTruthy();
       expect(existsSync(`${buildPath}/app`)).toBeTruthy();
       expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
-      expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['build'], {
+      expect(spawn.sync).toHaveBeenCalledWith('poetry', ['build'], {
         cwd: buildPath,
         shell: false,
         stdio: 'inherit',
       });
 
       const projectTomlData = parse(
-        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8')
+        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8'),
       ) as PyprojectToml;
       expect(projectTomlData.tool.poetry.packages).toStrictEqual([
         {
@@ -1289,7 +1363,7 @@ describe('Build Executor', () => {
         },
       });
       expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual(
-        {}
+        {},
       );
       expect(output.success).toBe(true);
     });
@@ -1320,13 +1394,20 @@ describe('Build Executor', () => {
         `,
       });
 
-      spawnSyncMock.mockImplementation((_, args, opts) => {
+      vi.mocked(spawn.sync).mockImplementation((_, args, opts) => {
         if (args[0] == 'build') {
           spawnBuildMockImpl(opts);
         } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
           writeFileSync(join(buildPath, 'requirements.txt'), 'click==7.1.2');
         }
-        return { status: 0 };
+        return {
+          status: 0,
+          output: [''],
+          pid: 0,
+          signal: null,
+          stderr: null,
+          stdout: null,
+        };
       });
 
       const options: BuildExecutorSchema = {
@@ -1388,13 +1469,20 @@ describe('Build Executor', () => {
         `,
       });
 
-      spawnSyncMock.mockImplementation((_, args, opts) => {
+      vi.mocked(spawn.sync).mockImplementation((_, args, opts) => {
         if (args[0] == 'build') {
           spawnBuildMockImpl(opts);
         } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
           writeFileSync(join(buildPath, 'requirements.txt'), 'click==7.1.2');
         }
-        return { status: 0 };
+        return {
+          status: 0,
+          output: [''],
+          pid: 0,
+          signal: null,
+          stderr: null,
+          stdout: null,
+        };
       });
 
       const options: BuildExecutorSchema = {
@@ -1426,7 +1514,7 @@ describe('Build Executor', () => {
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
       expect(activateVenvMock).toHaveBeenCalledWith('.');
       expect(existsSync(buildPath)).not.toBeTruthy();
-      expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['build'], {
+      expect(spawn.sync).toHaveBeenCalledWith('poetry', ['build'], {
         cwd: buildPath,
         shell: false,
         stdio: 'inherit',
@@ -1452,13 +1540,20 @@ describe('Build Executor', () => {
         `,
       });
 
-      spawnSyncMock.mockImplementation((_, args, opts) => {
+      vi.mocked(spawn.sync).mockImplementation((_, args, opts) => {
         if (args[0] == 'build') {
           spawnBuildMockImpl(opts);
         } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
           throw Error('Poetry export error');
         }
-        return { status: 0 };
+        return {
+          status: 0,
+          output: [''],
+          pid: 0,
+          signal: null,
+          stderr: null,
+          stdout: null,
+        };
       });
 
       const options: BuildExecutorSchema = {
@@ -1532,9 +1627,16 @@ describe('Build Executor', () => {
         `,
       });
 
-      spawnSyncMock.mockImplementation((_, args, opts) => {
+      vi.mocked(spawn.sync).mockImplementation((_, args, opts) => {
         spawnBuildMockImpl(opts);
-        return { status: 0 };
+        return {
+          status: 0,
+          output: [''],
+          pid: 0,
+          signal: null,
+          stderr: null,
+          stdout: null,
+        };
       });
 
       const options: BuildExecutorSchema = {
@@ -1607,9 +1709,16 @@ describe('Build Executor', () => {
         `,
       });
 
-      spawnSyncMock.mockImplementation((_, args, opts) => {
+      vi.mocked(spawn.sync).mockImplementation((_, args, opts) => {
         spawnBuildMockImpl(opts);
-        return { status: 0 };
+        return {
+          status: 0,
+          output: [''],
+          pid: 0,
+          signal: null,
+          stderr: null,
+          stdout: null,
+        };
       });
 
       const options: BuildExecutorSchema = {
@@ -1648,14 +1757,14 @@ describe('Build Executor', () => {
       expect(existsSync(`${buildPath}/app`)).toBeTruthy();
       expect(existsSync(`${buildPath}/dep1`)).not.toBeTruthy();
       expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
-      expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['build'], {
+      expect(spawn.sync).toHaveBeenCalledWith('poetry', ['build'], {
         cwd: buildPath,
         shell: false,
         stdio: 'inherit',
       });
 
       const projectTomlData = parse(
-        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8')
+        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8'),
       ) as PyprojectToml;
 
       expect(projectTomlData.tool.poetry.packages).toStrictEqual([
@@ -1670,7 +1779,7 @@ describe('Build Executor', () => {
         dep1: '1.0.0',
       });
       expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual(
-        {}
+        {},
       );
     });
 
@@ -1712,9 +1821,16 @@ describe('Build Executor', () => {
         `,
       });
 
-      spawnSyncMock.mockImplementation((_, args, opts) => {
+      vi.mocked(spawn.sync).mockImplementation((_, args, opts) => {
         spawnBuildMockImpl(opts);
-        return { status: 0 };
+        return {
+          status: 0,
+          output: [''],
+          pid: 0,
+          signal: null,
+          stderr: null,
+          stdout: null,
+        };
       });
 
       const options: BuildExecutorSchema = {
@@ -1760,14 +1876,14 @@ describe('Build Executor', () => {
       expect(existsSync(`${buildPath}/app`)).toBeTruthy();
       expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
       expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
-      expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['build'], {
+      expect(spawn.sync).toHaveBeenCalledWith('poetry', ['build'], {
         cwd: buildPath,
         shell: false,
         stdio: 'inherit',
       });
 
       const projectTomlData = parse(
-        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8')
+        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8'),
       ) as PyprojectToml;
 
       expect(projectTomlData.tool.poetry.packages).toStrictEqual([
@@ -1785,7 +1901,7 @@ describe('Build Executor', () => {
         numpy: '^1.21.0',
       });
       expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual(
-        {}
+        {},
       );
     });
 
@@ -1844,9 +1960,16 @@ describe('Build Executor', () => {
         `,
       });
 
-      spawnSyncMock.mockImplementation((_, args, opts) => {
+      vi.mocked(spawn.sync).mockImplementation((_, args, opts) => {
         spawnBuildMockImpl(opts);
-        return { status: 0 };
+        return {
+          status: 0,
+          output: [''],
+          pid: 0,
+          signal: null,
+          stderr: null,
+          stdout: null,
+        };
       });
 
       const options: BuildExecutorSchema = {
@@ -1904,14 +2027,14 @@ describe('Build Executor', () => {
       expect(existsSync(`${buildPath}/app`)).toBeTruthy();
       expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
       expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
-      expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['build'], {
+      expect(spawn.sync).toHaveBeenCalledWith('poetry', ['build'], {
         cwd: buildPath,
         shell: false,
         stdio: 'inherit',
       });
 
       const projectTomlData = parse(
-        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8')
+        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8'),
       ) as PyprojectToml;
 
       expect(projectTomlData.tool.poetry.source).toStrictEqual([
@@ -1940,7 +2063,7 @@ describe('Build Executor', () => {
         dep2: { version: '1.0.0', source: 'foo' },
       });
       expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual(
-        {}
+        {},
       );
     });
 
@@ -2051,9 +2174,16 @@ describe('Build Executor', () => {
         `,
       });
 
-      spawnSyncMock.mockImplementation((_, args, opts) => {
+      vi.mocked(spawn.sync).mockImplementation((_, args, opts) => {
         spawnBuildMockImpl(opts);
-        return { status: 0 };
+        return {
+          status: 0,
+          output: [''],
+          pid: 0,
+          signal: null,
+          stderr: null,
+          stdout: null,
+        };
       });
 
       const options: BuildExecutorSchema = {
@@ -2148,14 +2278,14 @@ describe('Build Executor', () => {
       expect(existsSync(buildPath)).toBeTruthy();
       expect(existsSync(`${buildPath}/app`)).toBeTruthy();
       expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
-      expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['build'], {
+      expect(spawn.sync).toHaveBeenCalledWith('poetry', ['build'], {
         cwd: buildPath,
         shell: false,
         stdio: 'inherit',
       });
 
       const projectTomlData = parse(
-        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8')
+        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8'),
       ) as PyprojectToml;
 
       expect(projectTomlData.tool.poetry.source).toStrictEqual([
@@ -2201,13 +2331,13 @@ describe('Build Executor', () => {
         },
       });
       expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual(
-        {}
+        {},
       );
     });
   });
 });
 
-function spawnBuildMockImpl(opts: Record<string, string>) {
-  mkdirsSync(join(opts.cwd, 'dist'));
-  writeFileSync(join(opts.cwd, 'dist', 'app.fake'), 'fake data');
+function spawnBuildMockImpl(opts: SpawnSyncOptions) {
+  mkdirsSync(join(opts.cwd as string, 'dist'));
+  writeFileSync(join(opts.cwd as string, 'dist', 'app.fake'), 'fake data');
 }

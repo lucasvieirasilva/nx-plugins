@@ -1,4 +1,5 @@
-import { spawnSyncMock } from '../../utils/mocks/cross-spawn.mock';
+import { vi, MockInstance } from 'vitest';
+import '../../utils/mocks/cross-spawn.mock';
 import * as poetryUtils from '../../executors/utils/poetry';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import { Tree, readProjectConfiguration } from '@nx/devkit';
@@ -9,9 +10,10 @@ import dedent from 'string-dedent';
 import { parse, stringify } from '@iarna/toml';
 import { PyprojectToml } from '../../graph/dependency-graph';
 import path from 'path';
+import spawn from 'cross-spawn';
 
 describe('application generator', () => {
-  let checkPoetryExecutableMock: jest.SpyInstance;
+  let checkPoetryExecutableMock: MockInstance;
   let appTree: Tree;
   const options: PoetryProjectGeneratorSchema = {
     name: 'test',
@@ -33,15 +35,19 @@ describe('application generator', () => {
   };
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
 
     appTree = createTreeWithEmptyWorkspace({ layout: 'apps-libs' });
-    checkPoetryExecutableMock = jest.spyOn(
-      poetryUtils,
-      'checkPoetryExecutable'
-    );
+    checkPoetryExecutableMock = vi.spyOn(poetryUtils, 'checkPoetryExecutable');
     checkPoetryExecutableMock.mockResolvedValue(undefined);
-    spawnSyncMock.mockReturnValue({ status: 0 });
+    vi.mocked(spawn.sync).mockReturnValue({
+      status: 0,
+      output: [''],
+      pid: 0,
+      signal: null,
+      stderr: null,
+      stdout: null,
+    });
   });
 
   it('should throw an exception when the poetry is not installed', async () => {
@@ -69,7 +75,7 @@ describe('application generator', () => {
       assertGeneratedFilesBase(appTree, projectDirectory, moduleName);
 
       expect(
-        appTree.exists(`${projectDirectory}/tests/test_hello.py`)
+        appTree.exists(`${projectDirectory}/tests/test_hello.py`),
       ).toBeFalsy();
     });
 
@@ -88,7 +94,7 @@ describe('application generator', () => {
       assertGeneratedFilesBase(appTree, projectDirectory, moduleName);
 
       expect(
-        appTree.exists(`${projectDirectory}/tests/test_hello.py`)
+        appTree.exists(`${projectDirectory}/tests/test_hello.py`),
       ).toBeFalsy();
     });
   });
@@ -106,7 +112,7 @@ describe('application generator', () => {
 
       expect(appTree.exists(`${projectDirectory}/.flake8`)).toBeFalsy();
       expect(
-        appTree.exists(`${projectDirectory}/tests/test_hello.py`)
+        appTree.exists(`${projectDirectory}/tests/test_hello.py`),
       ).toBeFalsy();
     });
 
@@ -125,7 +131,7 @@ describe('application generator', () => {
 
       expect(appTree.exists(`${projectDirectory}/.flake8`)).toBeFalsy();
       expect(
-        appTree.exists(`${projectDirectory}/tests/test_hello.py`)
+        appTree.exists(`${projectDirectory}/tests/test_hello.py`),
       ).toBeFalsy();
     });
 
@@ -204,20 +210,6 @@ describe('application generator', () => {
       expect(config).toMatchSnapshot();
 
       assertGeneratedFilesBase(appTree, 'apps/test', 'test');
-      assertGeneratedFilesPyTest(appTree, 'apps/test');
-    });
-
-    it('should run successfully with flake8 linter and pytest with no reports', async () => {
-      await generator(appTree, {
-        ...options,
-        linter: 'flake8',
-        unitTestRunner: 'pytest',
-      });
-      const config = readProjectConfiguration(appTree, 'test');
-      expect(config).toMatchSnapshot();
-
-      assertGeneratedFilesBase(appTree, 'apps/test', 'test');
-      assertGeneratedFilesFlake8(appTree, 'apps/test');
       assertGeneratedFilesPyTest(appTree, 'apps/test');
     });
 
@@ -342,7 +334,7 @@ describe('application generator', () => {
       assertGeneratedFilesBase(
         appTree,
         'libs/shared/dev-lib',
-        'shared_dev_lib'
+        'shared_dev_lib',
       );
     });
 
@@ -376,7 +368,7 @@ describe('application generator', () => {
       assertGeneratedFilesBase(
         appTree,
         'libs/shared/dev-lib',
-        'shared_dev_lib'
+        'shared_dev_lib',
       );
     });
 
@@ -404,7 +396,7 @@ describe('application generator', () => {
 
       expect(appTree.exists(`apps/test/pyproject.toml`)).toBeTruthy();
       expect(
-        appTree.read(`apps/test/pyproject.toml`, 'utf8')
+        appTree.read(`apps/test/pyproject.toml`, 'utf8'),
       ).toMatchSnapshot();
     });
 
@@ -417,7 +409,7 @@ describe('application generator', () => {
       });
 
       const pyprojectToml = parse(
-        appTree.read('libs/shared/dev-lib/pyproject.toml', 'utf-8')
+        appTree.read('libs/shared/dev-lib/pyproject.toml', 'utf-8'),
       ) as PyprojectToml;
 
       pyprojectToml.tool.poetry.dependencies = {
@@ -433,7 +425,7 @@ describe('application generator', () => {
 
       appTree.write(
         'libs/shared/dev-lib/pyproject.toml',
-        stringify(pyprojectToml)
+        stringify(pyprojectToml),
       );
 
       await generator(appTree, {
@@ -459,7 +451,7 @@ describe('application generator', () => {
       assertGeneratedFilesBase(
         appTree,
         'libs/shared/dev-lib',
-        'shared_dev_lib'
+        'shared_dev_lib',
       );
     });
   });
@@ -478,7 +470,7 @@ describe('application generator', () => {
       [build-system]
       requires = ["poetry-core"]
       build-backend = "poetry.core.masonry.api"
-      `
+      `,
       );
 
       const callbackTask = await generator(appTree, options);
@@ -493,22 +485,22 @@ describe('application generator', () => {
 
       expect(appTree.exists(`${projectDirectory}/.flake8`)).toBeFalsy();
       expect(
-        appTree.exists(`${projectDirectory}/tests/test_hello.py`)
+        appTree.exists(`${projectDirectory}/tests/test_hello.py`),
       ).toBeFalsy();
 
       expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
 
-      expect(spawnSyncMock).toHaveBeenCalledTimes(2);
-      expect(spawnSyncMock).toHaveBeenNthCalledWith(
+      expect(spawn.sync).toHaveBeenCalledTimes(2);
+      expect(spawn.sync).toHaveBeenNthCalledWith(
         1,
         'poetry',
         ['lock', '--no-update'],
         {
           shell: false,
           stdio: 'inherit',
-        }
+        },
       );
-      expect(spawnSyncMock).toHaveBeenNthCalledWith(2, 'poetry', ['install'], {
+      expect(spawn.sync).toHaveBeenNthCalledWith(2, 'poetry', ['install'], {
         shell: false,
         stdio: 'inherit',
       });
@@ -527,7 +519,7 @@ describe('application generator', () => {
       [build-system]
       requires = ["poetry-core"]
       build-backend = "poetry.core.masonry.api"
-      `
+      `,
       );
 
       const callbackTask = await generator(appTree, {
@@ -545,22 +537,22 @@ describe('application generator', () => {
 
       expect(appTree.exists(`${projectDirectory}/.flake8`)).toBeFalsy();
       expect(
-        appTree.exists(`${projectDirectory}/tests/test_hello.py`)
+        appTree.exists(`${projectDirectory}/tests/test_hello.py`),
       ).toBeFalsy();
 
       expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
 
-      expect(spawnSyncMock).toHaveBeenCalledTimes(2);
-      expect(spawnSyncMock).toHaveBeenNthCalledWith(
+      expect(spawn.sync).toHaveBeenCalledTimes(2);
+      expect(spawn.sync).toHaveBeenNthCalledWith(
         1,
         'poetry',
         ['lock', '--no-update'],
         {
           shell: false,
           stdio: 'inherit',
-        }
+        },
       );
-      expect(spawnSyncMock).toHaveBeenNthCalledWith(2, 'poetry', ['install'], {
+      expect(spawn.sync).toHaveBeenNthCalledWith(2, 'poetry', ['install'], {
         shell: false,
         stdio: 'inherit',
       });
@@ -579,7 +571,7 @@ describe('application generator', () => {
       [build-system]
       requires = ["poetry-core"]
       build-backend = "poetry.core.masonry.api"
-      `
+      `,
       );
 
       const callbackTask = await generator(appTree, {
@@ -597,22 +589,22 @@ describe('application generator', () => {
 
       expect(appTree.exists(`${projectDirectory}/.flake8`)).toBeFalsy();
       expect(
-        appTree.exists(`${projectDirectory}/tests/test_hello.py`)
+        appTree.exists(`${projectDirectory}/tests/test_hello.py`),
       ).toBeFalsy();
 
       expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
 
-      expect(spawnSyncMock).toHaveBeenCalledTimes(2);
-      expect(spawnSyncMock).toHaveBeenNthCalledWith(
+      expect(spawn.sync).toHaveBeenCalledTimes(2);
+      expect(spawn.sync).toHaveBeenNthCalledWith(
         1,
         'poetry',
         ['lock', '--no-update'],
         {
           shell: false,
           stdio: 'inherit',
-        }
+        },
       );
-      expect(spawnSyncMock).toHaveBeenNthCalledWith(2, 'poetry', ['install'], {
+      expect(spawn.sync).toHaveBeenNthCalledWith(2, 'poetry', ['install'], {
         shell: false,
         stdio: 'inherit',
       });
@@ -634,7 +626,7 @@ describe('application generator', () => {
       [build-system]
       requires = ["poetry-core"]
       build-backend = "poetry.core.masonry.api"
-      `
+      `,
       );
 
       const callbackTask = await generator(appTree, {
@@ -652,22 +644,22 @@ describe('application generator', () => {
 
       expect(appTree.exists(`${projectDirectory}/.flake8`)).toBeFalsy();
       expect(
-        appTree.exists(`${projectDirectory}/tests/test_hello.py`)
+        appTree.exists(`${projectDirectory}/tests/test_hello.py`),
       ).toBeFalsy();
 
       expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
 
-      expect(spawnSyncMock).toHaveBeenCalledTimes(2);
-      expect(spawnSyncMock).toHaveBeenNthCalledWith(
+      expect(spawn.sync).toHaveBeenCalledTimes(2);
+      expect(spawn.sync).toHaveBeenNthCalledWith(
         1,
         'poetry',
         ['lock', '--no-update'],
         {
           shell: false,
           stdio: 'inherit',
-        }
+        },
       );
-      expect(spawnSyncMock).toHaveBeenNthCalledWith(2, 'poetry', ['install'], {
+      expect(spawn.sync).toHaveBeenNthCalledWith(2, 'poetry', ['install'], {
         shell: false,
         stdio: 'inherit',
       });
@@ -684,7 +676,7 @@ describe('application generator', () => {
       expect(config).toMatchSnapshot();
 
       expect(
-        appTree.read('apps/test/pyproject.toml', 'utf-8')
+        appTree.read('apps/test/pyproject.toml', 'utf-8'),
       ).toMatchSnapshot();
 
       expect(appTree.read('apps/test/poetry.toml', 'utf-8')).toMatchSnapshot();
@@ -695,44 +687,44 @@ describe('application generator', () => {
 function assertGeneratedFilesBase(
   appTree: Tree,
   projectDirectory: string,
-  moduleName: string
+  moduleName: string,
 ) {
   expect(appTree.exists(`${projectDirectory}/README.md`)).toBeTruthy();
   expect(
-    appTree.read(`${projectDirectory}/README.md`, 'utf8')
+    appTree.read(`${projectDirectory}/README.md`, 'utf8'),
   ).toMatchSnapshot();
 
   expect(appTree.exists(`${projectDirectory}/pyproject.toml`)).toBeTruthy();
   expect(
-    appTree.read(`${projectDirectory}/pyproject.toml`, 'utf8')
+    appTree.read(`${projectDirectory}/pyproject.toml`, 'utf8'),
   ).toMatchSnapshot();
 
   expect(
-    appTree.exists(`${projectDirectory}/${moduleName}/hello.py`)
+    appTree.exists(`${projectDirectory}/${moduleName}/hello.py`),
   ).toBeTruthy();
 
   expect(
-    appTree.read(`${projectDirectory}/${moduleName}/hello.py`, 'utf-8')
+    appTree.read(`${projectDirectory}/${moduleName}/hello.py`, 'utf-8'),
   ).toMatchSnapshot();
 
   expect(
-    appTree.read(`${projectDirectory}/.python-version`, 'utf-8')
+    appTree.read(`${projectDirectory}/.python-version`, 'utf-8'),
   ).toMatchSnapshot();
 }
 
 function assertGeneratedFilesFlake8(appTree: Tree, projectDirectory: string) {
   expect(appTree.exists(`${projectDirectory}/.flake8`)).toBeTruthy();
   expect(
-    appTree.read(`${projectDirectory}/.flake8`, 'utf-8')
+    appTree.read(`${projectDirectory}/.flake8`, 'utf-8'),
   ).toMatchSnapshot();
 }
 
 function assertGeneratedFilesPyTest(appTree: Tree, projectDirectory: string) {
   expect(
-    appTree.exists(`${projectDirectory}/tests/test_hello.py`)
+    appTree.exists(`${projectDirectory}/tests/test_hello.py`),
   ).toBeTruthy();
 
   expect(
-    appTree.read(`${projectDirectory}/tests/test_hello.py`, 'utf-8')
+    appTree.read(`${projectDirectory}/tests/test_hello.py`, 'utf-8'),
   ).toMatchSnapshot();
 }

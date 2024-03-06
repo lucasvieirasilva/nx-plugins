@@ -11,7 +11,7 @@ const logger = new Logger();
 
 export default async function executor(
   options: ExecutorSchema,
-  context: ExecutorContext
+  context: ExecutorContext,
 ) {
   const workspaceRoot = context.root;
   process.chdir(workspaceRoot);
@@ -23,7 +23,7 @@ export default async function executor(
 
   try {
     logger.info(
-      chalk`\n  {bold Running serverless framework deploy on project {bgBlue  ${context.projectName} }...}\n`
+      chalk`\n  {bold Running serverless framework deploy on project {bgBlue  ${context.projectName} }...}\n`,
     );
 
     const distFolder = path.join(cwd, 'dist');
@@ -32,7 +32,7 @@ export default async function executor(
     }
 
     const whlFile = readdirSync(distFolder).find((file) =>
-      file.endsWith('.whl')
+      file.endsWith('.whl'),
     );
     if (!whlFile) {
       throw new Error(`No .whl file found in dist folder: ${distFolder}`);

@@ -5,12 +5,8 @@
   "sourceRoot": "e2e/data-migration-e2e/src",
   "targets": {
     "e2e": {
-      "executor": "@nx/jest:jest",
-      "options": {
-        "jestConfig": "e2e/data-migration-e2e/jest.config.ts",
-        "runInBand": true,
-        "passWithNoTests": false
-      },
+      "executor": "@nx/vite:test",
+      "options": {},
       "dependsOn": ["data-migration:build"]
     },
     "lint": {

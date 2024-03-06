@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`application generator as-provided should run successfully minimal configuration 1`] = `
+exports[`application generator > as-provided > should run successfully minimal configuration 1`] = `
 {
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "name": "my-app-test",
@@ -54,14 +54,14 @@ exports[`application generator as-provided should run successfully minimal confi
 }
 `;
 
-exports[`application generator as-provided should run successfully minimal configuration 2`] = `
+exports[`application generator > as-provided > should run successfully minimal configuration 2`] = `
 "# my-app-test
 
 Project description here.
 "
 `;
 
-exports[`application generator as-provided should run successfully minimal configuration 3`] = `
+exports[`application generator > as-provided > should run successfully minimal configuration 3`] = `
 "[tool.poetry]
 name = "my-app-test"
 version = "1.0.0"
@@ -82,7 +82,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator as-provided should run successfully minimal configuration 4`] = `
+exports[`application generator > as-provided > should run successfully minimal configuration 4`] = `
 """"Sample Hello World application."""
 
 
@@ -92,12 +92,12 @@ def hello():
 "
 `;
 
-exports[`application generator as-provided should run successfully minimal configuration 5`] = `
+exports[`application generator > as-provided > should run successfully minimal configuration 5`] = `
 "3.9.5
 "
 `;
 
-exports[`application generator as-provided should run successfully minimal configuration without directory 1`] = `
+exports[`application generator > as-provided > should run successfully minimal configuration without directory 1`] = `
 {
   "$schema": "../node_modules/nx/schemas/project-schema.json",
   "name": "my-app-test",
@@ -151,14 +151,14 @@ exports[`application generator as-provided should run successfully minimal confi
 }
 `;
 
-exports[`application generator as-provided should run successfully minimal configuration without directory 2`] = `
+exports[`application generator > as-provided > should run successfully minimal configuration without directory 2`] = `
 "# my-app-test
 
 Project description here.
 "
 `;
 
-exports[`application generator as-provided should run successfully minimal configuration without directory 3`] = `
+exports[`application generator > as-provided > should run successfully minimal configuration without directory 3`] = `
 "[tool.poetry]
 name = "my-app-test"
 version = "1.0.0"
@@ -179,7 +179,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator as-provided should run successfully minimal configuration without directory 4`] = `
+exports[`application generator > as-provided > should run successfully minimal configuration without directory 4`] = `
 """"Sample Hello World application."""
 
 
@@ -189,12 +189,12 @@ def hello():
 "
 `;
 
-exports[`application generator as-provided should run successfully minimal configuration without directory 5`] = `
+exports[`application generator > as-provided > should run successfully minimal configuration without directory 5`] = `
 "3.9.5
 "
 `;
 
-exports[`application generator custom template dir should run successfully with custom template dir 1`] = `
+exports[`application generator > custom template dir > should run successfully with custom template dir 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -248,7 +248,7 @@ exports[`application generator custom template dir should run successfully with 
 }
 `;
 
-exports[`application generator custom template dir should run successfully with custom template dir 2`] = `
+exports[`application generator > custom template dir > should run successfully with custom template dir 2`] = `
 "[tool.poetry]
 name = "test"
 version = "1.0.0"
@@ -267,13 +267,13 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator custom template dir should run successfully with custom template dir 3`] = `
+exports[`application generator > custom template dir > should run successfully with custom template dir 3`] = `
 "[virtualenvs]
 in-project = true
 "
 `;
 
-exports[`application generator individual package should run successfully minimal configuration 1`] = `
+exports[`application generator > individual package > should run successfully minimal configuration 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -327,14 +327,14 @@ exports[`application generator individual package should run successfully minima
 }
 `;
 
-exports[`application generator individual package should run successfully minimal configuration 2`] = `
+exports[`application generator > individual package > should run successfully minimal configuration 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator individual package should run successfully minimal configuration 3`] = `
+exports[`application generator > individual package > should run successfully minimal configuration 3`] = `
 "[tool.poetry]
 name = "test"
 version = "1.0.0"
@@ -355,7 +355,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator individual package should run successfully minimal configuration 4`] = `
+exports[`application generator > individual package > should run successfully minimal configuration 4`] = `
 """"Sample Hello World application."""
 
 
@@ -365,12 +365,12 @@ def hello():
 "
 `;
 
-exports[`application generator individual package should run successfully minimal configuration 5`] = `
+exports[`application generator > individual package > should run successfully minimal configuration 5`] = `
 "3.9.5
 "
 `;
 
-exports[`application generator individual package should run successfully minimal configuration as a library 1`] = `
+exports[`application generator > individual package > should run successfully minimal configuration as a library 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -424,14 +424,14 @@ exports[`application generator individual package should run successfully minima
 }
 `;
 
-exports[`application generator individual package should run successfully minimal configuration as a library 2`] = `
+exports[`application generator > individual package > should run successfully minimal configuration as a library 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator individual package should run successfully minimal configuration as a library 3`] = `
+exports[`application generator > individual package > should run successfully minimal configuration as a library 3`] = `
 "[tool.poetry]
 name = "test"
 version = "1.0.0"
@@ -452,7 +452,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator individual package should run successfully minimal configuration as a library 4`] = `
+exports[`application generator > individual package > should run successfully minimal configuration as a library 4`] = `
 """"Sample Hello World application."""
 
 
@@ -462,12 +462,12 @@ def hello():
 "
 `;
 
-exports[`application generator individual package should run successfully minimal configuration as a library 5`] = `
+exports[`application generator > individual package > should run successfully minimal configuration as a library 5`] = `
 "3.9.5
 "
 `;
 
-exports[`application generator individual package should run successfully minimal configuration custom directory 1`] = `
+exports[`application generator > individual package > should run successfully minimal configuration custom directory 1`] = `
 {
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "name": "subdir-test",
@@ -521,14 +521,14 @@ exports[`application generator individual package should run successfully minima
 }
 `;
 
-exports[`application generator individual package should run successfully minimal configuration custom directory 2`] = `
+exports[`application generator > individual package > should run successfully minimal configuration custom directory 2`] = `
 "# subdir-test
 
 Project description here.
 "
 `;
 
-exports[`application generator individual package should run successfully minimal configuration custom directory 3`] = `
+exports[`application generator > individual package > should run successfully minimal configuration custom directory 3`] = `
 "[tool.poetry]
 name = "subdir-test"
 version = "1.0.0"
@@ -549,7 +549,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator individual package should run successfully minimal configuration custom directory 4`] = `
+exports[`application generator > individual package > should run successfully minimal configuration custom directory 4`] = `
 """"Sample Hello World application."""
 
 
@@ -559,12 +559,12 @@ def hello():
 "
 `;
 
-exports[`application generator individual package should run successfully minimal configuration custom directory 5`] = `
+exports[`application generator > individual package > should run successfully minimal configuration custom directory 5`] = `
 "3.9.5
 "
 `;
 
-exports[`application generator individual package should run successfully minimal configuration with tags 1`] = `
+exports[`application generator > individual package > should run successfully minimal configuration with tags 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -621,14 +621,14 @@ exports[`application generator individual package should run successfully minima
 }
 `;
 
-exports[`application generator individual package should run successfully minimal configuration with tags 2`] = `
+exports[`application generator > individual package > should run successfully minimal configuration with tags 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator individual package should run successfully minimal configuration with tags 3`] = `
+exports[`application generator > individual package > should run successfully minimal configuration with tags 3`] = `
 "[tool.poetry]
 name = "test"
 version = "1.0.0"
@@ -649,7 +649,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator individual package should run successfully minimal configuration with tags 4`] = `
+exports[`application generator > individual package > should run successfully minimal configuration with tags 4`] = `
 """"Sample Hello World application."""
 
 
@@ -659,12 +659,12 @@ def hello():
 "
 `;
 
-exports[`application generator individual package should run successfully minimal configuration with tags 5`] = `
+exports[`application generator > individual package > should run successfully minimal configuration with tags 5`] = `
 "3.9.5
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter 1`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -727,14 +727,14 @@ exports[`application generator individual package should run successfully with f
 }
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter 2`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter 3`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter 3`] = `
 "[tool.poetry]
 name = "test"
 version = "1.0.0"
@@ -759,7 +759,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter 4`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter 4`] = `
 """"Sample Hello World application."""
 
 
@@ -769,12 +769,12 @@ def hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter 5`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter 5`] = `
 "3.9.5
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter 6`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter 6`] = `
 "[flake8]
 exclude =
 	.git,
@@ -789,7 +789,7 @@ max-line-length = 120
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html coverage report 1`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html coverage report 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -863,14 +863,14 @@ exports[`application generator individual package should run successfully with f
 }
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html coverage report 2`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html coverage report 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html coverage report 3`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html coverage report 3`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "test" ]
@@ -910,7 +910,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html coverage report 4`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html coverage report 4`] = `
 """"Sample Hello World application."""
 
 
@@ -920,12 +920,12 @@ def hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html coverage report 5`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html coverage report 5`] = `
 "3.9.5
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html coverage report 6`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html coverage report 6`] = `
 "[flake8]
 exclude =
 	.git,
@@ -940,7 +940,7 @@ max-line-length = 120
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html coverage report 7`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html coverage report 7`] = `
 """"Hello unit test module."""
 
 from test.hello import hello
@@ -952,7 +952,7 @@ def test_hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports 1`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -1026,14 +1026,14 @@ exports[`application generator individual package should run successfully with f
 }
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports 2`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports 3`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports 3`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "test" ]
@@ -1073,7 +1073,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports 4`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports 4`] = `
 """"Sample Hello World application."""
 
 
@@ -1083,12 +1083,12 @@ def hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports 5`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports 5`] = `
 "3.9.5
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports 6`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports 6`] = `
 "[flake8]
 exclude =
 	.git,
@@ -1103,7 +1103,7 @@ max-line-length = 120
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports 7`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports 7`] = `
 """"Hello unit test module."""
 
 from test.hello import hello
@@ -1115,7 +1115,7 @@ def test_hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 1`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -1189,14 +1189,14 @@ exports[`application generator individual package should run successfully with f
 }
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 2`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 3`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 3`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "test" ]
@@ -1236,7 +1236,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 4`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 4`] = `
 """"Sample Hello World application."""
 
 
@@ -1246,12 +1246,12 @@ def hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 5`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 5`] = `
 "3.9.5
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 6`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 6`] = `
 "[flake8]
 exclude =
 	.git,
@@ -1266,7 +1266,7 @@ max-line-length = 120
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 7`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 7`] = `
 """"Hello unit test module."""
 
 from test.hello import hello
@@ -1278,7 +1278,7 @@ def test_hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 1`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -1352,14 +1352,14 @@ exports[`application generator individual package should run successfully with f
 }
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 2`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 3`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 3`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "test" ]
@@ -1399,7 +1399,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 4`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 4`] = `
 """"Sample Hello World application."""
 
 
@@ -1409,12 +1409,12 @@ def hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 5`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 5`] = `
 "3.9.5
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 6`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 6`] = `
 "[flake8]
 exclude =
 	.git,
@@ -1429,7 +1429,7 @@ max-line-length = 120
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 7`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 7`] = `
 """"Hello unit test module."""
 
 from test.hello import hello
@@ -1441,7 +1441,7 @@ def test_hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 1`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -1515,14 +1515,14 @@ exports[`application generator individual package should run successfully with f
 }
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 2`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 3`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 3`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "test" ]
@@ -1562,7 +1562,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 4`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 4`] = `
 """"Sample Hello World application."""
 
 
@@ -1572,12 +1572,12 @@ def hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 5`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 5`] = `
 "3.9.5
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 6`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 6`] = `
 "[flake8]
 exclude =
 	.git,
@@ -1592,7 +1592,7 @@ max-line-length = 120
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 7`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 7`] = `
 """"Hello unit test module."""
 
 from test.hello import hello
@@ -1604,7 +1604,7 @@ def test_hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with no reports 1`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with no reports 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -1678,14 +1678,14 @@ exports[`application generator individual package should run successfully with f
 }
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with no reports 2`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with no reports 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with no reports 3`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with no reports 3`] = `
 "[tool.poetry]
 name = "test"
 version = "1.0.0"
@@ -1712,7 +1712,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with no reports 4`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with no reports 4`] = `
 """"Sample Hello World application."""
 
 
@@ -1722,12 +1722,12 @@ def hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with no reports 5`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with no reports 5`] = `
 "3.9.5
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with no reports 6`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with no reports 6`] = `
 "[flake8]
 exclude =
 	.git,
@@ -1742,7 +1742,7 @@ max-line-length = 120
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with no reports 7`] = `
+exports[`application generator > individual package > should run successfully with flake8 linter and pytest with no reports 7`] = `
 """"Hello unit test module."""
 
 from test.hello import hello
@@ -1754,7 +1754,7 @@ def test_hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with no reports 8`] = `
+exports[`application generator > individual package > should run successfully with linting (flake8) and testing options with a dev dependency project 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -1828,164 +1828,14 @@ exports[`application generator individual package should run successfully with f
 }
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with no reports 9`] = `
+exports[`application generator > individual package > should run successfully with linting (flake8) and testing options with a dev dependency project 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator individual package should run successfully with flake8 linter and pytest with no reports 10`] = `
-"[tool.poetry]
-name = "test"
-version = "1.0.0"
-description = "Automatically generated by Nx."
-authors = [ ]
-license = 'Proprietary'
-readme = 'README.md'
-
-  [[tool.poetry.packages]]
-  include = "test"
-
-  [tool.poetry.dependencies]
-  python = ">=3.9,<3.11"
-
-  [tool.poetry.group.dev.dependencies]
-  autopep8 = "2.0.2"
-  flake8 = "6.0.0"
-  pytest = "7.3.1"
-  pytest-sugar = "0.9.7"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-"
-`;
-
-exports[`application generator individual package should run successfully with flake8 linter and pytest with no reports 11`] = `
-""""Sample Hello World application."""
-
-
-def hello():
-    """Return a friendly greeting."""
-    return "Hello test"
-"
-`;
-
-exports[`application generator individual package should run successfully with flake8 linter and pytest with no reports 12`] = `
-"3.9.5
-"
-`;
-
-exports[`application generator individual package should run successfully with flake8 linter and pytest with no reports 13`] = `
-"[flake8]
-exclude =
-	.git,
-	__pycache__,
-	build,
-	dist,
-	.tox,
-	venv,
-	.venv,
-	.pytest_cache
-max-line-length = 120
-"
-`;
-
-exports[`application generator individual package should run successfully with flake8 linter and pytest with no reports 14`] = `
-""""Hello unit test module."""
-
-from test.hello import hello
-
-
-def test_hello():
-    """Test the hello function."""
-    assert hello() == "Hello test"
-"
-`;
-
-exports[`application generator individual package should run successfully with linting (flake8) and testing options with a dev dependency project 1`] = `
-{
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "name": "test",
-  "projectType": "application",
-  "root": "apps/test",
-  "sourceRoot": "apps/test/test",
-  "tags": [],
-  "targets": {
-    "add": {
-      "executor": "@nxlv/python:add",
-      "options": {},
-    },
-    "build": {
-      "executor": "@nxlv/python:build",
-      "options": {
-        "bundleLocalDependencies": false,
-        "lockedVersions": false,
-        "outputPath": "apps/test/dist",
-        "publish": false,
-      },
-      "outputs": [
-        "{projectRoot}/dist",
-      ],
-    },
-    "install": {
-      "executor": "@nxlv/python:install",
-      "options": {
-        "args": "",
-        "cacheDir": ".cache/pypoetry",
-        "debug": false,
-        "silent": false,
-        "verbose": false,
-      },
-    },
-    "lint": {
-      "executor": "@nxlv/python:flake8",
-      "options": {
-        "outputFile": "reports/apps/test/pylint.txt",
-      },
-      "outputs": [
-        "{workspaceRoot}/reports/apps/test/pylint.txt",
-      ],
-    },
-    "lock": {
-      "executor": "@nxlv/python:run-commands",
-      "options": {
-        "command": "poetry lock --no-update",
-        "cwd": "apps/test",
-      },
-    },
-    "remove": {
-      "executor": "@nxlv/python:remove",
-      "options": {},
-    },
-    "test": {
-      "executor": "@nxlv/python:run-commands",
-      "options": {
-        "command": "poetry run pytest tests/",
-        "cwd": "apps/test",
-      },
-      "outputs": [
-        "{workspaceRoot}/reports/apps/test/unittests",
-        "{workspaceRoot}/coverage/apps/test",
-      ],
-    },
-    "update": {
-      "executor": "@nxlv/python:update",
-      "options": {},
-    },
-  },
-}
-`;
-
-exports[`application generator individual package should run successfully with linting (flake8) and testing options with a dev dependency project 2`] = `
-"# test
-
-Project description here.
-"
-`;
-
-exports[`application generator individual package should run successfully with linting (flake8) and testing options with a dev dependency project 3`] = `
+exports[`application generator > individual package > should run successfully with linting (flake8) and testing options with a dev dependency project 3`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "test" ]
@@ -2021,7 +1871,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator individual package should run successfully with linting (flake8) and testing options with a dev dependency project 4`] = `
+exports[`application generator > individual package > should run successfully with linting (flake8) and testing options with a dev dependency project 4`] = `
 """"Sample Hello World application."""
 
 
@@ -2031,12 +1881,12 @@ def hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with linting (flake8) and testing options with a dev dependency project 5`] = `
+exports[`application generator > individual package > should run successfully with linting (flake8) and testing options with a dev dependency project 5`] = `
 "3.9.5
 "
 `;
 
-exports[`application generator individual package should run successfully with linting (flake8) and testing options with a dev dependency project 6`] = `
+exports[`application generator > individual package > should run successfully with linting (flake8) and testing options with a dev dependency project 6`] = `
 "[flake8]
 exclude =
 	.git,
@@ -2051,7 +1901,7 @@ max-line-length = 120
 "
 `;
 
-exports[`application generator individual package should run successfully with linting (flake8) and testing options with a dev dependency project 7`] = `
+exports[`application generator > individual package > should run successfully with linting (flake8) and testing options with a dev dependency project 7`] = `
 """"Hello unit test module."""
 
 from test.hello import hello
@@ -2063,14 +1913,14 @@ def test_hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with linting (flake8) and testing options with a dev dependency project 8`] = `
+exports[`application generator > individual package > should run successfully with linting (flake8) and testing options with a dev dependency project 8`] = `
 "# shared-dev-lib
 
 Project description here.
 "
 `;
 
-exports[`application generator individual package should run successfully with linting (flake8) and testing options with a dev dependency project 9`] = `
+exports[`application generator > individual package > should run successfully with linting (flake8) and testing options with a dev dependency project 9`] = `
 "[tool.poetry]
 name = "shared-dev-lib"
 version = "1.0.0"
@@ -2097,7 +1947,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator individual package should run successfully with linting (flake8) and testing options with a dev dependency project 10`] = `
+exports[`application generator > individual package > should run successfully with linting (flake8) and testing options with a dev dependency project 10`] = `
 """"Sample Hello World application."""
 
 
@@ -2107,12 +1957,12 @@ def hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with linting (flake8) and testing options with a dev dependency project 11`] = `
+exports[`application generator > individual package > should run successfully with linting (flake8) and testing options with a dev dependency project 11`] = `
 "3.9.5
 "
 `;
 
-exports[`application generator individual package should run successfully with linting (ruff) and testing options with a dev dependency project 1`] = `
+exports[`application generator > individual package > should run successfully with linting (ruff) and testing options with a dev dependency project 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -2187,14 +2037,14 @@ exports[`application generator individual package should run successfully with l
 }
 `;
 
-exports[`application generator individual package should run successfully with linting (ruff) and testing options with a dev dependency project 2`] = `
+exports[`application generator > individual package > should run successfully with linting (ruff) and testing options with a dev dependency project 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator individual package should run successfully with linting (ruff) and testing options with a dev dependency project 3`] = `
+exports[`application generator > individual package > should run successfully with linting (ruff) and testing options with a dev dependency project 3`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "test" ]
@@ -2230,7 +2080,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator individual package should run successfully with linting (ruff) and testing options with a dev dependency project 4`] = `
+exports[`application generator > individual package > should run successfully with linting (ruff) and testing options with a dev dependency project 4`] = `
 """"Sample Hello World application."""
 
 
@@ -2240,12 +2090,12 @@ def hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with linting (ruff) and testing options with a dev dependency project 5`] = `
+exports[`application generator > individual package > should run successfully with linting (ruff) and testing options with a dev dependency project 5`] = `
 "3.9.5
 "
 `;
 
-exports[`application generator individual package should run successfully with linting (ruff) and testing options with a dev dependency project 6`] = `
+exports[`application generator > individual package > should run successfully with linting (ruff) and testing options with a dev dependency project 6`] = `
 """"Hello unit test module."""
 
 from test.hello import hello
@@ -2257,14 +2107,14 @@ def test_hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with linting (ruff) and testing options with a dev dependency project 7`] = `
+exports[`application generator > individual package > should run successfully with linting (ruff) and testing options with a dev dependency project 7`] = `
 "# shared-dev-lib
 
 Project description here.
 "
 `;
 
-exports[`application generator individual package should run successfully with linting (ruff) and testing options with a dev dependency project 8`] = `
+exports[`application generator > individual package > should run successfully with linting (ruff) and testing options with a dev dependency project 8`] = `
 "[tool.poetry]
 name = "shared-dev-lib"
 version = "1.0.0"
@@ -2291,7 +2141,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator individual package should run successfully with linting (ruff) and testing options with a dev dependency project 9`] = `
+exports[`application generator > individual package > should run successfully with linting (ruff) and testing options with a dev dependency project 9`] = `
 """"Sample Hello World application."""
 
 
@@ -2301,12 +2151,12 @@ def hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with linting (ruff) and testing options with a dev dependency project 10`] = `
+exports[`application generator > individual package > should run successfully with linting (ruff) and testing options with a dev dependency project 10`] = `
 "3.9.5
 "
 `;
 
-exports[`application generator individual package should run successfully with linting and testing options with a dev dependency project with custom package name 1`] = `
+exports[`application generator > individual package > should run successfully with linting and testing options with a dev dependency project with custom package name 1`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "test" ]
@@ -2342,7 +2192,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator individual package should run successfully with linting and testing options with an existing dev dependency project 1`] = `
+exports[`application generator > individual package > should run successfully with linting and testing options with an existing dev dependency project 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -2416,14 +2266,14 @@ exports[`application generator individual package should run successfully with l
 }
 `;
 
-exports[`application generator individual package should run successfully with linting and testing options with an existing dev dependency project 2`] = `
+exports[`application generator > individual package > should run successfully with linting and testing options with an existing dev dependency project 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator individual package should run successfully with linting and testing options with an existing dev dependency project 3`] = `
+exports[`application generator > individual package > should run successfully with linting and testing options with an existing dev dependency project 3`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "test" ]
@@ -2459,7 +2309,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator individual package should run successfully with linting and testing options with an existing dev dependency project 4`] = `
+exports[`application generator > individual package > should run successfully with linting and testing options with an existing dev dependency project 4`] = `
 """"Sample Hello World application."""
 
 
@@ -2469,12 +2319,12 @@ def hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with linting and testing options with an existing dev dependency project 5`] = `
+exports[`application generator > individual package > should run successfully with linting and testing options with an existing dev dependency project 5`] = `
 "3.9.5
 "
 `;
 
-exports[`application generator individual package should run successfully with linting and testing options with an existing dev dependency project 6`] = `
+exports[`application generator > individual package > should run successfully with linting and testing options with an existing dev dependency project 6`] = `
 "[flake8]
 exclude =
 	.git,
@@ -2489,7 +2339,7 @@ max-line-length = 120
 "
 `;
 
-exports[`application generator individual package should run successfully with linting and testing options with an existing dev dependency project 7`] = `
+exports[`application generator > individual package > should run successfully with linting and testing options with an existing dev dependency project 7`] = `
 """"Hello unit test module."""
 
 from test.hello import hello
@@ -2501,14 +2351,14 @@ def test_hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with linting and testing options with an existing dev dependency project 8`] = `
+exports[`application generator > individual package > should run successfully with linting and testing options with an existing dev dependency project 8`] = `
 "# shared-dev-lib
 
 Project description here.
 "
 `;
 
-exports[`application generator individual package should run successfully with linting and testing options with an existing dev dependency project 9`] = `
+exports[`application generator > individual package > should run successfully with linting and testing options with an existing dev dependency project 9`] = `
 "[tool.poetry]
 name = "shared-dev-lib"
 version = "1.0.0"
@@ -2536,7 +2386,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator individual package should run successfully with linting and testing options with an existing dev dependency project 10`] = `
+exports[`application generator > individual package > should run successfully with linting and testing options with an existing dev dependency project 10`] = `
 """"Sample Hello World application."""
 
 
@@ -2546,12 +2396,12 @@ def hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with linting and testing options with an existing dev dependency project 11`] = `
+exports[`application generator > individual package > should run successfully with linting and testing options with an existing dev dependency project 11`] = `
 "3.9.5
 "
 `;
 
-exports[`application generator individual package should run successfully with ruff linter 1`] = `
+exports[`application generator > individual package > should run successfully with ruff linter 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -2614,14 +2464,14 @@ exports[`application generator individual package should run successfully with r
 }
 `;
 
-exports[`application generator individual package should run successfully with ruff linter 2`] = `
+exports[`application generator > individual package > should run successfully with ruff linter 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator individual package should run successfully with ruff linter 3`] = `
+exports[`application generator > individual package > should run successfully with ruff linter 3`] = `
 "[tool.poetry]
 name = "test"
 version = "1.0.0"
@@ -2674,7 +2524,7 @@ unfixable = []
 "
 `;
 
-exports[`application generator individual package should run successfully with ruff linter 4`] = `
+exports[`application generator > individual package > should run successfully with ruff linter 4`] = `
 """"Sample Hello World application."""
 
 
@@ -2684,12 +2534,12 @@ def hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with ruff linter 5`] = `
+exports[`application generator > individual package > should run successfully with ruff linter 5`] = `
 "3.9.5
 "
 `;
 
-exports[`application generator individual package should run successfully with ruff linter and pytest with no reports 1`] = `
+exports[`application generator > individual package > should run successfully with ruff linter and pytest with no reports 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -2764,14 +2614,14 @@ exports[`application generator individual package should run successfully with r
 }
 `;
 
-exports[`application generator individual package should run successfully with ruff linter and pytest with no reports 2`] = `
+exports[`application generator > individual package > should run successfully with ruff linter and pytest with no reports 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator individual package should run successfully with ruff linter and pytest with no reports 3`] = `
+exports[`application generator > individual package > should run successfully with ruff linter and pytest with no reports 3`] = `
 "[tool.poetry]
 name = "test"
 version = "1.0.0"
@@ -2830,7 +2680,7 @@ unfixable = []
 "
 `;
 
-exports[`application generator individual package should run successfully with ruff linter and pytest with no reports 4`] = `
+exports[`application generator > individual package > should run successfully with ruff linter and pytest with no reports 4`] = `
 """"Sample Hello World application."""
 
 
@@ -2840,12 +2690,12 @@ def hello():
 "
 `;
 
-exports[`application generator individual package should run successfully with ruff linter and pytest with no reports 5`] = `
+exports[`application generator > individual package > should run successfully with ruff linter and pytest with no reports 5`] = `
 "3.9.5
 "
 `;
 
-exports[`application generator individual package should run successfully with ruff linter and pytest with no reports 6`] = `
+exports[`application generator > individual package > should run successfully with ruff linter and pytest with no reports 6`] = `
 """"Hello unit test module."""
 
 from test.hello import hello
@@ -2857,7 +2707,7 @@ def test_hello():
 "
 `;
 
-exports[`application generator shared virtual environment should run successfully with minimal options 1`] = `
+exports[`application generator > shared virtual environment > should run successfully with minimal options 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -2911,14 +2761,14 @@ exports[`application generator shared virtual environment should run successfull
 }
 `;
 
-exports[`application generator shared virtual environment should run successfully with minimal options 2`] = `
+exports[`application generator > shared virtual environment > should run successfully with minimal options 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator shared virtual environment should run successfully with minimal options 3`] = `
+exports[`application generator > shared virtual environment > should run successfully with minimal options 3`] = `
 "[tool.poetry]
 name = "test"
 version = "1.0.0"
@@ -2939,7 +2789,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator shared virtual environment should run successfully with minimal options 4`] = `
+exports[`application generator > shared virtual environment > should run successfully with minimal options 4`] = `
 """"Sample Hello World application."""
 
 
@@ -2949,12 +2799,12 @@ def hello():
 "
 `;
 
-exports[`application generator shared virtual environment should run successfully with minimal options 5`] = `
+exports[`application generator > shared virtual environment > should run successfully with minimal options 5`] = `
 "3.9.5
 "
 `;
 
-exports[`application generator shared virtual environment should run successfully with minimal options 6`] = `
+exports[`application generator > shared virtual environment > should run successfully with minimal options 6`] = `
 "[tool.poetry]
 name = "workspace"
 
@@ -2974,7 +2824,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator shared virtual environment should run successfully with minimal options with custom rootPyprojectDependencyGroup 1`] = `
+exports[`application generator > shared virtual environment > should run successfully with minimal options with custom rootPyprojectDependencyGroup 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -3028,14 +2878,14 @@ exports[`application generator shared virtual environment should run successfull
 }
 `;
 
-exports[`application generator shared virtual environment should run successfully with minimal options with custom rootPyprojectDependencyGroup 2`] = `
+exports[`application generator > shared virtual environment > should run successfully with minimal options with custom rootPyprojectDependencyGroup 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator shared virtual environment should run successfully with minimal options with custom rootPyprojectDependencyGroup 3`] = `
+exports[`application generator > shared virtual environment > should run successfully with minimal options with custom rootPyprojectDependencyGroup 3`] = `
 "[tool.poetry]
 name = "test"
 version = "1.0.0"
@@ -3056,7 +2906,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator shared virtual environment should run successfully with minimal options with custom rootPyprojectDependencyGroup 4`] = `
+exports[`application generator > shared virtual environment > should run successfully with minimal options with custom rootPyprojectDependencyGroup 4`] = `
 """"Sample Hello World application."""
 
 
@@ -3066,12 +2916,12 @@ def hello():
 "
 `;
 
-exports[`application generator shared virtual environment should run successfully with minimal options with custom rootPyprojectDependencyGroup 5`] = `
+exports[`application generator > shared virtual environment > should run successfully with minimal options with custom rootPyprojectDependencyGroup 5`] = `
 "3.9.5
 "
 `;
 
-exports[`application generator shared virtual environment should run successfully with minimal options with custom rootPyprojectDependencyGroup 6`] = `
+exports[`application generator > shared virtual environment > should run successfully with minimal options with custom rootPyprojectDependencyGroup 6`] = `
 "[tool.poetry]
 name = "workspace"
 
@@ -3091,7 +2941,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator shared virtual environment should run successfully with minimal options with existing custom rootPyprojectDependencyGroup 1`] = `
+exports[`application generator > shared virtual environment > should run successfully with minimal options with existing custom rootPyprojectDependencyGroup 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -3145,14 +2995,14 @@ exports[`application generator shared virtual environment should run successfull
 }
 `;
 
-exports[`application generator shared virtual environment should run successfully with minimal options with existing custom rootPyprojectDependencyGroup 2`] = `
+exports[`application generator > shared virtual environment > should run successfully with minimal options with existing custom rootPyprojectDependencyGroup 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator shared virtual environment should run successfully with minimal options with existing custom rootPyprojectDependencyGroup 3`] = `
+exports[`application generator > shared virtual environment > should run successfully with minimal options with existing custom rootPyprojectDependencyGroup 3`] = `
 "[tool.poetry]
 name = "test"
 version = "1.0.0"
@@ -3173,7 +3023,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator shared virtual environment should run successfully with minimal options with existing custom rootPyprojectDependencyGroup 4`] = `
+exports[`application generator > shared virtual environment > should run successfully with minimal options with existing custom rootPyprojectDependencyGroup 4`] = `
 """"Sample Hello World application."""
 
 
@@ -3183,12 +3033,12 @@ def hello():
 "
 `;
 
-exports[`application generator shared virtual environment should run successfully with minimal options with existing custom rootPyprojectDependencyGroup 5`] = `
+exports[`application generator > shared virtual environment > should run successfully with minimal options with existing custom rootPyprojectDependencyGroup 5`] = `
 "3.9.5
 "
 `;
 
-exports[`application generator shared virtual environment should run successfully with minimal options with existing custom rootPyprojectDependencyGroup 6`] = `
+exports[`application generator > shared virtual environment > should run successfully with minimal options with existing custom rootPyprojectDependencyGroup 6`] = `
 "[tool.poetry]
 name = "workspace"
 
@@ -3209,7 +3059,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator shared virtual environment should run successfully with minimal options without rootPyprojectDependencyGroup 1`] = `
+exports[`application generator > shared virtual environment > should run successfully with minimal options without rootPyprojectDependencyGroup 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -3263,14 +3113,14 @@ exports[`application generator shared virtual environment should run successfull
 }
 `;
 
-exports[`application generator shared virtual environment should run successfully with minimal options without rootPyprojectDependencyGroup 2`] = `
+exports[`application generator > shared virtual environment > should run successfully with minimal options without rootPyprojectDependencyGroup 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator shared virtual environment should run successfully with minimal options without rootPyprojectDependencyGroup 3`] = `
+exports[`application generator > shared virtual environment > should run successfully with minimal options without rootPyprojectDependencyGroup 3`] = `
 "[tool.poetry]
 name = "test"
 version = "1.0.0"
@@ -3291,7 +3141,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`application generator shared virtual environment should run successfully with minimal options without rootPyprojectDependencyGroup 4`] = `
+exports[`application generator > shared virtual environment > should run successfully with minimal options without rootPyprojectDependencyGroup 4`] = `
 """"Sample Hello World application."""
 
 
@@ -3301,12 +3151,12 @@ def hello():
 "
 `;
 
-exports[`application generator shared virtual environment should run successfully with minimal options without rootPyprojectDependencyGroup 5`] = `
+exports[`application generator > shared virtual environment > should run successfully with minimal options without rootPyprojectDependencyGroup 5`] = `
 "3.9.5
 "
 `;
 
-exports[`application generator shared virtual environment should run successfully with minimal options without rootPyprojectDependencyGroup 6`] = `
+exports[`application generator > shared virtual environment > should run successfully with minimal options without rootPyprojectDependencyGroup 6`] = `
 "[tool.poetry]
 name = "workspace"
 

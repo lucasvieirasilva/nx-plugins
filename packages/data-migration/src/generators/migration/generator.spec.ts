@@ -1,6 +1,7 @@
-const globSync = jest.fn().mockReturnValue([]);
+import { vi } from 'vitest';
 
-jest.mock('glob', () => ({ globSync }));
+const globSync = vi.hoisted(() => vi.fn().mockReturnValue([]));
+vi.mock('glob', () => ({ globSync }));
 
 import { libraryGenerator } from '@nx/js';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
@@ -38,9 +39,7 @@ describe('migration generator', () => {
       tags: 'scope:test,type:lib',
     });
 
-    jest
-      .useFakeTimers()
-      .setSystemTime(new Date('2023-01-01 12:00:00').getTime());
+    vi.useFakeTimers().setSystemTime(new Date('2023-01-01 12:00:00').getTime());
   });
 
   it('should run successfully', async () => {
@@ -49,25 +48,25 @@ describe('migration generator', () => {
     const projectConfig = readProjectConfiguration(appTree, 'test');
     expect(projectConfig.targets.migrate).toBeDefined();
     expect(projectConfig.targets.migrate.executor).toEqual(
-      '@nxlv/data-migration:migrate'
+      '@nxlv/data-migration:migrate',
     );
     expect(projectConfig.targets.migrate.options.migrationsDir).toEqual(
-      'src/migrations'
+      'src/migrations',
     );
 
     expect(projectConfig.targets['migrate-rollback']).toBeDefined();
     expect(projectConfig.targets['migrate-rollback'].executor).toEqual(
-      '@nxlv/data-migration:rollback'
+      '@nxlv/data-migration:rollback',
     );
     expect(
-      projectConfig.targets['migrate-rollback'].options.migrationsDir
+      projectConfig.targets['migrate-rollback'].options.migrationsDir,
     ).toEqual('src/migrations');
 
     expect(
       appTree.read(
         'libs/test/src/migrations/namespace/202301011-migration-name.ts',
-        'utf-8'
-      )
+        'utf-8',
+      ),
     ).toMatchSnapshot();
 
     globSync
@@ -79,8 +78,8 @@ describe('migration generator', () => {
     expect(
       appTree.read(
         'libs/test/src/migrations/namespace/202301012-migration-name.ts',
-        'utf-8'
-      )
+        'utf-8',
+      ),
     ).toMatchSnapshot();
   });
 
@@ -92,14 +91,14 @@ describe('migration generator', () => {
 
     const projectConfig = readProjectConfiguration(appTree, 'test');
     expect(projectConfig.targets.migrate.options.migrationsDir).toEqual(
-      'src/custom/migrations'
+      'src/custom/migrations',
     );
 
     expect(
       appTree.read(
         'libs/test/src/custom/migrations/namespace/202301011-migration-name.ts',
-        'utf-8'
-      )
+        'utf-8',
+      ),
     ).toMatchSnapshot();
   });
 
@@ -112,8 +111,8 @@ describe('migration generator', () => {
     expect(
       appTree.read(
         'libs/test/src/migrations/namespace/post-deploy/202301011-migration-name.ts',
-        'utf-8'
-      )
+        'utf-8',
+      ),
     ).toMatchSnapshot();
   });
 
@@ -128,14 +127,14 @@ describe('migration generator', () => {
     expect(
       appTree.read(
         'libs/test/src/migrations/namespace/post-deploy/202301011-migration-name.ts',
-        'utf-8'
-      )
+        'utf-8',
+      ),
     ).toMatchSnapshot();
     expect(
       appTree.read(
         'libs/test/src/migrations/namespace/post-deploy/202301011-migration-name.stream.ts',
-        'utf-8'
-      )
+        'utf-8',
+      ),
     ).toMatchSnapshot();
   });
 
@@ -149,8 +148,8 @@ describe('migration generator', () => {
     expect(
       appTree.read(
         'libs/test/src/migrations/namespace/post-deploy/202301011-migration-name.ts',
-        'utf-8'
-      )
+        'utf-8',
+      ),
     ).toMatchSnapshot();
   });
 
@@ -163,8 +162,8 @@ describe('migration generator', () => {
     expect(
       appTree.read(
         'libs/test/src/migrations/namespace/202301011-migration-name.ts',
-        'utf-8'
-      )
+        'utf-8',
+      ),
     ).toMatchSnapshot();
   });
 
@@ -178,14 +177,14 @@ describe('migration generator', () => {
     expect(
       appTree.read(
         'libs/test/src/migrations/namespace/202301011-migration-name.ts',
-        'utf-8'
-      )
+        'utf-8',
+      ),
     ).toMatchSnapshot();
     expect(
       appTree.read(
         'libs/test/src/migrations/namespace/202301011-migration-name.stream.ts',
-        'utf-8'
-      )
+        'utf-8',
+      ),
     ).toMatchSnapshot();
   });
 
@@ -211,8 +210,8 @@ describe('migration generator', () => {
     expect(
       appTree.read(
         'libs/test/src/custom/migrations/namespace/202301011-migration-name.ts',
-        'utf-8'
-      )
+        'utf-8',
+      ),
     ).toMatchSnapshot();
 
     globSync
@@ -224,8 +223,8 @@ describe('migration generator', () => {
     expect(
       appTree.read(
         'libs/test/src/custom/migrations/namespace/202301012-migration-name.ts',
-        'utf-8'
-      )
+        'utf-8',
+      ),
     ).toMatchSnapshot();
   });
 
@@ -238,8 +237,8 @@ describe('migration generator', () => {
     expect(
       appTree.read(
         'libs/test/src/migrations/namespace/202301011-migration-name.ts',
-        'utf-8'
-      )
+        'utf-8',
+      ),
     ).toMatchSnapshot();
   });
 });

@@ -1,41 +1,68 @@
-const buildMock = jest.fn();
-const fsExistsSyncMock = jest.fn();
-const fsUnlinkSyncMock = jest.fn();
-const fsCreateWriteStreamMock = jest.fn(() => ({
-  on: jest.fn(),
-}));
-const fsReadFileSyncMock = jest.fn();
+import { vi } from 'vitest';
 
-jest.mock('esbuild', () => ({
-  build: buildMock,
-}));
-
-jest.mock('fs', () => ({
-  ...jest.requireActual('fs'),
-  existsSync: fsExistsSyncMock,
-  unlinkSync: fsUnlinkSyncMock,
-  createWriteStream: fsCreateWriteStreamMock,
-  readFileSync: fsReadFileSyncMock,
+const {
+  buildMock,
+  fsExistsSyncMock,
+  fsUnlinkSyncMock,
+  fsCreateWriteStreamMock,
+  fsReadFileSyncMock,
+} = vi.hoisted(() => ({
+  buildMock: vi.fn(),
+  fsExistsSyncMock: vi.fn(),
+  fsUnlinkSyncMock: vi.fn(),
+  fsCreateWriteStreamMock: vi.fn(() => ({
+    on: vi.fn(),
+  })),
+  fsReadFileSyncMock: vi.fn(),
 }));
 
-const archiverDirectoryMock = jest.fn();
+vi.mock('esbuild', () => ({
+  default: {
+    build: buildMock,
+  },
+}));
 
-jest.mock('archiver', () => ({
+vi.mock('fs', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('fs')>();
+
+  return {
+    ...actual,
+    default: {
+      existsSync: fsExistsSyncMock,
+      unlinkSync: fsUnlinkSyncMock,
+      createWriteStream: fsCreateWriteStreamMock,
+      readFileSync: fsReadFileSyncMock,
+    },
+  };
+});
+
+const archiverDirectoryMock = vi.fn();
+
+vi.mock('archiver', () => ({
   __esModule: true,
-  default: jest.fn(() => ({
+  default: vi.fn(() => ({
     directory: archiverDirectoryMock,
-    finalize: jest.fn(),
+    finalize: vi.fn(),
   })),
 }));
 
-const waitUntilTableExistsMock = jest.fn();
-const waitUntilTableNotExistsMock = jest.fn();
+const { waitUntilTableExistsMock, waitUntilTableNotExistsMock } = vi.hoisted(
+  () => ({
+    waitUntilTableExistsMock: vi.fn(),
+    waitUntilTableNotExistsMock: vi.fn(),
+  }),
+);
 
-jest.mock('@aws-sdk/client-dynamodb', () => ({
-  ...jest.requireActual('@aws-sdk/client-dynamodb'),
-  waitUntilTableExists: waitUntilTableExistsMock,
-  waitUntilTableNotExists: waitUntilTableNotExistsMock,
-}));
+vi.mock('@aws-sdk/client-dynamodb', async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import('@aws-sdk/client-dynamodb')>();
+
+  return {
+    ...actual,
+    waitUntilTableExists: waitUntilTableExistsMock,
+    waitUntilTableNotExists: waitUntilTableNotExistsMock,
+  };
+});
 
 import {
   DynamoDBClient,
@@ -96,8 +123,8 @@ describe('DynamoDBMigrationBase', () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    jest.useFakeTimers();
+    vi.clearAllMocks();
+    vi.useFakeTimers();
 
     process.env = {
       ...originalEnv,
@@ -108,7 +135,7 @@ describe('DynamoDBMigrationBase', () => {
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
     process.env = originalEnv;
   });
 
@@ -478,7 +505,7 @@ describe('DynamoDBMigrationBase', () => {
         ListStreamsCommand,
         {
           TableName: 'test_myTable',
-        }
+        },
       );
       expect(ssmMock).toHaveReceivedCommandWith(PutParameterCommand, {
         Name: 'MyTableStream',
@@ -523,7 +550,7 @@ describe('DynamoDBMigrationBase', () => {
                 StreamViewType: 'NEW_AND_OLD_IMAGES',
               },
             },
-            false
+            false,
           );
         }
 
@@ -656,7 +683,7 @@ describe('DynamoDBMigrationBase', () => {
         ListStreamsCommand,
         {
           TableName: 'development_myTable',
-        }
+        },
       );
       expect(ssmMock).toHaveReceivedCommandWith(PutParameterCommand, {
         Name: 'MyTableStream',
@@ -706,7 +733,7 @@ describe('DynamoDBMigrationBase', () => {
         DescribeTableCommand,
         {
           TableName: 'test',
-        }
+        },
       );
       expect(dynamoDbMock).not.toHaveReceivedCommand(DeleteTableCommand);
     });
@@ -759,7 +786,7 @@ describe('DynamoDBMigrationBase', () => {
         DescribeTableCommand,
         {
           TableName: 'test',
-        }
+        },
       );
       expect(dynamoDbMock).not.toHaveReceivedCommand(DeleteTableCommand);
     });
@@ -814,7 +841,7 @@ describe('DynamoDBMigrationBase', () => {
         DescribeTableCommand,
         {
           TableName: 'test',
-        }
+        },
       );
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(2, DeleteTableCommand, {
         TableName: 'test',
@@ -823,7 +850,7 @@ describe('DynamoDBMigrationBase', () => {
         expect.anything(),
         {
           TableName: 'test',
-        }
+        },
       );
     });
 
@@ -877,14 +904,14 @@ describe('DynamoDBMigrationBase', () => {
         DescribeTableCommand,
         {
           TableName: 'test',
-        }
+        },
       );
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
         2,
         ListTagsOfResourceCommand,
         {
           ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/test',
-        }
+        },
       );
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(3, DeleteTableCommand, {
         TableName: 'test',
@@ -893,7 +920,7 @@ describe('DynamoDBMigrationBase', () => {
         expect.anything(),
         {
           TableName: 'test',
-        }
+        },
       );
     });
   });
@@ -947,10 +974,10 @@ describe('DynamoDBMigrationBase', () => {
         },
       });
 
-      const timeoutMock = jest
+      const timeoutMock = vi
         .spyOn(global, 'setTimeout')
         .mockImplementation(
-          (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout
+          (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout,
         );
 
       await migration.up();
@@ -961,7 +988,7 @@ describe('DynamoDBMigrationBase', () => {
         {
           BackupName: 'namespace-name-202304031-migration-backup',
           TableName: 'test',
-        }
+        },
       );
 
       expect(timeoutMock).toHaveBeenCalledTimes(1);
@@ -970,7 +997,7 @@ describe('DynamoDBMigrationBase', () => {
         DescribeBackupCommand,
         {
           BackupArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/test',
-        }
+        },
       );
     });
 
@@ -1022,14 +1049,14 @@ describe('DynamoDBMigrationBase', () => {
         },
       });
 
-      const timeoutMock = jest
+      const timeoutMock = vi
         .spyOn(global, 'setTimeout')
         .mockImplementation(
-          (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout
+          (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout,
         );
 
       await expect(migration.up()).rejects.toThrowError(
-        'Timeout waiting for backup namespace-name-202304031-migration-backup to be created'
+        'Timeout waiting for backup namespace-name-202304031-migration-backup to be created',
       );
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
@@ -1038,12 +1065,12 @@ describe('DynamoDBMigrationBase', () => {
         {
           BackupName: 'namespace-name-202304031-migration-backup',
           TableName: 'test',
-        }
+        },
       );
 
       expect(dynamoDbMock).toHaveReceivedCommandTimes(
         DescribeBackupCommand,
-        360
+        360,
       );
       expect(timeoutMock).toHaveBeenCalledTimes(360);
     });
@@ -1096,14 +1123,14 @@ describe('DynamoDBMigrationBase', () => {
         },
       });
 
-      const timeoutMock = jest
+      const timeoutMock = vi
         .spyOn(global, 'setTimeout')
         .mockImplementation(
-          (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout
+          (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout,
         );
 
       await expect(migration.up()).rejects.toThrowError(
-        'Backup namespace-name-202304031-migration-backup was deleted externally'
+        'Backup namespace-name-202304031-migration-backup was deleted externally',
       );
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
@@ -1112,7 +1139,7 @@ describe('DynamoDBMigrationBase', () => {
         {
           BackupName: 'namespace-name-202304031-migration-backup',
           TableName: 'test',
-        }
+        },
       );
 
       expect(timeoutMock).toHaveBeenCalledTimes(1);
@@ -1121,7 +1148,7 @@ describe('DynamoDBMigrationBase', () => {
         DescribeBackupCommand,
         {
           BackupArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/test',
-        }
+        },
       );
     });
   });
@@ -1179,7 +1206,7 @@ describe('DynamoDBMigrationBase', () => {
         {
           BackupArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/test',
           TargetTableName: 'test',
-        }
+        },
       );
       expect(waitUntilTableExistsMock).toHaveBeenCalledWith(expect.anything(), {
         TableName: 'test',
@@ -1219,7 +1246,7 @@ describe('DynamoDBMigrationBase', () => {
       waitUntilTableNotExistsMock.mockResolvedValueOnce({});
 
       await expect(migration.up()).rejects.toThrowError(
-        'Backup namespace-name-202304031-migration-backup not found'
+        'Backup namespace-name-202304031-migration-backup not found',
       );
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(1, ListBackupsCommand, {
@@ -1228,7 +1255,7 @@ describe('DynamoDBMigrationBase', () => {
       });
 
       expect(dynamoDbMock).not.toHaveReceivedCommand(
-        RestoreTableFromBackupCommand
+        RestoreTableFromBackupCommand,
       );
       expect(waitUntilTableNotExistsMock).not.toHaveBeenCalled();
     });
@@ -1275,7 +1302,7 @@ describe('DynamoDBMigrationBase', () => {
           SourceTableName: 'source',
           TargetTableName: 'target',
           RestoreDateTime: new Date('2021-01-01T00:00:00.000Z'),
-        }
+        },
       );
 
       expect(waitUntilTableExistsMock).toHaveBeenCalledWith(expect.anything(), {
@@ -1328,7 +1355,7 @@ describe('DynamoDBMigrationBase', () => {
       waitUntilTableExistsMock.mockResolvedValueOnce({});
 
       await expect(migration.up()).rejects.toThrowError(
-        'No streams found for table source'
+        'No streams found for table source',
       );
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
@@ -1336,7 +1363,7 @@ describe('DynamoDBMigrationBase', () => {
         DescribeTableCommand,
         {
           TableName: 'source',
-        }
+        },
       );
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(2, UpdateTableCommand, {
@@ -1352,7 +1379,7 @@ describe('DynamoDBMigrationBase', () => {
         ListTagsOfResourceCommand,
         {
           ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
-        }
+        },
       );
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(4, TagResourceCommand, {
@@ -1394,7 +1421,7 @@ describe('DynamoDBMigrationBase', () => {
         ListStreamsCommand,
         {
           TableName: 'source',
-        }
+        },
       );
     });
 
@@ -1454,13 +1481,13 @@ describe('DynamoDBMigrationBase', () => {
 
       archiverDirectoryMock.mockImplementation(() => {
         return {
-          on: jest.fn((event, callback) => {
+          on: vi.fn((event, callback) => {
             if (event === 'error') {
               callback(new Error('zip error'));
             }
 
             return {
-              pipe: jest.fn(),
+              pipe: vi.fn(),
             };
           }),
         };
@@ -1473,7 +1500,7 @@ describe('DynamoDBMigrationBase', () => {
         DescribeTableCommand,
         {
           TableName: 'source',
-        }
+        },
       );
       expect(dynamoDbMock).not.toHaveReceivedCommand(UpdateTableCommand);
 
@@ -1482,7 +1509,7 @@ describe('DynamoDBMigrationBase', () => {
         ListTagsOfResourceCommand,
         {
           ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
-        }
+        },
       );
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(3, TagResourceCommand, {
@@ -1520,14 +1547,14 @@ describe('DynamoDBMigrationBase', () => {
         ListStreamsCommand,
         {
           TableName: 'source',
-        }
+        },
       );
 
       expect(buildMock).toHaveBeenCalledTimes(1);
       expect(buildMock).toHaveBeenNthCalledWith(1, {
         bundle: true,
         entryPoints: [__filename.replace('.ts', '.stream.ts')],
-        external: ['aws-sdk'],
+        external: ['aws-sdk', '@aws-sdk/*'],
         format: 'cjs',
         minify: false,
         outfile:
@@ -1540,14 +1567,14 @@ describe('DynamoDBMigrationBase', () => {
       expect(fsExistsSyncMock).toHaveBeenCalledWith(
         path.join(
           process.cwd(),
-          'dist/packages/data-migration/src/migrator/dynamodb/migration.spec/migration-namespace-name-202304031-stream.zip'
-        )
+          'dist/packages/data-migration/src/migrator/dynamodb/migration.spec/migration-namespace-name-202304031-stream.zip',
+        ),
       );
       expect(fsUnlinkSyncMock).toHaveBeenCalledWith(
         path.join(
           process.cwd(),
-          'dist/packages/data-migration/src/migrator/dynamodb/migration.spec/migration-namespace-name-202304031-stream.zip'
-        )
+          'dist/packages/data-migration/src/migrator/dynamodb/migration.spec/migration-namespace-name-202304031-stream.zip',
+        ),
       );
     });
 
@@ -1609,15 +1636,15 @@ describe('DynamoDBMigrationBase', () => {
 
       archiverDirectoryMock.mockImplementation(() => {
         return {
-          on: jest.fn(() => ({
-            pipe: jest.fn(),
+          on: vi.fn(() => ({
+            pipe: vi.fn(),
           })),
         };
       });
 
       fsCreateWriteStreamMock.mockImplementation(() => {
         return {
-          on: jest.fn((event, callback) => {
+          on: vi.fn((event, callback) => {
             if (event === 'close') {
               callback();
             }
@@ -1646,11 +1673,9 @@ describe('DynamoDBMigrationBase', () => {
         ],
       });
 
-      jest
-        .spyOn(global, 'setTimeout')
-        .mockImplementation(
-          (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout
-        );
+      vi.spyOn(global, 'setTimeout').mockImplementation(
+        (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout,
+      );
 
       fsReadFileSyncMock.mockReturnValue('content');
 
@@ -1661,7 +1686,7 @@ describe('DynamoDBMigrationBase', () => {
         DescribeTableCommand,
         {
           TableName: 'source',
-        }
+        },
       );
 
       expect(dynamoDbMock).not.toHaveReceivedCommand(UpdateTableCommand);
@@ -1671,7 +1696,7 @@ describe('DynamoDBMigrationBase', () => {
         ListTagsOfResourceCommand,
         {
           ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
-        }
+        },
       );
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(3, TagResourceCommand, {
@@ -1709,14 +1734,14 @@ describe('DynamoDBMigrationBase', () => {
         ListStreamsCommand,
         {
           TableName: 'source',
-        }
+        },
       );
 
       expect(buildMock).toHaveBeenCalledTimes(1);
       expect(buildMock).toHaveBeenNthCalledWith(1, {
         bundle: true,
         entryPoints: [__filename.replace('.ts', '.stream.ts')],
-        external: ['aws-sdk'],
+        external: ['aws-sdk', '@aws-sdk/*'],
         format: 'cjs',
         minify: false,
         outfile:
@@ -1729,8 +1754,8 @@ describe('DynamoDBMigrationBase', () => {
       expect(fsExistsSyncMock).toHaveBeenCalledWith(
         path.join(
           process.cwd(),
-          'dist/packages/data-migration/src/migrator/dynamodb/migration.spec/migration-namespace-name-202304031-stream.zip'
-        )
+          'dist/packages/data-migration/src/migrator/dynamodb/migration.spec/migration-namespace-name-202304031-stream.zip',
+        ),
       );
       expect(fsUnlinkSyncMock).not.toHaveBeenCalled();
 
@@ -1849,7 +1874,7 @@ describe('DynamoDBMigrationBase', () => {
         ListEventSourceMappingsCommand,
         {
           FunctionName: 'migration-namespace-name-202304031-stream',
-        }
+        },
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
@@ -1857,7 +1882,7 @@ describe('DynamoDBMigrationBase', () => {
         DeleteEventSourceMappingCommand,
         {
           UUID: 'uuid',
-        }
+        },
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
@@ -1865,7 +1890,7 @@ describe('DynamoDBMigrationBase', () => {
         DeleteFunctionCommand,
         {
           FunctionName: 'migration-namespace-name-202304031-stream',
-        }
+        },
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
@@ -1894,7 +1919,7 @@ describe('DynamoDBMigrationBase', () => {
             'migration:version': '202304031',
           },
           Timeout: 60,
-        }
+        },
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
@@ -1905,7 +1930,7 @@ describe('DynamoDBMigrationBase', () => {
             'arn:aws:dynamodb:us-east-1:123456789012:table/source/stream/2021-01-01T00:00:00.000',
           FunctionName: 'migration-namespace-name-202304031-stream',
           StartingPosition: 'TRIM_HORIZON',
-        }
+        },
       );
     });
 
@@ -1967,15 +1992,15 @@ describe('DynamoDBMigrationBase', () => {
 
       archiverDirectoryMock.mockImplementation(() => {
         return {
-          on: jest.fn(() => ({
-            pipe: jest.fn(),
+          on: vi.fn(() => ({
+            pipe: vi.fn(),
           })),
         };
       });
 
       fsCreateWriteStreamMock.mockImplementation(() => {
         return {
-          on: jest.fn((event, callback) => {
+          on: vi.fn((event, callback) => {
             if (event === 'close') {
               callback();
             }
@@ -2004,11 +2029,9 @@ describe('DynamoDBMigrationBase', () => {
         ],
       });
 
-      jest
-        .spyOn(global, 'setTimeout')
-        .mockImplementation(
-          (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout
-        );
+      vi.spyOn(global, 'setTimeout').mockImplementation(
+        (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout,
+      );
 
       fsReadFileSyncMock.mockReturnValue('content');
 
@@ -2019,7 +2042,7 @@ describe('DynamoDBMigrationBase', () => {
         DescribeTableCommand,
         {
           TableName: 'source',
-        }
+        },
       );
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(2, UpdateTableCommand, {
@@ -2035,7 +2058,7 @@ describe('DynamoDBMigrationBase', () => {
         ListTagsOfResourceCommand,
         {
           ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
-        }
+        },
       );
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(4, TagResourceCommand, {
@@ -2073,14 +2096,14 @@ describe('DynamoDBMigrationBase', () => {
         ListStreamsCommand,
         {
           TableName: 'source',
-        }
+        },
       );
 
       expect(buildMock).toHaveBeenCalledTimes(1);
       expect(buildMock).toHaveBeenNthCalledWith(1, {
         bundle: true,
         entryPoints: [__filename.replace('.ts', '.stream.ts')],
-        external: ['aws-sdk'],
+        external: ['aws-sdk', '@aws-sdk/*'],
         format: 'cjs',
         minify: false,
         outfile:
@@ -2093,8 +2116,8 @@ describe('DynamoDBMigrationBase', () => {
       expect(fsExistsSyncMock).toHaveBeenCalledWith(
         path.join(
           process.cwd(),
-          'dist/packages/data-migration/src/migrator/dynamodb/migration.spec/migration-namespace-name-202304031-stream.zip'
-        )
+          'dist/packages/data-migration/src/migrator/dynamodb/migration.spec/migration-namespace-name-202304031-stream.zip',
+        ),
       );
       expect(fsUnlinkSyncMock).not.toHaveBeenCalled();
 
@@ -2213,7 +2236,7 @@ describe('DynamoDBMigrationBase', () => {
         ListEventSourceMappingsCommand,
         {
           FunctionName: 'migration-namespace-name-202304031-stream',
-        }
+        },
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
@@ -2221,7 +2244,7 @@ describe('DynamoDBMigrationBase', () => {
         DeleteEventSourceMappingCommand,
         {
           UUID: 'uuid',
-        }
+        },
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
@@ -2229,7 +2252,7 @@ describe('DynamoDBMigrationBase', () => {
         DeleteFunctionCommand,
         {
           FunctionName: 'migration-namespace-name-202304031-stream',
-        }
+        },
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
@@ -2258,7 +2281,7 @@ describe('DynamoDBMigrationBase', () => {
             'migration:version': '202304031',
           },
           Timeout: 60,
-        }
+        },
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
@@ -2269,7 +2292,7 @@ describe('DynamoDBMigrationBase', () => {
             'arn:aws:dynamodb:us-east-1:123456789012:table/source/stream/2021-01-01T00:00:00.000',
           FunctionName: 'migration-namespace-name-202304031-stream',
           StartingPosition: 'TRIM_HORIZON',
-        }
+        },
       );
     });
   });
@@ -2338,7 +2361,7 @@ describe('DynamoDBMigrationBase', () => {
         DescribeTableCommand,
         {
           TableName: 'source',
-        }
+        },
       );
       expect(dynamoDbMock).not.toHaveReceivedCommand(UpdateTableCommand);
 
@@ -2347,7 +2370,7 @@ describe('DynamoDBMigrationBase', () => {
         ListTagsOfResourceCommand,
         {
           ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
-        }
+        },
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(1, GetFunctionCommand, {
@@ -2428,14 +2451,14 @@ describe('DynamoDBMigrationBase', () => {
         DescribeTableCommand,
         {
           TableName: 'source',
-        }
+        },
       );
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
         2,
         ListTagsOfResourceCommand,
         {
           ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
-        }
+        },
       );
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(3, UpdateTableCommand, {
         TableName: 'source',
@@ -2453,7 +2476,7 @@ describe('DynamoDBMigrationBase', () => {
         ListEventSourceMappingsCommand,
         {
           FunctionName: 'migration-namespace-name-202304031-stream',
-        }
+        },
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
@@ -2461,7 +2484,7 @@ describe('DynamoDBMigrationBase', () => {
         DeleteEventSourceMappingCommand,
         {
           UUID: 'uuid',
-        }
+        },
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
@@ -2469,7 +2492,7 @@ describe('DynamoDBMigrationBase', () => {
         DeleteFunctionCommand,
         {
           FunctionName: 'migration-namespace-name-202304031-stream',
-        }
+        },
       );
 
       expect(iamMock).toHaveReceivedNthCommandWith(1, GetRoleCommand, {
@@ -2555,7 +2578,7 @@ describe('DynamoDBMigrationBase', () => {
         DescribeTableCommand,
         {
           TableName: 'source',
-        }
+        },
       );
       expect(dynamoDbMock).not.toHaveReceivedCommand(UpdateTableCommand);
 
@@ -2564,7 +2587,7 @@ describe('DynamoDBMigrationBase', () => {
         ListTagsOfResourceCommand,
         {
           ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
-        }
+        },
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(1, GetFunctionCommand, {
@@ -2576,7 +2599,7 @@ describe('DynamoDBMigrationBase', () => {
         ListEventSourceMappingsCommand,
         {
           FunctionName: 'migration-namespace-name-202304031-stream',
-        }
+        },
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
@@ -2584,7 +2607,7 @@ describe('DynamoDBMigrationBase', () => {
         DeleteEventSourceMappingCommand,
         {
           UUID: 'uuid',
-        }
+        },
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
@@ -2592,7 +2615,7 @@ describe('DynamoDBMigrationBase', () => {
         DeleteFunctionCommand,
         {
           FunctionName: 'migration-namespace-name-202304031-stream',
-        }
+        },
       );
 
       expect(iamMock).toHaveReceivedNthCommandWith(1, GetRoleCommand, {
@@ -2654,7 +2677,7 @@ describe('DynamoDBMigrationBase', () => {
         DescribeTableCommand,
         {
           TableName: 'test',
-        }
+        },
       );
     });
 
@@ -2695,7 +2718,7 @@ describe('DynamoDBMigrationBase', () => {
         DescribeTableCommand,
         {
           TableName: 'test',
-        }
+        },
       );
     });
 
@@ -2730,7 +2753,7 @@ describe('DynamoDBMigrationBase', () => {
         .rejectsOnce(new Error('Internal server error'));
 
       await expect(migration.up()).rejects.toThrowError(
-        'Internal server error'
+        'Internal server error',
       );
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
@@ -2738,7 +2761,7 @@ describe('DynamoDBMigrationBase', () => {
         DescribeTableCommand,
         {
           TableName: 'test',
-        }
+        },
       );
     });
   });
@@ -2848,7 +2871,7 @@ describe('DynamoDBMigrationBase', () => {
         .rejectsOnce(new Error('Internal server error'));
 
       await expect(migration.up()).rejects.toThrowError(
-        'Internal server error'
+        'Internal server error',
       );
 
       expect(iamMock).toHaveReceivedNthCommandWith(1, GetRoleCommand, {
@@ -2963,7 +2986,7 @@ describe('DynamoDBMigrationBase', () => {
         .rejectsOnce(new Error('Internal server error'));
 
       await expect(migration.up()).rejects.toThrowError(
-        'Internal server error'
+        'Internal server error',
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(1, GetFunctionCommand, {
@@ -2997,10 +3020,10 @@ describe('DynamoDBMigrationBase', () => {
         }
       }
 
-      const timeoutMock = jest
+      const timeoutMock = vi
         .spyOn(global, 'setTimeout')
         .mockImplementation(
-          (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout
+          (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout,
         );
 
       const migration = new MyMigration();
@@ -3023,9 +3046,9 @@ describe('DynamoDBMigrationBase', () => {
         }
 
         async up() {
-          const fn = jest.fn();
+          const fn = vi.fn();
           fn.mockRejectedValueOnce(
-            new Error('Internal server error')
+            new Error('Internal server error'),
           ).mockResolvedValueOnce({});
 
           await this.retry(fn);
@@ -3036,10 +3059,10 @@ describe('DynamoDBMigrationBase', () => {
         }
       }
 
-      const timeoutMock = jest
+      const timeoutMock = vi
         .spyOn(global, 'setTimeout')
         .mockImplementation(
-          (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout
+          (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout,
         );
 
       const migration = new MyMigration();
@@ -3062,7 +3085,7 @@ describe('DynamoDBMigrationBase', () => {
         }
 
         async up() {
-          const fn = jest.fn();
+          const fn = vi.fn();
           fn.mockRejectedValue(new Error('Internal server error'));
 
           await this.retry(fn);
@@ -3073,15 +3096,15 @@ describe('DynamoDBMigrationBase', () => {
         }
       }
 
-      const timeoutMock = jest
+      const timeoutMock = vi
         .spyOn(global, 'setTimeout')
         .mockImplementation(
-          (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout
+          (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout,
         );
 
       const migration = new MyMigration();
       await expect(migration.up()).rejects.toThrowError(
-        'Internal server error'
+        'Internal server error',
       );
 
       expect(timeoutMock).toHaveBeenCalledTimes(10);

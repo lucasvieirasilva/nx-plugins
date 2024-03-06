@@ -67,7 +67,7 @@ export default class extends DynamoDBMigrationBase {
               },
             })),
           },
-        })
+        }),
       );
 
       count += chunk.length;
@@ -91,7 +91,7 @@ export default class extends DynamoDBMigrationBase {
               },
             })),
           },
-        })
+        }),
       );
     }
   }
