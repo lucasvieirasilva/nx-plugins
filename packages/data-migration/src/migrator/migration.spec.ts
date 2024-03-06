@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import { Migration, MigrationBase } from './migration';
 
 describe('Migration', () => {
@@ -39,10 +40,10 @@ describe('Migration', () => {
     }
 
     const migration = new TestMigration() as MigrationBase;
-    const timeoutMock = jest
+    const timeoutMock = vi
       .spyOn(global, 'setTimeout')
       .mockImplementation(
-        (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout
+        (fn: (args: void) => void) => fn() as unknown as NodeJS.Timeout,
       );
 
     await migration.sleep(1);

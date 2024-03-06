@@ -6,7 +6,7 @@ describe('camelCaseToTitle', () => {
     expect(camelCaseToTitle('camelCaseString')).toEqual('Camel Case String');
     expect(camelCaseToTitle('camel')).toEqual('Camel');
     expect(camelCaseToTitle('camelCaseStringWithNumbers123')).toEqual(
-      'Camel Case String With Numbers123'
+      'Camel Case String With Numbers123',
     );
   });
 });

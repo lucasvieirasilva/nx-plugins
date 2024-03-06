@@ -1,5 +1,5 @@
-// eslint-disable-next-line @nx/enforce-module-boundaries
-import '@nxlv/testing/dynamoose-mock';
+import '../../__mocks__/dynamoose.mock';
+import { vi } from 'vitest';
 import { RollbackExecutorSchema } from './schema';
 import executor from './executor';
 import { ExecutorContext } from '@nx/devkit';
@@ -19,11 +19,11 @@ const options: RollbackExecutorSchema = {
 
 describe('Rollback Executor', () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it('should run the rollback only with from', async () => {
-    const rollbackMock = jest
+    const rollbackMock = vi
       .spyOn(MigratorRunner.prototype, 'rollback')
       .mockResolvedValue();
 
@@ -34,7 +34,7 @@ describe('Rollback Executor', () => {
       },
       {
         cwd: '/root',
-      } as ExecutorContext
+      } as ExecutorContext,
     );
     expect(output.success).toBe(true);
     expect(rollbackMock).toHaveBeenCalledWith(
@@ -42,13 +42,13 @@ describe('Rollback Executor', () => {
       1,
       undefined,
       undefined,
-      false
+      false,
     );
     expect(process.env.NODE_ENV).toBe('test');
   });
 
   it('should run the rollback with from and to', async () => {
-    const rollbackMock = jest
+    const rollbackMock = vi
       .spyOn(MigratorRunner.prototype, 'rollback')
       .mockResolvedValue();
 
@@ -61,13 +61,13 @@ describe('Rollback Executor', () => {
       1,
       'namespace',
       2,
-      false
+      false,
     );
     expect(process.env.NODE_ENV).toBe('test');
   });
 
   it('should fail the rollback', async () => {
-    const rollbackMock = jest
+    const rollbackMock = vi
       .spyOn(MigratorRunner.prototype, 'rollback')
       .mockRejectedValue(new Error('test'));
 
@@ -80,13 +80,13 @@ describe('Rollback Executor', () => {
       1,
       'namespace',
       2,
-      false
+      false,
     );
     expect(process.env.NODE_ENV).toBe('test');
   });
 
   it('should run the rollback and set the migration table name', async () => {
-    const rollbackMock = jest
+    const rollbackMock = vi
       .spyOn(MigratorRunner.prototype, 'rollback')
       .mockResolvedValue();
 
@@ -98,7 +98,7 @@ describe('Rollback Executor', () => {
       },
       {
         cwd: '/root',
-      } as ExecutorContext
+      } as ExecutorContext,
     );
     expect(output.success).toBe(true);
     expect(rollbackMock).toHaveBeenCalledWith(
@@ -106,7 +106,7 @@ describe('Rollback Executor', () => {
       1,
       undefined,
       undefined,
-      false
+      false,
     );
     expect(process.env.NODE_ENV).toBe('test');
     expect(process.env.MIGRATION_TABLE_NAME).toBe('some-table-name');

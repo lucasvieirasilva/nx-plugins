@@ -1,11 +1,13 @@
+import { vi, MockInstance } from 'vitest';
+import '../../utils/mocks/cross-spawn.mock';
 import chalk from 'chalk';
 import * as poetryUtils from '../utils/poetry';
-import { spawnSyncMock } from '../../utils/mocks/cross-spawn.mock';
 import executor from './executor';
 import fsMock from 'mock-fs';
+import spawn from 'cross-spawn';
 
 describe('Serverless Framework Deploy Executor', () => {
-  let activateVenvMock: jest.SpyInstance;
+  let activateVenvMock: MockInstance;
 
   const context = {
     cwd: '',
@@ -29,14 +31,15 @@ describe('Serverless Framework Deploy Executor', () => {
   });
 
   beforeEach(() => {
-    activateVenvMock = jest
+    activateVenvMock = vi
       .spyOn(poetryUtils, 'activateVenv')
       .mockReturnValue(undefined);
+    vi.spyOn(process, 'chdir').mockReturnValue(undefined);
   });
 
   afterEach(() => {
     fsMock.restore();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it('should throw an exception when the dist folder is empty', async () => {
@@ -46,10 +49,10 @@ describe('Serverless Framework Deploy Executor', () => {
         verbose: true,
         force: false,
       },
-      context
+      context,
     );
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).not.toHaveBeenCalled();
+    expect(spawn.sync).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
 
@@ -64,10 +67,10 @@ describe('Serverless Framework Deploy Executor', () => {
         verbose: true,
         force: false,
       },
-      context
+      context,
     );
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).not.toHaveBeenCalled();
+    expect(spawn.sync).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
 
@@ -75,8 +78,13 @@ describe('Serverless Framework Deploy Executor', () => {
     fsMock({
       'apps/app/dist/test.whl': 'abc123',
     });
-    spawnSyncMock.mockReturnValue({
+    vi.mocked(spawn.sync).mockReturnValue({
       status: 0,
+      output: [''],
+      pid: 0,
+      signal: null,
+      stderr: null,
+      stdout: null,
     });
 
     const output = await executor(
@@ -85,17 +93,17 @@ describe('Serverless Framework Deploy Executor', () => {
         verbose: false,
         force: false,
       },
-      context
+      context,
     );
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).toHaveBeenCalledWith(
+    expect(spawn.sync).toHaveBeenCalledWith(
       'npx',
       ['sls', 'deploy', '--stage', 'dev'],
       {
         cwd: 'apps/app',
         stdio: 'inherit',
         shell: false,
-      }
+      },
     );
     expect(output.success).toBe(true);
   });
@@ -104,8 +112,13 @@ describe('Serverless Framework Deploy Executor', () => {
     fsMock({
       'apps/app/dist/test.whl': 'abc123',
     });
-    spawnSyncMock.mockReturnValue({
+    vi.mocked(spawn.sync).mockReturnValue({
       status: 1,
+      output: [''],
+      pid: 0,
+      signal: null,
+      stderr: null,
+      stdout: null,
     });
 
     const output = await executor(
@@ -114,17 +127,17 @@ describe('Serverless Framework Deploy Executor', () => {
         verbose: false,
         force: false,
       },
-      context
+      context,
     );
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).toHaveBeenCalledWith(
+    expect(spawn.sync).toHaveBeenCalledWith(
       'npx',
       ['sls', 'deploy', '--stage', 'dev'],
       {
         cwd: 'apps/app',
         stdio: 'inherit',
         shell: false,
-      }
+      },
     );
     expect(output.success).toBe(false);
   });
@@ -133,8 +146,13 @@ describe('Serverless Framework Deploy Executor', () => {
     fsMock({
       'apps/app/dist/test.whl': 'abc123',
     });
-    spawnSyncMock.mockReturnValue({
+    vi.mocked(spawn.sync).mockReturnValue({
       status: 0,
+      output: [''],
+      pid: 0,
+      signal: null,
+      stderr: null,
+      stdout: null,
     });
 
     const output = await executor(
@@ -143,17 +161,17 @@ describe('Serverless Framework Deploy Executor', () => {
         verbose: true,
         force: true,
       },
-      context
+      context,
     );
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawnSyncMock).toHaveBeenCalledWith(
+    expect(spawn.sync).toHaveBeenCalledWith(
       'npx',
       ['sls', 'deploy', '--stage', 'dev', '--verbose', '--force'],
       {
         cwd: 'apps/app',
         stdio: 'inherit',
         shell: false,
-      }
+      },
     );
     expect(output.success).toBe(true);
   });

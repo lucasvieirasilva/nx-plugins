@@ -21,7 +21,7 @@ export class ProjectDependencyResolver {
   constructor(
     logger: Logger,
     options: BuildExecutorSchema,
-    context: ExecutorContext
+    context: ExecutorContext,
   ) {
     this.logger = logger;
     this.options = options;
@@ -31,19 +31,19 @@ export class ProjectDependencyResolver {
   resolve(
     root: string,
     buildFolderPath: string,
-    buildTomlData: PyprojectToml
+    buildTomlData: PyprojectToml,
   ): Dependency[] {
     this.logger.info(chalk`  Resolving dependencies...`);
     const pyprojectPath = join(root, 'pyproject.toml');
     const pyproject = parse(
-      readFileSync(pyprojectPath).toString('utf-8')
+      readFileSync(pyprojectPath).toString('utf-8'),
     ) as PyprojectToml;
 
     return this.resolveDependencies(
       pyproject,
       root,
       buildFolderPath,
-      buildTomlData
+      buildTomlData,
     );
   }
 
@@ -52,13 +52,13 @@ export class ProjectDependencyResolver {
     root: string,
     buildFolderPath: string,
     buildTomlData: PyprojectToml,
-    level = 1
+    level = 1,
   ) {
     const tab = getLoggingTab(level);
     const deps: Dependency[] = [];
 
     const dependencies = Object.entries(
-      pyproject.tool.poetry.dependencies
+      pyproject.tool.poetry.dependencies,
     ).filter(([name]) => name != 'python');
 
     for (const [name, data] of dependencies) {
@@ -72,7 +72,7 @@ export class ProjectDependencyResolver {
         const depPath = relative(process.cwd(), resolve(root, data.path));
         const depPyprojectPath = join(depPath, 'pyproject.toml');
         const depPyproject = parse(
-          readFileSync(depPyprojectPath).toString('utf-8')
+          readFileSync(depPyprojectPath).toString('utf-8'),
         ) as PyprojectToml;
 
         const config = this.getProjectConfig(depPath);
@@ -86,20 +86,20 @@ export class ProjectDependencyResolver {
         ) {
           const packageName = depPyproject.tool.poetry.name;
           this.logger.info(
-            chalk`${tab}• Adding {blue.bold ${packageName}} local dependency`
+            chalk`${tab}• Adding {blue.bold ${packageName}} local dependency`,
           );
           includeDependencyPackage(
             depPyproject,
             depPath,
             buildFolderPath,
-            buildTomlData
+            buildTomlData,
           );
           this.resolveDependencies(
             depPyproject,
             depPath,
             buildFolderPath,
             buildTomlData,
-            level + 1
+            level + 1,
           ).forEach((subDep) => deps.push(subDep));
           continue;
         } else {
@@ -118,7 +118,7 @@ export class ProjectDependencyResolver {
 
       if (deps.findIndex((d) => d.name === dep.name) === -1) {
         this.logger.info(
-          chalk`${tab}• Adding {blue.bold ${dep.name}@${dep.version}} dependency`
+          chalk`${tab}• Adding {blue.bold ${dep.name}@${dep.version}} dependency`,
         );
         deps.push(dep);
       }
@@ -128,7 +128,7 @@ export class ProjectDependencyResolver {
 
   private addSource(
     buildTomlData: PyprojectToml,
-    targetOptions: BuildExecutorSchema
+    targetOptions: BuildExecutorSchema,
   ): string | undefined {
     if (!targetOptions?.customSourceUrl) return undefined;
 
@@ -137,7 +137,7 @@ export class ProjectDependencyResolver {
       {
         name: targetOptions.customSourceName,
         url: targetOptions.customSourceUrl,
-      }
+      },
     );
 
     buildTomlData.tool.poetry.source = newSources;
@@ -157,7 +157,7 @@ export class ProjectDependencyResolver {
 
   private resolveDuplicateSources = (
     sources: PyprojectTomlSource[],
-    { name, url }: PyprojectTomlSource
+    { name, url }: PyprojectTomlSource,
   ): [PyprojectTomlSource[], string] => {
     if (!sources) {
       return [[{ name, url }], name];
@@ -174,7 +174,7 @@ export class ProjectDependencyResolver {
       const newName = `${name}-${hash}`;
 
       this.logger.info(
-        chalk`  Duplicate source for {blue.bold ${name}} renamed to ${newName}`
+        chalk`  Duplicate source for {blue.bold ${name}} renamed to ${newName}`,
       );
 
       if (sources.find((s) => s.name === newName)) {

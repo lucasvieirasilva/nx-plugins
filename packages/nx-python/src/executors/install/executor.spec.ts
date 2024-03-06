@@ -1,10 +1,12 @@
-import { spawnSyncMock } from '../../utils/mocks/cross-spawn.mock';
+import { vi, MockInstance } from 'vitest';
+import '../../utils/mocks/cross-spawn.mock';
 import * as poetryUtils from '../utils/poetry';
 import executor from './executor';
 import path from 'path';
+import spawn from 'cross-spawn';
 
 describe('Install Executor', () => {
-  let checkPoetryExecutableMock: jest.SpyInstance;
+  let checkPoetryExecutableMock: MockInstance;
 
   const context = {
     cwd: '',
@@ -24,11 +26,19 @@ describe('Install Executor', () => {
   };
 
   beforeEach(() => {
-    checkPoetryExecutableMock = jest
+    checkPoetryExecutableMock = vi
       .spyOn(poetryUtils, 'checkPoetryExecutable')
       .mockResolvedValue(undefined);
 
-    spawnSyncMock.mockReturnValue({ status: 0 });
+    vi.mocked(spawn.sync).mockReturnValue({
+      status: 0,
+      output: [''],
+      pid: 0,
+      signal: null,
+      stderr: null,
+      stdout: null,
+    });
+    vi.spyOn(process, 'chdir').mockReturnValue(undefined);
   });
 
   it('should return success false when the poetry is not installed', async () => {
@@ -59,7 +69,7 @@ describe('Install Executor', () => {
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
-    expect(spawnSyncMock).not.toHaveBeenCalled();
+    expect(spawn.sync).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
 
@@ -72,7 +82,7 @@ describe('Install Executor', () => {
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
-    expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['install', '-v'], {
+    expect(spawn.sync).toHaveBeenCalledWith('poetry', ['install', '-v'], {
       stdio: 'inherit',
       shell: false,
       cwd: 'apps/app',
@@ -90,14 +100,14 @@ describe('Install Executor', () => {
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
-    expect(spawnSyncMock).toHaveBeenCalledWith(
+    expect(spawn.sync).toHaveBeenCalledWith(
       'poetry',
       ['install', '-v', '--no-dev'],
       {
         stdio: 'inherit',
         shell: false,
         cwd: 'apps/app',
-      }
+      },
     );
     expect(output.success).toBe(true);
   });
@@ -111,7 +121,7 @@ describe('Install Executor', () => {
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
-    expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['install', '-vv'], {
+    expect(spawn.sync).toHaveBeenCalledWith('poetry', ['install', '-vv'], {
       stdio: 'inherit',
       shell: false,
       cwd: 'apps/app',
@@ -128,7 +138,7 @@ describe('Install Executor', () => {
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
-    expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['install', '-vv'], {
+    expect(spawn.sync).toHaveBeenCalledWith('poetry', ['install', '-vv'], {
       stdio: 'inherit',
       shell: false,
       cwd: 'apps/app',
@@ -146,7 +156,7 @@ describe('Install Executor', () => {
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
-    expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['install', '-v'], {
+    expect(spawn.sync).toHaveBeenCalledWith('poetry', ['install', '-v'], {
       stdio: 'inherit',
       cwd: 'apps/app',
       shell: false,
@@ -159,7 +169,7 @@ describe('Install Executor', () => {
   });
 
   it('should not install when the command fail', async () => {
-    spawnSyncMock.mockImplementation(() => {
+    vi.mocked(spawn.sync).mockImplementation(() => {
       throw new Error('fake');
     });
 
@@ -172,7 +182,7 @@ describe('Install Executor', () => {
 
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
-    expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['install', '-v'], {
+    expect(spawn.sync).toHaveBeenCalledWith('poetry', ['install', '-v'], {
       stdio: 'inherit',
       shell: false,
       cwd: 'apps/app',

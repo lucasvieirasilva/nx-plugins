@@ -19,5 +19,5 @@ export const MigrationStateModel = model<Item & MigrationState>(
         timeout: 1000 * 60 * 5, // 5 minutes
       },
     },
-  }
+  },
 );

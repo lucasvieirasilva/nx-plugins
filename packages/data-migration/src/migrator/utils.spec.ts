@@ -29,7 +29,7 @@ describe('resolveConfigParam', () => {
   it('should throw error for unknown type', async () => {
     const value = 'ssm-value';
     await expect(
-      resolveConfigParam({ value, type: 'unknown' } as never)
+      resolveConfigParam({ value, type: 'unknown' } as never),
     ).rejects.toThrow('Unknown config param type: unknown');
   });
 });

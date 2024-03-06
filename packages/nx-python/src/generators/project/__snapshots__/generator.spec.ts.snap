@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`nx-python project generator should generate a python project into a different folder 1`] = `
+exports[`nx-python project generator > should generate a python project into a different folder 1`] = `
 {
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "name": "shared-test",
@@ -92,7 +92,7 @@ exports[`nx-python project generator should generate a python project into a dif
 }
 `;
 
-exports[`nx-python project generator should generate a python project into a different folder 2`] = `
+exports[`nx-python project generator > should generate a python project into a different folder 2`] = `
 "[tox]
 isolated_build = True
 envlist = py38
@@ -106,7 +106,7 @@ commands =
 "
 `;
 
-exports[`nx-python project generator should generate a python project into a different folder 3`] = `
+exports[`nx-python project generator > should generate a python project into a different folder 3`] = `
 "# shared-test
 
 ## About
@@ -119,7 +119,7 @@ Project description here.
 "
 `;
 
-exports[`nx-python project generator should generate a python project into a different folder 4`] = `
+exports[`nx-python project generator > should generate a python project into a different folder 4`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "shared_test" ]
@@ -153,7 +153,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`nx-python project generator should generate a python project into a different folder 5`] = `
+exports[`nx-python project generator > should generate a python project into a different folder 5`] = `
 "# Changelog
 
 All notable changes to this project will be documented in this file.
@@ -165,7 +165,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 "
 `;
 
-exports[`nx-python project generator should generate a python project into a different folder 6`] = `
+exports[`nx-python project generator > should generate a python project into a different folder 6`] = `
 "[flake8]
 exclude =
 	.git,
@@ -180,14 +180,14 @@ max-line-length = 120
 "
 `;
 
-exports[`nx-python project generator should generate a python project into a different folder 7`] = `
+exports[`nx-python project generator > should generate a python project into a different folder 7`] = `
 "
 def hello():
     return "Hello shared-test"
 "
 `;
 
-exports[`nx-python project generator should generate a python project into a different folder 8`] = `
+exports[`nx-python project generator > should generate a python project into a different folder 8`] = `
 "from shared_test import index
 
 
@@ -196,12 +196,12 @@ def test_index():
 "
 `;
 
-exports[`nx-python project generator should generate a python project into a different folder 9`] = `
+exports[`nx-python project generator > should generate a python project into a different folder 9`] = `
 "3.8.11
 "
 `;
 
-exports[`nx-python project generator should generate a python project using custom source 1`] = `
+exports[`nx-python project generator > should generate a python project using custom source 1`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "test" ]
@@ -238,7 +238,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`nx-python project generator should generate a python project using description option 1`] = `
+exports[`nx-python project generator > should generate a python project using description option 1`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "test" ]
@@ -272,7 +272,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`nx-python project generator should generate a python project with tags 1`] = `
+exports[`nx-python project generator > should generate a python project with tags 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -369,7 +369,7 @@ exports[`nx-python project generator should generate a python project with tags 
 }
 `;
 
-exports[`nx-python project generator should successfully generate a python library project 1`] = `
+exports[`nx-python project generator > should successfully generate a python library project 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -461,7 +461,7 @@ exports[`nx-python project generator should successfully generate a python libra
 }
 `;
 
-exports[`nx-python project generator should successfully generate a python library project 2`] = `
+exports[`nx-python project generator > should successfully generate a python library project 2`] = `
 "[tox]
 isolated_build = True
 envlist = py38
@@ -475,7 +475,7 @@ commands =
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python library project 3`] = `
+exports[`nx-python project generator > should successfully generate a python library project 3`] = `
 "# test
 
 ## About
@@ -488,7 +488,7 @@ Project description here.
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python library project 4`] = `
+exports[`nx-python project generator > should successfully generate a python library project 4`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "test" ]
@@ -522,7 +522,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python library project 5`] = `
+exports[`nx-python project generator > should successfully generate a python library project 5`] = `
 "# Changelog
 
 All notable changes to this project will be documented in this file.
@@ -534,7 +534,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python library project 6`] = `
+exports[`nx-python project generator > should successfully generate a python library project 6`] = `
 "[flake8]
 exclude =
 	.git,
@@ -549,14 +549,14 @@ max-line-length = 120
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python library project 7`] = `
+exports[`nx-python project generator > should successfully generate a python library project 7`] = `
 "
 def hello():
     return "Hello test"
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python library project 8`] = `
+exports[`nx-python project generator > should successfully generate a python library project 8`] = `
 "from test import index
 
 
@@ -565,12 +565,12 @@ def test_index():
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python library project 9`] = `
+exports[`nx-python project generator > should successfully generate a python library project 9`] = `
 "3.8.11
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python library project with dev dependencies 1`] = `
+exports[`nx-python project generator > should successfully generate a python library project with dev dependencies 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -662,7 +662,7 @@ exports[`nx-python project generator should successfully generate a python libra
 }
 `;
 
-exports[`nx-python project generator should successfully generate a python library project with dev dependencies 2`] = `
+exports[`nx-python project generator > should successfully generate a python library project with dev dependencies 2`] = `
 "[tox]
 isolated_build = True
 envlist = py38
@@ -676,7 +676,7 @@ commands =
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python library project with dev dependencies 3`] = `
+exports[`nx-python project generator > should successfully generate a python library project with dev dependencies 3`] = `
 "# test
 
 ## About
@@ -689,7 +689,7 @@ Project description here.
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python library project with dev dependencies 4`] = `
+exports[`nx-python project generator > should successfully generate a python library project with dev dependencies 4`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "test" ]
@@ -739,7 +739,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python library project with dev dependencies 5`] = `
+exports[`nx-python project generator > should successfully generate a python library project with dev dependencies 5`] = `
 "# Changelog
 
 All notable changes to this project will be documented in this file.
@@ -751,7 +751,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python library project with dev dependencies 6`] = `
+exports[`nx-python project generator > should successfully generate a python library project with dev dependencies 6`] = `
 "[flake8]
 exclude =
 	.git,
@@ -766,14 +766,14 @@ max-line-length = 120
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python library project with dev dependencies 7`] = `
+exports[`nx-python project generator > should successfully generate a python library project with dev dependencies 7`] = `
 "
 def hello():
     return "Hello test"
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python library project with dev dependencies 8`] = `
+exports[`nx-python project generator > should successfully generate a python library project with dev dependencies 8`] = `
 "from test import index
 
 
@@ -782,12 +782,12 @@ def test_index():
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python library project with dev dependencies 9`] = `
+exports[`nx-python project generator > should successfully generate a python library project with dev dependencies 9`] = `
 "3.8.11
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python library project with root pyproject.toml 1`] = `
+exports[`nx-python project generator > should successfully generate a python library project with root pyproject.toml 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -879,7 +879,7 @@ exports[`nx-python project generator should successfully generate a python libra
 }
 `;
 
-exports[`nx-python project generator should successfully generate a python library project with root pyproject.toml 2`] = `
+exports[`nx-python project generator > should successfully generate a python library project with root pyproject.toml 2`] = `
 "[tool.poetry]
 name = "unit test"
 
@@ -896,7 +896,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python project 1`] = `
+exports[`nx-python project generator > should successfully generate a python project 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -988,7 +988,7 @@ exports[`nx-python project generator should successfully generate a python proje
 }
 `;
 
-exports[`nx-python project generator should successfully generate a python project 2`] = `
+exports[`nx-python project generator > should successfully generate a python project 2`] = `
 "[tox]
 isolated_build = True
 envlist = py38
@@ -1002,7 +1002,7 @@ commands =
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python project 3`] = `
+exports[`nx-python project generator > should successfully generate a python project 3`] = `
 "# test
 
 ## About
@@ -1015,7 +1015,7 @@ Project description here.
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python project 4`] = `
+exports[`nx-python project generator > should successfully generate a python project 4`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "test" ]
@@ -1049,7 +1049,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python project 5`] = `
+exports[`nx-python project generator > should successfully generate a python project 5`] = `
 "# Changelog
 
 All notable changes to this project will be documented in this file.
@@ -1061,7 +1061,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python project 6`] = `
+exports[`nx-python project generator > should successfully generate a python project 6`] = `
 "[flake8]
 exclude =
 	.git,
@@ -1076,14 +1076,14 @@ max-line-length = 120
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python project 7`] = `
+exports[`nx-python project generator > should successfully generate a python project 7`] = `
 "
 def hello():
     return "Hello test"
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python project 8`] = `
+exports[`nx-python project generator > should successfully generate a python project 8`] = `
 "from test import index
 
 
@@ -1092,12 +1092,12 @@ def test_index():
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python project 9`] = `
+exports[`nx-python project generator > should successfully generate a python project 9`] = `
 "3.8.11
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python project with custom module name 1`] = `
+exports[`nx-python project generator > should successfully generate a python project with custom module name 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -1189,7 +1189,7 @@ exports[`nx-python project generator should successfully generate a python proje
 }
 `;
 
-exports[`nx-python project generator should successfully generate a python project with custom module name 2`] = `
+exports[`nx-python project generator > should successfully generate a python project with custom module name 2`] = `
 "[tox]
 isolated_build = True
 envlist = py38
@@ -1203,7 +1203,7 @@ commands =
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python project with custom module name 3`] = `
+exports[`nx-python project generator > should successfully generate a python project with custom module name 3`] = `
 "# test
 
 ## About
@@ -1216,7 +1216,7 @@ Project description here.
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python project with custom module name 4`] = `
+exports[`nx-python project generator > should successfully generate a python project with custom module name 4`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "mymodule" ]
@@ -1250,7 +1250,7 @@ build-backend = "poetry.core.masonry.api"
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python project with custom module name 5`] = `
+exports[`nx-python project generator > should successfully generate a python project with custom module name 5`] = `
 "# Changelog
 
 All notable changes to this project will be documented in this file.
@@ -1262,7 +1262,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python project with custom module name 6`] = `
+exports[`nx-python project generator > should successfully generate a python project with custom module name 6`] = `
 "[flake8]
 exclude =
 	.git,
@@ -1277,14 +1277,14 @@ max-line-length = 120
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python project with custom module name 7`] = `
+exports[`nx-python project generator > should successfully generate a python project with custom module name 7`] = `
 "
 def hello():
     return "Hello test"
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python project with custom module name 8`] = `
+exports[`nx-python project generator > should successfully generate a python project with custom module name 8`] = `
 "from mymodule import index
 
 
@@ -1293,7 +1293,7 @@ def test_index():
 "
 `;
 
-exports[`nx-python project generator should successfully generate a python project with custom module name 9`] = `
+exports[`nx-python project generator > should successfully generate a python project with custom module name 9`] = `
 "3.8.11
 "
 `;

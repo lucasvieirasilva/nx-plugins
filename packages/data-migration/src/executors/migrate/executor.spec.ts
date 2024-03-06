@@ -1,5 +1,5 @@
-// eslint-disable-next-line @nx/enforce-module-boundaries
-import '@nxlv/testing/dynamoose-mock';
+import '../../__mocks__/dynamoose.mock';
+import { vi } from 'vitest';
 import { MigrateExecutorSchema } from './schema';
 import executor from './executor';
 import { ExecutorContext } from '@nx/devkit';
@@ -16,7 +16,7 @@ const options: MigrateExecutorSchema = {
 
 describe('Migrate Executor', () => {
   it('should run the migration', async () => {
-    const runMock = jest
+    const runMock = vi
       .spyOn(MigratorRunner.prototype, 'run')
       .mockResolvedValue();
 
@@ -29,7 +29,7 @@ describe('Migrate Executor', () => {
   });
 
   it('should fail the migration', async () => {
-    const runMock = jest
+    const runMock = vi
       .spyOn(MigratorRunner.prototype, 'run')
       .mockRejectedValue(new Error('test'));
 
@@ -42,7 +42,7 @@ describe('Migrate Executor', () => {
   });
 
   it('should run the migration and set the migration table name', async () => {
-    const runMock = jest
+    const runMock = vi
       .spyOn(MigratorRunner.prototype, 'run')
       .mockResolvedValue();
 
@@ -50,7 +50,7 @@ describe('Migrate Executor', () => {
       { ...options, migrationTableName: 'some-table-name' },
       {
         cwd: '/root',
-      } as ExecutorContext
+      } as ExecutorContext,
     );
     expect(output.success).toBe(true);
     expect(runMock).toHaveBeenCalled();

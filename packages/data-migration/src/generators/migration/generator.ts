@@ -22,7 +22,7 @@ function normalizeOptions(options: MigrationGeneratorSchema) {
 function addFiles(
   tree: Tree,
   projectRoot: string,
-  options: MigrationGeneratorSchema
+  options: MigrationGeneratorSchema,
 ) {
   const date = new Date();
   const year = date.getFullYear();
@@ -33,7 +33,7 @@ function addFiles(
     tree,
     projectRoot,
     options,
-    formattedDate
+    formattedDate,
   );
 
   const templateOptions = {
@@ -56,9 +56,9 @@ function addFiles(
       projectRoot,
       options.migrationsDir,
       options.namespace,
-      options.lifecycleHook === LifecycleHook.AFTER_DEPLOY ? 'post-deploy' : ''
+      options.lifecycleHook === LifecycleHook.AFTER_DEPLOY ? 'post-deploy' : '',
     ),
-    templateOptions
+    templateOptions,
   );
 
   if (options.addStream) {
@@ -71,9 +71,9 @@ function addFiles(
         options.namespace,
         options.lifecycleHook === LifecycleHook.AFTER_DEPLOY
           ? 'post-deploy'
-          : ''
+          : '',
       ),
-      templateOptions
+      templateOptions,
     );
   }
 }
@@ -83,14 +83,14 @@ function getMigrationFilename(
   projectRoot: string,
   options: MigrationGeneratorSchema,
   formattedDate: string,
-  versionSeq = 1
+  versionSeq = 1,
 ) {
   const version = parseInt(`${formattedDate}${versionSeq}`);
   const filename = `${formattedDate}${versionSeq}-${options.name}`;
   const baseFolder = path.join(
     projectRoot,
     options.migrationsDir,
-    options.namespace
+    options.namespace,
   );
 
   const exists =
@@ -101,7 +101,7 @@ function getMigrationFilename(
       projectRoot,
       options,
       formattedDate,
-      versionSeq + 1
+      versionSeq + 1,
     );
   }
 
@@ -113,7 +113,7 @@ export default async function (tree: Tree, options: MigrationGeneratorSchema) {
 
   const projectConfig = readProjectConfiguration(
     tree,
-    normalizedOptions.project
+    normalizedOptions.project,
   );
 
   if ('migrate' in projectConfig.targets === false) {

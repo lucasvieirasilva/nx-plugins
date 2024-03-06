@@ -13,7 +13,7 @@ const logger = new Logger();
 
 export default async function executor(
   options: RuffCheckExecutorSchema,
-  context: ExecutorContext
+  context: ExecutorContext,
 ) {
   const workspaceRoot = context.root;
   process.chdir(workspaceRoot);
@@ -21,7 +21,7 @@ export default async function executor(
     activateVenv(workspaceRoot);
     await checkPoetryExecutable();
     logger.info(
-      chalk`\n{bold Running ruff check on project {bgBlue  ${context.projectName} }...}\n`
+      chalk`\n{bold Running ruff check on project {bgBlue  ${context.projectName} }...}\n`,
     );
 
     const projectConfig = context.workspace.projects[context.projectName];

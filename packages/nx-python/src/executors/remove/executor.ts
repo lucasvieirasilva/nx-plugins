@@ -15,7 +15,7 @@ import { RemoveExecutorSchema } from './schema';
 
 export default async function executor(
   options: RemoveExecutorSchema,
-  context: ExecutorContext
+  context: ExecutorContext,
 ) {
   const workspaceRoot = context.root;
   process.chdir(workspaceRoot);
@@ -25,7 +25,7 @@ export default async function executor(
     const rootPyprojectToml = existsSync('pyproject.toml');
     const projectConfig = context.workspace.projects[context.projectName];
     console.log(
-      chalk`\n  {bold Removing {bgBlue  ${options.name} } dependency...}\n`
+      chalk`\n  {bold Removing {bgBlue  ${options.name} } dependency...}\n`,
     );
 
     let dependencyName = options.name;
@@ -53,7 +53,7 @@ export default async function executor(
     updateDependencyTree(context);
 
     console.log(
-      chalk`\n  {green.bold '${options.name}'} {green dependency has been successfully removed}\n`
+      chalk`\n  {green.bold '${options.name}'} {green dependency has been successfully removed}\n`,
     );
 
     return {

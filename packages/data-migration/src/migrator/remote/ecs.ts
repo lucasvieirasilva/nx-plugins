@@ -37,7 +37,7 @@ const ecs = new ECSClient({});
 export class EcsRemoteRunner {
   constructor(
     private readonly logger: CLILogger,
-    private readonly migration: MigrationBase
+    private readonly migration: MigrationBase,
   ) {}
 
   public async run() {
@@ -47,13 +47,13 @@ export class EcsRemoteRunner {
     try {
       this.logger.info(
         `Migration ${chalk.bold(
-          `${this.migration.namespace}:${this.migration.name}:${this.migration.version}`
-        )} is running remotely on ECS`
+          `${this.migration.namespace}:${this.migration.name}:${this.migration.version}`,
+        )} is running remotely on ECS`,
       );
       // running migration remotely
       // 1. Build docker image (1h)
       const { Account: accountId } = await sts.send(
-        new GetCallerIdentityCommand({})
+        new GetCallerIdentityCommand({}),
       );
       const awsRegion = process.env.AWS_REGION || 'us-east-1';
       const ecrRepositoryBase = `${accountId}.dkr.ecr.${awsRegion}.amazonaws.com`;
@@ -68,14 +68,14 @@ export class EcsRemoteRunner {
       const ecrImageTag = this.buildAndPushImage(
         ecrRepositoryBase,
         ecrRepoName,
-        remoteDistFolder
+        remoteDistFolder,
       );
 
       logGroupName = await this.createCloudWatchLogGroupIfNotExists();
       taskDefinitionArn = await this.createTaskDefinition(
         logGroupName,
         awsRegion,
-        ecrImageTag
+        ecrImageTag,
       );
 
       // 6. Run task (1h)
@@ -87,7 +87,7 @@ export class EcsRemoteRunner {
         await ecs.send(
           new DeregisterTaskDefinitionCommand({
             taskDefinition: taskDefinitionArn,
-          })
+          }),
         );
       }
 
@@ -109,7 +109,7 @@ export class EcsRemoteRunner {
         new DescribeTasksCommand({
           cluster: await resolveConfigParam(config.cluster),
           tasks: [task.taskArn],
-        })
+        }),
       );
 
       const taskDetails = tasksDetails.tasks[0];
@@ -121,7 +121,7 @@ export class EcsRemoteRunner {
         taskId,
         logGroupName,
         taskDetails,
-        startTime
+        startTime,
       );
 
       await this.migration.sleep(10);
@@ -131,7 +131,7 @@ export class EcsRemoteRunner {
         taskDetails.containers[0].exitCode !== 0
       ) {
         throw new ManagedMigrationError(
-          `Failed to run migration ${this.migration.namespace}:${this.migration.name}:${this.migration.version}: task exited with non-zero exit code ${taskDetails.containers[0].exitCode}`
+          `Failed to run migration ${this.migration.namespace}:${this.migration.name}:${this.migration.version}: task exited with non-zero exit code ${taskDetails.containers[0].exitCode}`,
         );
       }
     } while (
@@ -145,7 +145,7 @@ export class EcsRemoteRunner {
     taskId: string,
     logGroupName: string,
     taskDetails: Task,
-    startTime: number
+    startTime: number,
   ) {
     try {
       this.logger.debug(`Fetching ECS task logs from CloudWatch ${taskId}`);
@@ -155,7 +155,7 @@ export class EcsRemoteRunner {
           logStreamName: `ecs/${taskDetails.containers[0].name}/${taskId}`,
           startTime,
           endTime: Date.now(),
-        })
+        }),
       );
 
       for (const event of events) {
@@ -192,12 +192,12 @@ export class EcsRemoteRunner {
             securityGroups: [await resolveConfigParam(config.securityGroupId)],
           },
         },
-      })
+      }),
     );
 
     if (tasks.length === 0) {
       throw new ManagedMigrationError(
-        `Failed to run migration ${this.migration.namespace}:${this.migration.name}:${this.migration.version}: no tasks returned`
+        `Failed to run migration ${this.migration.namespace}:${this.migration.name}:${this.migration.version}: no tasks returned`,
       );
     }
 
@@ -207,7 +207,7 @@ export class EcsRemoteRunner {
   private async createTaskDefinition(
     logGroupName: string,
     awsRegion: string,
-    ecrImageTag: string
+    ecrImageTag: string,
   ): Promise<string> {
     this.logger.debug(`Registering ECS task definition`);
     const { config } = this.migration.remote;
@@ -254,7 +254,7 @@ export class EcsRemoteRunner {
           },
         ],
         requiresCompatibilities: ['FARGATE'],
-      })
+      }),
     );
 
     return taskDefinitionArn;
@@ -273,14 +273,14 @@ export class EcsRemoteRunner {
             version: `${this.migration.version}`,
             source: 'migration',
           },
-        })
+        }),
       );
     } catch (error) {
       if (error.name !== 'ResourceAlreadyExistsException') {
         throw error;
       }
       this.logger.debug(
-        `Log Group ${logGroupName} already exists, skipping creation`
+        `Log Group ${logGroupName} already exists, skipping creation`,
       );
     }
 
@@ -290,7 +290,7 @@ export class EcsRemoteRunner {
   private buildAndPushImage(
     ecrRepositoryBase: string,
     ecrRepoName: string,
-    remoteDistFolder: string
+    remoteDistFolder: string,
   ) {
     this.logger.info('Building docker image');
     const imageTag = `${this.migration.namespace}-${this.migration.name}-${this.migration.version}`;
@@ -301,7 +301,7 @@ export class EcsRemoteRunner {
       {
         cwd: remoteDistFolder,
         stdio: 'inherit',
-      }
+      },
     );
     if (buildResult.status !== 0) {
       throw new ManagedMigrationError(`Failed to build docker image`);
@@ -317,7 +317,7 @@ export class EcsRemoteRunner {
     }
 
     this.logger.info(
-      `Pushing docker image ${ecrImageTag} to ${ecrRepoName} ECR repository`
+      `Pushing docker image ${ecrImageTag} to ${ecrRepoName} ECR repository`,
     );
     const pushResult = spawn.sync('docker', ['push', ecrImageTag], {
       cwd: remoteDistFolder,
@@ -337,7 +337,7 @@ export class EcsRemoteRunner {
       } get-login-password --region ${awsRegion} | docker login --username AWS --password-stdin ${repo}`,
       {
         stdio: 'inherit',
-      }
+      },
     );
   }
 
@@ -346,7 +346,7 @@ export class EcsRemoteRunner {
       await ecr.send(
         new DescribeRepositoriesCommand({
           repositoryNames: [ecrRepoName],
-        })
+        }),
       );
     } catch (error) {
       if (error.name !== 'RepositoryNotFoundException') {
@@ -357,7 +357,7 @@ export class EcsRemoteRunner {
       await ecr.send(
         new CreateRepositoryCommand({
           repositoryName: ecrRepoName,
-        })
+        }),
       );
     }
   }
@@ -367,13 +367,13 @@ export class EcsRemoteRunner {
     const remoteDistFolder = path.join(distFolder, 'remote');
     const remoteWrapperFile = path.join(remoteDistFolder, 'wrapper.js');
 
-    this.logger.debug(`Creating remote dist folder ${remoteDistFolder}`);
+    this.logger.info(`Creating remote dist folder ${remoteDistFolder}`);
     fs.mkdirSync(remoteDistFolder, { recursive: true });
 
     this.logger.debug(`Copying Dockerfile to ${remoteDistFolder}`);
     fs.copyFileSync(
       path.join(__dirname, 'Dockerfile'),
-      path.join(remoteDistFolder, 'Dockerfile')
+      path.join(remoteDistFolder, 'Dockerfile'),
     );
 
     this.logger.debug(`Compiling remote wrapper`);

@@ -24,7 +24,12 @@
       "parser": "jsonc-eslint-parser",
       "rules": {
         "@nx/nx-plugin-checks": "error",
-        "@nx/dependency-checks": "error"
+        "@nx/dependency-checks": [
+          "error",
+          {
+            "ignoredFiles": ["vite.config.ts", "**/*.spec.ts", "**/*.mock.ts"]
+          }
+        ]
       }
     }
   ]

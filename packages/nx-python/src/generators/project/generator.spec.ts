@@ -1,4 +1,5 @@
-import { spawnSyncMock } from '../../utils/mocks/cross-spawn.mock';
+import { vi, MockInstance } from 'vitest';
+import '../../utils/mocks/cross-spawn.mock';
 import * as poetryUtils from '../../executors/utils/poetry';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import { Tree, readProjectConfiguration } from '@nx/devkit';
@@ -6,9 +7,10 @@ import { Tree, readProjectConfiguration } from '@nx/devkit';
 import generator from './generator';
 import { Schema } from './schema';
 import dedent from 'string-dedent';
+import spawn from 'cross-spawn';
 
 describe('nx-python project generator', () => {
-  let checkPoetryExecutableMock: jest.SpyInstance;
+  let checkPoetryExecutableMock: MockInstance;
   let appTree: Tree;
   const options: Schema = {
     name: 'test',
@@ -29,12 +31,16 @@ describe('nx-python project generator', () => {
     appTree = createTreeWithEmptyWorkspace({
       layout: 'apps-libs',
     });
-    checkPoetryExecutableMock = jest.spyOn(
-      poetryUtils,
-      'checkPoetryExecutable'
-    );
+    checkPoetryExecutableMock = vi.spyOn(poetryUtils, 'checkPoetryExecutable');
     checkPoetryExecutableMock.mockResolvedValue(undefined);
-    spawnSyncMock.mockReturnValue({ status: 0 });
+    vi.mocked(spawn.sync).mockReturnValue({
+      status: 0,
+      output: [''],
+      pid: 0,
+      signal: null,
+      stderr: null,
+      stdout: null,
+    });
   });
 
   it('should throw an exception when the poetry is not installed', async () => {
@@ -102,7 +108,7 @@ describe('nx-python project generator', () => {
       description: 'My custom description',
     });
     expect(
-      appTree.read('apps/test/pyproject.toml').toString()
+      appTree.read('apps/test/pyproject.toml').toString(),
     ).toMatchSnapshot();
   });
 
@@ -115,7 +121,7 @@ describe('nx-python project generator', () => {
       sourceSecondary: true,
     });
     expect(
-      appTree.read('apps/test/pyproject.toml').toString()
+      appTree.read('apps/test/pyproject.toml').toString(),
     ).toMatchSnapshot();
   });
 
@@ -124,9 +130,9 @@ describe('nx-python project generator', () => {
       generator(appTree, {
         ...options,
         customSource: true,
-      })
+      }),
     ).rejects.toThrow(
-      "Fields 'sourceName', 'sourceUrl' are required when the flag 'customSource' is true"
+      "Fields 'sourceName', 'sourceUrl' are required when the flag 'customSource' is true",
     );
   });
 
@@ -152,7 +158,7 @@ describe('nx-python project generator', () => {
     [build-system]
     requires = [ "poetry-core==1.0.3" ]
     build-backend = "poetry.core.masonry.api"
-    `
+    `,
     );
 
     const callbackTask = await generator(appTree, {
@@ -164,13 +170,13 @@ describe('nx-python project generator', () => {
     expect(config).toMatchSnapshot();
 
     expect(appTree.read('pyproject.toml', 'utf8')).toMatchSnapshot();
-    expect(spawnSyncMock).toHaveBeenCalledWith(
+    expect(spawn.sync).toHaveBeenCalledWith(
       'poetry',
       ['update', options.packageName],
       {
         shell: false,
         stdio: 'inherit',
-      }
+      },
     );
   });
 });
@@ -178,41 +184,41 @@ describe('nx-python project generator', () => {
 function assertGenerateFiles(
   appTree: Tree,
   projectDirectory: string,
-  moduleName: string
+  moduleName: string,
 ) {
   expect(appTree.exists(`${projectDirectory}/tox.ini`)).toBeTruthy();
   expect(
-    appTree.read(`${projectDirectory}/tox.ini`).toString()
+    appTree.read(`${projectDirectory}/tox.ini`).toString(),
   ).toMatchSnapshot();
   expect(appTree.exists(`${projectDirectory}/README.md`)).toBeTruthy();
   expect(
-    appTree.read(`${projectDirectory}/README.md`).toString()
+    appTree.read(`${projectDirectory}/README.md`).toString(),
   ).toMatchSnapshot();
   expect(appTree.exists(`${projectDirectory}/pyproject.toml`)).toBeTruthy();
   expect(
-    appTree.read(`${projectDirectory}/pyproject.toml`).toString()
+    appTree.read(`${projectDirectory}/pyproject.toml`).toString(),
   ).toMatchSnapshot();
   expect(appTree.exists(`${projectDirectory}/CHANGELOG.md`)).toBeTruthy();
   expect(
-    appTree.read(`${projectDirectory}/CHANGELOG.md`).toString()
+    appTree.read(`${projectDirectory}/CHANGELOG.md`).toString(),
   ).toMatchSnapshot();
   expect(appTree.exists(`${projectDirectory}/.flake8`)).toBeTruthy();
   expect(
-    appTree.read(`${projectDirectory}/.flake8`).toString()
+    appTree.read(`${projectDirectory}/.flake8`).toString(),
   ).toMatchSnapshot();
   expect(
-    appTree.exists(`${projectDirectory}/${moduleName}/index.py`)
+    appTree.exists(`${projectDirectory}/${moduleName}/index.py`),
   ).toBeTruthy();
   expect(
-    appTree.read(`${projectDirectory}/${moduleName}/index.py`).toString()
+    appTree.read(`${projectDirectory}/${moduleName}/index.py`).toString(),
   ).toMatchSnapshot();
   expect(
-    appTree.exists(`${projectDirectory}/tests/test_index.py`)
+    appTree.exists(`${projectDirectory}/tests/test_index.py`),
   ).toBeTruthy();
   expect(
-    appTree.read(`${projectDirectory}/tests/test_index.py`).toString()
+    appTree.read(`${projectDirectory}/tests/test_index.py`).toString(),
   ).toMatchSnapshot();
   expect(
-    appTree.read(`${projectDirectory}/.python-version`).toString()
+    appTree.read(`${projectDirectory}/.python-version`).toString(),
   ).toMatchSnapshot();
 }

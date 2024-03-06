@@ -33,6 +33,7 @@ import {
   ListEventSourceMappingsCommand,
   DeleteEventSourceMappingCommand,
   DeleteFunctionCommand,
+  Runtime,
 } from '@aws-sdk/client-lambda';
 import path from 'path';
 import {
@@ -61,7 +62,7 @@ type StreamLambdaOptions = {
   iamRoleArn?: string;
   memorySize?: number;
   timeout?: number;
-  runtime?: string;
+  runtime?: Runtime;
   envVars?: { [key: string]: string };
   iamPolicyStatements?: Record<string, unknown>[];
 };
@@ -77,7 +78,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
   }
 
   protected async restoreTablePointInTime(
-    params: RestoreTableToPointInTimeInput
+    params: RestoreTableToPointInTimeInput,
   ) {
     await this.client.send(new RestoreTableToPointInTimeCommand(params));
 
@@ -88,7 +89,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
       },
       {
         TableName: params.TargetTableName,
-      }
+      },
     );
   }
 
@@ -100,11 +101,11 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
       new ListBackupsCommand({
         TableName: tableName,
         BackupType: 'ALL',
-      })
+      }),
     );
 
     const backup = backups.BackupSummaries.find(
-      (backup) => backup.BackupName === backupName
+      (backup) => backup.BackupName === backupName,
     );
 
     if (!backup) {
@@ -115,7 +116,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
       new RestoreTableFromBackupCommand({
         BackupArn: backup.BackupArn,
         TargetTableName: tableName,
-      })
+      }),
     );
 
     this.logger.info(`Backup ${backupName} restored`);
@@ -128,7 +129,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
       },
       {
         TableName: tableName,
-      }
+      },
     );
   }
 
@@ -139,7 +140,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
       new CreateBackupCommand({
         BackupName: backupName,
         TableName: tableName,
-      })
+      }),
     );
     this.logger.info(`Backup ${backupName} created`);
 
@@ -159,7 +160,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
       } = await this.client.send(
         new DescribeBackupCommand({
           BackupArn: BackupDetails.BackupArn,
-        })
+        }),
       );
 
       backupStatus = BackupStatus;
@@ -171,7 +172,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
 
       if (retries === limitRetries) {
         throw new Error(
-          `Timeout waiting for backup ${backupName} to be created`
+          `Timeout waiting for backup ${backupName} to be created`,
         );
       }
     } while (backupStatus !== 'AVAILABLE');
@@ -182,7 +183,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
   protected async updateTable(
     input: UpdateTableInput,
     storeStreamArnToSSM = true,
-    wait = true
+    wait = true,
   ): Promise<void> {
     this.logger.info(`Updating table ${input.TableName}`);
 
@@ -197,7 +198,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
         },
         {
           TableName: input.TableName,
-        }
+        },
       );
     }
 
@@ -211,7 +212,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
 
   protected async createTable(
     input: CreateTableInput,
-    storeStreamArnToSSM = true
+    storeStreamArnToSSM = true,
   ): Promise<void> {
     this.logger.info(`Creating table ${input.TableName}`);
 
@@ -230,7 +231,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
       },
       {
         TableName: input.TableName,
-      }
+      },
     );
 
     this.logger.info(`Table ${input.TableName} created`);
@@ -268,7 +269,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
         Value: streamArn,
         Type: 'String',
         Overwrite: true,
-      })
+      }),
     );
 
     this.logger.info(`Stream ARN ${streamArn} stored to SSM`);
@@ -276,7 +277,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
 
   protected async deleteTable(
     tableName: string,
-    forceDelete = false
+    forceDelete = false,
   ): Promise<void> {
     const table = await this.describeTable(tableName);
     if (table === null) {
@@ -303,13 +304,13 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
       },
       {
         TableName: tableName,
-      }
+      },
     );
   }
 
   protected async enableStream(
     sourceTableName: string,
-    options: StreamLambdaOptions = {}
+    options: StreamLambdaOptions = {},
   ) {
     const defaults: StreamLambdaOptions = {
       memorySize: 256,
@@ -325,7 +326,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
     const { Table: sourceTable } = await this.client.send(
       new DescribeTableCommand({
         TableName: sourceTableName,
-      })
+      }),
     );
 
     await this.enableDynamoDBStreams(sourceTable);
@@ -335,26 +336,26 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
     const stagingFolder = path.join(
       'dist',
       path.relative(process.cwd(), this.path).replace('.ts', ''),
-      '.staging-stream-lambda'
+      '.staging-stream-lambda',
     );
 
     const distFolder = path.join(
       'dist',
       path.relative(process.cwd(), this.path).replace('.ts', ''),
-      'stream-lambda'
+      'stream-lambda',
     );
     const functionName = this.getStreamFunctionName();
 
     const zipPath = await this.compileLambdaFunction(
       functionName,
       stagingFolder,
-      distFolder
+      distFolder,
     );
 
     if (!resolvedOptions.iamRoleArn) {
       resolvedOptions.iamRoleArn = await this.createLambdaStreamIamRole(
         streamArn,
-        resolvedOptions.iamPolicyStatements
+        resolvedOptions.iamPolicyStatements,
       );
     }
 
@@ -362,11 +363,11 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
       functionName,
       zipPath,
       streamArn,
-      resolvedOptions
+      resolvedOptions,
     );
 
     this.logger.info(
-      `Migration ${this.namespace}/${this.name}/${this.version} stream lambda created`
+      `Migration ${this.namespace}/${this.name}/${this.version} stream lambda created`,
     );
   }
 
@@ -374,18 +375,18 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
     sourceTableName: string,
     name: string,
     version: number,
-    deleteIamRole = true
+    deleteIamRole = true,
   ) {
     const sourceTable = await this.client.send(
       new DescribeTableCommand({
         TableName: sourceTableName,
-      })
+      }),
     );
 
     const { Tags } = await this.client.send(
       new ListTagsOfResourceCommand({
         ResourceArn: sourceTable.Table.TableArn,
-      })
+      }),
     );
 
     const shouldDisableStream =
@@ -393,13 +394,13 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
         Tags.find(
           (tag) =>
             tag.Key === 'migration:stream-enabled-by' &&
-            tag.Value === 'migration'
-        )
+            tag.Value === 'migration',
+        ),
       ) && sourceTable.Table.StreamSpecification?.StreamEnabled === true;
 
     if (shouldDisableStream) {
       this.logger.info(
-        `Disabling stream for ${sourceTableName} as it was enabled by migration`
+        `Disabling stream for ${sourceTableName} as it was enabled by migration`,
       );
       await this.client.send(
         new UpdateTableCommand({
@@ -407,7 +408,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
           StreamSpecification: {
             StreamEnabled: false,
           },
-        })
+        }),
       );
     }
 
@@ -419,7 +420,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
     }
 
     this.logger.info(
-      `Migration ${this.namespace}/${name}/${version} stream lambda removed`
+      `Migration ${this.namespace}/${name}/${version} stream lambda removed`,
     );
   }
 
@@ -430,7 +431,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
       await iamClient.send(
         new GetRoleCommand({
           RoleName: roleName,
-        })
+        }),
       );
     } catch (e) {
       if (e.name === 'NoSuchEntityException') {
@@ -449,7 +450,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
       await lambdaClient.send(
         new GetFunctionCommand({
           FunctionName: functionName,
-        })
+        }),
       );
     } catch (e) {
       if (e.name === 'ResourceNotFoundException') {
@@ -462,13 +463,13 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
   }
 
   protected async describeTable(
-    tableName: string
+    tableName: string,
   ): Promise<TableDescription | null> {
     try {
       const { Table } = await this.client.send(
         new DescribeTableCommand({
           TableName: tableName,
-        })
+        }),
       );
 
       return Table;
@@ -484,7 +485,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
     fn: () => Promise<T>,
     startDelay = 0,
     delay = 1000,
-    retries = 10
+    retries = 10,
   ): Promise<T> {
     return new Promise((resolve, reject) => {
       const retry = () => {
@@ -512,7 +513,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
     functionName: string,
     zipPath: string,
     streamArn: string,
-    lambdaOptions: StreamLambdaOptions
+    lambdaOptions: StreamLambdaOptions,
   ) {
     this.logger.info(`Creating lambda function ${functionName}`);
 
@@ -539,7 +540,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
               ...lambdaOptions.envVars,
             },
           },
-        })
+        }),
       );
     }, 5000);
 
@@ -550,13 +551,13 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
         FunctionName: functionName,
         EventSourceArn: streamArn,
         StartingPosition: 'TRIM_HORIZON',
-      })
+      }),
     );
   }
 
   private async createLambdaStreamIamRole(
     streamArn: string,
-    additionalStatments: Record<string, unknown>[]
+    additionalStatments: Record<string, unknown>[],
   ) {
     const iamClient = new IAMClient({ region: this.region });
     const roleName = this.getStreamIamRoleName();
@@ -583,7 +584,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
         Path: '/',
         Tags: this.getTags(),
         Description: `IAM role for migration ${this.namespace}/${this.name}/${this.version} stream lambda`,
-      })
+      }),
     );
 
     await waitUntilRoleExists(
@@ -593,7 +594,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
       },
       {
         RoleName: roleName,
-      }
+      },
     );
 
     const roleArn = iamRole.Role.Arn;
@@ -643,7 +644,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
             ...additionalStatments,
           ],
         }),
-      })
+      }),
     );
     return roleArn;
   }
@@ -654,7 +655,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
     const streams = await streamsClient.send(
       new ListStreamsCommand({
         TableName: sourceTableName,
-      })
+      }),
     );
 
     if (!streams.Streams?.length) {
@@ -682,7 +683,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
             StreamEnabled: true,
             StreamViewType: 'NEW_AND_OLD_IMAGES',
           },
-        })
+        }),
       );
       streamEnabledBy = 'migration';
 
@@ -693,7 +694,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
         },
         {
           TableName: sourceTableName,
-        }
+        },
       );
     }
 
@@ -703,7 +704,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
         await this.client.send(
           new ListTagsOfResourceCommand({
             ResourceArn: sourceTable.TableArn,
-          })
+          }),
         )
       ).Tags,
       ...this.getTags(),
@@ -717,18 +718,18 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
       new TagResourceCommand({
         ResourceArn: sourceTable.TableArn,
         Tags: _.uniqBy(newTags, 'Key'),
-      })
+      }),
     );
   }
 
   private async compileLambdaFunction(
     functionName: string,
     stagingFolder: string,
-    distFolder: string
+    distFolder: string,
   ): Promise<string> {
     const tranformPath = path.join(
       path.dirname(this.path),
-      path.basename(this.path, '.ts') + '.stream.ts'
+      path.basename(this.path, '.ts') + '.stream.ts',
     );
 
     this.logger.debug(`Compiling ${tranformPath} migration using esbuild`);
@@ -742,10 +743,10 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
       entryPoints: [tranformPath],
       outfile: path.join(stagingFolder, 'handler.js'),
       platform: 'node',
-      external: ['aws-sdk'],
+      external: ['aws-sdk', '@aws-sdk/*'],
     });
     this.logger.debug(
-      `File ${tranformPath} compiled in ${Date.now() - buildStart}ms`
+      `File ${tranformPath} compiled in ${Date.now() - buildStart}ms`,
     );
 
     this.logger.info(`Zipping lambda function ${functionName}`);
@@ -754,7 +755,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
 
     const zipPath = path.join(
       path.resolve(distFolder, '..'),
-      `${functionName}.zip`
+      `${functionName}.zip`,
     );
     this.logger.debug(`Zip path: ${zipPath}`);
     if (fs.existsSync(zipPath)) {
@@ -776,7 +777,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
       const events = await lambdaClient.send(
         new ListEventSourceMappingsCommand({
           FunctionName: functionName,
-        })
+        }),
       );
 
       for (const event of events.EventSourceMappings) {
@@ -784,13 +785,13 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
         await lambdaClient.send(
           new DeleteEventSourceMappingCommand({
             UUID: event.UUID,
-          })
+          }),
         );
       }
 
       this.logger.info(`Removing lambda function ${functionName}`);
       await lambdaClient.send(
-        new DeleteFunctionCommand({ FunctionName: functionName })
+        new DeleteFunctionCommand({ FunctionName: functionName }),
       );
     }
   }
@@ -802,7 +803,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
       const policies = await iamClient.send(
         new ListRolePoliciesCommand({
           RoleName: roleName,
-        })
+        }),
       );
 
       for (const policy of policies.PolicyNames) {
@@ -811,7 +812,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
           new DeleteRolePolicyCommand({
             RoleName: roleName,
             PolicyName: policy,
-          })
+          }),
         );
       }
 
@@ -848,18 +849,19 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
   }
 
   private async tableCreatedByMigration(
-    table: TableDescription
+    table: TableDescription,
   ): Promise<boolean> {
     const { Tags } = await this.client.send(
       new ListTagsOfResourceCommand({
         ResourceArn: table.TableArn,
-      })
+      }),
     );
 
     return !_.isNil(
       Tags.find(
-        (tag) => tag.Key === 'migration:created-by' && tag.Value === 'migration'
-      )
+        (tag) =>
+          tag.Key === 'migration:created-by' && tag.Value === 'migration',
+      ),
     );
   }
 

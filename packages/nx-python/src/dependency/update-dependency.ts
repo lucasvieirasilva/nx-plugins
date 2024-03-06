@@ -19,17 +19,17 @@ export function updateDependencyTree(context: ExecutorContext) {
     context.workspace,
     context.projectName,
     rootPyprojectToml,
-    context.root
+    context.root,
   );
 
   if (rootPyprojectToml) {
     const rootPyprojectToml = parse(
-      readFileSync('pyproject.toml', { encoding: 'utf-8' })
+      readFileSync('pyproject.toml', { encoding: 'utf-8' }),
     ) as PyprojectToml;
 
     if (rootPyprojectToml.tool.poetry.dependencies[pkgName]) {
       console.log(
-        chalk`\nUpdating root {bold pyproject.toml} dependency {bold ${pkgName}}`
+        chalk`\nUpdating root {bold pyproject.toml} dependency {bold ${pkgName}}`,
       );
 
       runPoetry(['lock', '--no-update']);
@@ -44,7 +44,7 @@ export function updateDependents(
   projectName: string,
   updateLockOnly: boolean,
   workspaceRoot: string,
-  updatedProjects: string[] = []
+  updatedProjects: string[] = [],
 ) {
   updatedProjects.push(projectName);
   const deps = getDependents(projectName, workspace.projects, workspaceRoot);
@@ -66,7 +66,7 @@ export function updateDependents(
       dep,
       updateLockOnly,
       workspaceRoot,
-      updatedProjects
+      updatedProjects,
     );
   }
 }

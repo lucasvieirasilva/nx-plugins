@@ -15,14 +15,14 @@ if (!packageJsonPath) {
 }
 
 const packageJson = JSON.parse(
-  fs.readFileSync(packageJsonPath).toString('utf-8')
+  fs.readFileSync(packageJsonPath).toString('utf-8'),
 );
 packageJson.version = version;
 
 fs.writeFileSync(
   packageJsonPath,
   JSON.stringify(packageJson, null, 2) + '\n',
-  'utf8'
+  'utf8',
 );
 
 console.log(`Updated version to ${version}`);

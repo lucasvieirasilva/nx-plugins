@@ -123,11 +123,7 @@ export default class extends MigrationBase {
 The DynamoDB provider is a class that extends the generic provider and provides some additional functionality to perform a migration on a DynamoDB table.
 
 ```typescript
-import {
-  Migration,
-  DynamoDBMigrationBase,
-  LifecycleHook,
-} from '@nxlv/data-migration';
+import { Migration, DynamoDBMigrationBase, LifecycleHook } from '@nxlv/data-migration';
 
 @Migration({
   namespace: 'my-migration-namespace',
@@ -304,11 +300,7 @@ Version 1 creates a table called `my-table-v1`
 
 ```typescript
 import { MyTableModel } from '../somewhere';
-import {
-  Migration,
-  DynamoDBMigrationBase,
-  LifecycleHook,
-} from '@nxlv/data-migration';
+import { Migration, DynamoDBMigrationBase, LifecycleHook } from '@nxlv/data-migration';
 import { chunks } from '@nxlv/util';
 
 @Migration({
@@ -340,7 +332,7 @@ export default class extends DynamoDBMigrationBase {
           clientId: 'test',
           id: `id-${i}`,
           name: `name-${i}`,
-        }))
+        })),
       );
     }
 
@@ -358,11 +350,7 @@ export default class extends DynamoDBMigrationBase {
 Version 2 creates a table called `my-table-v2`
 
 ```typescript
-import {
-  Migration,
-  DynamoDBMigrationBase,
-  LifecycleHook,
-} from '@nxlv/data-migration';
+import { Migration, DynamoDBMigrationBase, LifecycleHook } from '@nxlv/data-migration';
 
 @Migration({
   namespace: 'teststream',
@@ -397,12 +385,7 @@ Version 3 creates a real-time migration from `my-table-v1` to `my-table-v2`
 
 ```typescript
 import { MyTableModel, MyTableV2Model } from '../somewhere';
-import {
-  Migration,
-  DynamoDBMigrationBase,
-  LifecycleHook,
-  chunks,
-} from '@nxlv/data-migration';
+import { Migration, DynamoDBMigrationBase, LifecycleHook, chunks } from '@nxlv/data-migration';
 
 @Migration({
   namespace: 'teststream',
@@ -417,9 +400,7 @@ export default class extends DynamoDBMigrationBase {
 
     const items = await MyTableModel.scan().exec();
     for (const chunk of chunks(items, 25)) {
-      await MyTableV2Model.batchPut(
-        chunk.map((item) => ({ ...item, age: 20 }))
-      );
+      await MyTableV2Model.batchPut(chunk.map((item) => ({ ...item, age: 20 })));
     }
   }
 
@@ -448,11 +429,7 @@ And you can implement your logic to migrate the data from `my-table-v1` to `my-t
 Version 4 removes the real-time migration
 
 ```typescript
-import {
-  Migration,
-  DynamoDBMigrationBase,
-  LifecycleHook,
-} from '@nxlv/data-migration';
+import { Migration, DynamoDBMigrationBase, LifecycleHook } from '@nxlv/data-migration';
 
 @Migration({
   namespace: 'teststream',
@@ -478,11 +455,7 @@ This migration is configured to run after the application deployment.
 Version 5 removes the v1 table
 
 ```typescript
-import {
-  Migration,
-  DynamoDBMigrationBase,
-  LifecycleHook,
-} from '@nxlv/data-migration';
+import { Migration, DynamoDBMigrationBase, LifecycleHook } from '@nxlv/data-migration';
 
 @Migration({
   namespace: 'teststream',
@@ -512,11 +485,7 @@ The data migration engine is responsible for creating the container, running the
 To run a remote migration, you need to create a migration script with the following config.
 
 ```typescript
-import {
-  Migration,
-  DynamoDBMigrationBase,
-  LifecycleHook,
-} from '@nxlv/data-migration';
+import { Migration, DynamoDBMigrationBase, LifecycleHook } from '@nxlv/data-migration';
 
 @Migration({
   namespace: 'remote-example',
@@ -600,14 +569,7 @@ For the `ecs` type, the following configuration is required:
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": [
-        "ecr:GetAuthorizationToken",
-        "ecr:BatchCheckLayerAvailability",
-        "ecr:GetDownloadUrlForLayer",
-        "ecr:BatchGetImage",
-        "logs:CreateLogStream",
-        "logs:PutLogEvents"
-      ],
+      "Action": ["ecr:GetAuthorizationToken", "ecr:BatchCheckLayerAvailability", "ecr:GetDownloadUrlForLayer", "ecr:BatchGetImage", "logs:CreateLogStream", "logs:PutLogEvents"],
       "Resource": "*"
     }
   ]
@@ -625,16 +587,7 @@ or attach the `arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePo
     {
       "Sid": "DynamoDB",
       "Effect": "Allow",
-      "Action": [
-        "dynamodb:UpdateItem",
-        "dynamodb:Scan",
-        "dynamodb:Query",
-        "dynamodb:PutItem",
-        "dynamodb:GetItem",
-        "dynamodb:DescribeTable",
-        "dynamodb:BatchWriteItem",
-        "dynamodb:BatchGetItem"
-      ],
+      "Action": ["dynamodb:UpdateItem", "dynamodb:Scan", "dynamodb:Query", "dynamodb:PutItem", "dynamodb:GetItem", "dynamodb:DescribeTable", "dynamodb:BatchWriteItem", "dynamodb:BatchGetItem"],
       "Resource": "*"
     }
   ]

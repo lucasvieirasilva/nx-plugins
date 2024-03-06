@@ -1,3 +1,4 @@
+import { vi, MockInstance } from 'vitest';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import {
   Tree,
@@ -11,11 +12,11 @@ import update from './replace-nx-run-commands';
 
 describe('16-1-0-replace-nx-run-commands migration', () => {
   let tree: Tree;
-  let checkPoetryExecutableMock: jest.SpyInstance;
+  let checkPoetryExecutableMock: MockInstance;
 
   beforeEach(() => {
     tree = createTreeWithEmptyWorkspace({ layout: 'apps-libs' });
-    checkPoetryExecutableMock = jest
+    checkPoetryExecutableMock = vi
       .spyOn(poetryUtils, 'checkPoetryExecutable')
       .mockResolvedValue(undefined);
   });
@@ -51,10 +52,10 @@ describe('16-1-0-replace-nx-run-commands migration', () => {
     const updatedProjectConfig = readProjectConfiguration(tree, 'test');
 
     expect(updatedProjectConfig.targets.lock.executor).toEqual(
-      '@nxlv/python:run-commands'
+      '@nxlv/python:run-commands',
     );
     expect(updatedProjectConfig.targets.test.executor).toEqual(
-      '@nxlv/python:run-commands'
+      '@nxlv/python:run-commands',
     );
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
   });

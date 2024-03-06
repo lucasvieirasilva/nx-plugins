@@ -1,24 +1,21 @@
-import { spawnSyncMock } from '../../utils/mocks/cross-spawn.mock';
+import { vi, MockInstance } from 'vitest';
+import '../../utils/mocks/cross-spawn.mock';
 import * as poetryUtils from '../utils/poetry';
-
-const buildExecutorMock = jest.fn();
-
-jest.mock('../build/executor', () => {
-  return buildExecutorMock;
-});
-
+import * as buildExecutor from '../build/executor';
 import { ToxExecutorSchema } from './schema';
 import executor from './executor';
 import fsMock from 'mock-fs';
 import chalk from 'chalk';
+import spawn from 'cross-spawn';
 
 const options: ToxExecutorSchema = {
   silent: false,
 };
 
 describe('Tox Executor', () => {
-  let checkPoetryExecutableMock: jest.SpyInstance;
-  let activateVenvMock: jest.SpyInstance;
+  let checkPoetryExecutableMock: MockInstance;
+  let activateVenvMock: MockInstance;
+  let buildExecutorMock: MockInstance;
 
   const context = {
     cwd: '.',
@@ -42,18 +39,29 @@ describe('Tox Executor', () => {
   });
 
   beforeEach(() => {
-    checkPoetryExecutableMock = jest
+    checkPoetryExecutableMock = vi
       .spyOn(poetryUtils, 'checkPoetryExecutable')
       .mockResolvedValue(undefined);
-    activateVenvMock = jest
+    activateVenvMock = vi
       .spyOn(poetryUtils, 'activateVenv')
       .mockReturnValue(undefined);
-    spawnSyncMock.mockReturnValue({ status: 0 });
+
+    buildExecutorMock = vi.spyOn(buildExecutor, 'default');
+
+    vi.mocked(spawn.sync).mockReturnValue({
+      status: 0,
+      output: [''],
+      pid: 0,
+      signal: null,
+      stderr: null,
+      stdout: null,
+    });
+    vi.spyOn(process, 'chdir').mockReturnValue(undefined);
   });
 
   afterEach(() => {
     fsMock.restore();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it('should return success false when the poetry is not installed', async () => {
@@ -80,7 +88,7 @@ describe('Tox Executor', () => {
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
     expect(buildExecutorMock).not.toHaveBeenCalled();
-    expect(spawnSyncMock).not.toHaveBeenCalled();
+    expect(spawn.sync).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
 
@@ -106,16 +114,16 @@ describe('Tox Executor', () => {
         lockedVersions: true,
         bundleLocalDependencies: true,
       },
-      context
+      context,
     );
-    expect(spawnSyncMock).toBeCalledWith(
+    expect(spawn.sync).toBeCalledWith(
       'poetry',
       ['run', 'tox', '--installpkg', 'dist/package.tar.gz'],
       {
         cwd: 'apps/app',
         shell: false,
         stdio: 'inherit',
-      }
+      },
     );
     expect(output.success).toBe(true);
   });
@@ -134,7 +142,7 @@ describe('Tox Executor', () => {
         silent: false,
         args: '-e linters',
       },
-      context
+      context,
     );
 
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
@@ -149,16 +157,16 @@ describe('Tox Executor', () => {
         lockedVersions: true,
         bundleLocalDependencies: true,
       },
-      context
+      context,
     );
-    expect(spawnSyncMock).toBeCalledWith(
+    expect(spawn.sync).toBeCalledWith(
       'poetry',
       ['run', 'tox', '--installpkg', 'dist/package.tar.gz', '-e', 'linters'],
       {
         cwd: 'apps/app',
         shell: false,
         stdio: 'inherit',
-      }
+      },
     );
     expect(output.success).toBe(true);
   });
@@ -181,9 +189,9 @@ describe('Tox Executor', () => {
         lockedVersions: true,
         bundleLocalDependencies: true,
       },
-      context
+      context,
     );
-    expect(spawnSyncMock).not.toBeCalled();
+    expect(spawn.sync).not.toBeCalled();
     expect(output.success).toBe(false);
   });
 
@@ -205,9 +213,9 @@ describe('Tox Executor', () => {
         lockedVersions: true,
         bundleLocalDependencies: true,
       },
-      context
+      context,
     );
-    expect(spawnSyncMock).not.toBeCalled();
+    expect(spawn.sync).not.toBeCalled();
     expect(output.success).toBe(false);
   });
 
@@ -233,9 +241,9 @@ describe('Tox Executor', () => {
         lockedVersions: true,
         bundleLocalDependencies: true,
       },
-      context
+      context,
     );
-    expect(spawnSyncMock).not.toBeCalled();
+    expect(spawn.sync).not.toBeCalled();
     expect(output.success).toBe(false);
   });
 });

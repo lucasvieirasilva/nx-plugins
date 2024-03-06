@@ -1,7 +1,11 @@
-export const spawnSyncMock = jest.fn();
+import { vi } from 'vitest';
 
-jest.mock('cross-spawn', () => {
+vi.mock('cross-spawn', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('cross-spawn')>();
   return {
-    sync: spawnSyncMock,
+    ...actual,
+    default: {
+      sync: vi.fn(),
+    },
   };
 });

@@ -15,7 +15,7 @@ export async function checkPoetryExecutable() {
     await commandExists(POETRY_EXECUTABLE);
   } catch (e) {
     throw new Error(
-      'Poetry is not installed. Please install Poetry before running this command.'
+      'Poetry is not installed. Please install Poetry before running this command.',
     );
   }
 }
@@ -24,7 +24,7 @@ export async function getPoetryVersion() {
   const result = spawn.sync(POETRY_EXECUTABLE, ['--version']);
   if (result.error) {
     throw new Error(
-      'Poetry is not installed. Please install Poetry before running this command.'
+      'Poetry is not installed. Please install Poetry before running this command.',
     );
   }
   const versionRegex = /version (\d+\.\d+\.\d+)/;
@@ -38,7 +38,7 @@ export function addLocalProjectToPoetryProject(
   dependencyConfig: ProjectConfiguration,
   dependencyPath: string,
   group?: string,
-  extras?: string[]
+  extras?: string[],
 ): string {
   const targetToml = getProjectTomlPath(targetConfig);
   const dependencyToml = getProjectTomlPath(dependencyConfig);
@@ -72,10 +72,10 @@ export function addLocalProjectToPoetryProject(
 export function updateProject(
   projectName: string,
   cwd: string,
-  updateLockOnly: boolean
+  updateLockOnly: boolean,
 ) {
   const updateLockArgs = ['update', projectName].concat(
-    updateLockOnly ? ['--lock'] : []
+    updateLockOnly ? ['--lock'] : [],
   );
   runPoetry(updateLockArgs, { cwd });
 }
@@ -90,12 +90,12 @@ export function parseToml(tomlFile: string) {
 
 export function getLocalDependencyConfig(
   context: ExecutorContext,
-  dependencyName: string
+  dependencyName: string,
 ) {
   const dependencyConfig = context.workspace.projects[dependencyName];
   if (!dependencyConfig) {
     throw new Error(
-      chalk`project {bold ${dependencyName}} not found in the Nx workspace`
+      chalk`project {bold ${dependencyName}} not found in the Nx workspace`,
     );
   }
   return dependencyConfig;
@@ -108,7 +108,7 @@ export type RunPoetryOptions = {
 
 export function runPoetry(
   args: string[],
-  options: RunPoetryOptions = {}
+  options: RunPoetryOptions = {},
 ): void {
   const log = options.log ?? true;
   const error = options.error ?? true;
@@ -123,7 +123,7 @@ export function runPoetry(
         options.cwd && options.cwd !== '.'
           ? chalk`at {bold ${options.cwd}} folder`
           : ''
-      }\n`
+      }\n`,
     );
   }
 
@@ -135,7 +135,7 @@ export function runPoetry(
 
   if (error && result.status !== 0) {
     throw new Error(
-      chalk`{bold ${commandStr}} command failed with exit code {bold ${result.status}}`
+      chalk`{bold ${commandStr}} command failed with exit code {bold ${result.status}}`,
     );
   }
 }
@@ -146,12 +146,12 @@ export function activateVenv(workspaceRoot: string) {
 
     if (fs.existsSync(rootPyproject)) {
       const rootConfig = parse(
-        fs.readFileSync(rootPyproject, 'utf-8')
+        fs.readFileSync(rootPyproject, 'utf-8'),
       ) as PyprojectToml;
       const autoActivate = rootConfig.tool.nx?.autoActivate ?? false;
       if (autoActivate) {
         console.log(
-          chalk`\n{bold shared virtual environment detected and not activated, activating...}\n\n`
+          chalk`\n{bold shared virtual environment detected and not activated, activating...}\n\n`,
         );
         const virtualEnv = path.resolve(workspaceRoot, '.venv');
         process.env.VIRTUAL_ENV = virtualEnv;

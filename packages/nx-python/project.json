@@ -46,11 +46,9 @@
       "outputs": ["{options.outputFile}"]
     },
     "test": {
-      "executor": "@nx/jest:jest",
+      "executor": "@nx/vite:test",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
-      "options": {
-        "jestConfig": "packages/nx-python/jest.config.ts"
-      }
+      "options": {}
     },
     "release": {
       "executor": "nx:run-commands",

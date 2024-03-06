@@ -10,7 +10,7 @@ const getLcovFiles = function (src) {
   const files = getLcovFiles('coverage');
   const mergedReport = files.reduce(
     (mergedReport, currFile) => (mergedReport += fs.readFileSync(currFile)),
-    ''
+    '',
   );
   await fs.writeFile(
     path.resolve('./coverage/lcov.info'),
@@ -18,6 +18,6 @@ const getLcovFiles = function (src) {
     (err) => {
       if (err) throw err;
       console.log('The file has been saved!');
-    }
+    },
   );
 })();

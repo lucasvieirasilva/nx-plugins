@@ -18,11 +18,11 @@ describe('nx-python e2e', () => {
     updateFile('nx.json', JSON.stringify(nxJson, null, 4));
 
     await runNxCommandAsync(
-      `generate @nxlv/python:poetry-project ${app1} --projectType "application" --packageName ${app1} --description ${app1}`
+      `generate @nxlv/python:poetry-project ${app1} --projectType "application" --packageName ${app1} --description ${app1}`,
     );
 
     await runNxCommandAsync(
-      `generate @nxlv/python:poetry-project ${lib1} --projectType "library"  --packageName ${lib1} --description ${lib1}`
+      `generate @nxlv/python:poetry-project ${lib1} --projectType "library"  --packageName ${lib1} --description ${lib1}`,
     );
 
     await runNxCommandAsync(`run ${app1}:add --name ${lib1} --local`);
@@ -36,8 +36,8 @@ describe('nx-python e2e', () => {
     expect(() =>
       checkFilesExist(
         `${app1}/dist/${app1.replace('-', '_')}-1.0.0-py3-none-any.whl`,
-        `${app1}/dist/${app1}-1.0.0.tar.gz`
-      )
+        `${app1}/dist/${app1}-1.0.0.tar.gz`,
+      ),
     ).not.toThrow();
   }, 3000000);
 
@@ -52,11 +52,11 @@ describe('nx-python e2e', () => {
     updateFile('nx.json', JSON.stringify(nxJson, null, 4));
 
     await runNxCommandAsync(
-      `generate @nxlv/python:poetry-project ${app1} --projectType "application" --packageName ${app1} --description ${app1} --linter ruff`
+      `generate @nxlv/python:poetry-project ${app1} --projectType "application" --packageName ${app1} --description ${app1} --linter ruff`,
     );
 
     await runNxCommandAsync(
-      `generate @nxlv/python:poetry-project ${lib1} --projectType "library"  --packageName ${lib1} --description ${lib1} --linter ruff`
+      `generate @nxlv/python:poetry-project ${lib1} --projectType "library"  --packageName ${lib1} --description ${lib1} --linter ruff`,
     );
 
     await runNxCommandAsync(`run ${app1}:add --name ${lib1} --local`);
@@ -70,8 +70,8 @@ describe('nx-python e2e', () => {
     expect(() =>
       checkFilesExist(
         `${app1}/dist/${app1.replace('-', '_')}-1.0.0-py3-none-any.whl`,
-        `${app1}/dist/${app1}-1.0.0.tar.gz`
-      )
+        `${app1}/dist/${app1}-1.0.0.tar.gz`,
+      ),
     ).not.toThrow();
   }, 3000000);
 
@@ -100,7 +100,7 @@ describe('nx-python e2e', () => {
         'src/app1',
         '--linter',
         'ruff',
-      ].join(' ')
+      ].join(' '),
     );
 
     await runNxCommandAsync(
@@ -118,7 +118,7 @@ describe('nx-python e2e', () => {
         'src/lib1',
         '--linter',
         'ruff',
-      ].join(' ')
+      ].join(' '),
     );
 
     await runNxCommandAsync(`run ${app1}:add --name ${lib1} --local`);
@@ -132,8 +132,8 @@ describe('nx-python e2e', () => {
     expect(() =>
       checkFilesExist(
         `src/${app1}/dist/${app1.replace('-', '_')}-1.0.0-py3-none-any.whl`,
-        `src/${app1}/dist/${app1}-1.0.0.tar.gz`
-      )
+        `src/${app1}/dist/${app1}-1.0.0.tar.gz`,
+      ),
     ).not.toThrow();
   }, 3000000);
 
@@ -150,15 +150,15 @@ describe('nx-python e2e', () => {
     updateFile('nx.json', JSON.stringify(nxJson, null, 4));
 
     await runNxCommandAsync(
-      `generate @nxlv/python:poetry-project ${app1} --projectType "application" --packageName ${app1} --description ${app1}`
+      `generate @nxlv/python:poetry-project ${app1} --projectType "application" --packageName ${app1} --description ${app1}`,
     );
 
     await runNxCommandAsync(
-      `generate @nxlv/python:poetry-project ${lib1} --projectType "library"  --packageName ${lib1} --description ${lib1}`
+      `generate @nxlv/python:poetry-project ${lib1} --projectType "library"  --packageName ${lib1} --description ${lib1}`,
     );
 
     await runNxCommandAsync(
-      `generate @nxlv/python:poetry-project ${lib2} --projectType "library"  --packageName ${lib2} --description ${lib2}`
+      `generate @nxlv/python:poetry-project ${lib2} --projectType "library"  --packageName ${lib2} --description ${lib2}`,
     );
 
     await runNxCommandAsync(`run ${lib1}:add --name ${lib2} --local`);
@@ -172,8 +172,8 @@ describe('nx-python e2e', () => {
     expect(() =>
       checkFilesExist(
         `${app1}/dist/${app1.replace('-', '_')}-1.0.0-py3-none-any.whl`,
-        `${app1}/dist/${app1}-1.0.0.tar.gz`
-      )
+        `${app1}/dist/${app1}-1.0.0.tar.gz`,
+      ),
     ).not.toThrow();
   }, 3000000);
 
@@ -191,15 +191,15 @@ describe('nx-python e2e', () => {
       updateFile('nx.json', JSON.stringify(nxJson, null, 4));
 
       await runNxCommandAsync(
-        `generate @nxlv/python:poetry-project ${app1} --projectType "application" --packageName ${app1} --description ${app1}`
+        `generate @nxlv/python:poetry-project ${app1} --projectType "application" --packageName ${app1} --description ${app1}`,
       );
 
       await runNxCommandAsync(
-        `generate @nxlv/python:poetry-project ${lib1} --projectType "library"  --packageName ${lib1} --description ${lib1}`
+        `generate @nxlv/python:poetry-project ${lib1} --projectType "library"  --packageName ${lib1} --description ${lib1}`,
       );
 
       await runNxCommandAsync(
-        `generate @nxlv/python:poetry-project ${lib2} --projectType "library"  --packageName ${lib2} --description ${lib2}`
+        `generate @nxlv/python:poetry-project ${lib2} --projectType "library"  --packageName ${lib2} --description ${lib2}`,
       );
 
       await runNxCommandAsync(`generate @nxlv/python:migrate-to-shared-venv`);
@@ -215,8 +215,8 @@ describe('nx-python e2e', () => {
       expect(() =>
         checkFilesExist(
           `${app1}/dist/${app1.replace('-', '_')}-1.0.0-py3-none-any.whl`,
-          `${app1}/dist/${app1}-1.0.0.tar.gz`
-        )
+          `${app1}/dist/${app1}-1.0.0.tar.gz`,
+        ),
       ).not.toThrow();
 
       expect(() => checkFilesExist(`.venv`, 'pyproject.toml')).not.toThrow();
@@ -237,17 +237,17 @@ describe('nx-python e2e', () => {
       updateFile('nx.json', JSON.stringify(nxJson, null, 4));
 
       await runNxCommandAsync(
-        `generate @nxlv/python:poetry-project ${app1} --projectType "application" --packageName ${app1} --description ${app1}`
+        `generate @nxlv/python:poetry-project ${app1} --projectType "application" --packageName ${app1} --description ${app1}`,
       );
 
       await runNxCommandAsync(`generate @nxlv/python:migrate-to-shared-venv`);
 
       await runNxCommandAsync(
-        `generate @nxlv/python:poetry-project ${lib1} --projectType "library"  --packageName ${lib1} --description ${lib1}`
+        `generate @nxlv/python:poetry-project ${lib1} --projectType "library"  --packageName ${lib1} --description ${lib1}`,
       );
 
       await runNxCommandAsync(
-        `generate @nxlv/python:poetry-project ${lib2} --projectType "library"  --packageName ${lib2} --description ${lib2}`
+        `generate @nxlv/python:poetry-project ${lib2} --projectType "library"  --packageName ${lib2} --description ${lib2}`,
       );
 
       await runNxCommandAsync(`run ${lib1}:add --name ${lib2} --local`);
@@ -261,8 +261,8 @@ describe('nx-python e2e', () => {
       expect(() =>
         checkFilesExist(
           `${app1}/dist/${app1.replace('-', '_')}-1.0.0-py3-none-any.whl`,
-          `${app1}/dist/${app1}-1.0.0.tar.gz`
-        )
+          `${app1}/dist/${app1}-1.0.0.tar.gz`,
+        ),
       ).not.toThrow();
 
       expect(() => checkFilesExist(`.venv`, 'pyproject.toml')).not.toThrow();

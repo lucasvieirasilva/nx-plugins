@@ -18,7 +18,7 @@ export const handler: DynamoDBStreamHandler = async (event) => {
   for (const record of event.Records) {
     if (record.eventName === 'INSERT' || record.eventName === 'MODIFY') {
       const item = unmarshall(
-        record.dynamodb?.NewImage as Record<string, AttributeValue>
+        record.dynamodb?.NewImage as Record<string, AttributeValue>,
       );
       console.debug('Record Item', JSON.stringify(item));
 
@@ -29,11 +29,11 @@ export const handler: DynamoDBStreamHandler = async (event) => {
             userId: item['id'],
             name: item['name'],
           },
-        })
+        }),
       );
     } else if (record.eventName === 'REMOVE') {
       const keys = unmarshall(
-        record.dynamodb?.Keys as Record<string, AttributeValue>
+        record.dynamodb?.Keys as Record<string, AttributeValue>,
       );
       console.debug('Record Keys', JSON.stringify(keys));
 
@@ -43,7 +43,7 @@ export const handler: DynamoDBStreamHandler = async (event) => {
           Key: {
             userId: keys['id'],
           },
-        })
+        }),
       );
     }
   }

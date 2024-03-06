@@ -14,7 +14,7 @@ const logger = new Logger();
 
 export default async function executor(
   options: Flake8ExecutorSchema,
-  context: ExecutorContext
+  context: ExecutorContext,
 ) {
   logger.setOptions(options);
   const workspaceRoot = context.root;
@@ -23,7 +23,7 @@ export default async function executor(
     activateVenv(workspaceRoot);
     await checkPoetryExecutable();
     logger.info(
-      chalk`\n  {bold Running flake8 linting on project {bgBlue  ${context.projectName} }...}\n`
+      chalk`\n  {bold Running flake8 linting on project {bgBlue  ${context.projectName} }...}\n`,
     );
 
     const projectConfig = context.workspace.projects[context.projectName];

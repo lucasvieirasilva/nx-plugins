@@ -1,11 +1,11 @@
-import { spawnSyncMock } from '../../utils/mocks/cross-spawn.mock';
+import { vi } from 'vitest';
+import '../../utils/mocks/cross-spawn.mock';
 import fsMock from 'mock-fs';
-const commandExistsMock = jest.fn();
 
-jest.mock('command-exists', () => {
+vi.mock('command-exists', () => {
   return {
     __esModule: true,
-    default: commandExistsMock,
+    default: vi.fn(),
   };
 });
 
@@ -13,6 +13,8 @@ import * as poetryUtils from './poetry';
 import dedent from 'string-dedent';
 import chalk from 'chalk';
 import path from 'path';
+import spawn from 'cross-spawn';
+import commandExists from 'command-exists';
 
 describe('Poetry Utils', () => {
   beforeAll(() => {
@@ -21,38 +23,43 @@ describe('Poetry Utils', () => {
 
   afterEach(() => {
     fsMock.restore();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   describe('Check Poetry Executable', () => {
     it('should check if poetry exists', () => {
-      commandExistsMock.mockResolvedValue(undefined);
+      commandExists.mockResolvedValue(undefined);
 
       expect(poetryUtils.checkPoetryExecutable()).resolves.toBeUndefined();
     });
 
     it('should throw an exeception when poetry is not installed', () => {
-      commandExistsMock.mockRejectedValue(null);
+      commandExists.mockRejectedValue(null);
 
       expect(poetryUtils.checkPoetryExecutable()).rejects.toThrowError(
-        'Poetry is not installed. Please install Poetry before running this command.'
+        'Poetry is not installed. Please install Poetry before running this command.',
       );
     });
   });
 
   describe('Run Poetry', () => {
     beforeEach(() => {
-      jest.restoreAllMocks();
+      vi.restoreAllMocks();
     });
 
     it('should run poetry with the given arguments', () => {
-      const consoleLogSpy = jest.spyOn(console, 'log');
-      spawnSyncMock.mockReturnValue({
+      const consoleLogSpy = vi.spyOn(console, 'log');
+      vi.mocked(spawn.sync).mockReturnValue({
         status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
       });
       poetryUtils.runPoetry(['install'], { cwd: '.' });
       expect(consoleLogSpy).toHaveBeenCalled();
-      expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['install'], {
+      expect(spawn.sync).toHaveBeenCalledWith('poetry', ['install'], {
         cwd: '.',
         shell: false,
         stdio: 'inherit',
@@ -60,13 +67,18 @@ describe('Poetry Utils', () => {
     });
 
     it('should run poetry at a different folder', () => {
-      const consoleLogSpy = jest.spyOn(console, 'log');
-      spawnSyncMock.mockReturnValue({
+      const consoleLogSpy = vi.spyOn(console, 'log');
+      vi.mocked(spawn.sync).mockReturnValue({
         status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
       });
       poetryUtils.runPoetry(['install'], { cwd: '/path' });
       expect(consoleLogSpy).toHaveBeenCalled();
-      expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['install'], {
+      expect(spawn.sync).toHaveBeenCalledWith('poetry', ['install'], {
         cwd: '/path',
         shell: false,
         stdio: 'inherit',
@@ -74,39 +86,54 @@ describe('Poetry Utils', () => {
     });
 
     it('should run poetry without log', () => {
-      const consoleLogSpy = jest.spyOn(console, 'log');
-      spawnSyncMock.mockReturnValue({
+      const consoleLogSpy = vi.spyOn(console, 'log');
+      vi.mocked(spawn.sync).mockReturnValue({
         status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
       });
       poetryUtils.runPoetry(['install'], { log: false });
       expect(consoleLogSpy).not.toHaveBeenCalled();
-      expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['install'], {
+      expect(spawn.sync).toHaveBeenCalledWith('poetry', ['install'], {
         shell: false,
         stdio: 'inherit',
       });
     });
 
     it('should run poetry without options', () => {
-      const consoleLogSpy = jest.spyOn(console, 'log');
-      spawnSyncMock.mockReturnValue({
+      const consoleLogSpy = vi.spyOn(console, 'log');
+      vi.mocked(spawn.sync).mockReturnValue({
         status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
       });
       poetryUtils.runPoetry(['install'], undefined);
       expect(consoleLogSpy).toHaveBeenCalled();
-      expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['install'], {
+      expect(spawn.sync).toHaveBeenCalledWith('poetry', ['install'], {
         shell: false,
         stdio: 'inherit',
       });
     });
 
     it('should ignore the status when the option error is false', () => {
-      const consoleLogSpy = jest.spyOn(console, 'log');
-      spawnSyncMock.mockReturnValue({
+      const consoleLogSpy = vi.spyOn(console, 'log');
+      vi.mocked(spawn.sync).mockReturnValue({
         status: 1,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
       });
       poetryUtils.runPoetry(['install'], { cwd: '.', error: false });
       expect(consoleLogSpy).toHaveBeenCalled();
-      expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['install'], {
+      expect(spawn.sync).toHaveBeenCalledWith('poetry', ['install'], {
         cwd: '.',
         shell: false,
         stdio: 'inherit',
@@ -114,15 +141,20 @@ describe('Poetry Utils', () => {
     });
 
     it('should throw an error when the status is not 0', () => {
-      const consoleLogSpy = jest.spyOn(console, 'log');
-      spawnSyncMock.mockReturnValue({
+      const consoleLogSpy = vi.spyOn(console, 'log');
+      vi.mocked(spawn.sync).mockReturnValue({
         status: 1,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
       });
       expect(() =>
-        poetryUtils.runPoetry(['install'], { cwd: '.' })
+        poetryUtils.runPoetry(['install'], { cwd: '.' }),
       ).toThrowError();
       expect(consoleLogSpy).toHaveBeenCalled();
-      expect(spawnSyncMock).toHaveBeenCalledWith('poetry', ['install'], {
+      expect(spawn.sync).toHaveBeenCalledWith('poetry', ['install'], {
         cwd: '.',
         shell: false,
         stdio: 'inherit',
@@ -132,18 +164,26 @@ describe('Poetry Utils', () => {
 
   describe('Get Poetry Version', () => {
     it('should get the poetry CLI version', async () => {
-      spawnSyncMock.mockReturnValueOnce({
+      vi.mocked(spawn.sync).mockReturnValueOnce({
         status: 0,
         stdout: Buffer.from('Poetry (version 1.5.0)'),
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
       });
 
       const version = await poetryUtils.getPoetryVersion();
 
       expect(version).toEqual('1.5.0');
 
-      spawnSyncMock.mockReturnValueOnce({
+      vi.mocked(spawn.sync).mockReturnValueOnce({
         status: 0,
         stdout: Buffer.from('\n\nSomething else\n\nPoetry (version 1.2.2)'),
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
       });
 
       const version2 = await poetryUtils.getPoetryVersion();
@@ -152,9 +192,14 @@ describe('Poetry Utils', () => {
     });
 
     it('should throw an error when the status is not 0', async () => {
-      spawnSyncMock.mockReturnValueOnce({
+      vi.mocked(spawn.sync).mockReturnValueOnce({
         status: 1,
-        error: true,
+        error: new Error(),
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
       });
 
       await expect(poetryUtils.getPoetryVersion()).rejects.toThrowError();

@@ -32,11 +32,11 @@ interface NormalizedSchema extends PoetryProjectGeneratorSchema {
 
 function normalizeOptions(
   tree: Tree,
-  options: PoetryProjectGeneratorSchema
+  options: PoetryProjectGeneratorSchema,
 ): NormalizedSchema {
   const { projectName, projectRoot } = calculateProjectNameAndRoot(
     options,
-    tree
+    tree,
   );
 
   const parsedTags = options.tags
@@ -67,11 +67,11 @@ function normalizeOptions(
   if (options.devDependenciesProject) {
     const projectConfig = readProjectConfiguration(
       tree,
-      options.devDependenciesProject
+      options.devDependenciesProject,
     );
     newOptions.devDependenciesProjectPath = path.relative(
       projectRoot,
-      projectConfig.root
+      projectConfig.root,
     );
   }
 
@@ -90,7 +90,7 @@ function normalizeOptions(
   if (options.devDependenciesProject) {
     const { pyprojectToml } = getPyprojectTomlByProjectName(
       tree,
-      options.devDependenciesProject
+      options.devDependenciesProject,
     );
     devDependenciesProjectPkgName = pyprojectToml.tool.poetry.name;
   }
@@ -110,7 +110,7 @@ function normalizeOptions(
 
 function calculateProjectNameAndRoot(
   options: PoetryProjectGeneratorSchema,
-  tree: Tree
+  tree: Tree,
 ) {
   let projectName = options.name;
   let projectRoot = options.directory || options.name;
@@ -133,7 +133,7 @@ function calculateProjectNameAndRoot(
 
 function getPyTestAddopts(
   options: PoetryProjectGeneratorSchema,
-  projectRoot: string
+  projectRoot: string,
 ): string | undefined {
   if (options.unitTestRunner === 'pytest') {
     const args = [];
@@ -150,19 +150,19 @@ function getPyTestAddopts(
 
     if (options.codeCoverage && options.codeCoverageXmlReport) {
       args.push(
-        `--cov-report xml:'${offset}coverage/${projectRoot}/coverage.xml'`
+        `--cov-report xml:'${offset}coverage/${projectRoot}/coverage.xml'`,
       );
     }
 
     if (options.unitTestHtmlReport) {
       args.push(
-        `--html='${offset}reports/${projectRoot}/unittests/html/index.html'`
+        `--html='${offset}reports/${projectRoot}/unittests/html/index.html'`,
       );
     }
 
     if (options.unitTestJUnitReport) {
       args.push(
-        `--junitxml='${offset}reports/${projectRoot}/unittests/junit.xml'`
+        `--junitxml='${offset}reports/${projectRoot}/unittests/junit.xml'`,
       );
     }
 
@@ -183,7 +183,7 @@ function addFiles(tree: Tree, options: NormalizedSchema) {
       tree,
       path.join(options.templateDir),
       options.projectRoot,
-      templateOptions
+      templateOptions,
     );
     return;
   }
@@ -192,7 +192,7 @@ function addFiles(tree: Tree, options: NormalizedSchema) {
     tree,
     path.join(__dirname, 'files', 'base'),
     options.projectRoot,
-    templateOptions
+    templateOptions,
   );
 
   if (options.unitTestRunner === 'pytest') {
@@ -200,7 +200,7 @@ function addFiles(tree: Tree, options: NormalizedSchema) {
       tree,
       path.join(__dirname, 'files', 'pytest'),
       options.projectRoot,
-      templateOptions
+      templateOptions,
     );
   }
 
@@ -209,18 +209,18 @@ function addFiles(tree: Tree, options: NormalizedSchema) {
       tree,
       path.join(__dirname, 'files', 'flake8'),
       options.projectRoot,
-      templateOptions
+      templateOptions,
     );
   }
 }
 
 function updateRootPyprojectToml(
   host: Tree,
-  normalizedOptions: NormalizedSchema
+  normalizedOptions: NormalizedSchema,
 ) {
   if (!normalizedOptions.individualPackage) {
     const rootPyprojectToml = parse(
-      host.read('./pyproject.toml', 'utf-8')
+      host.read('./pyproject.toml', 'utf-8'),
     ) as PyprojectToml;
 
     const group = normalizedOptions.rootPyprojectDependencyGroup ?? 'main';
@@ -252,7 +252,7 @@ function updateRootPyprojectToml(
     if (!normalizedOptions.devDependenciesProject) {
       const { changed, dependencies } = addTestDependencies(
         rootPyprojectToml.tool.poetry.group?.dev?.dependencies || {},
-        normalizedOptions
+        normalizedOptions,
       );
 
       if (changed) {
@@ -271,17 +271,17 @@ function updateRootPyprojectToml(
 
 function updateDevDependenciesProject(
   host: Tree,
-  normalizedOptions: NormalizedSchema
+  normalizedOptions: NormalizedSchema,
 ) {
   if (normalizedOptions.devDependenciesProject) {
     const { pyprojectToml, pyprojectTomlPath } = getPyprojectTomlByProjectName(
       host,
-      normalizedOptions.devDependenciesProject
+      normalizedOptions.devDependenciesProject,
     );
 
     const { changed, dependencies } = addTestDependencies(
       pyprojectToml.tool.poetry.dependencies,
-      normalizedOptions
+      normalizedOptions,
     );
 
     if (changed) {
@@ -300,7 +300,7 @@ function getPyprojectTomlByProjectName(host: Tree, projectName: string) {
   const pyprojectTomlPath = path.join(projectConfig.root, 'pyproject.toml');
 
   const pyprojectToml = parse(
-    host.read(pyprojectTomlPath, 'utf-8')
+    host.read(pyprojectTomlPath, 'utf-8'),
   ) as PyprojectToml;
 
   return { pyprojectToml, pyprojectTomlPath };
@@ -308,7 +308,7 @@ function getPyprojectTomlByProjectName(host: Tree, projectName: string) {
 
 function addTestDependencies(
   dependencies: PyprojectTomlDependencies,
-  normalizedOptions: NormalizedSchema
+  normalizedOptions: NormalizedSchema,
 ) {
   const originalDependencies = _.clone(dependencies);
 
@@ -370,7 +370,7 @@ function updateRootPoetryLock(host: Tree) {
 
 export default async function (
   tree: Tree,
-  options: PoetryProjectGeneratorSchema
+  options: PoetryProjectGeneratorSchema,
 ) {
   await checkPoetryExecutable();
 
@@ -436,7 +436,7 @@ export default async function (
       outputs: [],
       options: {
         lintFilePatterns: [normalizedOptions.moduleName].concat(
-          options.unitTestRunner === 'pytest' ? ['tests'] : []
+          options.unitTestRunner === 'pytest' ? ['tests'] : [],
         ),
       },
     };

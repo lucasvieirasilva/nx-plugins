@@ -71,7 +71,7 @@ export type PyprojectToml = {
 export const getDependents = (
   projectName: string,
   projects: Record<string, ProjectConfiguration>,
-  cwd: string
+  cwd: string,
 ): string[] => {
   const deps: string[] = [];
 
@@ -89,7 +89,7 @@ export const getDependents = (
 export const getDependencies = (
   projectName: string,
   projects: Record<string, ProjectConfiguration>,
-  cwd: string
+  cwd: string,
 ): Dependency[] => {
   const projectData = projects[projectName];
   const pyprojectToml = joinPathFragments(projectData.root, 'pyproject.toml');
@@ -105,7 +105,7 @@ export const getDependencies = (
       projects,
       cwd,
       deps,
-      'main'
+      'main',
     );
     for (const group in tomlData.tool?.poetry?.group || {}) {
       resolveDependencies(
@@ -114,7 +114,7 @@ export const getDependencies = (
         projects,
         cwd,
         deps,
-        group
+        group,
       );
     }
   }
@@ -133,7 +133,7 @@ const checkProjectIsDependent = (
   projects: Record<string, ProjectConfiguration>,
   project: string,
   root: string,
-  cwd: string
+  cwd: string,
 ): boolean => {
   const projectData = projects[project];
   const pyprojectToml = joinPathFragments(projectData.root, 'pyproject.toml');
@@ -145,7 +145,7 @@ const checkProjectIsDependent = (
       tomlData.tool?.poetry?.dependencies,
       projectData,
       root,
-      cwd
+      cwd,
     );
 
     if (isDep) return true;
@@ -155,7 +155,7 @@ const checkProjectIsDependent = (
         tomlData.tool.poetry.group[group].dependencies,
         projectData,
         root,
-        cwd
+        cwd,
       );
 
       if (isDep) return true;
@@ -169,7 +169,7 @@ const isProjectDependent = (
   dependencies: PyprojectTomlDependencies,
   projectData: ProjectConfiguration,
   root: string,
-  cwd: string
+  cwd: string,
 ): boolean => {
   for (const dep in dependencies || {}) {
     const depData = dependencies[dep];
@@ -193,7 +193,7 @@ const resolveDependencies = (
   projects: Record<string, ProjectConfiguration>,
   cwd: string,
   deps: Dependency[],
-  category: string
+  category: string,
 ) => {
   for (const dep in dependencies || {}) {
     const depData = dependencies[dep];
@@ -203,7 +203,7 @@ const resolveDependencies = (
       const depProjectName = Object.keys(projects).find(
         (proj) =>
           path.normalize(projects[proj].root) ===
-          path.normalize(path.relative(cwd, depAbsPath))
+          path.normalize(path.relative(cwd, depAbsPath)),
       );
 
       if (depProjectName) {

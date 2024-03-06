@@ -5,13 +5,13 @@
   "sourceRoot": "e2e/nx-python-e2e/src",
   "targets": {
     "e2e": {
-      "executor": "@nx/jest:jest",
-      "options": {
-        "jestConfig": "e2e/nx-python-e2e/jest.config.ts",
-        "runInBand": true,
-        "passWithNoTests": false
-      },
+      "executor": "@nx/vite:test",
+      "options": {},
       "dependsOn": ["nx-python:build"]
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
     }
   },
   "tags": [],
