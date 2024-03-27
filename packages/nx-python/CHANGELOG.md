@@ -1,3 +1,9 @@
+## [18.0.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v18.0.0...nx-python-v18.0.1) (2024-03-27)
+
+### Bug Fixes
+
+- **nx-python:** relock root when changing deps on grouped projects ([#195](https://github.com/lucasvieirasilva/nx-plugins/issues/195)) ([3fdd0cb](https://github.com/lucasvieirasilva/nx-plugins/commit/3fdd0cbf3082ea3c86718f51bea2b06a0ec425f2))
+
 # [18.0.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v17.0.0...nx-python-v18.0.0) (2024-03-06)
 
 ### Features
