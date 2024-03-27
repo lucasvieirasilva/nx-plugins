@@ -103,11 +103,11 @@ export const getAllDependenciesFromPyprojectToml = (
   omitGroups: string[] = [],
 ): PyprojectTomlDependencies => {
   return {
-    ...tomlData.tool?.poetry?.dependencies,
+    ...(tomlData.tool?.poetry?.dependencies ?? {}),
     ...Object.fromEntries(
-      Object.entries(tomlData.tool.poetry.group)
+      Object.entries(tomlData.tool?.poetry?.group ?? {})
         .filter(([name]) => !omitGroups.includes(name))
-        .flatMap(([_, group]) => Object.entries(group.dependencies)),
+        .flatMap(([_, group]) => Object.entries(group.dependencies ?? {})),
     ),
   };
 };
