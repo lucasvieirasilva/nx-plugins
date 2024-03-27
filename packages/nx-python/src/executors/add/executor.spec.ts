@@ -1078,7 +1078,7 @@ version = "1.0.0"
         python = "^3.8"
 
         [tool.poetry.group.foo.dependencies.app]
-        path = "apps/app",
+        path = "apps/app"
         develop = true
       `,
       'apps/app/pyproject.toml': dedent`
