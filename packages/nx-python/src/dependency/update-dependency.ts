@@ -1,6 +1,10 @@
 import { ExecutorContext, ProjectsConfigurations } from '@nx/devkit';
 import chalk from 'chalk';
-import { getDependents, PyprojectToml } from '../graph/dependency-graph';
+import {
+  getDependents,
+  PyprojectToml,
+  PyprojectTomlDependencies,
+} from '../graph/dependency-graph';
 import {
   getProjectTomlPath,
   parseToml,
@@ -27,7 +31,11 @@ export function updateDependencyTree(context: ExecutorContext) {
       readFileSync('pyproject.toml', { encoding: 'utf-8' }),
     ) as PyprojectToml;
 
-    if (rootPyprojectToml.tool.poetry.dependencies[pkgName]) {
+    const allRootDependencyNames = Object.keys(
+      getAllDependenciesFromPyprojectToml(rootPyprojectToml),
+    );
+
+    if (allRootDependencyNames.includes(pkgName)) {
       console.log(
         chalk`\nUpdating root {bold pyproject.toml} dependency {bold ${pkgName}}`,
       );
@@ -82,3 +90,24 @@ function getProjectPackageName(context: ExecutorContext, projectName: string) {
 
   return name;
 }
+
+/**
+ * Parses all dependency names from a Pyproject.toml file
+ * and returns a flattened collection of dependencies
+ *
+ * Optionally you may supply a list of groups to ignore
+ */
+export const getAllDependenciesFromPyprojectToml = (
+  tomlData: PyprojectToml,
+  /** optional dependency groups to omit from collection */
+  omitGroups: string[] = [],
+): PyprojectTomlDependencies => {
+  return {
+    ...(tomlData.tool?.poetry?.dependencies ?? {}),
+    ...Object.fromEntries(
+      Object.entries(tomlData.tool?.poetry?.group ?? {})
+        .filter(([name]) => !omitGroups.includes(name))
+        .flatMap(([_, group]) => Object.entries(group.dependencies ?? {})),
+    ),
+  };
+};

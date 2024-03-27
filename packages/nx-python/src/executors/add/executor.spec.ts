@@ -1066,4 +1066,82 @@ version = "1.0.0"
     });
     expect(output.success).toBe(true);
   });
+
+  it('run add target and should add the dependency to the project using --lock when the root pyproject.toml is present when project is grouped in root', async () => {
+    fsMock({
+      'pyproject.toml': dedent`
+      [tool.poetry]
+      name = "app"
+      version = "1.0.0"
+
+        [tool.poetry.dependencies]
+        python = "^3.8"
+
+        [tool.poetry.group.foo.dependencies.app]
+        path = "apps/app"
+        develop = true
+      `,
+      'apps/app/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "app"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
+
+        [tool.poetry.dependencies]
+        python = "^3.8"
+        click = "click"
+      `,
+    });
+
+    const options = {
+      name: 'numpy',
+      local: false,
+    };
+
+    const context = {
+      cwd: '',
+      root: '.',
+      isVerbose: false,
+      projectName: 'app',
+      workspace: {
+        npmScope: 'nxlv',
+        version: 2,
+        projects: {
+          app: {
+            root: 'apps/app',
+            targets: {},
+          },
+        },
+      },
+    };
+
+    const output = await executor(options, context);
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
+    expect(spawn.sync).toHaveBeenNthCalledWith(
+      1,
+      'poetry',
+      ['add', 'numpy', '--lock'],
+      {
+        cwd: 'apps/app',
+        shell: false,
+        stdio: 'inherit',
+      },
+    );
+    expect(spawn.sync).toHaveBeenNthCalledWith(
+      2,
+      'poetry',
+      ['lock', '--no-update'],
+      {
+        shell: false,
+        stdio: 'inherit',
+      },
+    );
+    expect(spawn.sync).toHaveBeenNthCalledWith(3, 'poetry', ['install'], {
+      shell: false,
+      stdio: 'inherit',
+    });
+    expect(output.success).toBe(true);
+  });
 });
