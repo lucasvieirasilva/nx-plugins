@@ -35,6 +35,6 @@
     "@aws-sdk/client-cloudwatch-logs": "^3.525.0",
     "cross-spawn": "^7.0.3",
     "prompts": "^2.4.2",
-    "@nxlv/util": "3.0.0"
+    "@nxlv/util": "4.0.0"
   }
 }
