@@ -1,11 +1,11 @@
 import { PyprojectToml } from '../../../graph/dependency-graph';
 import { parse } from '@iarna/toml';
-import { readFileSync } from 'fs-extra';
-import { join, relative } from 'path';
+import { readFileSync, existsSync } from 'fs-extra';
+import path, { join, relative } from 'path';
 import { PoetryLock, Dependency, PoetryLockPackage } from './types';
 import { Logger } from '../../utils/logger';
 import chalk from 'chalk';
-import { runPoetry } from '../../utils/poetry';
+import { parseToml, runPoetry } from '../../utils/poetry';
 import uri2path from 'file-uri-to-path';
 import { getLoggingTab, includeDependencyPackage } from './utils';
 
@@ -64,7 +64,7 @@ export class LockedDependencyResolver {
           dep.markers = elements[1].trim();
         }
 
-        if (elements[0].includes('@')) {
+        if (elements[0].includes('@') || elements[0].startsWith('-e file:')) {
           this.resolveSourceDependency(
             tab,
             elements,
@@ -158,9 +158,8 @@ export class LockedDependencyResolver {
     buildTomlData: PyprojectToml,
     deps: Dependency[],
   ) {
-    const atPosition = exportedLineElements[0].indexOf('@');
-    const packageName = exportedLineElements[0].substring(0, atPosition).trim();
-    const location = exportedLineElements[0].substring(atPosition + 1).trim();
+    const { packageName, location } =
+      this.extractLocalPackageInfo(exportedLineElements);
 
     dep.name = packageName;
     this.resolvePackageExtras(dep);
@@ -184,6 +183,29 @@ export class LockedDependencyResolver {
       default:
         throw new Error(`Unsupported source type: ${lockedPkg.source.type}`);
     }
+  }
+
+  private extractLocalPackageInfo(exportedLineElements: string[]) {
+    if (exportedLineElements[0].startsWith('-e file:')) {
+      const location = exportedLineElements[0].substring(10).trim();
+      const pyprojectToml = path.join(location, 'pyproject.toml');
+      if (!existsSync(pyprojectToml)) {
+        throw new Error(
+          chalk`pyproject.toml not found in {blue.bold ${location}}`,
+        );
+      }
+
+      const pyproject = parseToml(pyprojectToml);
+      return {
+        packageName: pyproject.tool.poetry.name,
+        location: `file://${location}`,
+      };
+    }
+
+    const atPosition = exportedLineElements[0].indexOf('@');
+    const packageName = exportedLineElements[0].substring(0, atPosition).trim();
+    const location = exportedLineElements[0].substring(atPosition + 1).trim();
+    return { packageName, location };
   }
 
   private resolvePackageExtras(dep: Dependency) {
