@@ -1,3 +1,9 @@
+# [18.1.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v18.0.1...nx-python-v18.1.0) (2024-05-14)
+
+### Features
+
+- **nx-python:** add support for poetry-plugin-export@1.8.0 ([#207](https://github.com/lucasvieirasilva/nx-plugins/issues/207)) ([28d4ae3](https://github.com/lucasvieirasilva/nx-plugins/commit/28d4ae3c456f75d95d1684aa3dee505b482a7f04)), closes [#206](https://github.com/lucasvieirasilva/nx-plugins/issues/206)
+
 ## [18.0.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v18.0.0...nx-python-v18.0.1) (2024-03-27)
 
 ### Bug Fixes
