@@ -657,10 +657,15 @@ version = "1.0.0"
         stdio: 'inherit',
       },
     );
-    expect(spawn.sync).toHaveBeenNthCalledWith(3, 'poetry', ['install'], {
-      shell: false,
-      stdio: 'inherit',
-    });
+    expect(spawn.sync).toHaveBeenNthCalledWith(
+      3,
+      'poetry',
+      ['install', '--no-root'],
+      {
+        shell: false,
+        stdio: 'inherit',
+      },
+    );
     expect(output.success).toBe(true);
   });
 
@@ -816,10 +821,15 @@ version = "1.0.0"
         stdio: 'inherit',
       },
     );
-    expect(spawn.sync).toHaveBeenNthCalledWith(6, 'poetry', ['install'], {
-      shell: false,
-      stdio: 'inherit',
-    });
+    expect(spawn.sync).toHaveBeenNthCalledWith(
+      6,
+      'poetry',
+      ['install', '--no-root'],
+      {
+        shell: false,
+        stdio: 'inherit',
+      },
+    );
     expect(output.success).toBe(true);
   });
 });

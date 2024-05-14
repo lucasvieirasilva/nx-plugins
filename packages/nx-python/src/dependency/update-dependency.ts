@@ -41,7 +41,7 @@ export function updateDependencyTree(context: ExecutorContext) {
       );
 
       runPoetry(['lock', '--no-update']);
-      runPoetry(['install']);
+      runPoetry(['install', '--no-root']);
     }
   }
 }
