@@ -27,7 +27,7 @@
     "@semantic-release/github": "^8.0.7",
     "@swc-node/register": "1.9.0",
     "@swc/cli": "0.3.10",
-    "@swc/core": "1.4.5",
+    "@swc/core": "1.5.24",
     "@types/aws-lambda": "^8.10.136",
     "@types/cross-spawn": "^6.0.6",
     "@types/fs-extra": "^11.0.4",
