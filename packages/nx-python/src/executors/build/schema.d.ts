@@ -10,3 +10,8 @@ export interface BuildExecutorSchema {
   customSourceUrl?: string;
   publish?: boolean;
 }
+
+export interface BuildExecutorOutput {
+  buildFolderPath: string;
+  success: boolean;
+}

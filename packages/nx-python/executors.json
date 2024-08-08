@@ -6,6 +6,11 @@
       "schema": "./src/executors/build/schema.json",
       "description": "build executor"
     },
+    "publish": {
+      "implementation": "./src/executors/publish/executor",
+      "schema": "./src/executors/publish/schema.json",
+      "description": "publish executor"
+    },
     "add": {
       "implementation": "./src/executors/add/executor",
       "schema": "./src/executors/add/schema.json",
