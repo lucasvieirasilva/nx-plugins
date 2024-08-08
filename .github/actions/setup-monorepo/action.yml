@@ -1,0 +1,21 @@
+name: Set Up Monorepo
+description: Set up nx monorepo for CI workflows
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Use PNPM 8.x
+      uses: pnpm/action-setup@v3
+      with:
+        version: 8
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: 20
+        cache: 'pnpm'
+
+    - name: Install Node.js Dependencies
+      shell: bash
+      run: pnpm install
+
+    - uses: nrwl/nx-set-shas@v4
