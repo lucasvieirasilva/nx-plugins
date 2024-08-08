@@ -1,3 +1,9 @@
+# [18.2.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v18.1.0...nx-python-v18.2.0) (2024-08-08)
+
+### Features
+
+- **nx-python:** add poetry publish executor ([#241](https://github.com/lucasvieirasilva/nx-plugins/issues/241)) ([f34b797](https://github.com/lucasvieirasilva/nx-plugins/commit/f34b797327bc2fe437936436f15b488089c270b4))
+
 # [18.1.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v18.0.1...nx-python-v18.1.0) (2024-05-14)
 
 ### Features
