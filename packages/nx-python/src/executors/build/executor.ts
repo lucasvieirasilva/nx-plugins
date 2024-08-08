@@ -1,5 +1,5 @@
 import { ExecutorContext } from '@nx/devkit';
-import { BuildExecutorSchema } from './schema';
+import { BuildExecutorOutput, BuildExecutorSchema } from './schema';
 import {
   readdirSync,
   copySync,
@@ -34,7 +34,7 @@ const logger = new Logger();
 export default async function executor(
   options: BuildExecutorSchema,
   context: ExecutorContext,
-) {
+): Promise<BuildExecutorOutput> {
   logger.setOptions(options);
   const workspaceRoot = context.root;
   process.chdir(workspaceRoot);
@@ -123,11 +123,13 @@ export default async function executor(
     }
 
     return {
+      buildFolderPath,
       success: true,
     };
   } catch (error) {
     logger.info(chalk`\n  {bgRed.bold  ERROR } ${error.message}\n`);
     return {
+      buildFolderPath: '',
       success: false,
     };
   }
