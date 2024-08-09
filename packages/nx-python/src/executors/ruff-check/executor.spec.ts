@@ -1,8 +1,9 @@
 import { vi, MockInstance } from 'vitest';
+import { vol } from 'memfs';
 import chalk from 'chalk';
+import '../../utils/mocks/fs.mock';
 import '../../utils/mocks/cross-spawn.mock';
 import * as poetryUtils from '../utils/poetry';
-import fsMock from 'mock-fs';
 import executor from './executor';
 import spawn from 'cross-spawn';
 
@@ -35,7 +36,7 @@ describe('Ruff Check Executor', () => {
   });
 
   afterEach(() => {
-    fsMock.restore();
+    vol.reset();
     vi.resetAllMocks();
   });
 

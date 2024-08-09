@@ -1,9 +1,10 @@
 import { vi, MockInstance } from 'vitest';
+import { vol } from 'memfs';
+import '../../utils/mocks/fs.mock';
 import '../../utils/mocks/cross-spawn.mock';
 import * as poetryUtils from '../utils/poetry';
 import chalk from 'chalk';
 import executor from './executor';
-import fsMock from 'mock-fs';
 import dedent from 'string-dedent';
 import spawn from 'cross-spawn';
 
@@ -38,7 +39,7 @@ describe('Delete Executor', () => {
   });
 
   afterEach(() => {
-    fsMock.restore();
+    vol.reset();
     vi.resetAllMocks();
   });
 
@@ -75,7 +76,7 @@ describe('Delete Executor', () => {
   });
 
   it('should remove local dependency and update all the dependency tree', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/pyproject.toml': `[tool.poetry]
 name = "app"
 version = "1.0.0"
@@ -196,7 +197,7 @@ version = "1.0.0"
   });
 
   it('should remove the external dependency and update all the dependency tree', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/pyproject.toml': dedent`
       [tool.poetry]
       name = "app"
@@ -329,7 +330,7 @@ version = "1.0.0"
   });
 
   it('should remove external dependency with args', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/pyproject.toml': `[tool.poetry]
 name = "app"
 version = "1.0.0"
@@ -386,7 +387,7 @@ version = "1.0.0"
       throw new Error('fake error');
     });
 
-    fsMock({
+    vol.fromJSON({
       'apps/app/pyproject.toml': `[tool.poetry]
 name = "app"
 version = "1.0.0"
@@ -438,7 +439,7 @@ version = "1.0.0"
   });
 
   it('run remove target and should remove the dependency to the project using --lock when the root pyproject.toml is present (poetry version 1.5.0)', async () => {
-    fsMock({
+    vol.fromJSON({
       'pyproject.toml': dedent`
       [tool.poetry]
       name = "app"
@@ -518,7 +519,7 @@ version = "1.0.0"
   });
 
   it('run remove target and should remove the dependency to the project without using --lock when the root pyproject.toml is present (poetry version 1.4.0)', async () => {
-    fsMock({
+    vol.fromJSON({
       'pyproject.toml': dedent`
       [tool.poetry]
       name = "app"

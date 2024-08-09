@@ -1,8 +1,9 @@
 import { vi, MockInstance } from 'vitest';
+import { vol } from 'memfs';
 import '../../utils/mocks/cross-spawn.mock';
+import '../../utils/mocks/fs.mock';
 import * as poetryUtils from '../utils/poetry';
 import executor from './executor';
-import fsMock from 'mock-fs';
 import chalk from 'chalk';
 import { parseToml } from '../utils/poetry';
 import dedent from 'string-dedent';
@@ -35,7 +36,7 @@ describe('Add Executor', () => {
   });
 
   afterEach(() => {
-    fsMock.restore();
+    vol.reset();
     vi.resetAllMocks();
   });
 
@@ -72,7 +73,7 @@ describe('Add Executor', () => {
   });
 
   it('run add target and should add the dependency to the project', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/pyproject.toml': dedent`
       [tool.poetry]
       name = "app"
@@ -123,7 +124,7 @@ describe('Add Executor', () => {
   });
 
   it('run add target and should add the dependency to the project group dev', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/pyproject.toml': dedent`
       [tool.poetry]
       name = "app"
@@ -179,7 +180,7 @@ describe('Add Executor', () => {
   });
 
   it('run add target and should add the dependency to the project extras', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/pyproject.toml': dedent`
       [tool.poetry]
       name = "app"
@@ -235,7 +236,7 @@ describe('Add Executor', () => {
   });
 
   it('run add target and should not add the dependency to the project because the project does not exist', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/pyproject.toml': `[tool.poetry]
 name = "app"
 version = "1.0.0"
@@ -278,7 +279,7 @@ version = "1.0.0"
   });
 
   it('run add target and should throw an exception', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/pyproject.toml': `[tool.poetry]
 name = "app"
 version = "1.0.0"
@@ -329,7 +330,7 @@ version = "1.0.0"
   });
 
   it('run add target and should update all the dependency tree', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/pyproject.toml': dedent`
       [tool.poetry]
       name = "app"
@@ -461,7 +462,7 @@ version = "1.0.0"
   });
 
   it('run add target and should update all the dependency tree for dev dependencies', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/pyproject.toml': dedent`
       [tool.poetry]
       name = "app"
@@ -593,7 +594,7 @@ version = "1.0.0"
   });
 
   it('run add target with local dependency', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/pyproject.toml': `[tool.poetry]
 name = "app"
 version = "1.0.0"
@@ -658,7 +659,7 @@ version = "1.0.0"
   });
 
   it('run add target with local dependency with group dev', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/pyproject.toml': `[tool.poetry]
 name = "app"
 version = "1.0.0"
@@ -724,7 +725,7 @@ version = "1.0.0"
   });
 
   it('run add target with local dependency with extras', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/pyproject.toml': dedent`
       [tool.poetry]
       name = "app"
@@ -794,7 +795,7 @@ version = "1.0.0"
   });
 
   it('run add target with local dependency with extras group dev', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/pyproject.toml': dedent`
       [tool.poetry]
       name = "app"
@@ -865,7 +866,7 @@ version = "1.0.0"
   });
 
   it('run add target with local dependency with project name and package name different', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/pyproject.toml': `[tool.poetry]
 name = "dgx-devops-app"
 version = "1.0.0"
@@ -941,7 +942,7 @@ version = "1.0.0"
   });
 
   it('run add target and should add the dependency using custom args', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/pyproject.toml': `[tool.poetry]
 name = "app"
 version = "1.0.0"
@@ -993,7 +994,7 @@ version = "1.0.0"
   });
 
   it('run add target and should add the dependency to the project using --lock when the root pyproject.toml is present', async () => {
-    fsMock({
+    vol.fromJSON({
       'pyproject.toml': dedent`
       [tool.poetry]
       name = "app"
@@ -1073,7 +1074,7 @@ version = "1.0.0"
   });
 
   it('run add target and should add the dependency to the project using --lock when the root pyproject.toml is present when project is grouped in root', async () => {
-    fsMock({
+    vol.fromJSON({
       'pyproject.toml': dedent`
       [tool.poetry]
       name = "app"

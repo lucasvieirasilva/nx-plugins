@@ -1,6 +1,7 @@
 import { vi } from 'vitest';
+import { vol } from 'memfs';
+import '../../utils/mocks/fs.mock';
 import '../../utils/mocks/cross-spawn.mock';
-import fsMock from 'mock-fs';
 
 vi.mock('command-exists', () => {
   return {
@@ -22,7 +23,7 @@ describe('Poetry Utils', () => {
   });
 
   afterEach(() => {
-    fsMock.restore();
+    vol.reset();
     vi.resetAllMocks();
   });
 
@@ -235,7 +236,7 @@ describe('Poetry Utils', () => {
     it('should not activate venv when the root pyproject.toml exists and the autoActivate property is not defined', () => {
       delete process.env.VIRTUAL_ENV;
 
-      fsMock({
+      vol.fromJSON({
         'pyproject.toml': dedent`
         [tool.poetry]
         name = "app"
@@ -253,7 +254,7 @@ describe('Poetry Utils', () => {
     it('should activate venv when the root pyproject.toml exists and the autoActivate property is defined', () => {
       delete process.env.VIRTUAL_ENV;
 
-      fsMock({
+      vol.fromJSON({
         'pyproject.toml': dedent`
         [tool.nx]
         autoActivate = true
