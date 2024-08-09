@@ -1,3 +1,13 @@
+# [5.0.0](https://github.com/lucasvieirasilva/nx-plugins/compare/util-v4.0.0...util-v5.0.0) (2024-08-09)
+
+### Features
+
+- migrate workspace to nx 19.x ([#242](https://github.com/lucasvieirasilva/nx-plugins/issues/242)) ([8473ccd](https://github.com/lucasvieirasilva/nx-plugins/commit/8473ccdc5db39ee6ef0b9f4acdb591c6e2186778))
+
+### BREAKING CHANGES
+
+- migrate Nx workspace to 19.x
+
 # [4.0.0](https://github.com/lucasvieirasilva/nx-plugins/compare/util-v3.0.0...util-v4.0.0) (2024-03-06)
 
 ### Features
