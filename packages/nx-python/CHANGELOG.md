@@ -1,3 +1,9 @@
+## [19.0.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v19.0.0...nx-python-v19.0.1) (2024-08-09)
+
+### Bug Fixes
+
+- **nx-python:** replace poetry update with poetry lock and poetry install when adding a new package ([#243](https://github.com/lucasvieirasilva/nx-plugins/issues/243)) ([b311fcb](https://github.com/lucasvieirasilva/nx-plugins/commit/b311fcbe4c4edae80a5ef4c6f6e16db241d5089f))
+
 # [19.0.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v18.2.0...nx-python-v19.0.0) (2024-08-09)
 
 ### Features
