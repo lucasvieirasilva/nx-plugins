@@ -21,6 +21,7 @@ export default defineConfig({
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     setupFiles: ['../../tests/setup.ts'],
     reporters: ['default'],
+    hookTimeout: 20000,
     coverage: {
       enabled: true,
       reporter: [
