@@ -69,15 +69,11 @@ export function addLocalProjectToPoetryProject(
   return dependencyName;
 }
 
-export function updateProject(
-  projectName: string,
-  cwd: string,
-  updateLockOnly: boolean,
-) {
-  const updateLockArgs = ['update', projectName].concat(
-    updateLockOnly ? ['--lock'] : [],
-  );
-  runPoetry(updateLockArgs, { cwd });
+export function updateProject(cwd: string, updateLockOnly: boolean) {
+  runPoetry(['lock', '--no-update'], { cwd });
+  if (!updateLockOnly) {
+    runPoetry(['install'], { cwd });
+  }
 }
 
 export function getProjectTomlPath(targetConfig: ProjectConfiguration) {

@@ -1,12 +1,9 @@
-import { ExecutorContext, ProjectConfiguration } from '@nx/devkit';
+import { ExecutorContext } from '@nx/devkit';
 import chalk from 'chalk';
 import { UpdateExecutorSchema } from './schema';
 import {
   activateVenv,
   checkPoetryExecutable,
-  getLocalDependencyConfig,
-  getProjectTomlPath,
-  parseToml,
   runPoetry,
   updateProject,
 } from '../utils/poetry';
@@ -30,12 +27,18 @@ export default async function executor(
       console.log(
         chalk`\n  {bold Updating {bgBlue  ${options.name} } workspace dependency...}\n`,
       );
-      updateLocalProject(
-        context,
-        options.name,
-        projectConfig,
-        rootPyprojectToml,
-      );
+
+      if (
+        !Object.keys(context.workspace.projects).some(
+          (projectName) => options.name === projectName,
+        )
+      ) {
+        throw new Error(
+          chalk`\n  {red.bold ${options.name}} workspace project does not exist\n`,
+        );
+      }
+
+      updateProject(projectConfig.root, rootPyprojectToml);
     } else {
       if (options.name) {
         console.log(
@@ -67,20 +70,4 @@ export default async function executor(
       success: false,
     };
   }
-}
-
-function updateLocalProject(
-  context: ExecutorContext,
-  dependencyName: string,
-  projectConfig: ProjectConfiguration,
-  updateLockOnly: boolean,
-) {
-  const dependencyConfig = getLocalDependencyConfig(context, dependencyName);
-  const dependencyProjectToml = parseToml(getProjectTomlPath(dependencyConfig));
-
-  updateProject(
-    dependencyProjectToml.tool.poetry.name,
-    projectConfig.root,
-    updateLockOnly,
-  );
 }
