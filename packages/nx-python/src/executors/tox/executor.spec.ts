@@ -1,10 +1,11 @@
 import { vi, MockInstance } from 'vitest';
+import { vol } from 'memfs';
+import '../../utils/mocks/fs.mock';
 import '../../utils/mocks/cross-spawn.mock';
 import * as poetryUtils from '../utils/poetry';
 import * as buildExecutor from '../build/executor';
 import { ToxExecutorSchema } from './schema';
 import executor from './executor';
-import fsMock from 'mock-fs';
 import chalk from 'chalk';
 import spawn from 'cross-spawn';
 
@@ -60,7 +61,7 @@ describe('Tox Executor', () => {
   });
 
   afterEach(() => {
-    fsMock.restore();
+    vol.reset();
     vi.resetAllMocks();
   });
 
@@ -97,7 +98,7 @@ describe('Tox Executor', () => {
       success: true,
     });
 
-    fsMock({
+    vol.fromJSON({
       'apps/app/dist/package.tar.gz': 'fake',
     });
 
@@ -133,7 +134,7 @@ describe('Tox Executor', () => {
       success: true,
     });
 
-    fsMock({
+    vol.fromJSON({
       'apps/app/dist/package.tar.gz': 'fake',
     });
 
@@ -220,7 +221,7 @@ describe('Tox Executor', () => {
   });
 
   it('should not generate the tar.gz and not run tox command', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/dist/something.txt': 'fake',
     });
 

@@ -62,7 +62,6 @@ import {
   CreateLogGroupCommand,
 } from '@aws-sdk/client-cloudwatch-logs';
 
-import 'aws-sdk-client-mock-jest';
 import { mockClient } from 'aws-sdk-client-mock';
 import { EcsRemoteRunner } from './ecs';
 import { CLILogger } from '../logger';
@@ -242,13 +241,13 @@ describe('ecs remote runner', () => {
         { stdio: 'inherit' },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(
-        1,
         DescribeRepositoriesCommand,
+        1,
         {
           repositoryNames: ['migrations'],
         },
       );
-      expect(ecrMock).toHaveReceivedNthCommandWith(2, CreateRepositoryCommand, {
+      expect(ecrMock).toHaveReceivedNthCommandWith(CreateRepositoryCommand, 1, {
         repositoryName: 'migrations',
       });
       expect(mkdirSyncMock).toHaveBeenCalledWith(
@@ -318,8 +317,8 @@ describe('ecs remote runner', () => {
         },
       );
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
-        1,
         CreateLogGroupCommand,
+        1,
         {
           logGroupName: `/ecs/test/test1/20230510`,
           tags: {
@@ -332,8 +331,8 @@ describe('ecs remote runner', () => {
       );
 
       expect(ecsMock).toHaveReceivedNthCommandWith(
-        1,
         RegisterTaskDefinitionCommand,
+        1,
         {
           containerDefinitions: [
             {
@@ -378,7 +377,7 @@ describe('ecs remote runner', () => {
           taskRoleArn: 'arn:aws:iam::123456789012:role/ecsTaskRole',
         },
       );
-      expect(ecsMock).toHaveReceivedNthCommandWith(2, RunTaskCommand, {
+      expect(ecsMock).toHaveReceivedNthCommandWith(RunTaskCommand, 1, {
         cluster: 'test-cluster',
         count: 1,
         launchType: 'FARGATE',
@@ -393,18 +392,18 @@ describe('ecs remote runner', () => {
         taskDefinition:
           'arn:aws:ecs:us-east-1:123456789012:task-definition/test-test1-202305101:1',
       });
-      expect(ecsMock).toHaveReceivedNthCommandWith(3, DescribeTasksCommand, {
+      expect(ecsMock).toHaveReceivedNthCommandWith(DescribeTasksCommand, 1, {
         cluster: 'test-cluster',
         tasks: ['arn:aws:ecs:us-east-1:123456789012:task/test-test1-202305101'],
       });
-      expect(ecsMock).toHaveReceivedNthCommandWith(4, DescribeTasksCommand, {
+      expect(ecsMock).toHaveReceivedNthCommandWith(DescribeTasksCommand, 2, {
         cluster: 'test-cluster',
         tasks: ['arn:aws:ecs:us-east-1:123456789012:task/test-test1-202305101'],
       });
 
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
-        2,
         GetLogEventsCommand,
+        1,
         {
           endTime: Date.now(),
           logGroupName: '/ecs/test/test1/20230510',
@@ -413,8 +412,8 @@ describe('ecs remote runner', () => {
         },
       );
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
-        3,
         GetLogEventsCommand,
+        2,
         {
           endTime: Date.now(),
           logGroupName: '/ecs/test/test1/20230510',
@@ -424,15 +423,15 @@ describe('ecs remote runner', () => {
       );
 
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
-        4,
         DeleteLogGroupCommand,
+        1,
         {
           logGroupName: '/ecs/test/test1/20230510',
         },
       );
       expect(ecsMock).toHaveReceivedNthCommandWith(
-        5,
         DeregisterTaskDefinitionCommand,
+        1,
         {
           taskDefinition:
             'arn:aws:ecs:us-east-1:123456789012:task-definition/test-test1-202305101:1',
@@ -556,13 +555,13 @@ describe('ecs remote runner', () => {
         { stdio: 'inherit' },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(
-        1,
         DescribeRepositoriesCommand,
+        1,
         {
           repositoryNames: ['migrations'],
         },
       );
-      expect(ecrMock).toHaveReceivedNthCommandWith(2, CreateRepositoryCommand, {
+      expect(ecrMock).toHaveReceivedNthCommandWith(CreateRepositoryCommand, 1, {
         repositoryName: 'migrations',
       });
       expect(mkdirSyncMock).toHaveBeenCalledWith(
@@ -632,8 +631,8 @@ describe('ecs remote runner', () => {
         },
       );
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
-        1,
         CreateLogGroupCommand,
+        1,
         {
           logGroupName: `/ecs/test/test1/20230510`,
           tags: {
@@ -646,8 +645,8 @@ describe('ecs remote runner', () => {
       );
 
       expect(ecsMock).toHaveReceivedNthCommandWith(
-        1,
         RegisterTaskDefinitionCommand,
+        1,
         {
           containerDefinitions: [
             {
@@ -692,7 +691,7 @@ describe('ecs remote runner', () => {
           taskRoleArn: 'arn:aws:iam::123456789012:role/ecsTaskRole',
         },
       );
-      expect(ecsMock).toHaveReceivedNthCommandWith(2, RunTaskCommand, {
+      expect(ecsMock).toHaveReceivedNthCommandWith(RunTaskCommand, 1, {
         cluster: 'test-cluster',
         count: 1,
         launchType: 'FARGATE',
@@ -707,18 +706,18 @@ describe('ecs remote runner', () => {
         taskDefinition:
           'arn:aws:ecs:us-east-1:123456789012:task-definition/test-test1-202305101:1',
       });
-      expect(ecsMock).toHaveReceivedNthCommandWith(3, DescribeTasksCommand, {
+      expect(ecsMock).toHaveReceivedNthCommandWith(DescribeTasksCommand, 1, {
         cluster: 'test-cluster',
         tasks: ['arn:aws:ecs:us-east-1:123456789012:task/test-test1-202305101'],
       });
-      expect(ecsMock).toHaveReceivedNthCommandWith(4, DescribeTasksCommand, {
+      expect(ecsMock).toHaveReceivedNthCommandWith(DescribeTasksCommand, 2, {
         cluster: 'test-cluster',
         tasks: ['arn:aws:ecs:us-east-1:123456789012:task/test-test1-202305101'],
       });
 
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
-        2,
         GetLogEventsCommand,
+        1,
         {
           endTime: Date.now(),
           logGroupName: '/ecs/test/test1/20230510',
@@ -727,8 +726,8 @@ describe('ecs remote runner', () => {
         },
       );
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
-        3,
         GetLogEventsCommand,
+        2,
         {
           endTime: Date.now(),
           logGroupName: '/ecs/test/test1/20230510',
@@ -738,15 +737,15 @@ describe('ecs remote runner', () => {
       );
 
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
-        4,
         DeleteLogGroupCommand,
+        1,
         {
           logGroupName: '/ecs/test/test1/20230510',
         },
       );
       expect(ecsMock).toHaveReceivedNthCommandWith(
-        5,
         DeregisterTaskDefinitionCommand,
+        1,
         {
           taskDefinition:
             'arn:aws:ecs:us-east-1:123456789012:task-definition/test-test1-202305101:1',
@@ -874,13 +873,13 @@ describe('ecs remote runner', () => {
         { stdio: 'inherit' },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(
-        1,
         DescribeRepositoriesCommand,
+        1,
         {
           repositoryNames: ['migrations'],
         },
       );
-      expect(ecrMock).toHaveReceivedNthCommandWith(2, CreateRepositoryCommand, {
+      expect(ecrMock).toHaveReceivedNthCommandWith(CreateRepositoryCommand, 1, {
         repositoryName: 'migrations',
       });
       expect(mkdirSyncMock).toHaveBeenCalledWith(
@@ -950,8 +949,8 @@ describe('ecs remote runner', () => {
         },
       );
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
-        1,
         CreateLogGroupCommand,
+        1,
         {
           logGroupName: `/ecs/test/test1/20230510`,
           tags: {
@@ -964,8 +963,8 @@ describe('ecs remote runner', () => {
       );
 
       expect(ecsMock).toHaveReceivedNthCommandWith(
-        1,
         RegisterTaskDefinitionCommand,
+        1,
         {
           containerDefinitions: [
             {
@@ -1010,7 +1009,7 @@ describe('ecs remote runner', () => {
           taskRoleArn: 'arn:aws:iam::123456789012:role/ecsTaskRole',
         },
       );
-      expect(ecsMock).toHaveReceivedNthCommandWith(2, RunTaskCommand, {
+      expect(ecsMock).toHaveReceivedNthCommandWith(RunTaskCommand, 1, {
         cluster: 'test-cluster',
         count: 1,
         launchType: 'FARGATE',
@@ -1025,18 +1024,18 @@ describe('ecs remote runner', () => {
         taskDefinition:
           'arn:aws:ecs:us-east-1:123456789012:task-definition/test-test1-202305101:1',
       });
-      expect(ecsMock).toHaveReceivedNthCommandWith(3, DescribeTasksCommand, {
+      expect(ecsMock).toHaveReceivedNthCommandWith(DescribeTasksCommand, 1, {
         cluster: 'test-cluster',
         tasks: ['arn:aws:ecs:us-east-1:123456789012:task/test-test1-202305101'],
       });
-      expect(ecsMock).toHaveReceivedNthCommandWith(4, DescribeTasksCommand, {
+      expect(ecsMock).toHaveReceivedNthCommandWith(DescribeTasksCommand, 2, {
         cluster: 'test-cluster',
         tasks: ['arn:aws:ecs:us-east-1:123456789012:task/test-test1-202305101'],
       });
 
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
-        2,
         GetLogEventsCommand,
+        1,
         {
           endTime: Date.now(),
           logGroupName: '/ecs/test/test1/20230510',
@@ -1045,8 +1044,8 @@ describe('ecs remote runner', () => {
         },
       );
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
-        3,
         GetLogEventsCommand,
+        2,
         {
           endTime: Date.now(),
           logGroupName: '/ecs/test/test1/20230510',
@@ -1056,15 +1055,15 @@ describe('ecs remote runner', () => {
       );
 
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
-        4,
         DeleteLogGroupCommand,
+        1,
         {
           logGroupName: '/ecs/test/test1/20230510',
         },
       );
       expect(ecsMock).toHaveReceivedNthCommandWith(
-        5,
         DeregisterTaskDefinitionCommand,
+        1,
         {
           taskDefinition:
             'arn:aws:ecs:us-east-1:123456789012:task-definition/test-test1-202305101:1',
@@ -1107,8 +1106,8 @@ describe('ecs remote runner', () => {
         { stdio: 'inherit' },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(
-        1,
         DescribeRepositoriesCommand,
+        1,
         {
           repositoryNames: ['migrations'],
         },
@@ -1172,8 +1171,8 @@ describe('ecs remote runner', () => {
         { stdio: 'inherit' },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(
-        1,
         DescribeRepositoriesCommand,
+        1,
         {
           repositoryNames: ['migrations'],
         },
@@ -1277,8 +1276,8 @@ describe('ecs remote runner', () => {
         { stdio: 'inherit' },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(
-        1,
         DescribeRepositoriesCommand,
+        1,
         {
           repositoryNames: ['migrations'],
         },
@@ -1398,8 +1397,8 @@ describe('ecs remote runner', () => {
         { stdio: 'inherit' },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(
-        1,
         DescribeRepositoriesCommand,
+        1,
         {
           repositoryNames: ['migrations'],
         },
@@ -1533,8 +1532,8 @@ describe('ecs remote runner', () => {
         { stdio: 'inherit' },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(
-        1,
         DescribeRepositoriesCommand,
+        1,
         {
           repositoryNames: ['migrations'],
         },
@@ -1606,8 +1605,8 @@ describe('ecs remote runner', () => {
         },
       );
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
-        1,
         CreateLogGroupCommand,
+        1,
         {
           logGroupName: `/ecs/test/test1/20230510`,
           tags: {
@@ -1691,8 +1690,8 @@ describe('ecs remote runner', () => {
         { stdio: 'inherit' },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(
-        1,
         DescribeRepositoriesCommand,
+        1,
         {
           repositoryNames: ['migrations'],
         },
@@ -1764,8 +1763,8 @@ describe('ecs remote runner', () => {
         },
       );
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
-        1,
         CreateLogGroupCommand,
+        1,
         {
           logGroupName: `/ecs/test/test1/20230510`,
           tags: {
@@ -1778,8 +1777,8 @@ describe('ecs remote runner', () => {
       );
 
       expect(ecsMock).toHaveReceivedNthCommandWith(
-        1,
         RegisterTaskDefinitionCommand,
+        1,
         {
           containerDefinitions: [
             {
@@ -1824,7 +1823,7 @@ describe('ecs remote runner', () => {
           taskRoleArn: 'arn:aws:iam::123456789012:role/ecsTaskRole',
         },
       );
-      expect(ecsMock).toHaveReceivedNthCommandWith(2, RunTaskCommand, {
+      expect(ecsMock).toHaveReceivedNthCommandWith(RunTaskCommand, 1, {
         cluster: 'test-cluster',
         count: 1,
         launchType: 'FARGATE',
@@ -1842,15 +1841,15 @@ describe('ecs remote runner', () => {
       expect(ecsMock).not.toHaveReceivedCommand(DescribeTasksCommand);
       expect(cloudWatchLogsMock).not.toHaveReceivedCommand(GetLogEventsCommand);
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
-        2,
         DeleteLogGroupCommand,
+        1,
         {
           logGroupName: '/ecs/test/test1/20230510',
         },
       );
       expect(ecsMock).toHaveReceivedNthCommandWith(
-        3,
         DeregisterTaskDefinitionCommand,
+        1,
         {
           taskDefinition:
             'arn:aws:ecs:us-east-1:123456789012:task-definition/test-test1-202305101:1',
@@ -1974,13 +1973,13 @@ describe('ecs remote runner', () => {
         { stdio: 'inherit' },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(
-        1,
         DescribeRepositoriesCommand,
+        1,
         {
           repositoryNames: ['migrations'],
         },
       );
-      expect(ecrMock).toHaveReceivedNthCommandWith(2, CreateRepositoryCommand, {
+      expect(ecrMock).toHaveReceivedNthCommandWith(CreateRepositoryCommand, 1, {
         repositoryName: 'migrations',
       });
       expect(mkdirSyncMock).toHaveBeenCalledWith(
@@ -2050,8 +2049,8 @@ describe('ecs remote runner', () => {
         },
       );
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
-        1,
         CreateLogGroupCommand,
+        1,
         {
           logGroupName: `/ecs/test/test1/20230510`,
           tags: {
@@ -2064,8 +2063,8 @@ describe('ecs remote runner', () => {
       );
 
       expect(ecsMock).toHaveReceivedNthCommandWith(
-        1,
         RegisterTaskDefinitionCommand,
+        1,
         {
           containerDefinitions: [
             {
@@ -2110,7 +2109,7 @@ describe('ecs remote runner', () => {
           taskRoleArn: 'arn:aws:iam::123456789012:role/ecsTaskRole',
         },
       );
-      expect(ecsMock).toHaveReceivedNthCommandWith(2, RunTaskCommand, {
+      expect(ecsMock).toHaveReceivedNthCommandWith(RunTaskCommand, 1, {
         cluster: 'test-cluster',
         count: 1,
         launchType: 'FARGATE',
@@ -2125,28 +2124,28 @@ describe('ecs remote runner', () => {
         taskDefinition:
           'arn:aws:ecs:us-east-1:123456789012:task-definition/test-test1-202305101:1',
       });
-      expect(ecsMock).toHaveReceivedNthCommandWith(3, DescribeTasksCommand, {
+      expect(ecsMock).toHaveReceivedNthCommandWith(DescribeTasksCommand, 1, {
         cluster: 'test-cluster',
         tasks: ['arn:aws:ecs:us-east-1:123456789012:task/test-test1-202305101'],
       });
-      expect(ecsMock).toHaveReceivedNthCommandWith(4, DescribeTasksCommand, {
+      expect(ecsMock).toHaveReceivedNthCommandWith(DescribeTasksCommand, 2, {
         cluster: 'test-cluster',
         tasks: ['arn:aws:ecs:us-east-1:123456789012:task/test-test1-202305101'],
       });
 
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
+        GetLogEventsCommand,
+        1,
+        {
+          endTime: Date.now(),
+          logGroupName: '/ecs/test/test1/20230510',
+          logStreamName: 'ecs/migration/abc123',
+          startTime: Date.now(),
+        },
+      );
+      expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
+        GetLogEventsCommand,
         2,
-        GetLogEventsCommand,
-        {
-          endTime: Date.now(),
-          logGroupName: '/ecs/test/test1/20230510',
-          logStreamName: 'ecs/migration/abc123',
-          startTime: Date.now(),
-        },
-      );
-      expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
-        3,
-        GetLogEventsCommand,
         {
           endTime: Date.now(),
           logGroupName: '/ecs/test/test1/20230510',
@@ -2156,15 +2155,15 @@ describe('ecs remote runner', () => {
       );
 
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
-        4,
         DeleteLogGroupCommand,
+        1,
         {
           logGroupName: '/ecs/test/test1/20230510',
         },
       );
       expect(ecsMock).toHaveReceivedNthCommandWith(
-        5,
         DeregisterTaskDefinitionCommand,
+        1,
         {
           taskDefinition:
             'arn:aws:ecs:us-east-1:123456789012:task-definition/test-test1-202305101:1',
@@ -2274,13 +2273,13 @@ describe('ecs remote runner', () => {
         { stdio: 'inherit' },
       );
       expect(ecrMock).toHaveReceivedNthCommandWith(
-        1,
         DescribeRepositoriesCommand,
+        1,
         {
           repositoryNames: ['migrations'],
         },
       );
-      expect(ecrMock).toHaveReceivedNthCommandWith(2, CreateRepositoryCommand, {
+      expect(ecrMock).toHaveReceivedNthCommandWith(CreateRepositoryCommand, 1, {
         repositoryName: 'migrations',
       });
       expect(mkdirSyncMock).toHaveBeenCalledWith(
@@ -2350,8 +2349,8 @@ describe('ecs remote runner', () => {
         },
       );
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
-        1,
         CreateLogGroupCommand,
+        1,
         {
           logGroupName: `/ecs/test/test1/20230510`,
           tags: {
@@ -2364,8 +2363,8 @@ describe('ecs remote runner', () => {
       );
 
       expect(ecsMock).toHaveReceivedNthCommandWith(
-        1,
         RegisterTaskDefinitionCommand,
+        1,
         {
           containerDefinitions: [
             {
@@ -2410,7 +2409,7 @@ describe('ecs remote runner', () => {
           taskRoleArn: 'arn:aws:iam::123456789012:role/ecsTaskRole',
         },
       );
-      expect(ecsMock).toHaveReceivedNthCommandWith(2, RunTaskCommand, {
+      expect(ecsMock).toHaveReceivedNthCommandWith(RunTaskCommand, 1, {
         cluster: 'test-cluster',
         count: 1,
         launchType: 'FARGATE',
@@ -2425,18 +2424,18 @@ describe('ecs remote runner', () => {
         taskDefinition:
           'arn:aws:ecs:us-east-1:123456789012:task-definition/test-test1-202305101:1',
       });
-      expect(ecsMock).toHaveReceivedNthCommandWith(3, DescribeTasksCommand, {
+      expect(ecsMock).toHaveReceivedNthCommandWith(DescribeTasksCommand, 1, {
         cluster: 'test-cluster',
         tasks: ['arn:aws:ecs:us-east-1:123456789012:task/test-test1-202305101'],
       });
-      expect(ecsMock).toHaveReceivedNthCommandWith(4, DescribeTasksCommand, {
+      expect(ecsMock).toHaveReceivedNthCommandWith(DescribeTasksCommand, 2, {
         cluster: 'test-cluster',
         tasks: ['arn:aws:ecs:us-east-1:123456789012:task/test-test1-202305101'],
       });
 
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
-        2,
         GetLogEventsCommand,
+        1,
         {
           endTime: Date.now(),
           logGroupName: '/ecs/test/test1/20230510',
@@ -2445,8 +2444,8 @@ describe('ecs remote runner', () => {
         },
       );
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
-        3,
         GetLogEventsCommand,
+        2,
         {
           endTime: Date.now(),
           logGroupName: '/ecs/test/test1/20230510',
@@ -2457,15 +2456,15 @@ describe('ecs remote runner', () => {
       expect(warnSpy).toHaveBeenCalledTimes(2);
 
       expect(cloudWatchLogsMock).toHaveReceivedNthCommandWith(
-        4,
         DeleteLogGroupCommand,
+        1,
         {
           logGroupName: '/ecs/test/test1/20230510',
         },
       );
       expect(ecsMock).toHaveReceivedNthCommandWith(
-        5,
         DeregisterTaskDefinitionCommand,
+        1,
         {
           taskDefinition:
             'arn:aws:ecs:us-east-1:123456789012:task-definition/test-test1-202305101:1',

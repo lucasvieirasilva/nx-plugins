@@ -17,8 +17,8 @@ const defineConfig = (name, srcRoot) => ({
       {
         prepareCmd: [
           `node ./tools/scripts/update-version.js \${nextRelease.version} ./${srcRoot}/package.json`,
-          'npx nx format:write --uncommitted',
-          'npx nx affected:lint --fix',
+          'pnpm nx format:write --uncommitted',
+          'pnpm nx affected:lint --fix',
         ].join(' && '),
       },
     ],

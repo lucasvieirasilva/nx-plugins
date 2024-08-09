@@ -1,9 +1,10 @@
 import { vi, MockInstance } from 'vitest';
+import { vol } from 'memfs';
+import '../../utils/mocks/fs.mock';
 import '../../utils/mocks/cross-spawn.mock';
 import chalk from 'chalk';
 import * as poetryUtils from '../utils/poetry';
 import executor from './executor';
-import fsMock from 'mock-fs';
 import spawn from 'cross-spawn';
 
 describe('Serverless Framework Package Executor', () => {
@@ -38,7 +39,7 @@ describe('Serverless Framework Package Executor', () => {
   });
 
   afterEach(() => {
-    fsMock.restore();
+    vol.reset();
     vi.resetAllMocks();
   });
 
@@ -55,7 +56,7 @@ describe('Serverless Framework Package Executor', () => {
   });
 
   it('should throw an exception when the whl file does not exist', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/dist/test.tar.gz': 'abc123',
     });
 
@@ -71,7 +72,7 @@ describe('Serverless Framework Package Executor', () => {
   });
 
   it('should run serverless framework command using npx', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/dist/test.whl': 'abc123',
     });
     vi.mocked(spawn.sync).mockReturnValue({
@@ -103,7 +104,7 @@ describe('Serverless Framework Package Executor', () => {
   });
 
   it('should run serverless framework command with error', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/dist/test.whl': 'abc123',
     });
     vi.mocked(spawn.sync).mockReturnValue({

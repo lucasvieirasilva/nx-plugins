@@ -105,7 +105,6 @@ import {
   DeleteParameterCommand,
   PutParameterCommand,
 } from '@aws-sdk/client-ssm';
-import 'aws-sdk-client-mock-jest';
 import { mockClient } from 'aws-sdk-client-mock';
 import { CLILogger } from '../logger';
 import { Migration } from '../migration';
@@ -729,8 +728,8 @@ describe('DynamoDBMigrationBase', () => {
       await migration.up();
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        1,
         DescribeTableCommand,
+        1,
         {
           TableName: 'test',
         },
@@ -782,8 +781,8 @@ describe('DynamoDBMigrationBase', () => {
       await migration.up();
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        1,
         DescribeTableCommand,
+        1,
         {
           TableName: 'test',
         },
@@ -837,13 +836,13 @@ describe('DynamoDBMigrationBase', () => {
       await migration.up();
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        1,
         DescribeTableCommand,
+        1,
         {
           TableName: 'test',
         },
       );
-      expect(dynamoDbMock).toHaveReceivedNthCommandWith(2, DeleteTableCommand, {
+      expect(dynamoDbMock).toHaveReceivedNthCommandWith(DeleteTableCommand, 1, {
         TableName: 'test',
       });
       expect(waitUntilTableNotExistsMock).toHaveBeenCalledWith(
@@ -900,20 +899,20 @@ describe('DynamoDBMigrationBase', () => {
       await migration.up();
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        1,
         DescribeTableCommand,
+        1,
         {
           TableName: 'test',
         },
       );
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        2,
         ListTagsOfResourceCommand,
+        1,
         {
           ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/test',
         },
       );
-      expect(dynamoDbMock).toHaveReceivedNthCommandWith(3, DeleteTableCommand, {
+      expect(dynamoDbMock).toHaveReceivedNthCommandWith(DeleteTableCommand, 1, {
         TableName: 'test',
       });
       expect(waitUntilTableNotExistsMock).toHaveBeenCalledWith(
@@ -983,8 +982,8 @@ describe('DynamoDBMigrationBase', () => {
       await migration.up();
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        1,
         CreateBackupCommand,
+        1,
         {
           BackupName: 'namespace-name-202304031-migration-backup',
           TableName: 'test',
@@ -993,8 +992,8 @@ describe('DynamoDBMigrationBase', () => {
 
       expect(timeoutMock).toHaveBeenCalledTimes(1);
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        2,
         DescribeBackupCommand,
+        1,
         {
           BackupArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/test',
         },
@@ -1060,8 +1059,8 @@ describe('DynamoDBMigrationBase', () => {
       );
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        1,
         CreateBackupCommand,
+        1,
         {
           BackupName: 'namespace-name-202304031-migration-backup',
           TableName: 'test',
@@ -1134,8 +1133,8 @@ describe('DynamoDBMigrationBase', () => {
       );
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        1,
         CreateBackupCommand,
+        1,
         {
           BackupName: 'namespace-name-202304031-migration-backup',
           TableName: 'test',
@@ -1144,8 +1143,8 @@ describe('DynamoDBMigrationBase', () => {
 
       expect(timeoutMock).toHaveBeenCalledTimes(1);
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        2,
         DescribeBackupCommand,
+        1,
         {
           BackupArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/test',
         },
@@ -1195,14 +1194,14 @@ describe('DynamoDBMigrationBase', () => {
 
       await migration.up();
 
-      expect(dynamoDbMock).toHaveReceivedNthCommandWith(1, ListBackupsCommand, {
+      expect(dynamoDbMock).toHaveReceivedNthCommandWith(ListBackupsCommand, 1, {
         BackupType: 'ALL',
         TableName: 'test',
       });
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        2,
         RestoreTableFromBackupCommand,
+        1,
         {
           BackupArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/test',
           TargetTableName: 'test',
@@ -1249,7 +1248,7 @@ describe('DynamoDBMigrationBase', () => {
         'Backup namespace-name-202304031-migration-backup not found',
       );
 
-      expect(dynamoDbMock).toHaveReceivedNthCommandWith(1, ListBackupsCommand, {
+      expect(dynamoDbMock).toHaveReceivedNthCommandWith(ListBackupsCommand, 1, {
         BackupType: 'ALL',
         TableName: 'test',
       });
@@ -1359,14 +1358,14 @@ describe('DynamoDBMigrationBase', () => {
       );
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        1,
         DescribeTableCommand,
+        1,
         {
           TableName: 'source',
         },
       );
 
-      expect(dynamoDbMock).toHaveReceivedNthCommandWith(2, UpdateTableCommand, {
+      expect(dynamoDbMock).toHaveReceivedNthCommandWith(UpdateTableCommand, 1, {
         TableName: 'source',
         StreamSpecification: {
           StreamEnabled: true,
@@ -1375,14 +1374,14 @@ describe('DynamoDBMigrationBase', () => {
       });
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        3,
         ListTagsOfResourceCommand,
+        1,
         {
           ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
         },
       );
 
-      expect(dynamoDbMock).toHaveReceivedNthCommandWith(4, TagResourceCommand, {
+      expect(dynamoDbMock).toHaveReceivedNthCommandWith(TagResourceCommand, 1, {
         ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
         Tags: [
           {
@@ -1417,8 +1416,8 @@ describe('DynamoDBMigrationBase', () => {
       });
 
       expect(dynamodbStreamsMock).toHaveReceivedNthCommandWith(
-        1,
         ListStreamsCommand,
+        1,
         {
           TableName: 'source',
         },
@@ -1496,8 +1495,8 @@ describe('DynamoDBMigrationBase', () => {
       await expect(migration.up()).rejects.toThrowError('zip error');
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        1,
         DescribeTableCommand,
+        1,
         {
           TableName: 'source',
         },
@@ -1505,14 +1504,14 @@ describe('DynamoDBMigrationBase', () => {
       expect(dynamoDbMock).not.toHaveReceivedCommand(UpdateTableCommand);
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        2,
         ListTagsOfResourceCommand,
+        1,
         {
           ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
         },
       );
 
-      expect(dynamoDbMock).toHaveReceivedNthCommandWith(3, TagResourceCommand, {
+      expect(dynamoDbMock).toHaveReceivedNthCommandWith(TagResourceCommand, 1, {
         ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
         Tags: [
           {
@@ -1543,8 +1542,8 @@ describe('DynamoDBMigrationBase', () => {
       });
 
       expect(dynamodbStreamsMock).toHaveReceivedNthCommandWith(
-        1,
         ListStreamsCommand,
+        1,
         {
           TableName: 'source',
         },
@@ -1682,8 +1681,8 @@ describe('DynamoDBMigrationBase', () => {
       await migration.up();
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        1,
         DescribeTableCommand,
+        1,
         {
           TableName: 'source',
         },
@@ -1692,14 +1691,14 @@ describe('DynamoDBMigrationBase', () => {
       expect(dynamoDbMock).not.toHaveReceivedCommand(UpdateTableCommand);
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        2,
         ListTagsOfResourceCommand,
+        1,
         {
           ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
         },
       );
 
-      expect(dynamoDbMock).toHaveReceivedNthCommandWith(3, TagResourceCommand, {
+      expect(dynamoDbMock).toHaveReceivedNthCommandWith(TagResourceCommand, 1, {
         ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
         Tags: [
           {
@@ -1730,8 +1729,8 @@ describe('DynamoDBMigrationBase', () => {
       });
 
       expect(dynamodbStreamsMock).toHaveReceivedNthCommandWith(
-        1,
         ListStreamsCommand,
+        1,
         {
           TableName: 'source',
         },
@@ -1759,24 +1758,24 @@ describe('DynamoDBMigrationBase', () => {
       );
       expect(fsUnlinkSyncMock).not.toHaveBeenCalled();
 
-      expect(iamMock).toHaveReceivedNthCommandWith(1, GetRoleCommand, {
+      expect(iamMock).toHaveReceivedNthCommandWith(GetRoleCommand, 1, {
         RoleName: 'migration-namespace-name-202304031-stream-role',
       });
 
-      expect(iamMock).toHaveReceivedNthCommandWith(2, ListRolePoliciesCommand, {
+      expect(iamMock).toHaveReceivedNthCommandWith(ListRolePoliciesCommand, 1, {
         RoleName: 'migration-namespace-name-202304031-stream-role',
       });
 
-      expect(iamMock).toHaveReceivedNthCommandWith(3, DeleteRolePolicyCommand, {
+      expect(iamMock).toHaveReceivedNthCommandWith(DeleteRolePolicyCommand, 1, {
         RoleName: 'migration-namespace-name-202304031-stream-role',
         PolicyName: 'policy',
       });
 
-      expect(iamMock).toHaveReceivedNthCommandWith(4, DeleteRoleCommand, {
+      expect(iamMock).toHaveReceivedNthCommandWith(DeleteRoleCommand, 1, {
         RoleName: 'migration-namespace-name-202304031-stream-role',
       });
 
-      expect(iamMock).toHaveReceivedNthCommandWith(5, CreateRoleCommand, {
+      expect(iamMock).toHaveReceivedNthCommandWith(CreateRoleCommand, 1, {
         AssumeRolePolicyDocument: JSON.stringify({
           Version: '2012-10-17',
           Statement: [
@@ -1815,11 +1814,11 @@ describe('DynamoDBMigrationBase', () => {
         ],
       });
 
-      expect(iamMock).toHaveReceivedNthCommandWith(6, GetRoleCommand, {
+      expect(iamMock).toHaveReceivedNthCommandWith(GetRoleCommand, 2, {
         RoleName: 'migration-namespace-name-202304031-stream-role',
       });
 
-      expect(iamMock).toHaveReceivedNthCommandWith(7, PutRolePolicyCommand, {
+      expect(iamMock).toHaveReceivedNthCommandWith(PutRolePolicyCommand, 1, {
         PolicyDocument: JSON.stringify({
           Version: '2012-10-17',
           Statement: [
@@ -1865,37 +1864,37 @@ describe('DynamoDBMigrationBase', () => {
         RoleName: 'migration-namespace-name-202304031-stream-role',
       });
 
-      expect(lambdaMock).toHaveReceivedNthCommandWith(1, GetFunctionCommand, {
+      expect(lambdaMock).toHaveReceivedNthCommandWith(GetFunctionCommand, 1, {
         FunctionName: 'migration-namespace-name-202304031-stream',
       });
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
-        2,
         ListEventSourceMappingsCommand,
+        1,
         {
           FunctionName: 'migration-namespace-name-202304031-stream',
         },
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
-        3,
         DeleteEventSourceMappingCommand,
+        1,
         {
           UUID: 'uuid',
         },
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
-        4,
         DeleteFunctionCommand,
+        1,
         {
           FunctionName: 'migration-namespace-name-202304031-stream',
         },
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
-        5,
         CreateFunctionCommand,
+        1,
         {
           Code: {
             ZipFile: 'content' as never,
@@ -1923,8 +1922,8 @@ describe('DynamoDBMigrationBase', () => {
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
-        6,
         CreateEventSourceMappingCommand,
+        1,
         {
           EventSourceArn:
             'arn:aws:dynamodb:us-east-1:123456789012:table/source/stream/2021-01-01T00:00:00.000',
@@ -2038,14 +2037,14 @@ describe('DynamoDBMigrationBase', () => {
       await migration.up();
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        1,
         DescribeTableCommand,
+        1,
         {
           TableName: 'source',
         },
       );
 
-      expect(dynamoDbMock).toHaveReceivedNthCommandWith(2, UpdateTableCommand, {
+      expect(dynamoDbMock).toHaveReceivedNthCommandWith(UpdateTableCommand, 1, {
         TableName: 'source',
         StreamSpecification: {
           StreamEnabled: true,
@@ -2054,14 +2053,14 @@ describe('DynamoDBMigrationBase', () => {
       });
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        3,
         ListTagsOfResourceCommand,
+        1,
         {
           ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
         },
       );
 
-      expect(dynamoDbMock).toHaveReceivedNthCommandWith(4, TagResourceCommand, {
+      expect(dynamoDbMock).toHaveReceivedNthCommandWith(TagResourceCommand, 1, {
         ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
         Tags: [
           {
@@ -2092,8 +2091,8 @@ describe('DynamoDBMigrationBase', () => {
       });
 
       expect(dynamodbStreamsMock).toHaveReceivedNthCommandWith(
-        1,
         ListStreamsCommand,
+        1,
         {
           TableName: 'source',
         },
@@ -2121,24 +2120,24 @@ describe('DynamoDBMigrationBase', () => {
       );
       expect(fsUnlinkSyncMock).not.toHaveBeenCalled();
 
-      expect(iamMock).toHaveReceivedNthCommandWith(1, GetRoleCommand, {
+      expect(iamMock).toHaveReceivedNthCommandWith(GetRoleCommand, 1, {
         RoleName: 'migration-namespace-name-202304031-stream-role',
       });
 
-      expect(iamMock).toHaveReceivedNthCommandWith(2, ListRolePoliciesCommand, {
+      expect(iamMock).toHaveReceivedNthCommandWith(ListRolePoliciesCommand, 1, {
         RoleName: 'migration-namespace-name-202304031-stream-role',
       });
 
-      expect(iamMock).toHaveReceivedNthCommandWith(3, DeleteRolePolicyCommand, {
+      expect(iamMock).toHaveReceivedNthCommandWith(DeleteRolePolicyCommand, 1, {
         RoleName: 'migration-namespace-name-202304031-stream-role',
         PolicyName: 'policy',
       });
 
-      expect(iamMock).toHaveReceivedNthCommandWith(4, DeleteRoleCommand, {
+      expect(iamMock).toHaveReceivedNthCommandWith(DeleteRoleCommand, 1, {
         RoleName: 'migration-namespace-name-202304031-stream-role',
       });
 
-      expect(iamMock).toHaveReceivedNthCommandWith(5, CreateRoleCommand, {
+      expect(iamMock).toHaveReceivedNthCommandWith(CreateRoleCommand, 1, {
         AssumeRolePolicyDocument: JSON.stringify({
           Version: '2012-10-17',
           Statement: [
@@ -2177,11 +2176,11 @@ describe('DynamoDBMigrationBase', () => {
         ],
       });
 
-      expect(iamMock).toHaveReceivedNthCommandWith(6, GetRoleCommand, {
+      expect(iamMock).toHaveReceivedNthCommandWith(GetRoleCommand, 2, {
         RoleName: 'migration-namespace-name-202304031-stream-role',
       });
 
-      expect(iamMock).toHaveReceivedNthCommandWith(7, PutRolePolicyCommand, {
+      expect(iamMock).toHaveReceivedNthCommandWith(PutRolePolicyCommand, 1, {
         PolicyDocument: JSON.stringify({
           Version: '2012-10-17',
           Statement: [
@@ -2227,37 +2226,37 @@ describe('DynamoDBMigrationBase', () => {
         RoleName: 'migration-namespace-name-202304031-stream-role',
       });
 
-      expect(lambdaMock).toHaveReceivedNthCommandWith(1, GetFunctionCommand, {
+      expect(lambdaMock).toHaveReceivedNthCommandWith(GetFunctionCommand, 1, {
         FunctionName: 'migration-namespace-name-202304031-stream',
       });
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
-        2,
         ListEventSourceMappingsCommand,
+        1,
         {
           FunctionName: 'migration-namespace-name-202304031-stream',
         },
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
-        3,
         DeleteEventSourceMappingCommand,
+        1,
         {
           UUID: 'uuid',
         },
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
-        4,
         DeleteFunctionCommand,
+        1,
         {
           FunctionName: 'migration-namespace-name-202304031-stream',
         },
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
-        5,
         CreateFunctionCommand,
+        1,
         {
           Code: {
             ZipFile: 'content' as never,
@@ -2285,8 +2284,8 @@ describe('DynamoDBMigrationBase', () => {
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
-        6,
         CreateEventSourceMappingCommand,
+        1,
         {
           EventSourceArn:
             'arn:aws:dynamodb:us-east-1:123456789012:table/source/stream/2021-01-01T00:00:00.000',
@@ -2357,8 +2356,8 @@ describe('DynamoDBMigrationBase', () => {
       await migration.up();
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        1,
         DescribeTableCommand,
+        1,
         {
           TableName: 'source',
         },
@@ -2366,18 +2365,18 @@ describe('DynamoDBMigrationBase', () => {
       expect(dynamoDbMock).not.toHaveReceivedCommand(UpdateTableCommand);
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        2,
         ListTagsOfResourceCommand,
+        1,
         {
           ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
         },
       );
 
-      expect(lambdaMock).toHaveReceivedNthCommandWith(1, GetFunctionCommand, {
+      expect(lambdaMock).toHaveReceivedNthCommandWith(GetFunctionCommand, 1, {
         FunctionName: 'migration-namespace-name-202304031-stream',
       });
 
-      expect(iamMock).toHaveReceivedNthCommandWith(1, GetRoleCommand, {
+      expect(iamMock).toHaveReceivedNthCommandWith(GetRoleCommand, 1, {
         RoleName: 'migration-namespace-name-202304031-stream-role',
       });
     });
@@ -2447,68 +2446,68 @@ describe('DynamoDBMigrationBase', () => {
       await migration.up();
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        1,
         DescribeTableCommand,
+        1,
         {
           TableName: 'source',
         },
       );
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        2,
         ListTagsOfResourceCommand,
+        1,
         {
           ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
         },
       );
-      expect(dynamoDbMock).toHaveReceivedNthCommandWith(3, UpdateTableCommand, {
+      expect(dynamoDbMock).toHaveReceivedNthCommandWith(UpdateTableCommand, 1, {
         TableName: 'source',
         StreamSpecification: {
           StreamEnabled: false,
         },
       });
 
-      expect(lambdaMock).toHaveReceivedNthCommandWith(1, GetFunctionCommand, {
+      expect(lambdaMock).toHaveReceivedNthCommandWith(GetFunctionCommand, 1, {
         FunctionName: 'migration-namespace-name-202304031-stream',
       });
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
-        2,
         ListEventSourceMappingsCommand,
+        1,
         {
           FunctionName: 'migration-namespace-name-202304031-stream',
         },
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
-        3,
         DeleteEventSourceMappingCommand,
+        1,
         {
           UUID: 'uuid',
         },
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
-        4,
         DeleteFunctionCommand,
+        1,
         {
           FunctionName: 'migration-namespace-name-202304031-stream',
         },
       );
 
-      expect(iamMock).toHaveReceivedNthCommandWith(1, GetRoleCommand, {
+      expect(iamMock).toHaveReceivedNthCommandWith(GetRoleCommand, 1, {
         RoleName: 'migration-namespace-name-202304031-stream-role',
       });
 
-      expect(iamMock).toHaveReceivedNthCommandWith(2, ListRolePoliciesCommand, {
+      expect(iamMock).toHaveReceivedNthCommandWith(ListRolePoliciesCommand, 1, {
         RoleName: 'migration-namespace-name-202304031-stream-role',
       });
 
-      expect(iamMock).toHaveReceivedNthCommandWith(3, DeleteRolePolicyCommand, {
+      expect(iamMock).toHaveReceivedNthCommandWith(DeleteRolePolicyCommand, 1, {
         RoleName: 'migration-namespace-name-202304031-stream-role',
         PolicyName: 'policy',
       });
 
-      expect(iamMock).toHaveReceivedNthCommandWith(4, DeleteRoleCommand, {
+      expect(iamMock).toHaveReceivedNthCommandWith(DeleteRoleCommand, 1, {
         RoleName: 'migration-namespace-name-202304031-stream-role',
       });
     });
@@ -2574,8 +2573,8 @@ describe('DynamoDBMigrationBase', () => {
       await migration.up();
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        1,
         DescribeTableCommand,
+        1,
         {
           TableName: 'source',
         },
@@ -2583,55 +2582,55 @@ describe('DynamoDBMigrationBase', () => {
       expect(dynamoDbMock).not.toHaveReceivedCommand(UpdateTableCommand);
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        2,
         ListTagsOfResourceCommand,
+        1,
         {
           ResourceArn: 'arn:aws:dynamodb:us-east-1:123456789012:table/source',
         },
       );
 
-      expect(lambdaMock).toHaveReceivedNthCommandWith(1, GetFunctionCommand, {
+      expect(lambdaMock).toHaveReceivedNthCommandWith(GetFunctionCommand, 1, {
         FunctionName: 'migration-namespace-name-202304031-stream',
       });
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
-        2,
         ListEventSourceMappingsCommand,
+        1,
         {
           FunctionName: 'migration-namespace-name-202304031-stream',
         },
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
-        3,
         DeleteEventSourceMappingCommand,
+        1,
         {
           UUID: 'uuid',
         },
       );
 
       expect(lambdaMock).toHaveReceivedNthCommandWith(
-        4,
         DeleteFunctionCommand,
+        1,
         {
           FunctionName: 'migration-namespace-name-202304031-stream',
         },
       );
 
-      expect(iamMock).toHaveReceivedNthCommandWith(1, GetRoleCommand, {
+      expect(iamMock).toHaveReceivedNthCommandWith(GetRoleCommand, 1, {
         RoleName: 'migration-namespace-name-202304031-stream-role',
       });
 
-      expect(iamMock).toHaveReceivedNthCommandWith(2, ListRolePoliciesCommand, {
+      expect(iamMock).toHaveReceivedNthCommandWith(ListRolePoliciesCommand, 1, {
         RoleName: 'migration-namespace-name-202304031-stream-role',
       });
 
-      expect(iamMock).toHaveReceivedNthCommandWith(3, DeleteRolePolicyCommand, {
+      expect(iamMock).toHaveReceivedNthCommandWith(DeleteRolePolicyCommand, 1, {
         RoleName: 'migration-namespace-name-202304031-stream-role',
         PolicyName: 'policy',
       });
 
-      expect(iamMock).toHaveReceivedNthCommandWith(4, DeleteRoleCommand, {
+      expect(iamMock).toHaveReceivedNthCommandWith(DeleteRoleCommand, 1, {
         RoleName: 'migration-namespace-name-202304031-stream-role',
       });
     });
@@ -2673,8 +2672,8 @@ describe('DynamoDBMigrationBase', () => {
       await migration.up();
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        1,
         DescribeTableCommand,
+        1,
         {
           TableName: 'test',
         },
@@ -2714,8 +2713,8 @@ describe('DynamoDBMigrationBase', () => {
       await migration.up();
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        1,
         DescribeTableCommand,
+        1,
         {
           TableName: 'test',
         },
@@ -2757,8 +2756,8 @@ describe('DynamoDBMigrationBase', () => {
       );
 
       expect(dynamoDbMock).toHaveReceivedNthCommandWith(
-        1,
         DescribeTableCommand,
+        1,
         {
           TableName: 'test',
         },
@@ -2798,7 +2797,7 @@ describe('DynamoDBMigrationBase', () => {
 
       await migration.up();
 
-      expect(iamMock).toHaveReceivedNthCommandWith(1, GetRoleCommand, {
+      expect(iamMock).toHaveReceivedNthCommandWith(GetRoleCommand, 1, {
         RoleName: 'test',
       });
     });
@@ -2836,7 +2835,7 @@ describe('DynamoDBMigrationBase', () => {
 
       await migration.up();
 
-      expect(iamMock).toHaveReceivedNthCommandWith(1, GetRoleCommand, {
+      expect(iamMock).toHaveReceivedNthCommandWith(GetRoleCommand, 1, {
         RoleName: 'test',
       });
     });
@@ -2874,7 +2873,7 @@ describe('DynamoDBMigrationBase', () => {
         'Internal server error',
       );
 
-      expect(iamMock).toHaveReceivedNthCommandWith(1, GetRoleCommand, {
+      expect(iamMock).toHaveReceivedNthCommandWith(GetRoleCommand, 1, {
         RoleName: 'test',
       });
     });
@@ -2912,7 +2911,7 @@ describe('DynamoDBMigrationBase', () => {
 
       await migration.up();
 
-      expect(lambdaMock).toHaveReceivedNthCommandWith(1, GetFunctionCommand, {
+      expect(lambdaMock).toHaveReceivedNthCommandWith(GetFunctionCommand, 1, {
         FunctionName: 'test',
       });
     });
@@ -2950,7 +2949,7 @@ describe('DynamoDBMigrationBase', () => {
 
       await migration.up();
 
-      expect(lambdaMock).toHaveReceivedNthCommandWith(1, GetFunctionCommand, {
+      expect(lambdaMock).toHaveReceivedNthCommandWith(GetFunctionCommand, 1, {
         FunctionName: 'test',
       });
     });
@@ -2989,7 +2988,7 @@ describe('DynamoDBMigrationBase', () => {
         'Internal server error',
       );
 
-      expect(lambdaMock).toHaveReceivedNthCommandWith(1, GetFunctionCommand, {
+      expect(lambdaMock).toHaveReceivedNthCommandWith(GetFunctionCommand, 1, {
         FunctionName: 'test',
       });
     });

@@ -27,7 +27,7 @@
       "executor": "nx:run-commands",
       "outputs": [],
       "options": {
-        "command": "npx semantic-release-plus --extends ./packages/util/release.config.js",
+        "command": "pnpm semantic-release-plus --extends ./packages/util/release.config.js",
         "parallel": false
       },
       "dependsOn": ["^build"]

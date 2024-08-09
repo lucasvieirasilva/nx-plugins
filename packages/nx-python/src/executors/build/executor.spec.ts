@@ -1,10 +1,11 @@
 import { vi, MockInstance } from 'vitest';
+import { vol } from 'memfs';
 import { BuildExecutorSchema } from './schema';
+import '../../utils/mocks/fs.mock';
 import '../../utils/mocks/cross-spawn.mock';
 import { uuidMock } from '../../utils/mocks/uuid.mock';
 import * as poetryUtils from '../utils/poetry';
 import executor from './executor';
-import fsMock from 'mock-fs';
 import { existsSync, readFileSync, mkdirsSync, writeFileSync } from 'fs-extra';
 import { parse } from '@iarna/toml';
 import { join } from 'path';
@@ -48,7 +49,7 @@ describe('Build Executor', () => {
   });
 
   afterEach(() => {
-    fsMock.restore();
+    vol.reset();
     vi.resetAllMocks();
   });
 
@@ -128,7 +129,7 @@ describe('Build Executor', () => {
 
   describe('locked resolver', () => {
     it('should build python project with local dependencies and keep the build folder', async () => {
-      fsMock({
+      vol.fromJSON({
         'apps/app/.venv/pyvenv.cfg': 'fake',
         'apps/app/app/index.py': 'print("Hello from app")',
         'apps/app/poetry.lock': dedent`
@@ -313,7 +314,7 @@ describe('Build Executor', () => {
     });
 
     it('should build python project with local dependencies poetry-plugin-export@1.8.0', async () => {
-      fsMock({
+      vol.fromJSON({
         'apps/app/.venv/pyvenv.cfg': 'fake',
         'apps/app/app/index.py': 'print("Hello from app")',
         'apps/app/poetry.lock': dedent`
@@ -498,7 +499,7 @@ describe('Build Executor', () => {
     });
 
     it('should throw an exception when poetry-plugin-export@1.8.0 local project is not a valid poetry project', async () => {
-      fsMock({
+      vol.fromJSON({
         'apps/app/.venv/pyvenv.cfg': 'fake',
         'apps/app/app/index.py': 'print("Hello from app")',
         'apps/app/poetry.lock': dedent`
@@ -645,7 +646,7 @@ describe('Build Executor', () => {
     });
 
     it('should build python project with git dependency with revision and markers', async () => {
-      fsMock({
+      vol.fromJSON({
         'apps/app/.venv/pyvenv.cfg': 'fake',
         'apps/app/app/index.py': 'print("Hello from app")',
         'apps/app/poetry.lock': dedent`
@@ -763,7 +764,7 @@ describe('Build Executor', () => {
     });
 
     it('should build python project with git dependency without revision and markers', async () => {
-      fsMock({
+      vol.fromJSON({
         'apps/app/.venv/pyvenv.cfg': 'fake',
         'apps/app/app/index.py': 'print("Hello from app")',
         'apps/app/poetry.lock': dedent`
@@ -879,7 +880,7 @@ describe('Build Executor', () => {
     });
 
     it('should build python project with git dependency with extras', async () => {
-      fsMock({
+      vol.fromJSON({
         'apps/app/.venv/pyvenv.cfg': 'fake',
         'apps/app/app/index.py': 'print("Hello from app")',
         'apps/app/poetry.lock': dedent`
@@ -995,7 +996,7 @@ describe('Build Executor', () => {
     });
 
     it('should throw an exception when the source type is not supported', async () => {
-      fsMock({
+      vol.fromJSON({
         'apps/app/.venv/pyvenv.cfg': 'fake',
         'apps/app/app/index.py': 'print("Hello from app")',
         'apps/app/poetry.lock': dedent`
@@ -1073,7 +1074,7 @@ describe('Build Executor', () => {
     });
 
     it('should build python project with local dependencies with poetry plugins', async () => {
-      fsMock({
+      vol.fromJSON({
         'apps/app/.venv/pyvenv.cfg': 'fake',
         'apps/app/app/index.py': 'print("Hello from app")',
         'apps/app/poetry.lock': dedent`
@@ -1262,7 +1263,7 @@ describe('Build Executor', () => {
     });
 
     it('should build python project with local dependencies that specify a "from" directory', async () => {
-      fsMock({
+      vol.fromJSON({
         'apps/app/.venv/pyvenv.cfg': 'fake',
         'apps/app/app/index.py': 'print("Hello from app")',
         'apps/app/poetry.lock': dedent`
@@ -1394,7 +1395,7 @@ describe('Build Executor', () => {
     });
 
     it('should build python project with local dependencies and extras', async () => {
-      fsMock({
+      vol.fromJSON({
         'apps/app/.venv/pyvenv.cfg': 'fake',
         'apps/app/app/index.py': 'print("Hello from app")',
         'apps/app/poetry.lock': dedent`
@@ -1594,7 +1595,7 @@ describe('Build Executor', () => {
     });
 
     it('should build python project with dependencies with extras', async () => {
-      fsMock({
+      vol.fromJSON({
         'apps/app/.venv/pyvenv.cfg': 'fake',
         'apps/app/app/index.py': 'print("Hello from app")',
         'apps/app/poetry.lock': dedent`
@@ -1701,7 +1702,7 @@ describe('Build Executor', () => {
     });
 
     it('should throw an exception when the package is not found in the poetry.lock', async () => {
-      fsMock({
+      vol.fromJSON({
         'apps/app/.venv/pyvenv.cfg': 'fake',
         'apps/app/app/index.py': 'print("Hello from app")',
         'apps/app/poetry.lock': dedent`
@@ -1773,7 +1774,7 @@ describe('Build Executor', () => {
     });
 
     it('should build python project with dependencies and delete the build folder', async () => {
-      fsMock({
+      vol.fromJSON({
         'apps/app/.venv/pyvenv.cfg': 'fake',
         'apps/app/app/index.py': 'print("Hello from app")',
         'apps/app/poetry.lock': dedent`
@@ -1855,7 +1856,7 @@ describe('Build Executor', () => {
     });
 
     it('should throw an exception when runs build', async () => {
-      fsMock({
+      vol.fromJSON({
         'apps/app/.venv/pyvenv.cfg': 'fake',
         'apps/app/app/index.py': 'print("Hello from app")',
         'apps/app/pyproject.toml': dedent`
@@ -1922,7 +1923,7 @@ describe('Build Executor', () => {
 
   describe('project resolver', () => {
     it('should throw an exception when the local dependency cannot be found on the workspace config', async () => {
-      fsMock({
+      vol.fromJSON({
         'apps/app/.venv/pyvenv.cfg': 'fake',
         'apps/app/app/index.py': 'print("Hello from app")',
         'apps/app/pyproject.toml': dedent`
@@ -2004,7 +2005,7 @@ describe('Build Executor', () => {
     });
 
     it('should build the project without locked versions and without bundle the local dependencies', async () => {
-      fsMock({
+      vol.fromJSON({
         'apps/app/.venv/pyvenv.cfg': 'fake',
         'apps/app/app/index.py': 'print("Hello from app")',
         'apps/app/pyproject.toml': dedent`
@@ -2116,7 +2117,7 @@ describe('Build Executor', () => {
     });
 
     it('should build the project without locked versions and bundle the local dependencies', async () => {
-      fsMock({
+      vol.fromJSON({
         'apps/app/.venv/pyvenv.cfg': 'fake',
         'apps/app/app/index.py': 'print("Hello from app")',
         'apps/app/pyproject.toml': dedent`
@@ -2238,7 +2239,7 @@ describe('Build Executor', () => {
     });
 
     it('should build the project without locked versions and bundle only local dependency and not the second level', async () => {
-      fsMock({
+      vol.fromJSON({
         'apps/app/.venv/pyvenv.cfg': 'fake',
         'apps/app/app/index.py': 'print("Hello from app")',
         'apps/app/pyproject.toml': dedent`
@@ -2400,7 +2401,7 @@ describe('Build Executor', () => {
     });
 
     it('should build the project without locked versions and handle duplicate sources', async () => {
-      fsMock({
+      vol.fromJSON({
         'apps/app/.venv/pyvenv.cfg': 'fake',
         'apps/app/app/index.py': 'print("Hello from app")',
         'apps/app/pyproject.toml': dedent`

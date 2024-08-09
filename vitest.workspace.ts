@@ -7,13 +7,7 @@ export default defineWorkspace([
     plugins: [nxViteTsPaths()],
     test: {
       globals: true,
-    },
-  },
-  'e2e/**/*/vite.config.ts',
-  {
-    plugins: [nxViteTsPaths()],
-    test: {
-      globals: true,
+      setupFiles: ['./tests/setup.ts'],
     },
   },
 ]);

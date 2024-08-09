@@ -49,7 +49,7 @@
       "executor": "nx:run-commands",
       "outputs": [],
       "options": {
-        "command": "npx semantic-release-plus --extends ./packages/data-migration/release.config.js",
+        "command": "pnpm semantic-release-plus --extends ./packages/data-migration/release.config.js",
         "parallel": false
       },
       "dependsOn": [

@@ -107,7 +107,7 @@ export const getAllDependenciesFromPyprojectToml = (
     ...Object.fromEntries(
       Object.entries(tomlData.tool?.poetry?.group ?? {})
         .filter(([name]) => !omitGroups.includes(name))
-        .flatMap(([_, group]) => Object.entries(group.dependencies ?? {})),
+        .flatMap(([, group]) => Object.entries(group.dependencies ?? {})),
     ),
   };
 };

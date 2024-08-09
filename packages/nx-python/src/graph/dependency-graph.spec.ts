@@ -1,15 +1,17 @@
+import '../utils/mocks/fs.mock';
 import { createDependencies, getDependents } from './dependency-graph';
-import fsMock from 'mock-fs';
+import { vol } from 'memfs';
+
 import dedent from 'string-dedent';
 
 describe('nx-python dependency graph', () => {
   afterEach(() => {
-    fsMock.restore();
+    vol.reset();
   });
 
   describe('dependency graph', () => {
     it('should progress the dependency graph', async () => {
-      fsMock({
+      vol.fromJSON({
         'apps/app1/pyproject.toml': dedent`
       [tool.poetry]
       name = "app1"
@@ -82,7 +84,7 @@ describe('nx-python dependency graph', () => {
     });
 
     it('should link dev dependencies in the graph', async () => {
-      fsMock({
+      vol.fromJSON({
         'apps/app1/pyproject.toml': dedent`
       [tool.poetry]
       name = "app1"
@@ -137,7 +139,7 @@ describe('nx-python dependency graph', () => {
     });
 
     it('should link arbitrary groups dependencies in the graph', async () => {
-      fsMock({
+      vol.fromJSON({
         'apps/app1/pyproject.toml': dedent`
       [tool.poetry]
       name = "app1"
@@ -211,7 +213,7 @@ describe('nx-python dependency graph', () => {
     });
 
     it('should progress the dependency graph when there is an app that is not managed by @nxlv/python', async () => {
-      fsMock({
+      vol.fromJSON({
         'apps/app1/pyproject.toml': dedent`
       [tool.poetry]
       name = "app1"
@@ -291,7 +293,7 @@ describe('nx-python dependency graph', () => {
     });
 
     it('should progress the dependency graph when there is an app with an empty pyproject.toml', async () => {
-      fsMock({
+      vol.fromJSON({
         'apps/app1/pyproject.toml': dedent`
       [tool.poetry]
       name = "app1"
@@ -370,7 +372,7 @@ describe('nx-python dependency graph', () => {
 
   describe('get dependents', () => {
     it('should return the dependent projects', () => {
-      fsMock({
+      vol.fromJSON({
         'apps/app1/pyproject.toml': dedent`
       [tool.poetry]
       name = "app1"
@@ -405,7 +407,7 @@ describe('nx-python dependency graph', () => {
     });
 
     it('should return not throw an error when the pyproject is invalid or empty', () => {
-      fsMock({
+      vol.fromJSON({
         'apps/app1/pyproject.toml': '',
         'libs/dep1/pyproject.toml': dedent`
       [tool.poetry]

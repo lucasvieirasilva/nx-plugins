@@ -24,7 +24,7 @@ npm i
 To build all the packages, run:
 
 ```bash
-npx nx run-many --target=build --all
+pnpm nx run-many --target=build --all
 ```
 
 ## Running Unit Tests
@@ -70,7 +70,7 @@ npm link
 - Create a new nx workspace or use an existing one:
 
 ```bash
-npx create-nx-workspace@latest
+pnpm create-nx-workspace@latest
 ```
 
 - Install the linked package (make sure you are in the root of the nx workspace):

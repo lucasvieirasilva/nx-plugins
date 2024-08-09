@@ -1,8 +1,9 @@
 import { vi, MockInstance } from 'vitest';
+import { vol } from 'memfs';
+import '../../utils/mocks/fs.mock';
 import '../../utils/mocks/cross-spawn.mock';
 import * as poetryUtils from '../utils/poetry';
 import executor from './executor';
-import fsMock from 'mock-fs';
 import chalk from 'chalk';
 import { parseToml } from '../utils/poetry';
 import dedent from 'string-dedent';
@@ -35,7 +36,7 @@ describe('Update Executor', () => {
   });
 
   afterEach(() => {
-    fsMock.restore();
+    vol.reset();
     vi.resetAllMocks();
   });
 
@@ -72,7 +73,7 @@ describe('Update Executor', () => {
   });
 
   it('run update target and should update the dependency to the project', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/pyproject.toml': `[tool.poetry]
 name = "app"
 version = "1.0.0"
@@ -119,7 +120,7 @@ version = "1.0.0"
   });
 
   it('run update target and should not update the dependency to the project because the project does not exist', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/pyproject.toml': `[tool.poetry]
 name = "app"
 version = "1.0.0"
@@ -162,7 +163,7 @@ version = "1.0.0"
   });
 
   it('run update target and should throw an exception', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/pyproject.toml': `[tool.poetry]
 name = "app"
 version = "1.0.0"
@@ -213,7 +214,7 @@ version = "1.0.0"
   });
 
   it('run update target and should update all the dependency tree ---', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/pyproject.toml': dedent`
       [tool.poetry]
       name = "app"
@@ -347,7 +348,7 @@ version = "1.0.0"
   });
 
   it('run update target with local dependency', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/pyproject.toml': `[tool.poetry]
 name = "app"
 version = "1.0.0"
@@ -412,7 +413,7 @@ version = "1.0.0"
   });
 
   it('run update target with local dependency with project name and package name different', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/pyproject.toml': dedent`
       [tool.poetry]
       name = "dgx-devops-app"
@@ -492,7 +493,7 @@ version = "1.0.0"
   });
 
   it('run update target and should update the dependency using custom args', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/pyproject.toml': `[tool.poetry]
 name = "app"
 version = "1.0.0"
@@ -544,7 +545,7 @@ version = "1.0.0"
   });
 
   it('run update target and should update all dependencies', async () => {
-    fsMock({
+    vol.fromJSON({
       'apps/app/pyproject.toml': `[tool.poetry]
 name = "app"
 version = "1.0.0"
@@ -590,7 +591,7 @@ version = "1.0.0"
   });
 
   it('run update target and should the root pyproject.toml', async () => {
-    fsMock({
+    vol.fromJSON({
       'pyproject.toml': dedent`
       [tool.poetry]
       name = "root"
@@ -670,7 +671,7 @@ version = "1.0.0"
   });
 
   it('run update target and should update all the dependency tree using --lock when pyproject.toml is present', async () => {
-    fsMock({
+    vol.fromJSON({
       'pyproject.toml': dedent`
       [tool.poetry]
       name = "root"

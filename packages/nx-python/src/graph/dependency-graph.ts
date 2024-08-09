@@ -3,11 +3,11 @@ import {
   ProjectConfiguration,
   ImplicitDependency,
   DependencyType,
+  CreateDependencies,
 } from '@nx/devkit';
 import { readFileSync, existsSync } from 'fs';
 import { parse } from '@iarna/toml';
 import path from 'path';
-import { CreateDependencies } from 'nx/src/utils/nx-plugin';
 
 export type PyprojectTomlDependency =
   | string
