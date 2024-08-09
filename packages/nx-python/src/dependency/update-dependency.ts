@@ -65,8 +65,7 @@ export function updateDependents(
     console.log(chalk`\nUpdating project {bold ${dep}}`);
     const depConfig = workspace.projects[dep];
 
-    const pkgName = getProjectPackageName(context, projectName);
-    updateProject(pkgName, depConfig.root, updateLockOnly);
+    updateProject(depConfig.root, updateLockOnly);
 
     updateDependents(
       context,

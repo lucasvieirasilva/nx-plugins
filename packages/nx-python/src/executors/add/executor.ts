@@ -84,12 +84,12 @@ function updateLocalProject(
     dependencyConfig.root,
   );
 
-  const dependencyPkgName = addLocalProjectToPoetryProject(
+  addLocalProjectToPoetryProject(
     projectConfig,
     dependencyConfig,
     dependencyPath,
     group,
     extras,
   );
-  updateProject(dependencyPkgName, projectConfig.root, updateLockOnly);
+  updateProject(projectConfig.root, updateLockOnly);
 }
