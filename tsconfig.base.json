@@ -14,6 +14,7 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
+    "typeRoots": ["node_modules/@types", "./types", "./node_modules"],
     "paths": {
       "@nxlv/data-migration": ["packages/data-migration/src/index.ts"],
       "@nxlv/python": ["packages/nx-python/src/index.ts"],

@@ -19,9 +19,6 @@ export default defineConfig({
     minWorkers: 1,
     maxWorkers: 1,
     globals: true,
-    cache: {
-      dir: '../../node_modules/.vitest',
-    },
     environment: 'node',
     include: ['tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
 

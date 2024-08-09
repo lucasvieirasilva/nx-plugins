@@ -17,12 +17,9 @@ export default defineConfig({
   test: {
     name: 'data-migration',
     globals: true,
-    cache: {
-      dir: '../../node_modules/.vitest',
-    },
     environment: 'node',
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-
+    setupFiles: ['../../tests/setup.ts'],
     reporters: ['default'],
     coverage: {
       enabled: true,

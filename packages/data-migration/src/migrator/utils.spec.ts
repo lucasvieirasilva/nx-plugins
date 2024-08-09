@@ -1,4 +1,3 @@
-import 'aws-sdk-client-mock-jest';
 import { mockClient } from 'aws-sdk-client-mock';
 import { resolveConfigParam } from './utils';
 import { SSMClient, GetParameterCommand } from '@aws-sdk/client-ssm';
