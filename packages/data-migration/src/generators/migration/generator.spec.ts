@@ -42,6 +42,10 @@ describe('migration generator', () => {
     vi.useFakeTimers().setSystemTime(new Date('2023-01-01 12:00:00').getTime());
   });
 
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('should run successfully', async () => {
     await generator(appTree, options);
 
