@@ -8,6 +8,7 @@ import chalk from 'chalk';
 import { parseToml, runPoetry } from '../../utils/poetry';
 import uri2path from 'file-uri-to-path';
 import { getLoggingTab, includeDependencyPackage } from './utils';
+import { isWindows } from '../../utils/os';
 
 export class LockedDependencyResolver {
   private logger: Logger;
@@ -187,7 +188,9 @@ export class LockedDependencyResolver {
 
   private extractLocalPackageInfo(exportedLineElements: string[]) {
     if (exportedLineElements[0].startsWith('-e file:')) {
-      const location = exportedLineElements[0].substring(10).trim();
+      const location = isWindows()
+        ? exportedLineElements[0].substring(11).trim() // -e file:///C:/Users/
+        : exportedLineElements[0].substring(10).trim(); // -e file:///Users/
       const pyprojectToml = path.join(location, 'pyproject.toml');
       if (!existsSync(pyprojectToml)) {
         throw new Error(
