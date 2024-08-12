@@ -5,6 +5,7 @@ import '../../utils/mocks/fs.mock';
 import '../../utils/mocks/cross-spawn.mock';
 import { uuidMock } from '../../utils/mocks/uuid.mock';
 import * as poetryUtils from '../utils/poetry';
+import * as osUtils from '../utils/os';
 import executor from './executor';
 import { existsSync, readFileSync, mkdirsSync, writeFileSync } from 'fs-extra';
 import { parse } from '@iarna/toml';
@@ -411,6 +412,193 @@ describe('Build Executor', () => {
             numpy==1.21.0; python_version >= "3.8" and python_version < "4.0"
 
           `,
+          );
+        }
+        return {
+          status: 0,
+          output: [''],
+          pid: 0,
+          signal: null,
+          stderr: null,
+          stdout: null,
+        };
+      });
+
+      const options: BuildExecutorSchema = {
+        ignorePaths: ['.venv', '.tox', 'tests/'],
+        silent: false,
+        outputPath: 'dist/apps/app',
+        keepBuildFolder: true,
+        devDependencies: false,
+        lockedVersions: true,
+        bundleLocalDependencies: true,
+      };
+
+      const output = await executor(options, {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        workspace: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+            dep1: {
+              root: 'libs/dep1',
+              targets: {},
+            },
+            dep2: {
+              root: 'libs/dep2',
+              targets: {},
+            },
+          },
+        },
+      });
+
+      expect(checkPoetryExecutableMock).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(existsSync(buildPath)).toBeTruthy();
+      expect(existsSync(`${buildPath}/app`)).toBeTruthy();
+      expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
+      expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
+      expect(spawn.sync).toHaveBeenCalledWith('poetry', ['build'], {
+        cwd: buildPath,
+        shell: false,
+        stdio: 'inherit',
+      });
+
+      const projectTomlData = parse(
+        readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8'),
+      ) as PyprojectToml;
+
+      expect(projectTomlData.tool.poetry.packages).toStrictEqual([
+        {
+          include: 'app',
+        },
+        {
+          include: 'dep1',
+        },
+      ]);
+
+      expect(projectTomlData.tool.poetry.dependencies).toStrictEqual({
+        python: '^3.8',
+        click: '7.1.2',
+        numpy: {
+          version: '1.21.0',
+          optional: false,
+          markers: 'python_version >= "3.8" and python_version < "4.0"',
+        },
+      });
+      expect(projectTomlData.tool.poetry.group.dev.dependencies).toStrictEqual(
+        {},
+      );
+
+      expect(output.success).toBe(true);
+    });
+
+    it('should build python project with local dependencies Windows', async () => {
+      vol.fromJSON({
+        'apps/app/.venv/pyvenv.cfg': 'fake',
+        'apps/app/app/index.py': 'print("Hello from app")',
+        'apps/app/poetry.lock': dedent`
+        [[package]]
+        name = "click"
+        version = "7.1.2"
+        description = "Composable command line interface toolkit"
+        category = "main"
+        optional = false
+        python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+
+        [[package]]
+        name = "dep1"
+        version = "1.0.0"
+        description = "Dep1"
+        category = "main"
+        optional = false
+          python-versions = "^3.8"
+        develop = false
+
+        [package.dependencies]
+        numpy = "1.21.0"
+
+        [package.source]
+        type = "directory"
+        url = "../../libs/dep1"
+
+        [[package]]
+        name = "numpy"
+        version = "1.21.0"
+        description = "NumPy is the fundamental package for array computing with Python."
+        category = "main"
+        optional = false
+        python-versions = ">=3.7"
+        `,
+
+        'apps/app/pyproject.toml': dedent`
+        [tool.poetry]
+        name = "app"
+        version = "1.0.0"
+          [[tool.poetry.packages]]
+          include = "app"
+
+          [tool.poetry.dependencies]
+          python = "^3.8"
+          click = "7.1.2"
+          dep1 = { path = "../../libs/dep1" }
+
+          [tool.poetry.group.dev.dependencies]
+          pytest = "6.2.4"
+        `,
+
+        'libs/dep1/dep1/index.py': 'print("Hello from dep1")',
+        'libs/dep1/pyproject.toml': dedent`
+        [tool.poetry]
+        name = "dep1"
+        version = "1.0.0"
+          [[tool.poetry.packages]]
+          include = "dep1"
+
+          [tool.poetry.dependencies]
+          python = "^3.8"
+          numpy = "1.21.0"
+
+          [tool.poetry.group.dev.dependencies]
+          pytest = "6.2.4"
+        `,
+
+        'libs/dep2/dep2/index.py': 'print("Hello from dep2")',
+        'libs/dep2/pyproject.toml': dedent`
+        [tool.poetry]
+        name = "dep2"
+        version = "1.0.0"
+          [[tool.poetry.packages]]
+          include = "dep2"
+
+          [tool.poetry.dependencies]
+          python = "^3.8"
+
+          [tool.poetry.group.dev.dependencies]
+          pytest = "6.2.4"
+        `,
+      });
+
+      vi.spyOn(osUtils, 'isWindows').mockReturnValue(true);
+
+      vi.mocked(spawn.sync).mockImplementation((_, args, opts) => {
+        if (args[0] == 'build') {
+          spawnBuildMockImpl(opts);
+        } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
+          writeFileSync(
+            join(buildPath, 'requirements.txt'),
+            dedent`
+            click==7.1.2
+            -e file:///${process.cwd()}/libs/dep1
+            numpy==1.21.0; python_version >= "3.8" and python_version < "4.0"
+
+          `, // file:///C:/Users/ (Windows) to C:/Users/
           );
         }
         return {
