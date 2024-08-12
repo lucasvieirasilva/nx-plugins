@@ -1,3 +1,9 @@
+## [19.0.2](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v19.0.1...nx-python-v19.0.2) (2024-08-12)
+
+### Bug Fixes
+
+- **nx-python:** resolve poetry export local path for windows ([#244](https://github.com/lucasvieirasilva/nx-plugins/issues/244)) ([6b65b68](https://github.com/lucasvieirasilva/nx-plugins/commit/6b65b6892c37763dd11dc11471d6c816bc865044))
+
 ## [19.0.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v19.0.0...nx-python-v19.0.1) (2024-08-09)
 
 ### Bug Fixes
