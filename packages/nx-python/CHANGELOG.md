@@ -1,3 +1,9 @@
+## [19.1.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v19.1.0...nx-python-v19.1.1) (2024-09-18)
+
+### Bug Fixes
+
+- **nx-python:** use @nxlv/python:publish for nx-release-publish ([#247](https://github.com/lucasvieirasilva/nx-plugins/issues/247)) ([ae99905](https://github.com/lucasvieirasilva/nx-plugins/commit/ae999054980526b0579e8536249bdb7963039ecc))
+
 # [19.1.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v19.0.2...nx-python-v19.1.0) (2024-09-18)
 
 ### Features
