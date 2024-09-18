@@ -1,3 +1,9 @@
+## [19.1.2](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v19.1.1...nx-python-v19.1.2) (2024-09-18)
+
+### Bug Fixes
+
+- add dry-run option to publish target ([#248](https://github.com/lucasvieirasilva/nx-plugins/issues/248)) ([1756447](https://github.com/lucasvieirasilva/nx-plugins/commit/1756447f61d40197ef22f4bab136d28955fd6e7c))
+
 ## [19.1.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v19.1.0...nx-python-v19.1.1) (2024-09-18)
 
 ### Bug Fixes
