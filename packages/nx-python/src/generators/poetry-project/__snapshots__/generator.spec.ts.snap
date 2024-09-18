@@ -5,6 +5,11 @@ exports[`application generator > as-provided > should run successfully minimal c
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "name": "my-app-test",
   "projectType": "application",
+  "release": {
+    "version": {
+      "generator": "@nxlv/python:release-version",
+    },
+  },
   "root": "src/app/test",
   "sourceRoot": "src/app/test/my_app_test",
   "tags": [],
@@ -102,6 +107,11 @@ exports[`application generator > as-provided > should run successfully minimal c
   "$schema": "../node_modules/nx/schemas/project-schema.json",
   "name": "my-app-test",
   "projectType": "application",
+  "release": {
+    "version": {
+      "generator": "@nxlv/python:release-version",
+    },
+  },
   "root": "my-app-test",
   "sourceRoot": "my-app-test/my_app_test",
   "tags": [],
@@ -199,6 +209,11 @@ exports[`application generator > custom template dir > should run successfully w
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
   "projectType": "application",
+  "release": {
+    "version": {
+      "generator": "@nxlv/python:release-version",
+    },
+  },
   "root": "apps/test",
   "sourceRoot": "apps/test/test",
   "tags": [],
@@ -278,6 +293,11 @@ exports[`application generator > individual package > should run successfully mi
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
   "projectType": "application",
+  "release": {
+    "version": {
+      "generator": "@nxlv/python:release-version",
+    },
+  },
   "root": "apps/test",
   "sourceRoot": "apps/test/test",
   "tags": [],
@@ -375,6 +395,11 @@ exports[`application generator > individual package > should run successfully mi
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
   "projectType": "library",
+  "release": {
+    "version": {
+      "generator": "@nxlv/python:release-version",
+    },
+  },
   "root": "libs/test",
   "sourceRoot": "libs/test/test",
   "tags": [],
@@ -472,6 +497,11 @@ exports[`application generator > individual package > should run successfully mi
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "name": "subdir-test",
   "projectType": "application",
+  "release": {
+    "version": {
+      "generator": "@nxlv/python:release-version",
+    },
+  },
   "root": "apps/subdir/test",
   "sourceRoot": "apps/subdir/test/subdir_test",
   "tags": [],
@@ -569,6 +599,11 @@ exports[`application generator > individual package > should run successfully mi
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
   "projectType": "application",
+  "release": {
+    "version": {
+      "generator": "@nxlv/python:release-version",
+    },
+  },
   "root": "apps/test",
   "sourceRoot": "apps/test/test",
   "tags": [
@@ -669,6 +704,11 @@ exports[`application generator > individual package > should run successfully wi
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
   "projectType": "application",
+  "release": {
+    "version": {
+      "generator": "@nxlv/python:release-version",
+    },
+  },
   "root": "apps/test",
   "sourceRoot": "apps/test/test",
   "tags": [],
@@ -794,6 +834,11 @@ exports[`application generator > individual package > should run successfully wi
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
   "projectType": "application",
+  "release": {
+    "version": {
+      "generator": "@nxlv/python:release-version",
+    },
+  },
   "root": "apps/test",
   "sourceRoot": "apps/test/test",
   "tags": [],
@@ -957,6 +1002,11 @@ exports[`application generator > individual package > should run successfully wi
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
   "projectType": "application",
+  "release": {
+    "version": {
+      "generator": "@nxlv/python:release-version",
+    },
+  },
   "root": "apps/test",
   "sourceRoot": "apps/test/test",
   "tags": [],
@@ -1120,6 +1170,11 @@ exports[`application generator > individual package > should run successfully wi
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
   "projectType": "application",
+  "release": {
+    "version": {
+      "generator": "@nxlv/python:release-version",
+    },
+  },
   "root": "apps/test",
   "sourceRoot": "apps/test/test",
   "tags": [],
@@ -1283,6 +1338,11 @@ exports[`application generator > individual package > should run successfully wi
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
   "projectType": "application",
+  "release": {
+    "version": {
+      "generator": "@nxlv/python:release-version",
+    },
+  },
   "root": "apps/test",
   "sourceRoot": "apps/test/test",
   "tags": [],
@@ -1446,6 +1506,11 @@ exports[`application generator > individual package > should run successfully wi
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
   "projectType": "application",
+  "release": {
+    "version": {
+      "generator": "@nxlv/python:release-version",
+    },
+  },
   "root": "apps/test",
   "sourceRoot": "apps/test/test",
   "tags": [],
@@ -1609,6 +1674,11 @@ exports[`application generator > individual package > should run successfully wi
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
   "projectType": "application",
+  "release": {
+    "version": {
+      "generator": "@nxlv/python:release-version",
+    },
+  },
   "root": "apps/test",
   "sourceRoot": "apps/test/test",
   "tags": [],
@@ -1759,6 +1829,11 @@ exports[`application generator > individual package > should run successfully wi
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
   "projectType": "application",
+  "release": {
+    "version": {
+      "generator": "@nxlv/python:release-version",
+    },
+  },
   "root": "apps/test",
   "sourceRoot": "apps/test/test",
   "tags": [],
@@ -1967,6 +2042,11 @@ exports[`application generator > individual package > should run successfully wi
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
   "projectType": "application",
+  "release": {
+    "version": {
+      "generator": "@nxlv/python:release-version",
+    },
+  },
   "root": "apps/test",
   "sourceRoot": "apps/test/test",
   "tags": [],
@@ -2197,6 +2277,11 @@ exports[`application generator > individual package > should run successfully wi
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
   "projectType": "application",
+  "release": {
+    "version": {
+      "generator": "@nxlv/python:release-version",
+    },
+  },
   "root": "apps/test",
   "sourceRoot": "apps/test/test",
   "tags": [],
@@ -2406,6 +2491,11 @@ exports[`application generator > individual package > should run successfully wi
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
   "projectType": "application",
+  "release": {
+    "version": {
+      "generator": "@nxlv/python:release-version",
+    },
+  },
   "root": "apps/test",
   "sourceRoot": "apps/test/test",
   "tags": [],
@@ -2544,6 +2634,11 @@ exports[`application generator > individual package > should run successfully wi
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
   "projectType": "application",
+  "release": {
+    "version": {
+      "generator": "@nxlv/python:release-version",
+    },
+  },
   "root": "apps/test",
   "sourceRoot": "apps/test/test",
   "tags": [],
@@ -2712,6 +2807,11 @@ exports[`application generator > shared virtual environment > should run success
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
   "projectType": "application",
+  "release": {
+    "version": {
+      "generator": "@nxlv/python:release-version",
+    },
+  },
   "root": "apps/test",
   "sourceRoot": "apps/test/test",
   "tags": [],
@@ -2829,6 +2929,11 @@ exports[`application generator > shared virtual environment > should run success
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
   "projectType": "application",
+  "release": {
+    "version": {
+      "generator": "@nxlv/python:release-version",
+    },
+  },
   "root": "apps/test",
   "sourceRoot": "apps/test/test",
   "tags": [],
@@ -2946,6 +3051,11 @@ exports[`application generator > shared virtual environment > should run success
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
   "projectType": "application",
+  "release": {
+    "version": {
+      "generator": "@nxlv/python:release-version",
+    },
+  },
   "root": "apps/test",
   "sourceRoot": "apps/test/test",
   "tags": [],
@@ -3064,6 +3174,11 @@ exports[`application generator > shared virtual environment > should run success
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
   "projectType": "application",
+  "release": {
+    "version": {
+      "generator": "@nxlv/python:release-version",
+    },
+  },
   "root": "apps/test",
   "sourceRoot": "apps/test/test",
   "tags": [],

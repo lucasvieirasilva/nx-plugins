@@ -548,3 +548,13 @@ autoActivate = true
 The options and behavior are the same as the `nx:run-commands` executor.
 
 [See the Nx documentation for more information](https://nx.dev/packages/nx/executors/run-commands)
+
+#### Releases
+
+This plugin supports the [Nx releases](https://nx.dev/features/manage-releases) feature.
+
+If you are already using the `@nxlv/python` plugin and want to enable the releases feature, please run the following command:
+
+```bash
+nx generate @nxlv/python:enable-releases
+```
