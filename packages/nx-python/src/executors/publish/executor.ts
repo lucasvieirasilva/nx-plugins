@@ -51,9 +51,16 @@ export default async function executor(
       chalk`\n  {bold Publishing project {bgBlue  ${context.projectName} }...}\n`,
     );
 
-    await runPoetry(['publish', ...(options.__unparsed__ ?? [])], {
-      cwd: buildFolderPath,
-    });
+    await runPoetry(
+      [
+        'publish',
+        ...(options.dryRun ? ['--dry-run'] : []),
+        ...(options.__unparsed__ ?? []),
+      ],
+      {
+        cwd: buildFolderPath,
+      },
+    );
 
     removeSync(buildFolderPath);
 
