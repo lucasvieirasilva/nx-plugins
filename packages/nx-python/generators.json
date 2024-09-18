@@ -17,6 +17,18 @@
       "factory": "./src/generators/poetry-project/generator",
       "schema": "./src/generators/poetry-project/schema.json",
       "description": "Python Poetry Project"
+    },
+    "release-version": {
+      "factory": "./src/generators/release-version/release-version",
+      "schema": "./src/generators/release-version/schema.json",
+      "description": "DO NOT INVOKE DIRECTLY WITH `nx generate`. Use `nx release version` instead.",
+      "hidden": true
+    },
+    "enable-releases": {
+      "factory": "./src/generators/enable-releases/generator",
+      "schema": "./src/generators/enable-releases/schema.json",
+      "description": "Enable Releases for Python projects",
+      "hidden": true
     }
   }
 }

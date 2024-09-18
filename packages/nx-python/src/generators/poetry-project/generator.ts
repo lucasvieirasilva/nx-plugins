@@ -456,13 +456,39 @@ export default async function (
     };
   }
 
-  addProjectConfiguration(tree, normalizedOptions.projectName, {
+  const projectConfiguration: ProjectConfiguration = {
     root: normalizedOptions.projectRoot,
     projectType: normalizedOptions.projectType,
     sourceRoot: `${normalizedOptions.projectRoot}/${normalizedOptions.moduleName}`,
     targets,
     tags: normalizedOptions.parsedTags,
-  });
+  };
+
+  if (normalizedOptions.publishable) {
+    projectConfiguration.targets ??= {};
+    projectConfiguration.targets['nx-release-publish'] = {
+      executor: 'nx:run-commands',
+      options: {
+        command: 'poetry publish',
+        cwd: normalizedOptions.projectRoot,
+        forwardAllArgs: false,
+      },
+      dependsOn: ['build'],
+    };
+  }
+
+  projectConfiguration.release = {
+    version: {
+      generator: '@nxlv/python:release-version',
+    },
+  };
+
+  addProjectConfiguration(
+    tree,
+    normalizedOptions.projectName,
+    projectConfiguration,
+  );
+
   addFiles(tree, normalizedOptions);
   updateDevDependenciesProject(tree, normalizedOptions);
   updateRootPyprojectToml(tree, normalizedOptions);

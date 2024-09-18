@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "NxEnableReleases",
+  "title": "Enable Releases for Python projects",
+  "type": "object",
+  "properties": {},
+  "required": []
+}

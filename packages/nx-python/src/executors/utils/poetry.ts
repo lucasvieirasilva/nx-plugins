@@ -1,4 +1,4 @@
-import { ExecutorContext, ProjectConfiguration } from '@nx/devkit';
+import { ExecutorContext, ProjectConfiguration, Tree } from '@nx/devkit';
 import chalk from 'chalk';
 import spawn from 'cross-spawn';
 import path from 'path';
@@ -82,6 +82,23 @@ export function getProjectTomlPath(targetConfig: ProjectConfiguration) {
 
 export function parseToml(tomlFile: string) {
   return toml.parse(fs.readFileSync(tomlFile, 'utf-8')) as PyprojectToml;
+}
+
+export function readPyprojectToml(tree: Tree, tomlFile: string) {
+  const content = tree.read(tomlFile, 'utf-8');
+  if (!content) {
+    return null;
+  }
+
+  return toml.parse(content) as PyprojectToml;
+}
+
+export function writePyprojectToml(
+  tree: Tree,
+  tomlFile: string,
+  data: PyprojectToml,
+) {
+  tree.write(tomlFile, toml.stringify(data));
 }
 
 export function getLocalDependencyConfig(
