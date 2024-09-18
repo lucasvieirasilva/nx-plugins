@@ -467,13 +467,9 @@ export default async function (
   if (normalizedOptions.publishable) {
     projectConfiguration.targets ??= {};
     projectConfiguration.targets['nx-release-publish'] = {
-      executor: 'nx:run-commands',
-      options: {
-        command: 'poetry publish',
-        cwd: normalizedOptions.projectRoot,
-        forwardAllArgs: false,
-      },
-      dependsOn: ['build'],
+      executor: '@nxlv/python:publish',
+      options: {},
+      outputs: [],
     };
   }
 
