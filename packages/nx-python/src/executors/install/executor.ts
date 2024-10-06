@@ -20,7 +20,8 @@ export default async function executor(
   process.chdir(workspaceRoot);
   try {
     await checkPoetryExecutable();
-    const projectConfig = context.workspace.projects[context.projectName];
+    const projectConfig =
+      context.projectsConfigurations.projects[context.projectName];
     let verboseArg = '-v';
 
     if (options.debug) {

@@ -105,7 +105,8 @@ export function getLocalDependencyConfig(
   context: ExecutorContext,
   dependencyName: string,
 ) {
-  const dependencyConfig = context.workspace.projects[dependencyName];
+  const dependencyConfig =
+    context.projectsConfigurations.projects[dependencyName];
   if (!dependencyConfig) {
     throw new Error(
       chalk`project {bold ${dependencyName}} not found in the Nx workspace`,

@@ -22,7 +22,8 @@ export default async function executor(
   try {
     activateVenv(workspaceRoot);
     await checkPoetryExecutable();
-    const projectConfig = context.workspace.projects[context.projectName];
+    const projectConfig =
+      context.projectsConfigurations.projects[context.projectName];
     const rootPyprojectToml = existsSync('pyproject.toml');
 
     if (options.local) {

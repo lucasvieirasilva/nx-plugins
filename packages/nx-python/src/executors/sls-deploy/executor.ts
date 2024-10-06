@@ -17,7 +17,8 @@ export default async function executor(
   process.chdir(workspaceRoot);
   activateVenv(workspaceRoot);
 
-  const projectConfig = context.workspace.projects[context.projectName];
+  const projectConfig =
+    context.projectsConfigurations.projects[context.projectName];
   const cwd = projectConfig.root;
   const requirementsTxt = path.join(cwd, 'requirements.txt');
 

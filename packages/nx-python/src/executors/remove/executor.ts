@@ -23,7 +23,8 @@ export default async function executor(
     activateVenv(workspaceRoot);
     await checkPoetryExecutable();
     const rootPyprojectToml = existsSync('pyproject.toml');
-    const projectConfig = context.workspace.projects[context.projectName];
+    const projectConfig =
+      context.projectsConfigurations.projects[context.projectName];
     console.log(
       chalk`\n  {bold Removing {bgBlue  ${options.name} } dependency...}\n`,
     );

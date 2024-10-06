@@ -20,7 +20,8 @@ export default async function executor(
   try {
     activateVenv(workspaceRoot);
     await checkPoetryExecutable();
-    const projectConfig = context.workspace.projects[context.projectName];
+    const projectConfig =
+      context.projectsConfigurations.projects[context.projectName];
     const rootPyprojectToml = existsSync('pyproject.toml');
 
     if (options.local && options.name) {
@@ -29,7 +30,7 @@ export default async function executor(
       );
 
       if (
-        !Object.keys(context.workspace.projects).some(
+        !Object.keys(context.projectsConfigurations.projects).some(
           (projectName) => options.name === projectName,
         )
       ) {
