@@ -53,9 +53,7 @@ describe('Update Executor', () => {
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
-        npmScope: 'nxlv',
-        version: 2,
+      projectsConfigurations: {
         projects: {
           app: {
             root: 'apps/app',
@@ -96,9 +94,9 @@ version = "1.0.0"
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
+      projectsConfigurations: {
         version: 2,
-        npmScope: 'nxlv',
+
         projects: {
           app: {
             root: 'apps/app',
@@ -143,9 +141,9 @@ version = "1.0.0"
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
+      projectsConfigurations: {
         version: 2,
-        npmScope: 'nxlv',
+
         projects: {
           app: {
             root: 'apps/app',
@@ -190,9 +188,9 @@ version = "1.0.0"
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
+      projectsConfigurations: {
         version: 2,
-        npmScope: 'nxlv',
+
         projects: {
           app: {
             root: 'apps/app',
@@ -276,9 +274,9 @@ version = "1.0.0"
       root: '.',
       isVerbose: false,
       projectName: 'shared1',
-      workspace: {
+      projectsConfigurations: {
         version: 2,
-        npmScope: 'nxlv',
+
         projects: {
           app: {
             root: 'apps/app',
@@ -394,9 +392,9 @@ version = "1.0.0"
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
+      projectsConfigurations: {
         version: 2,
-        npmScope: 'nxlv',
+
         projects: {
           app: {
             root: 'apps/app',
@@ -468,9 +466,9 @@ version = "1.0.0"
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
+      projectsConfigurations: {
         version: 2,
-        npmScope: 'nxlv',
+
         projects: {
           app: {
             root: 'apps/app',
@@ -542,9 +540,9 @@ version = "1.0.0"
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
+      projectsConfigurations: {
         version: 2,
-        npmScope: 'nxlv',
+
         projects: {
           app: {
             root: 'apps/app',
@@ -592,9 +590,9 @@ version = "1.0.0"
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
+      projectsConfigurations: {
         version: 2,
-        npmScope: 'nxlv',
+
         projects: {
           app: {
             root: 'apps/app',
@@ -649,9 +647,9 @@ version = "1.0.0"
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
+      projectsConfigurations: {
         version: 2,
-        npmScope: 'nxlv',
+
         projects: {
           app: {
             root: 'apps/app',
@@ -766,9 +764,9 @@ version = "1.0.0"
       root: '.',
       isVerbose: false,
       projectName: 'shared1',
-      workspace: {
+      projectsConfigurations: {
         version: 2,
-        npmScope: 'nxlv',
+
         projects: {
           app: {
             root: 'apps/app',

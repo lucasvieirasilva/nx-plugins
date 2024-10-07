@@ -15,9 +15,9 @@ describe('Serverless Framework Package Executor', () => {
     root: '.',
     isVerbose: false,
     projectName: 'app',
-    workspace: {
+    projectsConfigurations: {
       version: 2,
-      npmScope: 'nxlv',
+
       projects: {
         app: {
           root: 'apps/app',

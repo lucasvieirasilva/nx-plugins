@@ -43,8 +43,9 @@ describe('Publish Executor', () => {
     root: '.',
     isVerbose: false,
     projectName: 'app',
-    workspace: {
+    projectsConfigurations: {
       version: 2,
+
       projects: {
         app: {
           root: 'apps/app',
@@ -89,6 +90,7 @@ describe('Publish Executor', () => {
     const options = {
       buildTarget: 'build',
       silent: false,
+      dryRun: false,
     };
 
     const output = await executor(options, context);
@@ -104,6 +106,7 @@ describe('Publish Executor', () => {
     const options = {
       buildTarget: 'build',
       silent: false,
+      dryRun: false,
     };
 
     const output = await executor(options, context);
@@ -119,6 +122,7 @@ describe('Publish Executor', () => {
     const options = {
       buildTarget: 'build',
       silent: false,
+      dryRun: false,
       __unparsed__: [],
     };
 
@@ -138,6 +142,7 @@ describe('Publish Executor', () => {
     const options = {
       buildTarget: 'build',
       silent: false,
+      dryRun: false,
     };
 
     const output = await executor(options, context);
@@ -171,6 +176,7 @@ describe('Publish Executor', () => {
 
     const options = {
       buildTarget: 'build',
+      dryRun: false,
       silent: false,
       __unparsed__: ['-vvv', '--dry-run'],
     };

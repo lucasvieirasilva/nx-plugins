@@ -11,9 +11,7 @@ describe('run commands executor', () => {
     root: '.',
     isVerbose: false,
     projectName: 'app',
-    workspace: {
-      npmScope: 'nxlv',
-      version: 2,
+    projectsConfigurations: {
       projects: {
         app: {
           root: 'apps/app',

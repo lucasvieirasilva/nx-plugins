@@ -53,8 +53,7 @@ describe('Add Executor', () => {
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
-        npmScope: 'nxlv',
+      projectsConfigurations: {
         version: 2,
         projects: {
           app: {
@@ -100,8 +99,7 @@ describe('Add Executor', () => {
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
-        npmScope: 'nxlv',
+      projectsConfigurations: {
         version: 2,
         projects: {
           app: {
@@ -152,8 +150,7 @@ describe('Add Executor', () => {
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
-        npmScope: 'nxlv',
+      projectsConfigurations: {
         version: 2,
         projects: {
           app: {
@@ -208,8 +205,7 @@ describe('Add Executor', () => {
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
-        npmScope: 'nxlv',
+      projectsConfigurations: {
         version: 2,
         projects: {
           app: {
@@ -259,8 +255,7 @@ version = "1.0.0"
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
-        npmScope: 'nxlv',
+      projectsConfigurations: {
         version: 2,
         projects: {
           app: {
@@ -306,8 +301,7 @@ version = "1.0.0"
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
-        npmScope: 'nxlv',
+      projectsConfigurations: {
         version: 2,
         projects: {
           app: {
@@ -391,9 +385,8 @@ version = "1.0.0"
       root: '.',
       isVerbose: false,
       projectName: 'shared1',
-      workspace: {
+      projectsConfigurations: {
         version: 2,
-        npmScope: 'nxlv',
         projects: {
           app: {
             root: 'apps/app',
@@ -538,9 +531,8 @@ version = "1.0.0"
       root: '.',
       isVerbose: false,
       projectName: 'shared1',
-      workspace: {
+      projectsConfigurations: {
         version: 2,
-        npmScope: 'nxlv',
         projects: {
           app: {
             root: 'apps/app',
@@ -655,9 +647,8 @@ version = "1.0.0"
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
+      projectsConfigurations: {
         version: 2,
-        npmScope: 'nxlv',
         projects: {
           app: {
             root: 'apps/app',
@@ -726,9 +717,8 @@ version = "1.0.0"
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
+      projectsConfigurations: {
         version: 2,
-        npmScope: 'nxlv',
         projects: {
           app: {
             root: 'apps/app',
@@ -801,9 +791,8 @@ version = "1.0.0"
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
+      projectsConfigurations: {
         version: 2,
-        npmScope: 'nxlv',
         projects: {
           app: {
             root: 'apps/app',
@@ -877,9 +866,8 @@ version = "1.0.0"
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
+      projectsConfigurations: {
         version: 2,
-        npmScope: 'nxlv',
         projects: {
           app: {
             root: 'apps/app',
@@ -947,9 +935,8 @@ version = "1.0.0"
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
+      projectsConfigurations: {
         version: 2,
-        npmScope: 'nxlv',
         projects: {
           app: {
             root: 'apps/app',
@@ -1021,9 +1008,8 @@ version = "1.0.0"
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
+      projectsConfigurations: {
         version: 2,
-        npmScope: 'nxlv',
         projects: {
           app: {
             root: 'apps/app',
@@ -1082,8 +1068,7 @@ version = "1.0.0"
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
-        npmScope: 'nxlv',
+      projectsConfigurations: {
         version: 2,
         projects: {
           app: {
@@ -1165,8 +1150,7 @@ version = "1.0.0"
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
-        npmScope: 'nxlv',
+      projectsConfigurations: {
         version: 2,
         projects: {
           app: {

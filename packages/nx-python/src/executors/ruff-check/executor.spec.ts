@@ -53,7 +53,7 @@ describe('Ruff Check Executor', () => {
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
+      projectsConfigurations: {
         version: 2,
         projects: {
           app: {
@@ -91,7 +91,7 @@ describe('Ruff Check Executor', () => {
         root: '.',
         isVerbose: false,
         projectName: 'app',
-        workspace: {
+        projectsConfigurations: {
           version: 2,
           projects: {
             app: {
@@ -133,7 +133,7 @@ describe('Ruff Check Executor', () => {
         root: '.',
         isVerbose: false,
         projectName: 'app',
-        workspace: {
+        projectsConfigurations: {
           version: 2,
           projects: {
             app: {
