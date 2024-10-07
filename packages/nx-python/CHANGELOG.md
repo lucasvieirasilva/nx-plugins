@@ -1,3 +1,9 @@
+## [19.1.3](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v19.1.2...nx-python-v19.1.3) (2024-10-07)
+
+### Bug Fixes
+
+- **nx-python:** remove deprecated property and replace with `context.projectsConfigurations` ([#249](https://github.com/lucasvieirasilva/nx-plugins/issues/249)) ([c920a62](https://github.com/lucasvieirasilva/nx-plugins/commit/c920a62d9167a1a6a083294a197871fd371a98cc))
+
 ## [19.1.2](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v19.1.1...nx-python-v19.1.2) (2024-09-18)
 
 ### Bug Fixes
