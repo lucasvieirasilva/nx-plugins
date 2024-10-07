@@ -72,8 +72,7 @@ describe('Build Executor', () => {
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
-        npmScope: 'nxlv',
+      projectsConfigurations: {
         version: 2,
         projects: {
           app: {
@@ -109,9 +108,7 @@ describe('Build Executor', () => {
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
-        npmScope: 'nxlv',
-        version: 2,
+      projectsConfigurations: {
         projects: {
           app: {
             root: 'apps/app',
@@ -254,7 +251,7 @@ describe('Build Executor', () => {
         root: '.',
         isVerbose: false,
         projectName: 'app',
-        workspace: {
+        projectsConfigurations: {
           version: 2,
           projects: {
             app: {
@@ -439,7 +436,7 @@ describe('Build Executor', () => {
         root: '.',
         isVerbose: false,
         projectName: 'app',
-        workspace: {
+        projectsConfigurations: {
           version: 2,
           projects: {
             app: {
@@ -626,8 +623,9 @@ describe('Build Executor', () => {
         root: '.',
         isVerbose: false,
         projectName: 'app',
-        workspace: {
+        projectsConfigurations: {
           version: 2,
+
           projects: {
             app: {
               root: 'apps/app',
@@ -811,8 +809,9 @@ describe('Build Executor', () => {
         root: '.',
         isVerbose: false,
         projectName: 'app',
-        workspace: {
+        projectsConfigurations: {
           version: 2,
+
           projects: {
             app: {
               root: 'apps/app',
@@ -904,8 +903,9 @@ describe('Build Executor', () => {
         root: '.',
         isVerbose: false,
         projectName: 'app',
-        workspace: {
+        projectsConfigurations: {
           version: 2,
+
           projects: {
             app: {
               root: 'apps/app',
@@ -1022,8 +1022,9 @@ describe('Build Executor', () => {
         root: '.',
         isVerbose: false,
         projectName: 'app',
-        workspace: {
+        projectsConfigurations: {
           version: 2,
+
           projects: {
             app: {
               root: 'apps/app',
@@ -1138,8 +1139,9 @@ describe('Build Executor', () => {
         root: '.',
         isVerbose: false,
         projectName: 'app',
-        workspace: {
+        projectsConfigurations: {
           version: 2,
+
           projects: {
             app: {
               root: 'apps/app',
@@ -1245,8 +1247,9 @@ describe('Build Executor', () => {
         root: '.',
         isVerbose: false,
         projectName: 'app',
-        workspace: {
+        projectsConfigurations: {
           version: 2,
+
           projects: {
             app: {
               root: 'apps/app',
@@ -1385,8 +1388,9 @@ describe('Build Executor', () => {
         root: '.',
         isVerbose: false,
         projectName: 'app',
-        workspace: {
+        projectsConfigurations: {
           version: 2,
+
           projects: {
             app: {
               root: 'apps/app',
@@ -1531,8 +1535,9 @@ describe('Build Executor', () => {
         root: '.',
         isVerbose: false,
         projectName: 'app',
-        workspace: {
+        projectsConfigurations: {
           version: 2,
+
           projects: {
             app: {
               root: 'apps/app',
@@ -1698,8 +1703,9 @@ describe('Build Executor', () => {
         root: '.',
         isVerbose: false,
         projectName: 'app',
-        workspace: {
+        projectsConfigurations: {
           version: 2,
+
           projects: {
             app: {
               root: 'apps/app',
@@ -1844,8 +1850,9 @@ describe('Build Executor', () => {
         root: '.',
         isVerbose: false,
         projectName: 'app',
-        workspace: {
+        projectsConfigurations: {
           version: 2,
+
           projects: {
             app: {
               root: 'apps/app',
@@ -1946,8 +1953,9 @@ describe('Build Executor', () => {
         root: '.',
         isVerbose: false,
         projectName: 'app',
-        workspace: {
+        projectsConfigurations: {
           version: 2,
+
           projects: {
             app: {
               root: 'apps/app',
@@ -2021,8 +2029,9 @@ describe('Build Executor', () => {
         root: '.',
         isVerbose: false,
         projectName: 'app',
-        workspace: {
+        projectsConfigurations: {
           version: 2,
+
           projects: {
             app: {
               root: 'apps/app',
@@ -2092,8 +2101,9 @@ describe('Build Executor', () => {
         root: '.',
         isVerbose: false,
         projectName: 'app',
-        workspace: {
+        projectsConfigurations: {
           version: 2,
+
           projects: {
             app: {
               root: 'apps/app',
@@ -2175,8 +2185,9 @@ describe('Build Executor', () => {
         root: '.',
         isVerbose: false,
         projectName: 'app',
-        workspace: {
+        projectsConfigurations: {
           version: 2,
+
           projects: {
             app: {
               root: 'apps/app',
@@ -2257,8 +2268,9 @@ describe('Build Executor', () => {
         root: '.',
         isVerbose: false,
         projectName: 'app',
-        workspace: {
+        projectsConfigurations: {
           version: 2,
+
           projects: {
             app: {
               root: 'apps/app',
@@ -2369,8 +2381,9 @@ describe('Build Executor', () => {
         root: '.',
         isVerbose: false,
         projectName: 'app',
-        workspace: {
+        projectsConfigurations: {
           version: 2,
+
           projects: {
             app: {
               root: 'apps/app',
@@ -2508,8 +2521,9 @@ describe('Build Executor', () => {
         root: '.',
         isVerbose: false,
         projectName: 'app',
-        workspace: {
+        projectsConfigurations: {
           version: 2,
+
           projects: {
             app: {
               root: 'apps/app',
@@ -2722,8 +2736,9 @@ describe('Build Executor', () => {
         root: '.',
         isVerbose: false,
         projectName: 'app',
-        workspace: {
+        projectsConfigurations: {
           version: 2,
+
           projects: {
             app: {
               root: 'apps/app',

@@ -54,7 +54,8 @@ export default async function executor(
       chalk`\n  {bold Building project {bgBlue  ${context.projectName} }...}\n`,
     );
 
-    const { root } = context.workspace.projects[context.projectName];
+    const { root } =
+      context.projectsConfigurations.projects[context.projectName];
 
     const buildFolderPath = join(tmpdir(), 'nx-python', 'build', uuid());
 

@@ -146,7 +146,9 @@ export class ProjectDependencyResolver {
   }
 
   private getProjectConfig(root: string) {
-    for (const [, config] of Object.entries(this.context.workspace.projects)) {
+    for (const [, config] of Object.entries(
+      this.context.projectsConfigurations.projects,
+    )) {
       if (normalize(config.root) === normalize(root)) {
         return config;
       }

@@ -13,9 +13,9 @@ describe('Install Executor', () => {
     root: '.',
     isVerbose: false,
     projectName: 'app',
-    workspace: {
+    projectsConfigurations: {
       version: 2,
-      npmScope: 'nxlv',
+
       projects: {
         app: {
           root: 'apps/app',
@@ -55,9 +55,7 @@ describe('Install Executor', () => {
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
-        npmScope: 'nxlv',
-        version: 2,
+      projectsConfigurations: {
         projects: {
           app: {
             root: 'apps/app',

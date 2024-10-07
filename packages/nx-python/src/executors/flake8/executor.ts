@@ -26,7 +26,8 @@ export default async function executor(
       chalk`\n  {bold Running flake8 linting on project {bgBlue  ${context.projectName} }...}\n`,
     );
 
-    const projectConfig = context.workspace.projects[context.projectName];
+    const projectConfig =
+      context.projectsConfigurations.projects[context.projectName];
     const cwd = projectConfig.root;
 
     const absPath = path.resolve(options.outputFile);

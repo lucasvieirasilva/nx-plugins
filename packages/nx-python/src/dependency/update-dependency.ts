@@ -20,7 +20,7 @@ export function updateDependencyTree(context: ExecutorContext) {
 
   updateDependents(
     context,
-    context.workspace,
+    context.projectsConfigurations,
     context.projectName,
     rootPyprojectToml,
     context.root,
@@ -79,7 +79,7 @@ export function updateDependents(
 }
 
 function getProjectPackageName(context: ExecutorContext, projectName: string) {
-  const projectConfig = context.workspace.projects[projectName];
+  const projectConfig = context.projectsConfigurations.projects[projectName];
   const projectToml = getProjectTomlPath(projectConfig);
   const {
     tool: {

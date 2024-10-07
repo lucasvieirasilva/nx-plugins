@@ -24,7 +24,8 @@ export default async function executor(
       chalk`\n{bold Running ruff check on project {bgBlue  ${context.projectName} }...}\n`,
     );
 
-    const projectConfig = context.workspace.projects[context.projectName];
+    const projectConfig =
+      context.projectsConfigurations.projects[context.projectName];
 
     const commandArgs = ['run', 'ruff', 'check']
       .concat(options.lintFilePatterns)

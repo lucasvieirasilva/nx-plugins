@@ -23,7 +23,8 @@ export default async function executor(
   try {
     activateVenv(workspaceRoot);
     await checkPoetryExecutable();
-    const projectConfig = context.workspace.projects[context.projectName];
+    const projectConfig =
+      context.projectsConfigurations.projects[context.projectName];
     const distFolder = path.join(projectConfig.root, 'dist');
 
     const buildResult = await buildExecutor(

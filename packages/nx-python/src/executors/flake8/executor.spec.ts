@@ -60,7 +60,7 @@ describe('Flake8 Executor', () => {
       root: '.',
       isVerbose: false,
       projectName: 'app',
-      workspace: {
+      projectsConfigurations: {
         version: 2,
         projects: {
           app: {
@@ -102,8 +102,9 @@ describe('Flake8 Executor', () => {
         root: '.',
         isVerbose: false,
         projectName: 'app',
-        workspace: {
+        projectsConfigurations: {
           version: 2,
+
           projects: {
             app: {
               root: 'apps/app',
@@ -145,8 +146,9 @@ describe('Flake8 Executor', () => {
         root: '.',
         isVerbose: false,
         projectName: 'app',
-        workspace: {
+        projectsConfigurations: {
           version: 2,
+
           projects: {
             app: {
               root: 'apps/app',
@@ -177,8 +179,9 @@ describe('Flake8 Executor', () => {
         root: '.',
         isVerbose: false,
         projectName: 'app',
-        workspace: {
+        projectsConfigurations: {
           version: 2,
+
           projects: {
             app: {
               root: 'apps/app',
@@ -219,8 +222,9 @@ describe('Flake8 Executor', () => {
         root: '.',
         isVerbose: false,
         projectName: 'app',
-        workspace: {
+        projectsConfigurations: {
           version: 2,
+
           projects: {
             app: {
               root: 'apps/app',
