@@ -12,6 +12,12 @@ const nxDevkitMocks = vi.hoisted(() => {
   };
 });
 
+const childProcessMocks = vi.hoisted(() => {
+  return {
+    spawn: vi.fn(),
+  };
+});
+
 vi.mock('@nx/devkit', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@nx/devkit')>();
   return {
@@ -28,11 +34,18 @@ vi.mock('fs-extra', async (importOriginal) => {
   };
 });
 
+vi.mock('child_process', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('child_process')>();
+  return {
+    ...actual,
+    ...childProcessMocks,
+  };
+});
+
 import chalk from 'chalk';
-import '../../utils/mocks/cross-spawn.mock';
 import * as poetryUtils from '../utils/poetry';
 import executor from './executor';
-import spawn from 'cross-spawn';
+import { EventEmitter } from 'events';
 
 describe('Publish Executor', () => {
   let checkPoetryExecutableMock: MockInstance;
@@ -64,15 +77,6 @@ describe('Publish Executor', () => {
       .spyOn(poetryUtils, 'activateVenv')
       .mockReturnValue(undefined);
 
-    vi.mocked(spawn.sync).mockReturnValue({
-      status: 0,
-      output: [''],
-      pid: 0,
-      signal: null,
-      stderr: null,
-      stdout: null,
-    });
-
     vi.spyOn(process, 'chdir').mockReturnValue(undefined);
   });
 
@@ -96,7 +100,7 @@ describe('Publish Executor', () => {
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawn.sync).not.toHaveBeenCalled();
+    expect(childProcessMocks.spawn).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
 
@@ -112,7 +116,7 @@ describe('Publish Executor', () => {
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawn.sync).not.toHaveBeenCalled();
+    expect(childProcessMocks.spawn).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
 
@@ -129,7 +133,7 @@ describe('Publish Executor', () => {
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawn.sync).not.toHaveBeenCalled();
+    expect(childProcessMocks.spawn).not.toHaveBeenCalled();
     expect(output.success).toBe(false);
   });
 
@@ -145,13 +149,24 @@ describe('Publish Executor', () => {
       dryRun: false,
     };
 
+    const spawnEvent = new EventEmitter();
+    childProcessMocks.spawn.mockReturnValue({
+      stdout: new EventEmitter(),
+      stderr: new EventEmitter(),
+      on: vi.fn().mockImplementation((event, callback) => {
+        spawnEvent.on(event, callback);
+        spawnEvent.emit('close', 0);
+      }),
+    });
+
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawn.sync).toHaveBeenCalledWith('poetry', ['publish'], {
+    expect(childProcessMocks.spawn).toHaveBeenCalledWith('poetry publish', {
       cwd: 'tmp',
-      shell: false,
-      stdio: 'inherit',
+      env: { ...process.env, FORCE_COLOR: 'true' },
+      shell: true,
+      stdio: ['inherit', 'pipe', 'pipe'],
     });
     expect(output.success).toBe(true);
     expect(nxDevkitMocks.runExecutor).toHaveBeenCalledWith(
@@ -181,16 +196,26 @@ describe('Publish Executor', () => {
       __unparsed__: ['-vvv', '--dry-run'],
     };
 
+    const spawnEvent = new EventEmitter();
+    childProcessMocks.spawn.mockReturnValue({
+      stdout: new EventEmitter(),
+      stderr: new EventEmitter(),
+      on: vi.fn().mockImplementation((event, callback) => {
+        spawnEvent.on(event, callback);
+        spawnEvent.emit('close', 0);
+      }),
+    });
+
     const output = await executor(options, context);
     expect(checkPoetryExecutableMock).toHaveBeenCalled();
     expect(activateVenvMock).toHaveBeenCalledWith('.');
-    expect(spawn.sync).toHaveBeenCalledWith(
-      'poetry',
-      ['publish', '-vvv', '--dry-run'],
+    expect(childProcessMocks.spawn).toHaveBeenCalledWith(
+      'poetry publish -vvv --dry-run',
       {
         cwd: 'tmp',
-        shell: false,
-        stdio: 'inherit',
+        env: { ...process.env, FORCE_COLOR: 'true' },
+        shell: true,
+        stdio: ['inherit', 'pipe', 'pipe'],
       },
     );
     expect(output.success).toBe(true);
@@ -206,5 +231,108 @@ describe('Publish Executor', () => {
       context,
     );
     expect(fsExtraMocks.removeSync).toHaveBeenCalledWith('tmp');
+  });
+
+  it('should run poetry publish and not throw an exception when the message contains "File already exists"', async () => {
+    nxDevkitMocks.runExecutor.mockResolvedValueOnce([
+      { success: true, buildFolderPath: 'tmp' },
+    ]);
+    fsExtraMocks.removeSync.mockReturnValue(undefined);
+
+    const options = {
+      buildTarget: 'build',
+      dryRun: false,
+      silent: false,
+    };
+
+    const spawnEvent = new EventEmitter();
+    const stdoutEvent = new EventEmitter();
+    childProcessMocks.spawn.mockReturnValue({
+      stdout: {
+        on: vi.fn().mockImplementation((event, callback) => {
+          stdoutEvent.on(event, callback);
+          stdoutEvent.emit(event, 'HTTP Error 400: File already exists');
+        }),
+      },
+      stderr: new EventEmitter(),
+      on: vi.fn().mockImplementation((event, callback) => {
+        spawnEvent.on(event, callback);
+        spawnEvent.emit('close', 1);
+      }),
+    });
+
+    const output = await executor(options, context);
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
+    expect(childProcessMocks.spawn).toHaveBeenCalledWith('poetry publish', {
+      cwd: 'tmp',
+      env: { ...process.env, FORCE_COLOR: 'true' },
+      shell: true,
+      stdio: ['inherit', 'pipe', 'pipe'],
+    });
+    expect(output.success).toBe(true);
+    expect(nxDevkitMocks.runExecutor).toHaveBeenCalledWith(
+      {
+        configuration: undefined,
+        project: 'app',
+        target: 'build',
+      },
+      {
+        keepBuildFolder: true,
+      },
+      context,
+    );
+    expect(fsExtraMocks.removeSync).toHaveBeenCalledWith('tmp');
+  });
+
+  it('should throw an exception when status code is not 0 and the message does not contains "File already exists"', async () => {
+    nxDevkitMocks.runExecutor.mockResolvedValueOnce([
+      { success: true, buildFolderPath: 'tmp' },
+    ]);
+    fsExtraMocks.removeSync.mockReturnValue(undefined);
+
+    const options = {
+      buildTarget: 'build',
+      dryRun: false,
+      silent: false,
+    };
+
+    const spawnEvent = new EventEmitter();
+    const stdoutEvent = new EventEmitter();
+    childProcessMocks.spawn.mockReturnValue({
+      stdout: {
+        on: vi.fn().mockImplementation((event, callback) => {
+          stdoutEvent.on(event, callback);
+          stdoutEvent.emit('data', 'Some other error message');
+        }),
+      },
+      stderr: new EventEmitter(),
+      on: vi.fn().mockImplementation((event, callback) => {
+        spawnEvent.on(event, callback);
+        spawnEvent.emit('close', 1);
+      }),
+    });
+
+    const output = await executor(options, context);
+    expect(checkPoetryExecutableMock).toHaveBeenCalled();
+    expect(activateVenvMock).toHaveBeenCalledWith('.');
+    expect(childProcessMocks.spawn).toHaveBeenCalledWith('poetry publish', {
+      cwd: 'tmp',
+      env: { ...process.env, FORCE_COLOR: 'true' },
+      shell: true,
+      stdio: ['inherit', 'pipe', 'pipe'],
+    });
+    expect(output.success).toBe(false);
+    expect(nxDevkitMocks.runExecutor).toHaveBeenCalledWith(
+      {
+        configuration: undefined,
+        project: 'app',
+        target: 'build',
+      },
+      {
+        keepBuildFolder: true,
+      },
+      context,
+    );
   });
 });
