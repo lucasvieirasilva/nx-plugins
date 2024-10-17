@@ -1,3 +1,9 @@
+## [19.2.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v19.2.0...nx-python-v19.2.1) (2024-10-17)
+
+### Bug Fixes
+
+- capture stdout on the publish executor to check the error message ([#252](https://github.com/lucasvieirasilva/nx-plugins/issues/252)) ([083c671](https://github.com/lucasvieirasilva/nx-plugins/commit/083c671d988e2c05e4eb618aa5f580194f1fc216))
+
 # [19.2.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v19.1.3...nx-python-v19.2.0) (2024-10-17)
 
 ### Features
