@@ -68,6 +68,15 @@ export default async function executor(
       success: true,
     };
   } catch (error) {
+    if (error.message && error.message.includes('File already exists')) {
+      logger.info(
+        chalk`\n  {bgYellow.bold  WARNING } {bold The package is already published}\n`,
+      );
+      return {
+        success: true,
+      };
+    }
+
     logger.info(chalk`\n  {bgRed.bold  ERROR } ${error.message}\n`);
     return {
       success: false,
