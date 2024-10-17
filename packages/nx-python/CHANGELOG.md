@@ -1,3 +1,9 @@
+# [19.2.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v19.1.3...nx-python-v19.2.0) (2024-10-17)
+
+### Features
+
+- change publish executor to not fail if package version exists ([#251](https://github.com/lucasvieirasilva/nx-plugins/issues/251)) ([52da7e0](https://github.com/lucasvieirasilva/nx-plugins/commit/52da7e06aba67f2cecd474391ba2ab16c4dc9333))
+
 ## [19.1.3](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v19.1.2...nx-python-v19.1.3) (2024-10-07)
 
 ### Bug Fixes
