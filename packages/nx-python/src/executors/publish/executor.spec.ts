@@ -46,25 +46,30 @@ import chalk from 'chalk';
 import * as poetryUtils from '../utils/poetry';
 import executor from './executor';
 import { EventEmitter } from 'events';
+import { ExecutorContext } from '@nx/devkit';
 
 describe('Publish Executor', () => {
   let checkPoetryExecutableMock: MockInstance;
   let activateVenvMock: MockInstance;
 
-  const context = {
+  const context: ExecutorContext = {
     cwd: '',
     root: '.',
     isVerbose: false,
     projectName: 'app',
     projectsConfigurations: {
       version: 2,
-
       projects: {
         app: {
           root: 'apps/app',
           targets: {},
         },
       },
+    },
+    nxJsonConfiguration: {},
+    projectGraph: {
+      dependencies: {},
+      nodes: {},
     },
   };
 

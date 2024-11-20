@@ -10,6 +10,7 @@ import { join } from 'path';
 import { v4 as uuid } from 'uuid';
 import { mkdirsSync, writeFileSync } from 'fs-extra';
 import spawn from 'cross-spawn';
+import { ExecutorContext } from '@nx/devkit';
 
 describe('Flake8 Executor', () => {
   let tmppath = null;
@@ -55,7 +56,7 @@ describe('Flake8 Executor', () => {
       silent: false,
     };
 
-    const context = {
+    const context: ExecutorContext = {
       cwd: '',
       root: '.',
       isVerbose: false,
@@ -68,6 +69,11 @@ describe('Flake8 Executor', () => {
             targets: {},
           },
         },
+      },
+      nxJsonConfiguration: {},
+      projectGraph: {
+        dependencies: {},
+        nodes: {},
       },
     };
 
@@ -104,13 +110,17 @@ describe('Flake8 Executor', () => {
         projectName: 'app',
         projectsConfigurations: {
           version: 2,
-
           projects: {
             app: {
               root: 'apps/app',
               targets: {},
             },
           },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
         },
       },
     );
@@ -148,13 +158,17 @@ describe('Flake8 Executor', () => {
         projectName: 'app',
         projectsConfigurations: {
           version: 2,
-
           projects: {
             app: {
               root: 'apps/app',
               targets: {},
             },
           },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
         },
       },
     );
@@ -181,13 +195,17 @@ describe('Flake8 Executor', () => {
         projectName: 'app',
         projectsConfigurations: {
           version: 2,
-
           projects: {
             app: {
               root: 'apps/app',
               targets: {},
             },
           },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
         },
       },
     );
@@ -224,13 +242,17 @@ describe('Flake8 Executor', () => {
         projectName: 'app',
         projectsConfigurations: {
           version: 2,
-
           projects: {
             app: {
               root: 'apps/app',
               targets: {},
             },
           },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
         },
       },
     );

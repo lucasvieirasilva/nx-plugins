@@ -8,6 +8,7 @@ import { ToxExecutorSchema } from './schema';
 import executor from './executor';
 import chalk from 'chalk';
 import spawn from 'cross-spawn';
+import { ExecutorContext } from '@nx/devkit';
 
 const options: ToxExecutorSchema = {
   silent: false,
@@ -18,20 +19,24 @@ describe('Tox Executor', () => {
   let activateVenvMock: MockInstance;
   let buildExecutorMock: MockInstance;
 
-  const context = {
+  const context: ExecutorContext = {
     cwd: '.',
     root: '.',
     isVerbose: false,
     projectName: 'app',
     projectsConfigurations: {
       version: 2,
-
       projects: {
         app: {
           root: 'apps/app',
           targets: {},
         },
       },
+    },
+    nxJsonConfiguration: {},
+    projectGraph: {
+      dependencies: {},
+      nodes: {},
     },
   };
 
@@ -68,18 +73,24 @@ describe('Tox Executor', () => {
   it('should return success false when the poetry is not installed', async () => {
     checkPoetryExecutableMock.mockRejectedValue(new Error('poetry not found'));
 
-    const context = {
+    const context: ExecutorContext = {
       cwd: '',
       root: '.',
       isVerbose: false,
       projectName: 'app',
       projectsConfigurations: {
+        version: 2,
         projects: {
           app: {
             root: 'apps/app',
             targets: {},
           },
         },
+      },
+      nxJsonConfiguration: {},
+      projectGraph: {
+        dependencies: {},
+        nodes: {},
       },
     };
 

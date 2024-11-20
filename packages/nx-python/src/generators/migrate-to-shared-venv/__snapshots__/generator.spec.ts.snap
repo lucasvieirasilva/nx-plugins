@@ -41,6 +41,7 @@ description = ""
 authors = [ ]
 license = "Proprietary"
 readme = "README.md"
+package-mode = false
 
   [tool.poetry.dependencies]
   python = ">=3.8,<3.10"
@@ -116,6 +117,7 @@ description = ""
 authors = [ ]
 license = "Proprietary"
 readme = "README.md"
+package-mode = false
 
   [tool.poetry.dependencies]
   python = ">=3.8,<3.10"
@@ -146,6 +148,7 @@ description = ""
 authors = [ ]
 license = "Proprietary"
 readme = "README.md"
+package-mode = false
 
   [tool.poetry.dependencies]
   python = ">=3.8,<3.10"

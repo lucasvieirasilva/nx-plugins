@@ -37,6 +37,7 @@ describe('migration generator', () => {
     await libraryGenerator(appTree, {
       name: 'test',
       tags: 'scope:test,type:lib',
+      directory: 'libs/test',
     });
 
     vi.useFakeTimers().setSystemTime(new Date('2023-01-01 12:00:00').getTime());
