@@ -10,6 +10,7 @@ description = "<%= description %>"
 authors = [ ]
 license = 'Proprietary'
 readme = 'README.md'
+package-mode = false
 
   [tool.poetry.dependencies]
   python = "<%- pyprojectPythonDependency %>"

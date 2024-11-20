@@ -4,24 +4,29 @@ import * as poetryUtils from '../utils/poetry';
 import executor from './executor';
 import path from 'path';
 import spawn from 'cross-spawn';
+import { ExecutorContext } from '@nx/devkit';
 
 describe('Install Executor', () => {
   let checkPoetryExecutableMock: MockInstance;
 
-  const context = {
+  const context: ExecutorContext = {
     cwd: '',
     root: '.',
     isVerbose: false,
     projectName: 'app',
     projectsConfigurations: {
       version: 2,
-
       projects: {
         app: {
           root: 'apps/app',
           targets: {},
         },
       },
+    },
+    nxJsonConfiguration: {},
+    projectGraph: {
+      dependencies: {},
+      nodes: {},
     },
   };
 
@@ -50,18 +55,24 @@ describe('Install Executor', () => {
       verbose: false,
     };
 
-    const context = {
+    const context: ExecutorContext = {
       cwd: '',
       root: '.',
       isVerbose: false,
       projectName: 'app',
       projectsConfigurations: {
+        version: 2,
         projects: {
           app: {
             root: 'apps/app',
             targets: {},
           },
         },
+      },
+      nxJsonConfiguration: {},
+      projectGraph: {
+        dependencies: {},
+        nodes: {},
       },
     };
 

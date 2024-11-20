@@ -46,5 +46,6 @@
       "!{projectRoot}/src/test-setup.[jt]s",
       "!{projectRoot}/test-setup.[jt]s"
     ]
-  }
+  },
+  "useLegacyCache": true
 }

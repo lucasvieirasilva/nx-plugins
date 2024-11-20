@@ -6,6 +6,7 @@ import '../../utils/mocks/cross-spawn.mock';
 import * as poetryUtils from '../utils/poetry';
 import executor from './executor';
 import spawn from 'cross-spawn';
+import { ExecutorContext } from '@nx/devkit';
 
 describe('Ruff Check Executor', () => {
   let checkPoetryExecutableMock: MockInstance;
@@ -48,7 +49,7 @@ describe('Ruff Check Executor', () => {
       __unparsed__: [],
     };
 
-    const context = {
+    const context: ExecutorContext = {
       cwd: '',
       root: '.',
       isVerbose: false,
@@ -61,6 +62,11 @@ describe('Ruff Check Executor', () => {
             targets: {},
           },
         },
+      },
+      nxJsonConfiguration: {},
+      projectGraph: {
+        dependencies: {},
+        nodes: {},
       },
     };
 
@@ -99,6 +105,11 @@ describe('Ruff Check Executor', () => {
               targets: {},
             },
           },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
         },
       },
     );
@@ -141,6 +152,11 @@ describe('Ruff Check Executor', () => {
               targets: {},
             },
           },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
         },
       },
     );

@@ -8,6 +8,7 @@ import chalk from 'chalk';
 import { parseToml } from '../utils/poetry';
 import dedent from 'string-dedent';
 import spawn from 'cross-spawn';
+import { ExecutorContext } from '@nx/devkit';
 
 describe('Add Executor', () => {
   let checkPoetryExecutableMock: MockInstance;
@@ -48,7 +49,7 @@ describe('Add Executor', () => {
       local: false,
     };
 
-    const context = {
+    const context: ExecutorContext = {
       cwd: '',
       root: '.',
       isVerbose: false,
@@ -61,6 +62,11 @@ describe('Add Executor', () => {
             targets: {},
           },
         },
+      },
+      nxJsonConfiguration: {},
+      projectGraph: {
+        dependencies: {},
+        nodes: {},
       },
     };
 
@@ -94,7 +100,7 @@ describe('Add Executor', () => {
       local: false,
     };
 
-    const context = {
+    const context: ExecutorContext = {
       cwd: '',
       root: '.',
       isVerbose: false,
@@ -107,6 +113,11 @@ describe('Add Executor', () => {
             targets: {},
           },
         },
+      },
+      nxJsonConfiguration: {},
+      projectGraph: {
+        dependencies: {},
+        nodes: {},
       },
     };
 
@@ -145,7 +156,7 @@ describe('Add Executor', () => {
       group: 'dev',
     };
 
-    const context = {
+    const context: ExecutorContext = {
       cwd: '',
       root: '.',
       isVerbose: false,
@@ -158,6 +169,11 @@ describe('Add Executor', () => {
             targets: {},
           },
         },
+      },
+      nxJsonConfiguration: {},
+      projectGraph: {
+        dependencies: {},
+        nodes: {},
       },
     };
 
@@ -200,7 +216,7 @@ describe('Add Executor', () => {
       extras: ['dev'],
     };
 
-    const context = {
+    const context: ExecutorContext = {
       cwd: '',
       root: '.',
       isVerbose: false,
@@ -213,6 +229,11 @@ describe('Add Executor', () => {
             targets: {},
           },
         },
+      },
+      nxJsonConfiguration: {},
+      projectGraph: {
+        dependencies: {},
+        nodes: {},
       },
     };
 
@@ -250,7 +271,7 @@ version = "1.0.0"
       name: 'lib1',
     };
 
-    const context = {
+    const context: ExecutorContext = {
       cwd: '',
       root: '.',
       isVerbose: false,
@@ -263,6 +284,11 @@ version = "1.0.0"
             targets: {},
           },
         },
+      },
+      nxJsonConfiguration: {},
+      projectGraph: {
+        dependencies: {},
+        nodes: {},
       },
     };
 
@@ -296,7 +322,7 @@ version = "1.0.0"
       local: false,
     };
 
-    const context = {
+    const context: ExecutorContext = {
       cwd: '',
       root: '.',
       isVerbose: false,
@@ -309,6 +335,11 @@ version = "1.0.0"
             targets: {},
           },
         },
+      },
+      nxJsonConfiguration: {},
+      projectGraph: {
+        dependencies: {},
+        nodes: {},
       },
     };
 
@@ -380,7 +411,7 @@ version = "1.0.0"
       local: false,
     };
 
-    const context = {
+    const context: ExecutorContext = {
       cwd: '',
       root: '.',
       isVerbose: false,
@@ -409,6 +440,11 @@ version = "1.0.0"
             targets: {},
           },
         },
+      },
+      nxJsonConfiguration: {},
+      projectGraph: {
+        dependencies: {},
+        nodes: {},
       },
     };
 
@@ -526,7 +562,7 @@ version = "1.0.0"
       local: false,
     };
 
-    const context = {
+    const context: ExecutorContext = {
       cwd: '',
       root: '.',
       isVerbose: false,
@@ -555,6 +591,11 @@ version = "1.0.0"
             targets: {},
           },
         },
+      },
+      nxJsonConfiguration: {},
+      projectGraph: {
+        dependencies: {},
+        nodes: {},
       },
     };
 
@@ -642,7 +683,7 @@ version = "1.0.0"
       local: true,
     };
 
-    const context = {
+    const context: ExecutorContext = {
       cwd: '',
       root: '.',
       isVerbose: false,
@@ -659,6 +700,11 @@ version = "1.0.0"
             targets: {},
           },
         },
+      },
+      nxJsonConfiguration: {},
+      projectGraph: {
+        dependencies: {},
+        nodes: {},
       },
     };
 
@@ -712,7 +758,7 @@ version = "1.0.0"
       group: 'dev',
     };
 
-    const context = {
+    const context: ExecutorContext = {
       cwd: '',
       root: '.',
       isVerbose: false,
@@ -729,6 +775,11 @@ version = "1.0.0"
             targets: {},
           },
         },
+      },
+      nxJsonConfiguration: {},
+      projectGraph: {
+        dependencies: {},
+        nodes: {},
       },
     };
 
@@ -786,7 +837,7 @@ version = "1.0.0"
       extras: ['dev'],
     };
 
-    const context = {
+    const context: ExecutorContext = {
       cwd: '',
       root: '.',
       isVerbose: false,
@@ -803,6 +854,11 @@ version = "1.0.0"
             targets: {},
           },
         },
+      },
+      nxJsonConfiguration: {},
+      projectGraph: {
+        dependencies: {},
+        nodes: {},
       },
     };
 
@@ -861,7 +917,7 @@ version = "1.0.0"
       extras: ['dev'],
     };
 
-    const context = {
+    const context: ExecutorContext = {
       cwd: '',
       root: '.',
       isVerbose: false,
@@ -878,6 +934,11 @@ version = "1.0.0"
             targets: {},
           },
         },
+      },
+      nxJsonConfiguration: {},
+      projectGraph: {
+        dependencies: {},
+        nodes: {},
       },
     };
 
@@ -930,7 +991,7 @@ version = "1.0.0"
       local: true,
     };
 
-    const context = {
+    const context: ExecutorContext = {
       cwd: '',
       root: '.',
       isVerbose: false,
@@ -947,6 +1008,11 @@ version = "1.0.0"
             targets: {},
           },
         },
+      },
+      nxJsonConfiguration: {},
+      projectGraph: {
+        dependencies: {},
+        nodes: {},
       },
     };
 
@@ -1003,7 +1069,7 @@ version = "1.0.0"
       args: '--group dev',
     };
 
-    const context = {
+    const context: ExecutorContext = {
       cwd: '',
       root: '.',
       isVerbose: false,
@@ -1016,6 +1082,11 @@ version = "1.0.0"
             targets: {},
           },
         },
+      },
+      nxJsonConfiguration: {},
+      projectGraph: {
+        dependencies: {},
+        nodes: {},
       },
     };
 
@@ -1063,7 +1134,7 @@ version = "1.0.0"
       local: false,
     };
 
-    const context = {
+    const context: ExecutorContext = {
       cwd: '',
       root: '.',
       isVerbose: false,
@@ -1076,6 +1147,11 @@ version = "1.0.0"
             targets: {},
           },
         },
+      },
+      nxJsonConfiguration: {},
+      projectGraph: {
+        dependencies: {},
+        nodes: {},
       },
     };
 
@@ -1145,7 +1221,7 @@ version = "1.0.0"
       local: false,
     };
 
-    const context = {
+    const context: ExecutorContext = {
       cwd: '',
       root: '.',
       isVerbose: false,
@@ -1158,6 +1234,11 @@ version = "1.0.0"
             targets: {},
           },
         },
+      },
+      nxJsonConfiguration: {},
+      projectGraph: {
+        dependencies: {},
+        nodes: {},
       },
     };
 

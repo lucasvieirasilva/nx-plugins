@@ -36,6 +36,20 @@ Example:
 }
 ```
 
+for Nx 20.x or higher, use the following pattern:
+
+```json
+{
+  ...
+  "plugins": [
+    {
+      "plugin": "@nxlv/python"
+    }
+  ]
+  ...
+}
+```
+
 #### Add a new Python Project
 
 ```shell

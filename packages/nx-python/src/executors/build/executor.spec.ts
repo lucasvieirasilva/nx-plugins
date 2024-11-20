@@ -16,6 +16,7 @@ import { PyprojectToml } from '../../graph/dependency-graph';
 import dedent from 'string-dedent';
 import spawn from 'cross-spawn';
 import { SpawnSyncOptions } from 'child_process';
+import { ExecutorContext } from '@nx/devkit';
 
 describe('Build Executor', () => {
   let buildPath = null;
@@ -67,7 +68,7 @@ describe('Build Executor', () => {
       bundleLocalDependencies: true,
     };
 
-    const context = {
+    const context: ExecutorContext = {
       cwd: '',
       root: '.',
       isVerbose: false,
@@ -80,6 +81,11 @@ describe('Build Executor', () => {
             targets: {},
           },
         },
+      },
+      nxJsonConfiguration: {},
+      projectGraph: {
+        dependencies: {},
+        nodes: {},
       },
     };
 
@@ -103,18 +109,24 @@ describe('Build Executor', () => {
       bundleLocalDependencies: false,
     };
 
-    const context = {
+    const context: ExecutorContext = {
       cwd: '',
       root: '.',
       isVerbose: false,
       projectName: 'app',
       projectsConfigurations: {
+        version: 2,
         projects: {
           app: {
             root: 'apps/app',
             targets: {},
           },
         },
+      },
+      nxJsonConfiguration: {},
+      projectGraph: {
+        dependencies: {},
+        nodes: {},
       },
     };
 
@@ -267,6 +279,11 @@ describe('Build Executor', () => {
               targets: {},
             },
           },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
         },
       });
 
@@ -453,6 +470,11 @@ describe('Build Executor', () => {
             },
           },
         },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
       });
 
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
@@ -625,7 +647,6 @@ describe('Build Executor', () => {
         projectName: 'app',
         projectsConfigurations: {
           version: 2,
-
           projects: {
             app: {
               root: 'apps/app',
@@ -640,6 +661,11 @@ describe('Build Executor', () => {
               targets: {},
             },
           },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
         },
       });
 
@@ -811,7 +837,6 @@ describe('Build Executor', () => {
         projectName: 'app',
         projectsConfigurations: {
           version: 2,
-
           projects: {
             app: {
               root: 'apps/app',
@@ -826,6 +851,11 @@ describe('Build Executor', () => {
               targets: {},
             },
           },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
         },
       });
 
@@ -905,13 +935,17 @@ describe('Build Executor', () => {
         projectName: 'app',
         projectsConfigurations: {
           version: 2,
-
           projects: {
             app: {
               root: 'apps/app',
               targets: {},
             },
           },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
         },
       });
 
@@ -1024,13 +1058,17 @@ describe('Build Executor', () => {
         projectName: 'app',
         projectsConfigurations: {
           version: 2,
-
           projects: {
             app: {
               root: 'apps/app',
               targets: {},
             },
           },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
         },
       });
 
@@ -1141,13 +1179,17 @@ describe('Build Executor', () => {
         projectName: 'app',
         projectsConfigurations: {
           version: 2,
-
           projects: {
             app: {
               root: 'apps/app',
               targets: {},
             },
           },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
         },
       });
 
@@ -1249,13 +1291,17 @@ describe('Build Executor', () => {
         projectName: 'app',
         projectsConfigurations: {
           version: 2,
-
           projects: {
             app: {
               root: 'apps/app',
               targets: {},
             },
           },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
         },
       });
 
@@ -1390,7 +1436,6 @@ describe('Build Executor', () => {
         projectName: 'app',
         projectsConfigurations: {
           version: 2,
-
           projects: {
             app: {
               root: 'apps/app',
@@ -1405,6 +1450,11 @@ describe('Build Executor', () => {
               targets: {},
             },
           },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
         },
       });
 
@@ -1537,7 +1587,6 @@ describe('Build Executor', () => {
         projectName: 'app',
         projectsConfigurations: {
           version: 2,
-
           projects: {
             app: {
               root: 'apps/app',
@@ -1548,6 +1597,11 @@ describe('Build Executor', () => {
               targets: {},
             },
           },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
         },
       });
 
@@ -1705,7 +1759,6 @@ describe('Build Executor', () => {
         projectName: 'app',
         projectsConfigurations: {
           version: 2,
-
           projects: {
             app: {
               root: 'apps/app',
@@ -1716,6 +1769,11 @@ describe('Build Executor', () => {
               targets: {},
             },
           },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
         },
       });
 
@@ -1852,13 +1910,17 @@ describe('Build Executor', () => {
         projectName: 'app',
         projectsConfigurations: {
           version: 2,
-
           projects: {
             app: {
               root: 'apps/app',
               targets: {},
             },
           },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
         },
       });
 
@@ -1955,13 +2017,17 @@ describe('Build Executor', () => {
         projectName: 'app',
         projectsConfigurations: {
           version: 2,
-
           projects: {
             app: {
               root: 'apps/app',
               targets: {},
             },
           },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
         },
       });
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
@@ -2031,13 +2097,17 @@ describe('Build Executor', () => {
         projectName: 'app',
         projectsConfigurations: {
           version: 2,
-
           projects: {
             app: {
               root: 'apps/app',
               targets: {},
             },
           },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
         },
       });
 
@@ -2103,13 +2173,17 @@ describe('Build Executor', () => {
         projectName: 'app',
         projectsConfigurations: {
           version: 2,
-
           projects: {
             app: {
               root: 'apps/app',
               targets: {},
             },
           },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
         },
       });
 
@@ -2187,13 +2261,17 @@ describe('Build Executor', () => {
         projectName: 'app',
         projectsConfigurations: {
           version: 2,
-
           projects: {
             app: {
               root: 'apps/app',
               targets: {},
             },
           },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
         },
       });
 
@@ -2270,7 +2348,6 @@ describe('Build Executor', () => {
         projectName: 'app',
         projectsConfigurations: {
           version: 2,
-
           projects: {
             app: {
               root: 'apps/app',
@@ -2280,6 +2357,11 @@ describe('Build Executor', () => {
               root: 'libs/dep1',
             },
           },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
         },
       });
 
@@ -2383,7 +2465,6 @@ describe('Build Executor', () => {
         projectName: 'app',
         projectsConfigurations: {
           version: 2,
-
           projects: {
             app: {
               root: 'apps/app',
@@ -2400,6 +2481,11 @@ describe('Build Executor', () => {
               },
             },
           },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
         },
       });
 
@@ -2523,7 +2609,6 @@ describe('Build Executor', () => {
         projectName: 'app',
         projectsConfigurations: {
           version: 2,
-
           projects: {
             app: {
               root: 'apps/app',
@@ -2552,6 +2637,11 @@ describe('Build Executor', () => {
               },
             },
           },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
         },
       });
 
@@ -2738,7 +2828,6 @@ describe('Build Executor', () => {
         projectName: 'app',
         projectsConfigurations: {
           version: 2,
-
           projects: {
             app: {
               root: 'apps/app',
@@ -2805,6 +2894,11 @@ describe('Build Executor', () => {
               },
             },
           },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
         },
       });
 

@@ -6,24 +6,29 @@ import chalk from 'chalk';
 import * as poetryUtils from '../utils/poetry';
 import executor from './executor';
 import spawn from 'cross-spawn';
+import { ExecutorContext } from '@nx/devkit';
 
 describe('Serverless Framework Deploy Executor', () => {
   let activateVenvMock: MockInstance;
 
-  const context = {
+  const context: ExecutorContext = {
     cwd: '',
     root: '.',
     isVerbose: false,
     projectName: 'app',
     projectsConfigurations: {
       version: 2,
-
       projects: {
         app: {
           root: 'apps/app',
           targets: {},
         },
       },
+    },
+    nxJsonConfiguration: {},
+    projectGraph: {
+      dependencies: {},
+      nodes: {},
     },
   };
 
