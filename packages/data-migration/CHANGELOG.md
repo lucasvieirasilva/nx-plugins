@@ -1,3 +1,13 @@
+# [6.0.0](https://github.com/lucasvieirasilva/nx-plugins/compare/data-migration-v5.0.0...data-migration-v6.0.0) (2024-11-20)
+
+### Features
+
+- add nx 20.x support ([#254](https://github.com/lucasvieirasilva/nx-plugins/issues/254)) ([c41b793](https://github.com/lucasvieirasilva/nx-plugins/commit/c41b79310565361975673f6d30014146026db5cd)), closes [#253](https://github.com/lucasvieirasilva/nx-plugins/issues/253)
+
+### BREAKING CHANGES
+
+- migrate nx workspace to 20.x
+
 # [5.0.0](https://github.com/lucasvieirasilva/nx-plugins/compare/data-migration-v4.0.0...data-migration-v5.0.0) (2024-08-09)
 
 ### Features
