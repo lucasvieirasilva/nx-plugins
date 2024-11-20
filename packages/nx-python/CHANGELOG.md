@@ -1,3 +1,13 @@
+# [20.0.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v19.2.1...nx-python-v20.0.0) (2024-11-20)
+
+### Features
+
+- add nx 20.x support ([#254](https://github.com/lucasvieirasilva/nx-plugins/issues/254)) ([c41b793](https://github.com/lucasvieirasilva/nx-plugins/commit/c41b79310565361975673f6d30014146026db5cd)), closes [#253](https://github.com/lucasvieirasilva/nx-plugins/issues/253)
+
+### BREAKING CHANGES
+
+- migrate nx workspace to 20.x
+
 ## [19.2.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v19.2.0...nx-python-v19.2.1) (2024-10-17)
 
 ### Bug Fixes
