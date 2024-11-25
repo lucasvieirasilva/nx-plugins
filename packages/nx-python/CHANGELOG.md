@@ -1,3 +1,9 @@
+## [20.0.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.0.0...nx-python-v20.0.1) (2024-11-25)
+
+### Bug Fixes
+
+- **nx-python:** remove direct dependency on nx ([#255](https://github.com/lucasvieirasilva/nx-plugins/issues/255)) ([762db7d](https://github.com/lucasvieirasilva/nx-plugins/commit/762db7dada764fe64eb329f934570e53ea9254ca))
+
 # [20.0.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v19.2.1...nx-python-v20.0.0) (2024-11-20)
 
 ### Features
