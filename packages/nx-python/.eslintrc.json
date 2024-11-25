@@ -27,7 +27,8 @@
         "@nx/dependency-checks": [
           "error",
           {
-            "ignoredFiles": ["vite.config.ts", "**/*.spec.ts", "**/*.mock.ts"]
+            "ignoredFiles": ["vite.config.ts", "**/*.spec.ts", "**/*.mock.ts"],
+            "ignoredDependencies": ["nx"]
           }
         ]
       }
