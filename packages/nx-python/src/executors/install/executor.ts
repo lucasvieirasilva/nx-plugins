@@ -2,12 +2,7 @@ import { InstallExecutorSchema } from './schema';
 import { Logger } from '../utils/logger';
 import { ExecutorContext } from '@nx/devkit';
 import chalk from 'chalk';
-import path from 'path';
-import {
-  checkPoetryExecutable,
-  runPoetry,
-  RunPoetryOptions,
-} from '../utils/poetry';
+import { getProvider } from '../../provider';
 
 const logger = new Logger();
 
@@ -19,33 +14,8 @@ export default async function executor(
   const workspaceRoot = context.root;
   process.chdir(workspaceRoot);
   try {
-    await checkPoetryExecutable();
-    const projectConfig =
-      context.projectsConfigurations.projects[context.projectName];
-    let verboseArg = '-v';
-
-    if (options.debug) {
-      verboseArg = '-vvv';
-    } else if (options.verbose) {
-      verboseArg = '-vv';
-    }
-
-    const installArgs = ['install', verboseArg].concat(
-      options.args ? options.args.split(' ') : [],
-    );
-
-    const execOpts: RunPoetryOptions = {
-      cwd: projectConfig.root,
-    };
-
-    if (options.cacheDir) {
-      execOpts.env = {
-        ...process.env,
-        POETRY_CACHE_DIR: path.resolve(options.cacheDir),
-      };
-    }
-
-    runPoetry(installArgs, execOpts);
+    const provider = await getProvider(workspaceRoot, logger);
+    await provider.install(options, context);
 
     return {
       success: true,

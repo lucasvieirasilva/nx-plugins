@@ -1,7 +1,7 @@
 import { vi } from 'vitest';
 
 vi.mock('nx/src/executors/run-commands/run-commands.impl');
-vi.mock('../utils/poetry');
+vi.mock('../../provider/poetry/utils');
 
 import executor from './executor';
 import { ExecutorContext } from '@nx/devkit';
@@ -28,18 +28,21 @@ describe('run commands executor', () => {
     },
   };
 
-  it('should activate the venv and call the base executor', async () => {
-    const options = {
-      command: 'test',
-      __unparsed__: [],
-    };
-    await executor(options, context);
+  describe('poetry', () => {
+    it('should activate the venv and call the base executor', async () => {
+      const options = {
+        command: 'test',
+        __unparsed__: [],
+      };
+      await executor(options, context);
 
-    expect((await import('../utils/poetry')).activateVenv).toHaveBeenCalledWith(
-      context.root,
-    );
-    expect(
-      (await import('nx/src/executors/run-commands/run-commands.impl')).default,
-    ).toHaveBeenCalledWith(options, context);
+      expect(
+        (await import('../../provider/poetry/utils')).activateVenv,
+      ).toHaveBeenCalledWith(context.root);
+      expect(
+        (await import('nx/src/executors/run-commands/run-commands.impl'))
+          .default,
+      ).toHaveBeenCalledWith(options, context);
+    });
   });
 });

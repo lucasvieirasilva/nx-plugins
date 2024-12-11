@@ -2,12 +2,7 @@ import { ExecutorContext } from '@nx/devkit';
 import chalk from 'chalk';
 import { Logger } from '../utils/logger';
 import { RuffCheckExecutorSchema } from './schema';
-import {
-  POETRY_EXECUTABLE,
-  activateVenv,
-  checkPoetryExecutable,
-} from '../utils/poetry';
-import spawn from 'cross-spawn';
+import { getProvider } from '../../provider';
 
 const logger = new Logger();
 
@@ -18,8 +13,6 @@ export default async function executor(
   const workspaceRoot = context.root;
   process.chdir(workspaceRoot);
   try {
-    activateVenv(workspaceRoot);
-    await checkPoetryExecutable();
     logger.info(
       chalk`\n{bold Running ruff check on project {bgBlue  ${context.projectName} }...}\n`,
     );
@@ -27,11 +20,17 @@ export default async function executor(
     const projectConfig =
       context.projectsConfigurations.projects[context.projectName];
 
-    const commandArgs = ['run', 'ruff', 'check']
+    const commandArgs = ['ruff', 'check']
       .concat(options.lintFilePatterns)
       .concat(options.__unparsed__);
 
-    runCheck(commandArgs, projectConfig.root);
+    const provider = await getProvider(workspaceRoot);
+    await provider.run(commandArgs, workspaceRoot, {
+      cwd: projectConfig.root,
+      log: false,
+      error: true,
+      shell: true,
+    });
 
     return {
       success: true,
@@ -41,18 +40,5 @@ export default async function executor(
     return {
       success: false,
     };
-  }
-}
-
-function runCheck(commandArgs: string[], cwd: string) {
-  const command = `${POETRY_EXECUTABLE} ${commandArgs.join(' ')}`;
-  const result = spawn.sync(command, {
-    stdio: 'inherit',
-    shell: true,
-    cwd,
-  });
-
-  if (result.status !== 0) {
-    throw new Error('Ruff check failed.');
   }
 }

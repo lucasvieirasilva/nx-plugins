@@ -1,7 +1,7 @@
 import { ProjectGraph, Tree } from '@nx/devkit';
-import { PyprojectToml } from '../../../graph/dependency-graph';
+import { PoetryPyprojectToml } from '../../../provider/poetry';
 import path from 'path';
-import { writePyprojectToml } from '../../../executors/utils/poetry';
+import { writePyprojectToml } from '../../../provider/poetry/utils';
 
 interface ProjectAndPackageData {
   [projectName: string]: {
@@ -16,7 +16,7 @@ interface ProjectAndPackageData {
   };
 }
 
-export function createWorkspaceWithPackageDependencies(
+export function createPoetryWorkspaceWithPackageDependencies(
   tree: Tree,
   projectAndPackageData: ProjectAndPackageData,
 ): ProjectGraph {
@@ -33,7 +33,7 @@ export function createWorkspaceWithPackageDependencies(
           version: data.version,
         },
       },
-    } as PyprojectToml;
+    } as PoetryPyprojectToml;
     for (const dependency of data.localDependencies) {
       const dependencyPackageName =
         projectAndPackageData[dependency.projectName].packageName;

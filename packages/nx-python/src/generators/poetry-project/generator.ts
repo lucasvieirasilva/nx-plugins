@@ -11,14 +11,14 @@ import {
 } from '@nx/devkit';
 import * as path from 'path';
 import { PoetryProjectGeneratorSchema } from './schema';
-import { checkPoetryExecutable, runPoetry } from '../../executors/utils/poetry';
-import {
-  PyprojectToml,
-  PyprojectTomlDependencies,
-} from '../../graph/dependency-graph';
 import { parse, stringify } from '@iarna/toml';
 import chalk from 'chalk';
 import _ from 'lodash';
+import {
+  PoetryPyprojectToml,
+  PoetryPyprojectTomlDependencies,
+} from '../../provider/poetry';
+import { checkPoetryExecutable, runPoetry } from '../../provider/poetry/utils';
 
 interface NormalizedSchema extends PoetryProjectGeneratorSchema {
   projectName: string;
@@ -221,7 +221,7 @@ function updateRootPyprojectToml(
   if (!normalizedOptions.individualPackage) {
     const rootPyprojectToml = parse(
       host.read('./pyproject.toml', 'utf-8'),
-    ) as PyprojectToml;
+    ) as PoetryPyprojectToml;
 
     const group = normalizedOptions.rootPyprojectDependencyGroup ?? 'main';
 
@@ -301,13 +301,13 @@ function getPyprojectTomlByProjectName(host: Tree, projectName: string) {
 
   const pyprojectToml = parse(
     host.read(pyprojectTomlPath, 'utf-8'),
-  ) as PyprojectToml;
+  ) as PoetryPyprojectToml;
 
   return { pyprojectToml, pyprojectTomlPath };
 }
 
 function addTestDependencies(
-  dependencies: PyprojectTomlDependencies,
+  dependencies: PoetryPyprojectTomlDependencies,
   normalizedOptions: NormalizedSchema,
 ) {
   const originalDependencies = _.clone(dependencies);

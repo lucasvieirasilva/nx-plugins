@@ -1,6 +1,6 @@
 import { vi, MockInstance } from 'vitest';
 import '../../utils/mocks/cross-spawn.mock';
-import * as poetryUtils from '../../executors/utils/poetry';
+import * as poetryUtils from '../../provider/poetry/utils';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import { Tree, readProjectConfiguration } from '@nx/devkit';
 
@@ -8,9 +8,9 @@ import generator from './generator';
 import { PoetryProjectGeneratorSchema } from './schema';
 import dedent from 'string-dedent';
 import { parse, stringify } from '@iarna/toml';
-import { PyprojectToml } from '../../graph/dependency-graph';
 import path from 'path';
 import spawn from 'cross-spawn';
+import { PoetryPyprojectToml } from '../../provider/poetry';
 
 describe('application generator', () => {
   let checkPoetryExecutableMock: MockInstance;
@@ -410,7 +410,7 @@ describe('application generator', () => {
 
       const pyprojectToml = parse(
         appTree.read('libs/shared/dev-lib/pyproject.toml', 'utf-8'),
-      ) as PyprojectToml;
+      ) as PoetryPyprojectToml;
 
       pyprojectToml.tool.poetry.dependencies = {
         python: '>=3.9,<3.11',

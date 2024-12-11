@@ -1,14 +1,14 @@
-import { PyprojectToml } from '../../../graph/dependency-graph';
 import { parse } from '@iarna/toml';
 import { readFileSync, existsSync } from 'fs-extra';
 import path, { join, relative } from 'path';
 import { PoetryLock, Dependency, PoetryLockPackage } from './types';
-import { Logger } from '../../utils/logger';
 import chalk from 'chalk';
-import { parseToml, runPoetry } from '../../utils/poetry';
 import uri2path from 'file-uri-to-path';
 import { getLoggingTab, includeDependencyPackage } from './utils';
-import { isWindows } from '../../utils/os';
+import { Logger } from '../../../../executors/utils/logger';
+import { PoetryPyprojectToml } from '../../types';
+import { parseToml, runPoetry } from '../../utils';
+import { isWindows } from '../../../../executors/utils/os';
 
 export class LockedDependencyResolver {
   private logger: Logger;
@@ -20,7 +20,7 @@ export class LockedDependencyResolver {
   public resolve(
     root: string,
     buildFolderPath: string,
-    buildTomlData: PyprojectToml,
+    buildTomlData: PoetryPyprojectToml,
     devDependencies: boolean,
     workspaceRoot: string,
   ): Dependency[] {
@@ -38,7 +38,7 @@ export class LockedDependencyResolver {
     devDependencies: boolean,
     root: string,
     buildFolderPath: string,
-    buildTomlData: PyprojectToml,
+    buildTomlData: PoetryPyprojectToml,
     workspaceRoot: string,
     deps: Dependency[] = [],
     level = 1,
@@ -119,7 +119,7 @@ export class LockedDependencyResolver {
 
   private getProjectRequirementsTxt(
     devDependencies: boolean,
-    buildTomlData: PyprojectToml,
+    buildTomlData: PoetryPyprojectToml,
     root: string,
     buildFolderPath: string,
   ): string {
@@ -156,7 +156,7 @@ export class LockedDependencyResolver {
     lockData: PoetryLock,
     workspaceRoot: string,
     buildFolderPath: string,
-    buildTomlData: PyprojectToml,
+    buildTomlData: PoetryPyprojectToml,
     deps: Dependency[],
   ) {
     const { packageName, location } =
@@ -240,13 +240,13 @@ export class LockedDependencyResolver {
     tab: string,
     packageName: string,
     buildFolderPath: string,
-    buildTomlData: PyprojectToml,
+    buildTomlData: PoetryPyprojectToml,
   ) {
     const rootFolder = relative(workspaceRoot, uri2path(localDepUrl));
     const pyprojectToml = join(rootFolder, 'pyproject.toml');
     const tomlData = parse(
       readFileSync(pyprojectToml).toString('utf-8'),
-    ) as PyprojectToml;
+    ) as PoetryPyprojectToml;
     this.logger.info(
       chalk`${tab}• Adding {blue.bold ${packageName}} local dependency`,
     );
@@ -324,7 +324,7 @@ export class LockedDependencyResolver {
     return resolvedDeps;
   }
 
-  private getExtras(buildTomlData: PyprojectToml) {
+  private getExtras(buildTomlData: PoetryPyprojectToml) {
     if (buildTomlData.tool.poetry.extras) {
       return Object.keys(buildTomlData.tool.poetry.extras);
     }

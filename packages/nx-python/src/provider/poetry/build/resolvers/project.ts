@@ -1,17 +1,14 @@
-import {
-  PyprojectToml,
-  PyprojectTomlSource,
-} from '../../../graph/dependency-graph';
-import { Logger } from '../../utils/logger';
 import chalk from 'chalk';
 import { Dependency } from './types';
 import { join, normalize, relative, resolve } from 'path';
 import { readFileSync } from 'fs-extra';
 import { parse } from '@iarna/toml';
-import { BuildExecutorSchema } from '../schema';
 import { getLoggingTab, includeDependencyPackage } from './utils';
 import { ExecutorContext } from '@nx/devkit';
 import { createHash } from 'crypto';
+import { PoetryPyprojectToml, PoetryPyprojectTomlSource } from '../../types';
+import { BuildExecutorSchema } from '../../../../executors/build/schema';
+import { Logger } from '../../../../executors/utils/logger';
 
 export class ProjectDependencyResolver {
   private logger: Logger;
@@ -31,13 +28,13 @@ export class ProjectDependencyResolver {
   resolve(
     root: string,
     buildFolderPath: string,
-    buildTomlData: PyprojectToml,
+    buildTomlData: PoetryPyprojectToml,
   ): Dependency[] {
     this.logger.info(chalk`  Resolving dependencies...`);
     const pyprojectPath = join(root, 'pyproject.toml');
     const pyproject = parse(
       readFileSync(pyprojectPath).toString('utf-8'),
-    ) as PyprojectToml;
+    ) as PoetryPyprojectToml;
 
     return this.resolveDependencies(
       pyproject,
@@ -48,10 +45,10 @@ export class ProjectDependencyResolver {
   }
 
   private resolveDependencies(
-    pyproject: PyprojectToml,
+    pyproject: PoetryPyprojectToml,
     root: string,
     buildFolderPath: string,
-    buildTomlData: PyprojectToml,
+    buildTomlData: PoetryPyprojectToml,
     level = 1,
   ) {
     const tab = getLoggingTab(level);
@@ -73,7 +70,7 @@ export class ProjectDependencyResolver {
         const depPyprojectPath = join(depPath, 'pyproject.toml');
         const depPyproject = parse(
           readFileSync(depPyprojectPath).toString('utf-8'),
-        ) as PyprojectToml;
+        ) as PoetryPyprojectToml;
 
         const config = this.getProjectConfig(depPath);
         const targetOptions: BuildExecutorSchema | undefined =
@@ -127,7 +124,7 @@ export class ProjectDependencyResolver {
   }
 
   private addSource(
-    buildTomlData: PyprojectToml,
+    buildTomlData: PoetryPyprojectToml,
     targetOptions: BuildExecutorSchema,
   ): string | undefined {
     if (!targetOptions?.customSourceUrl) return undefined;
@@ -158,9 +155,9 @@ export class ProjectDependencyResolver {
   }
 
   private resolveDuplicateSources = (
-    sources: PyprojectTomlSource[],
-    { name, url }: PyprojectTomlSource,
-  ): [PyprojectTomlSource[], string] => {
+    sources: PoetryPyprojectTomlSource[],
+    { name, url }: PoetryPyprojectTomlSource,
+  ): [PoetryPyprojectTomlSource[], string] => {
     if (!sources) {
       return [[{ name, url }], name];
     }

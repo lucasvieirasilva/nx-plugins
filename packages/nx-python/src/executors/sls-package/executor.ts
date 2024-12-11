@@ -5,7 +5,7 @@ import { Logger } from '../utils/logger';
 import { ExecutorSchema } from './schema';
 import path from 'path';
 import { existsSync, readdirSync, writeFileSync, removeSync } from 'fs-extra';
-import { activateVenv } from '../utils/poetry';
+import { getProvider } from '../../provider';
 
 const logger = new Logger();
 
@@ -15,7 +15,8 @@ export default async function executor(
 ) {
   const workspaceRoot = context.root;
   process.chdir(workspaceRoot);
-  activateVenv(workspaceRoot);
+  const provider = await getProvider(workspaceRoot);
+  provider.activateVenv(workspaceRoot);
 
   const projectConfig =
     context.projectsConfigurations.projects[context.projectName];

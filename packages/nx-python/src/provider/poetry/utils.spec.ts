@@ -10,7 +10,7 @@ vi.mock('command-exists', () => {
   };
 });
 
-import * as poetryUtils from './poetry';
+import * as poetryUtils from './utils';
 import dedent from 'string-dedent';
 import chalk from 'chalk';
 import path from 'path';

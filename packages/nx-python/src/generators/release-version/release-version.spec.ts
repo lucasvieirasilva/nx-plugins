@@ -21,10 +21,10 @@ const enquirerMocks = vi.hoisted(() => {
 
 import { output, ProjectGraph, Tree } from '@nx/devkit';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
-import { createWorkspaceWithPackageDependencies } from './test-utils/create-workspace-with-package-dependencies';
+import { createPoetryWorkspaceWithPackageDependencies } from './test-utils/create-poetry-workspace-with-package-dependencies';
 import { releaseVersionGenerator } from './release-version';
 import { ReleaseGroupWithName } from 'nx/src/command-line/release/config/filter-release-groups';
-import { readPyprojectToml } from '../../executors/utils/poetry';
+import { readPyprojectToml } from '../../provider/poetry/utils';
 
 process.env.NX_DAEMON = 'false';
 
@@ -32,60 +32,61 @@ describe('release-version', () => {
   let tree: Tree;
   let projectGraph: ProjectGraph;
 
-  beforeEach(() => {
-    tree = createTreeWithEmptyWorkspace();
+  describe('poetry', () => {
+    beforeEach(() => {
+      tree = createTreeWithEmptyWorkspace();
 
-    projectGraph = createWorkspaceWithPackageDependencies(tree, {
-      'my-lib': {
-        projectRoot: 'libs/my-lib',
-        packageName: 'my-lib',
-        version: '0.0.1',
-        pyprojectTomlPath: 'libs/my-lib/pyproject.toml',
-        localDependencies: [],
-      },
-      'project-with-dependency-on-my-pkg': {
-        projectRoot: 'libs/project-with-dependency-on-my-pkg',
-        packageName: 'project-with-dependency-on-my-pkg',
-        version: '0.0.1',
-        pyprojectTomlPath:
-          'libs/project-with-dependency-on-my-pkg/pyproject.toml',
-        localDependencies: [
-          {
-            projectName: 'my-lib',
-            dependencyCollection: 'dependencies',
-          },
-        ],
-      },
-      'project-with-devDependency-on-my-pkg': {
-        projectRoot: 'libs/project-with-devDependency-on-my-pkg',
-        packageName: 'project-with-devDependency-on-my-pkg',
-        version: '0.0.1',
-        pyprojectTomlPath:
-          'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
-        localDependencies: [
-          {
-            projectName: 'my-lib',
-            dependencyCollection: 'dev',
-          },
-        ],
-      },
+      projectGraph = createPoetryWorkspaceWithPackageDependencies(tree, {
+        'my-lib': {
+          projectRoot: 'libs/my-lib',
+          packageName: 'my-lib',
+          version: '0.0.1',
+          pyprojectTomlPath: 'libs/my-lib/pyproject.toml',
+          localDependencies: [],
+        },
+        'project-with-dependency-on-my-pkg': {
+          projectRoot: 'libs/project-with-dependency-on-my-pkg',
+          packageName: 'project-with-dependency-on-my-pkg',
+          version: '0.0.1',
+          pyprojectTomlPath:
+            'libs/project-with-dependency-on-my-pkg/pyproject.toml',
+          localDependencies: [
+            {
+              projectName: 'my-lib',
+              dependencyCollection: 'dependencies',
+            },
+          ],
+        },
+        'project-with-devDependency-on-my-pkg': {
+          projectRoot: 'libs/project-with-devDependency-on-my-pkg',
+          packageName: 'project-with-devDependency-on-my-pkg',
+          version: '0.0.1',
+          pyprojectTomlPath:
+            'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
+          localDependencies: [
+            {
+              projectName: 'my-lib',
+              dependencyCollection: 'dev',
+            },
+          ],
+        },
+      });
     });
-  });
 
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
+    afterEach(() => {
+      vi.clearAllMocks();
+    });
 
-  it('should return a versionData object', async () => {
-    expect(
-      await releaseVersionGenerator(tree, {
-        projects: Object.values(projectGraph.nodes), // version all projects
-        projectGraph,
-        specifier: 'major',
-        currentVersionResolver: 'disk',
-        releaseGroup: createReleaseGroup('fixed'),
-      }),
-    ).toMatchInlineSnapshot(`
+    it('should return a versionData object', async () => {
+      expect(
+        await releaseVersionGenerator(tree, {
+          projects: Object.values(projectGraph.nodes), // version all projects
+          projectGraph,
+          specifier: 'major',
+          currentVersionResolver: 'disk',
+          releaseGroup: createReleaseGroup('fixed'),
+        }),
+      ).toMatchInlineSnapshot(`
       {
         "callback": [Function],
         "data": {
@@ -122,88 +123,90 @@ describe('release-version', () => {
         },
       }
     `);
-  });
-
-  describe('not all given projects have pyproject.toml files', () => {
-    beforeEach(() => {
-      tree.delete('libs/my-lib/pyproject.toml');
     });
 
-    it(`should exit with code one and print guidance when not all of the given projects are appropriate for Python versioning`, async () => {
-      stubProcessExit = true;
-
-      const outputSpy = vi.spyOn(output, 'error').mockImplementationOnce(() => {
-        return undefined as never;
+    describe('not all given projects have pyproject.toml files', () => {
+      beforeEach(() => {
+        tree.delete('libs/my-lib/pyproject.toml');
       });
 
-      await releaseVersionGenerator(tree, {
-        projects: Object.values(projectGraph.nodes), // version all projects
-        projectGraph,
-        specifier: 'major',
-        currentVersionResolver: 'disk',
-        releaseGroup: createReleaseGroup('fixed'),
-      });
+      it(`should exit with code one and print guidance when not all of the given projects are appropriate for Python versioning`, async () => {
+        stubProcessExit = true;
 
-      expect(outputSpy).toHaveBeenCalledWith({
-        title: `The project "my-lib" does not have a pyproject.toml available at libs/my-lib/pyproject.toml.
+        const outputSpy = vi
+          .spyOn(output, 'error')
+          .mockImplementationOnce(() => {
+            return undefined as never;
+          });
+
+        await releaseVersionGenerator(tree, {
+          projects: Object.values(projectGraph.nodes), // version all projects
+          projectGraph,
+          specifier: 'major',
+          currentVersionResolver: 'disk',
+          releaseGroup: createReleaseGroup('fixed'),
+        });
+
+        expect(outputSpy).toHaveBeenCalledWith({
+          title: `The project "my-lib" does not have a pyproject.toml available at libs/my-lib/pyproject.toml.
 
 To fix this you will either need to add a pyproject.toml file at that location, or configure "release" within your nx.json to exclude "my-lib" from the current release group, or amend the packageRoot configuration to point to where the pyproject.toml should be.`,
-      });
+        });
 
-      outputSpy.mockRestore();
-      expect(processExitSpy).toHaveBeenCalledWith(1);
+        outputSpy.mockRestore();
+        expect(processExitSpy).toHaveBeenCalledWith(1);
 
-      stubProcessExit = false;
-    });
-  });
-
-  describe('package with mixed "prod" and "dev" dependencies', () => {
-    beforeEach(() => {
-      projectGraph = createWorkspaceWithPackageDependencies(tree, {
-        'my-app': {
-          projectRoot: 'libs/my-app',
-          packageName: 'my-app',
-          version: '0.0.1',
-          pyprojectTomlPath: 'libs/my-app/pyproject.toml',
-          localDependencies: [
-            {
-              projectName: 'my-lib-1',
-              dependencyCollection: 'dependencies',
-            },
-            {
-              projectName: 'my-lib-2',
-              dependencyCollection: 'dev',
-            },
-          ],
-        },
-        'my-lib-1': {
-          projectRoot: 'libs/my-lib-1',
-          packageName: 'my-lib-1',
-          version: '0.0.1',
-          pyprojectTomlPath: 'libs/my-lib-1/pyproject.toml',
-          localDependencies: [],
-        },
-        'my-lib-2': {
-          projectRoot: 'libs/my-lib-2',
-          packageName: 'my-lib-2',
-          version: '0.0.1',
-          pyprojectTomlPath: 'libs/my-lib-2/pyproject.toml',
-          localDependencies: [],
-        },
+        stubProcessExit = false;
       });
     });
 
-    it('should update local dependencies only where it needs to', async () => {
-      await releaseVersionGenerator(tree, {
-        projects: Object.values(projectGraph.nodes), // version all projects
-        projectGraph,
-        specifier: 'major',
-        currentVersionResolver: 'disk',
-        releaseGroup: createReleaseGroup('fixed'),
+    describe('package with mixed "prod" and "dev" dependencies', () => {
+      beforeEach(() => {
+        projectGraph = createPoetryWorkspaceWithPackageDependencies(tree, {
+          'my-app': {
+            projectRoot: 'libs/my-app',
+            packageName: 'my-app',
+            version: '0.0.1',
+            pyprojectTomlPath: 'libs/my-app/pyproject.toml',
+            localDependencies: [
+              {
+                projectName: 'my-lib-1',
+                dependencyCollection: 'dependencies',
+              },
+              {
+                projectName: 'my-lib-2',
+                dependencyCollection: 'dev',
+              },
+            ],
+          },
+          'my-lib-1': {
+            projectRoot: 'libs/my-lib-1',
+            packageName: 'my-lib-1',
+            version: '0.0.1',
+            pyprojectTomlPath: 'libs/my-lib-1/pyproject.toml',
+            localDependencies: [],
+          },
+          'my-lib-2': {
+            projectRoot: 'libs/my-lib-2',
+            packageName: 'my-lib-2',
+            version: '0.0.1',
+            pyprojectTomlPath: 'libs/my-lib-2/pyproject.toml',
+            localDependencies: [],
+          },
+        });
       });
 
-      expect(readPyprojectToml(tree, 'libs/my-app/pyproject.toml'))
-        .toMatchInlineSnapshot(`
+      it('should update local dependencies only where it needs to', async () => {
+        await releaseVersionGenerator(tree, {
+          projects: Object.values(projectGraph.nodes), // version all projects
+          projectGraph,
+          specifier: 'major',
+          currentVersionResolver: 'disk',
+          releaseGroup: createReleaseGroup('fixed'),
+        });
+
+        expect(readPyprojectToml(tree, 'libs/my-app/pyproject.toml'))
+          .toMatchInlineSnapshot(`
         {
           "tool": {
             "poetry": {
@@ -229,75 +232,75 @@ To fix this you will either need to add a pyproject.toml file at that location, 
           },
         }
       `);
-    });
-  });
-
-  describe('fixed release group', () => {
-    it(`should work with semver keywords and exact semver versions`, async () => {
-      expect(
-        readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
-          .version,
-      ).toEqual('0.0.1');
-      await releaseVersionGenerator(tree, {
-        projects: Object.values(projectGraph.nodes), // version all projects
-        projectGraph,
-        specifier: 'major',
-        currentVersionResolver: 'disk',
-        releaseGroup: createReleaseGroup('fixed'),
       });
-      expect(
-        readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
-          .version,
-      ).toEqual('1.0.0');
-
-      await releaseVersionGenerator(tree, {
-        projects: Object.values(projectGraph.nodes), // version all projects
-        projectGraph,
-        specifier: 'minor',
-        currentVersionResolver: 'disk',
-        releaseGroup: createReleaseGroup('fixed'),
-      });
-      expect(
-        readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
-          .version,
-      ).toEqual('1.1.0');
-
-      await releaseVersionGenerator(tree, {
-        projects: Object.values(projectGraph.nodes), // version all projects
-        projectGraph,
-        specifier: 'patch',
-        currentVersionResolver: 'disk',
-        releaseGroup: createReleaseGroup('fixed'),
-      });
-      expect(
-        readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
-          .version,
-      ).toEqual('1.1.1');
-
-      await releaseVersionGenerator(tree, {
-        projects: Object.values(projectGraph.nodes), // version all projects
-        projectGraph,
-        specifier: '1.2.3', // exact version
-        currentVersionResolver: 'disk',
-        releaseGroup: createReleaseGroup('fixed'),
-      });
-      expect(
-        readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
-          .version,
-      ).toEqual('1.2.3');
     });
 
-    it(`should apply the updated version to the projects, including updating dependents`, async () => {
-      await releaseVersionGenerator(tree, {
-        projects: Object.values(projectGraph.nodes), // version all projects
-        projectGraph,
-        specifier: 'major',
-        currentVersionResolver: 'disk',
-        releaseGroup: createReleaseGroup('fixed'),
+    describe('fixed release group', () => {
+      it(`should work with semver keywords and exact semver versions`, async () => {
+        expect(
+          readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
+            .version,
+        ).toEqual('0.0.1');
+        await releaseVersionGenerator(tree, {
+          projects: Object.values(projectGraph.nodes), // version all projects
+          projectGraph,
+          specifier: 'major',
+          currentVersionResolver: 'disk',
+          releaseGroup: createReleaseGroup('fixed'),
+        });
+        expect(
+          readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
+            .version,
+        ).toEqual('1.0.0');
+
+        await releaseVersionGenerator(tree, {
+          projects: Object.values(projectGraph.nodes), // version all projects
+          projectGraph,
+          specifier: 'minor',
+          currentVersionResolver: 'disk',
+          releaseGroup: createReleaseGroup('fixed'),
+        });
+        expect(
+          readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
+            .version,
+        ).toEqual('1.1.0');
+
+        await releaseVersionGenerator(tree, {
+          projects: Object.values(projectGraph.nodes), // version all projects
+          projectGraph,
+          specifier: 'patch',
+          currentVersionResolver: 'disk',
+          releaseGroup: createReleaseGroup('fixed'),
+        });
+        expect(
+          readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
+            .version,
+        ).toEqual('1.1.1');
+
+        await releaseVersionGenerator(tree, {
+          projects: Object.values(projectGraph.nodes), // version all projects
+          projectGraph,
+          specifier: '1.2.3', // exact version
+          currentVersionResolver: 'disk',
+          releaseGroup: createReleaseGroup('fixed'),
+        });
+        expect(
+          readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
+            .version,
+        ).toEqual('1.2.3');
       });
 
-      expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
-        .toMatchInlineSnapshot(`
+      it(`should apply the updated version to the projects, including updating dependents`, async () => {
+        await releaseVersionGenerator(tree, {
+          projects: Object.values(projectGraph.nodes), // version all projects
+          projectGraph,
+          specifier: 'major',
+          currentVersionResolver: 'disk',
+          releaseGroup: createReleaseGroup('fixed'),
+        });
+
+        expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
+          .toMatchInlineSnapshot(`
         {
           "tool": {
             "poetry": {
@@ -308,12 +311,12 @@ To fix this you will either need to add a pyproject.toml file at that location, 
         }
       `);
 
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/project-with-dependency-on-my-pkg/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/project-with-dependency-on-my-pkg/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
         {
           "tool": {
             "poetry": {
@@ -329,12 +332,12 @@ To fix this you will either need to add a pyproject.toml file at that location, 
           },
         }
       `);
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
         {
           "tool": {
             "poetry": {
@@ -354,49 +357,49 @@ To fix this you will either need to add a pyproject.toml file at that location, 
           },
         }
       `);
+      });
     });
-  });
 
-  describe('independent release group', () => {
-    describe('specifierSource: prompt', () => {
-      it(`should appropriately prompt for each project independently and apply the version updates across all pyproject.toml files`, async () => {
-        enquirerMocks.prompt
-          // First project will be minor
-          .mockResolvedValueOnce({ specifier: 'minor' })
-          // Next project will be patch
-          .mockResolvedValueOnce({ specifier: 'patch' })
-          // Final project will be custom explicit version
-          .mockResolvedValueOnce({ specifier: 'custom' })
-          .mockResolvedValueOnce({ specifier: '1.2.3' });
+    describe('independent release group', () => {
+      describe('specifierSource: prompt', () => {
+        it(`should appropriately prompt for each project independently and apply the version updates across all pyproject.toml files`, async () => {
+          enquirerMocks.prompt
+            // First project will be minor
+            .mockResolvedValueOnce({ specifier: 'minor' })
+            // Next project will be patch
+            .mockResolvedValueOnce({ specifier: 'patch' })
+            // Final project will be custom explicit version
+            .mockResolvedValueOnce({ specifier: 'custom' })
+            .mockResolvedValueOnce({ specifier: '1.2.3' });
 
-        expect(
-          readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
-            .version,
-        ).toEqual('0.0.1');
-        expect(
-          readPyprojectToml(
-            tree,
-            'libs/project-with-dependency-on-my-pkg/pyproject.toml',
-          ).tool.poetry.version,
-        ).toEqual('0.0.1');
-        expect(
-          readPyprojectToml(
-            tree,
-            'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
-          ).tool.poetry.version,
-        ).toEqual('0.0.1');
+          expect(
+            readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
+              .version,
+          ).toEqual('0.0.1');
+          expect(
+            readPyprojectToml(
+              tree,
+              'libs/project-with-dependency-on-my-pkg/pyproject.toml',
+            ).tool.poetry.version,
+          ).toEqual('0.0.1');
+          expect(
+            readPyprojectToml(
+              tree,
+              'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
+            ).tool.poetry.version,
+          ).toEqual('0.0.1');
 
-        await releaseVersionGenerator(tree, {
-          projects: Object.values(projectGraph.nodes), // version all projects
-          projectGraph,
-          specifier: '', // no specifier override set, each individual project will be prompted
-          currentVersionResolver: 'disk',
-          specifierSource: 'prompt',
-          releaseGroup: createReleaseGroup('independent'),
-        });
+          await releaseVersionGenerator(tree, {
+            projects: Object.values(projectGraph.nodes), // version all projects
+            projectGraph,
+            specifier: '', // no specifier override set, each individual project will be prompted
+            currentVersionResolver: 'disk',
+            specifierSource: 'prompt',
+            releaseGroup: createReleaseGroup('independent'),
+          });
 
-        expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
-          .toMatchInlineSnapshot(`
+          expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
+            .toMatchInlineSnapshot(`
           {
             "tool": {
               "poetry": {
@@ -407,12 +410,12 @@ To fix this you will either need to add a pyproject.toml file at that location, 
           }
         `);
 
-        expect(
-          readPyprojectToml(
-            tree,
-            'libs/project-with-dependency-on-my-pkg/pyproject.toml',
-          ),
-        ).toMatchInlineSnapshot(`
+          expect(
+            readPyprojectToml(
+              tree,
+              'libs/project-with-dependency-on-my-pkg/pyproject.toml',
+            ),
+          ).toMatchInlineSnapshot(`
           {
             "tool": {
               "poetry": {
@@ -428,12 +431,12 @@ To fix this you will either need to add a pyproject.toml file at that location, 
             },
           }
         `);
-        expect(
-          readPyprojectToml(
-            tree,
-            'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
-          ),
-        ).toMatchInlineSnapshot(`
+          expect(
+            readPyprojectToml(
+              tree,
+              'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
+            ),
+          ).toMatchInlineSnapshot(`
           {
             "tool": {
               "poetry": {
@@ -453,37 +456,37 @@ To fix this you will either need to add a pyproject.toml file at that location, 
             },
           }
         `);
-      });
-
-      it(`should respect an explicit user CLI specifier for all, even when projects are independent, and apply the version updates across all pyproject.toml files`, async () => {
-        expect(
-          readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
-            .version,
-        ).toEqual('0.0.1');
-        expect(
-          readPyprojectToml(
-            tree,
-            'libs/project-with-dependency-on-my-pkg/pyproject.toml',
-          ).tool.poetry.version,
-        ).toEqual('0.0.1');
-        expect(
-          readPyprojectToml(
-            tree,
-            'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
-          ).tool.poetry.version,
-        ).toEqual('0.0.1');
-
-        await releaseVersionGenerator(tree, {
-          projects: Object.values(projectGraph.nodes), // version all projects
-          projectGraph,
-          specifier: '4.5.6', // user CLI specifier override set, no prompting should occur
-          currentVersionResolver: 'disk',
-          specifierSource: 'prompt',
-          releaseGroup: createReleaseGroup('independent'),
         });
 
-        expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
-          .toMatchInlineSnapshot(`
+        it(`should respect an explicit user CLI specifier for all, even when projects are independent, and apply the version updates across all pyproject.toml files`, async () => {
+          expect(
+            readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
+              .version,
+          ).toEqual('0.0.1');
+          expect(
+            readPyprojectToml(
+              tree,
+              'libs/project-with-dependency-on-my-pkg/pyproject.toml',
+            ).tool.poetry.version,
+          ).toEqual('0.0.1');
+          expect(
+            readPyprojectToml(
+              tree,
+              'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
+            ).tool.poetry.version,
+          ).toEqual('0.0.1');
+
+          await releaseVersionGenerator(tree, {
+            projects: Object.values(projectGraph.nodes), // version all projects
+            projectGraph,
+            specifier: '4.5.6', // user CLI specifier override set, no prompting should occur
+            currentVersionResolver: 'disk',
+            specifierSource: 'prompt',
+            releaseGroup: createReleaseGroup('independent'),
+          });
+
+          expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
+            .toMatchInlineSnapshot(`
           {
             "tool": {
               "poetry": {
@@ -494,12 +497,12 @@ To fix this you will either need to add a pyproject.toml file at that location, 
           }
         `);
 
-        expect(
-          readPyprojectToml(
-            tree,
-            'libs/project-with-dependency-on-my-pkg/pyproject.toml',
-          ),
-        ).toMatchInlineSnapshot(`
+          expect(
+            readPyprojectToml(
+              tree,
+              'libs/project-with-dependency-on-my-pkg/pyproject.toml',
+            ),
+          ).toMatchInlineSnapshot(`
           {
             "tool": {
               "poetry": {
@@ -515,12 +518,12 @@ To fix this you will either need to add a pyproject.toml file at that location, 
             },
           }
         `);
-        expect(
-          readPyprojectToml(
-            tree,
-            'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
-          ),
-        ).toMatchInlineSnapshot(`
+          expect(
+            readPyprojectToml(
+              tree,
+              'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
+            ),
+          ).toMatchInlineSnapshot(`
           {
             "tool": {
               "poetry": {
@@ -540,20 +543,20 @@ To fix this you will either need to add a pyproject.toml file at that location, 
             },
           }
         `);
-      });
+        });
 
-      describe('updateDependentsOptions', () => {
-        it(`should not update dependents when filtering to a subset of projects by default`, async () => {
-          expect(
-            readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
-              .version,
-          ).toEqual('0.0.1');
-          expect(
-            readPyprojectToml(
-              tree,
-              'libs/project-with-dependency-on-my-pkg/pyproject.toml',
-            ),
-          ).toMatchInlineSnapshot(`
+        describe('updateDependentsOptions', () => {
+          it(`should not update dependents when filtering to a subset of projects by default`, async () => {
+            expect(
+              readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
+                .version,
+            ).toEqual('0.0.1');
+            expect(
+              readPyprojectToml(
+                tree,
+                'libs/project-with-dependency-on-my-pkg/pyproject.toml',
+              ),
+            ).toMatchInlineSnapshot(`
             {
               "tool": {
                 "poetry": {
@@ -569,12 +572,12 @@ To fix this you will either need to add a pyproject.toml file at that location, 
               },
             }
           `);
-          expect(
-            readPyprojectToml(
-              tree,
-              'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
-            ),
-          ).toMatchInlineSnapshot(`
+            expect(
+              readPyprojectToml(
+                tree,
+                'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
+              ),
+            ).toMatchInlineSnapshot(`
             {
               "tool": {
                 "poetry": {
@@ -595,17 +598,17 @@ To fix this you will either need to add a pyproject.toml file at that location, 
             }
           `);
 
-          await releaseVersionGenerator(tree, {
-            projects: [projectGraph.nodes['my-lib']], // version only my-lib
-            projectGraph,
-            specifier: '9.9.9', // user CLI specifier override set, no prompting should occur
-            currentVersionResolver: 'disk',
-            specifierSource: 'prompt',
-            releaseGroup: createReleaseGroup('independent'),
-          });
+            await releaseVersionGenerator(tree, {
+              projects: [projectGraph.nodes['my-lib']], // version only my-lib
+              projectGraph,
+              specifier: '9.9.9', // user CLI specifier override set, no prompting should occur
+              currentVersionResolver: 'disk',
+              specifierSource: 'prompt',
+              releaseGroup: createReleaseGroup('independent'),
+            });
 
-          expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
-            .toMatchInlineSnapshot(`
+            expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
+              .toMatchInlineSnapshot(`
             {
               "tool": {
                 "poetry": {
@@ -616,12 +619,12 @@ To fix this you will either need to add a pyproject.toml file at that location, 
             }
           `);
 
-          expect(
-            readPyprojectToml(
-              tree,
-              'libs/project-with-dependency-on-my-pkg/pyproject.toml',
-            ),
-          ).toMatchInlineSnapshot(`
+            expect(
+              readPyprojectToml(
+                tree,
+                'libs/project-with-dependency-on-my-pkg/pyproject.toml',
+              ),
+            ).toMatchInlineSnapshot(`
             {
               "tool": {
                 "poetry": {
@@ -637,12 +640,12 @@ To fix this you will either need to add a pyproject.toml file at that location, 
               },
             }
           `);
-          expect(
-            readPyprojectToml(
-              tree,
-              'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
-            ),
-          ).toMatchInlineSnapshot(`
+            expect(
+              readPyprojectToml(
+                tree,
+                'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
+              ),
+            ).toMatchInlineSnapshot(`
             {
               "tool": {
                 "poetry": {
@@ -662,1281 +665,1283 @@ To fix this you will either need to add a pyproject.toml file at that location, 
               },
             }
           `);
+          });
+
+          it(`should not update dependents when filtering to a subset of projects by default, if "updateDependents" is set to "never"`, async () => {
+            expect(
+              readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
+                .version,
+            ).toEqual('0.0.1');
+            expect(
+              readPyprojectToml(
+                tree,
+                'libs/project-with-dependency-on-my-pkg/pyproject.toml',
+              ),
+            ).toMatchInlineSnapshot(`
+            {
+              "tool": {
+                "poetry": {
+                  "dependencies": {
+                    "my-lib": {
+                      "develop": true,
+                      "path": "../my-lib",
+                    },
+                  },
+                  "name": "project-with-dependency-on-my-pkg",
+                  "version": "0.0.1",
+                },
+              },
+            }
+          `);
+            expect(
+              readPyprojectToml(
+                tree,
+                'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
+              ),
+            ).toMatchInlineSnapshot(`
+            {
+              "tool": {
+                "poetry": {
+                  "group": {
+                    "dev": {
+                      "dependencies": {
+                        "my-lib": {
+                          "develop": true,
+                          "path": "../my-lib",
+                        },
+                      },
+                    },
+                  },
+                  "name": "project-with-devDependency-on-my-pkg",
+                  "version": "0.0.1",
+                },
+              },
+            }
+          `);
+
+            await releaseVersionGenerator(tree, {
+              projects: [projectGraph.nodes['my-lib']], // version only my-lib
+              projectGraph,
+              specifier: '9.9.9', // user CLI specifier override set, no prompting should occur
+              currentVersionResolver: 'disk',
+              specifierSource: 'prompt',
+              releaseGroup: createReleaseGroup('independent'),
+              updateDependents: 'never',
+            });
+
+            expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
+              .toMatchInlineSnapshot(`
+            {
+              "tool": {
+                "poetry": {
+                  "name": "my-lib",
+                  "version": "9.9.9",
+                },
+              },
+            }
+          `);
+
+            expect(
+              readPyprojectToml(
+                tree,
+                'libs/project-with-dependency-on-my-pkg/pyproject.toml',
+              ),
+            ).toMatchInlineSnapshot(`
+            {
+              "tool": {
+                "poetry": {
+                  "dependencies": {
+                    "my-lib": {
+                      "develop": true,
+                      "path": "../my-lib",
+                    },
+                  },
+                  "name": "project-with-dependency-on-my-pkg",
+                  "version": "0.0.1",
+                },
+              },
+            }
+          `);
+            expect(
+              readPyprojectToml(
+                tree,
+                'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
+              ),
+            ).toMatchInlineSnapshot(`
+            {
+              "tool": {
+                "poetry": {
+                  "group": {
+                    "dev": {
+                      "dependencies": {
+                        "my-lib": {
+                          "develop": true,
+                          "path": "../my-lib",
+                        },
+                      },
+                    },
+                  },
+                  "name": "project-with-devDependency-on-my-pkg",
+                  "version": "0.0.1",
+                },
+              },
+            }
+          `);
+          });
+
+          it(`should update dependents even when filtering to a subset of projects which do not include those dependents, if "updateDependents" is "auto"`, async () => {
+            expect(
+              readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
+                .version,
+            ).toEqual('0.0.1');
+            expect(
+              readPyprojectToml(
+                tree,
+                'libs/project-with-dependency-on-my-pkg/pyproject.toml',
+              ),
+            ).toMatchInlineSnapshot(`
+            {
+              "tool": {
+                "poetry": {
+                  "dependencies": {
+                    "my-lib": {
+                      "develop": true,
+                      "path": "../my-lib",
+                    },
+                  },
+                  "name": "project-with-dependency-on-my-pkg",
+                  "version": "0.0.1",
+                },
+              },
+            }
+          `);
+            expect(
+              readPyprojectToml(
+                tree,
+                'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
+              ),
+            ).toMatchInlineSnapshot(`
+            {
+              "tool": {
+                "poetry": {
+                  "group": {
+                    "dev": {
+                      "dependencies": {
+                        "my-lib": {
+                          "develop": true,
+                          "path": "../my-lib",
+                        },
+                      },
+                    },
+                  },
+                  "name": "project-with-devDependency-on-my-pkg",
+                  "version": "0.0.1",
+                },
+              },
+            }
+          `);
+
+            await releaseVersionGenerator(tree, {
+              projects: [projectGraph.nodes['my-lib']], // version only my-lib
+              projectGraph,
+              specifier: '9.9.9', // user CLI specifier override set, no prompting should occur
+              currentVersionResolver: 'disk',
+              specifierSource: 'prompt',
+              releaseGroup: createReleaseGroup('independent'),
+              updateDependents: 'auto',
+            });
+
+            expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
+              .toMatchInlineSnapshot(`
+            {
+              "tool": {
+                "poetry": {
+                  "name": "my-lib",
+                  "version": "9.9.9",
+                },
+              },
+            }
+          `);
+
+            expect(
+              readPyprojectToml(
+                tree,
+                'libs/project-with-dependency-on-my-pkg/pyproject.toml',
+              ),
+            ).toMatchInlineSnapshot(`
+            {
+              "tool": {
+                "poetry": {
+                  "dependencies": {
+                    "my-lib": {
+                      "develop": true,
+                      "path": "../my-lib",
+                    },
+                  },
+                  "name": "project-with-dependency-on-my-pkg",
+                  "version": "0.0.2",
+                },
+              },
+            }
+          `);
+            expect(
+              readPyprojectToml(
+                tree,
+                'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
+              ),
+            ).toMatchInlineSnapshot(`
+            {
+              "tool": {
+                "poetry": {
+                  "group": {
+                    "dev": {
+                      "dependencies": {
+                        "my-lib": {
+                          "develop": true,
+                          "path": "../my-lib",
+                        },
+                      },
+                    },
+                  },
+                  "name": "project-with-devDependency-on-my-pkg",
+                  "version": "0.0.2",
+                },
+              },
+            }
+          `);
+          });
+        });
+      });
+    });
+
+    describe('leading v in version', () => {
+      it(`should strip a leading v from the provided specifier`, async () => {
+        expect(
+          readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
+            .version,
+        ).toEqual('0.0.1');
+        await releaseVersionGenerator(tree, {
+          projects: Object.values(projectGraph.nodes), // version all projects
+          projectGraph,
+          specifier: 'v8.8.8',
+          currentVersionResolver: 'disk',
+          releaseGroup: createReleaseGroup('fixed'),
+        });
+        expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
+          .toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "name": "my-lib",
+              "version": "8.8.8",
+            },
+          },
+        }
+      `);
+
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/project-with-dependency-on-my-pkg/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "dependencies": {
+                "my-lib": {
+                  "develop": true,
+                  "path": "../my-lib",
+                },
+              },
+              "name": "project-with-dependency-on-my-pkg",
+              "version": "8.8.8",
+            },
+          },
+        }
+      `);
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "group": {
+                "dev": {
+                  "dependencies": {
+                    "my-lib": {
+                      "develop": true,
+                      "path": "../my-lib",
+                    },
+                  },
+                },
+              },
+              "name": "project-with-devDependency-on-my-pkg",
+              "version": "8.8.8",
+            },
+          },
+        }
+      `);
+      });
+    });
+
+    describe('dependent version prefix', () => {
+      beforeEach(() => {
+        projectGraph = createPoetryWorkspaceWithPackageDependencies(tree, {
+          'my-lib': {
+            projectRoot: 'libs/my-lib',
+            packageName: 'my-lib',
+            version: '0.0.1',
+            pyprojectTomlPath: 'libs/my-lib/pyproject.toml',
+            localDependencies: [],
+          },
+          'project-with-dependency-on-my-pkg': {
+            projectRoot: 'libs/project-with-dependency-on-my-pkg',
+            packageName: 'project-with-dependency-on-my-pkg',
+            version: '0.0.1',
+            pyprojectTomlPath:
+              'libs/project-with-dependency-on-my-pkg/pyproject.toml',
+            localDependencies: [
+              {
+                projectName: 'my-lib',
+                dependencyCollection: 'dependencies',
+              },
+            ],
+          },
+          'project-with-devDependency-on-my-pkg': {
+            projectRoot: 'libs/project-with-devDependency-on-my-pkg',
+            packageName: 'project-with-devDependency-on-my-pkg',
+            version: '0.0.1',
+            pyprojectTomlPath:
+              'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
+            localDependencies: [
+              {
+                projectName: 'my-lib',
+                dependencyCollection: 'dev',
+              },
+            ],
+          },
+          'another-project-with-devDependency-on-my-pkg': {
+            projectRoot: 'libs/another-project-with-devDependency-on-my-pkg',
+            packageName: 'another-project-with-devDependency-on-my-pkg',
+            version: '0.0.1',
+            pyprojectTomlPath:
+              'libs/another-project-with-devDependency-on-my-pkg/pyproject.toml',
+            localDependencies: [
+              {
+                projectName: 'my-lib',
+                dependencyCollection: 'dev',
+              },
+            ],
+          },
+        });
+      });
+
+      it('should work with an empty prefix', async () => {
+        expect(
+          readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
+            .version,
+        ).toEqual('0.0.1');
+        await releaseVersionGenerator(tree, {
+          projects: Object.values(projectGraph.nodes), // version all projects
+          projectGraph,
+          specifier: '9.9.9',
+          currentVersionResolver: 'disk',
+          releaseGroup: createReleaseGroup('fixed'),
+          versionPrefix: '',
+        });
+        expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
+          .toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "name": "my-lib",
+              "version": "9.9.9",
+            },
+          },
+        }
+      `);
+
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/project-with-dependency-on-my-pkg/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "dependencies": {
+                "my-lib": {
+                  "develop": true,
+                  "path": "../my-lib",
+                },
+              },
+              "name": "project-with-dependency-on-my-pkg",
+              "version": "9.9.9",
+            },
+          },
+        }
+      `);
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "group": {
+                "dev": {
+                  "dependencies": {
+                    "my-lib": {
+                      "develop": true,
+                      "path": "../my-lib",
+                    },
+                  },
+                },
+              },
+              "name": "project-with-devDependency-on-my-pkg",
+              "version": "9.9.9",
+            },
+          },
+        }
+      `);
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/another-project-with-devDependency-on-my-pkg/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "group": {
+                "dev": {
+                  "dependencies": {
+                    "my-lib": {
+                      "develop": true,
+                      "path": "../my-lib",
+                    },
+                  },
+                },
+              },
+              "name": "another-project-with-devDependency-on-my-pkg",
+              "version": "9.9.9",
+            },
+          },
+        }
+      `);
+      });
+
+      it('should work with a ^ prefix', async () => {
+        expect(
+          readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
+            .version,
+        ).toEqual('0.0.1');
+        await releaseVersionGenerator(tree, {
+          projects: Object.values(projectGraph.nodes), // version all projects
+          projectGraph,
+          specifier: '9.9.9',
+          currentVersionResolver: 'disk',
+          releaseGroup: createReleaseGroup('fixed'),
+          versionPrefix: '^',
+        });
+        expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
+          .toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "name": "my-lib",
+              "version": "9.9.9",
+            },
+          },
+        }
+      `);
+
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/project-with-dependency-on-my-pkg/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "dependencies": {
+                "my-lib": {
+                  "develop": true,
+                  "path": "../my-lib",
+                },
+              },
+              "name": "project-with-dependency-on-my-pkg",
+              "version": "9.9.9",
+            },
+          },
+        }
+      `);
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "group": {
+                "dev": {
+                  "dependencies": {
+                    "my-lib": {
+                      "develop": true,
+                      "path": "../my-lib",
+                    },
+                  },
+                },
+              },
+              "name": "project-with-devDependency-on-my-pkg",
+              "version": "9.9.9",
+            },
+          },
+        }
+      `);
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/another-project-with-devDependency-on-my-pkg/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "group": {
+                "dev": {
+                  "dependencies": {
+                    "my-lib": {
+                      "develop": true,
+                      "path": "../my-lib",
+                    },
+                  },
+                },
+              },
+              "name": "another-project-with-devDependency-on-my-pkg",
+              "version": "9.9.9",
+            },
+          },
+        }
+      `);
+      });
+
+      it('should work with a ~ prefix', async () => {
+        expect(
+          readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
+            .version,
+        ).toEqual('0.0.1');
+        await releaseVersionGenerator(tree, {
+          projects: Object.values(projectGraph.nodes), // version all projects
+          projectGraph,
+          specifier: '9.9.9',
+          currentVersionResolver: 'disk',
+          releaseGroup: createReleaseGroup('fixed'),
+          versionPrefix: '~',
+        });
+        expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
+          .toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "name": "my-lib",
+              "version": "9.9.9",
+            },
+          },
+        }
+      `);
+
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/project-with-dependency-on-my-pkg/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "dependencies": {
+                "my-lib": {
+                  "develop": true,
+                  "path": "../my-lib",
+                },
+              },
+              "name": "project-with-dependency-on-my-pkg",
+              "version": "9.9.9",
+            },
+          },
+        }
+      `);
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "group": {
+                "dev": {
+                  "dependencies": {
+                    "my-lib": {
+                      "develop": true,
+                      "path": "../my-lib",
+                    },
+                  },
+                },
+              },
+              "name": "project-with-devDependency-on-my-pkg",
+              "version": "9.9.9",
+            },
+          },
+        }
+      `);
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/another-project-with-devDependency-on-my-pkg/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "group": {
+                "dev": {
+                  "dependencies": {
+                    "my-lib": {
+                      "develop": true,
+                      "path": "../my-lib",
+                    },
+                  },
+                },
+              },
+              "name": "another-project-with-devDependency-on-my-pkg",
+              "version": "9.9.9",
+            },
+          },
+        }
+      `);
+      });
+
+      it('should respect any existing prefix when set to "auto"', async () => {
+        expect(
+          readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
+            .version,
+        ).toEqual('0.0.1');
+        await releaseVersionGenerator(tree, {
+          projects: Object.values(projectGraph.nodes), // version all projects
+          projectGraph,
+          specifier: '9.9.9',
+          currentVersionResolver: 'disk',
+          releaseGroup: createReleaseGroup('fixed'),
+          versionPrefix: 'auto',
+        });
+        expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
+          .toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "name": "my-lib",
+              "version": "9.9.9",
+            },
+          },
+        }
+      `);
+
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/project-with-dependency-on-my-pkg/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "dependencies": {
+                "my-lib": {
+                  "develop": true,
+                  "path": "../my-lib",
+                },
+              },
+              "name": "project-with-dependency-on-my-pkg",
+              "version": "9.9.9",
+            },
+          },
+        }
+      `);
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "group": {
+                "dev": {
+                  "dependencies": {
+                    "my-lib": {
+                      "develop": true,
+                      "path": "../my-lib",
+                    },
+                  },
+                },
+              },
+              "name": "project-with-devDependency-on-my-pkg",
+              "version": "9.9.9",
+            },
+          },
+        }
+      `);
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/another-project-with-devDependency-on-my-pkg/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "group": {
+                "dev": {
+                  "dependencies": {
+                    "my-lib": {
+                      "develop": true,
+                      "path": "../my-lib",
+                    },
+                  },
+                },
+              },
+              "name": "another-project-with-devDependency-on-my-pkg",
+              "version": "9.9.9",
+            },
+          },
+        }
+      `);
+      });
+
+      it('should use the behavior of "auto" by default', async () => {
+        expect(
+          readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
+            .version,
+        ).toEqual('0.0.1');
+        await releaseVersionGenerator(tree, {
+          projects: Object.values(projectGraph.nodes), // version all projects
+          projectGraph,
+          specifier: '9.9.9',
+          currentVersionResolver: 'disk',
+          releaseGroup: createReleaseGroup('fixed'),
+          versionPrefix: undefined,
+        });
+        expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
+          .toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "name": "my-lib",
+              "version": "9.9.9",
+            },
+          },
+        }
+      `);
+
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/project-with-dependency-on-my-pkg/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "dependencies": {
+                "my-lib": {
+                  "develop": true,
+                  "path": "../my-lib",
+                },
+              },
+              "name": "project-with-dependency-on-my-pkg",
+              "version": "9.9.9",
+            },
+          },
+        }
+      `);
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "group": {
+                "dev": {
+                  "dependencies": {
+                    "my-lib": {
+                      "develop": true,
+                      "path": "../my-lib",
+                    },
+                  },
+                },
+              },
+              "name": "project-with-devDependency-on-my-pkg",
+              "version": "9.9.9",
+            },
+          },
+        }
+      `);
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/another-project-with-devDependency-on-my-pkg/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "group": {
+                "dev": {
+                  "dependencies": {
+                    "my-lib": {
+                      "develop": true,
+                      "path": "../my-lib",
+                    },
+                  },
+                },
+              },
+              "name": "another-project-with-devDependency-on-my-pkg",
+              "version": "9.9.9",
+            },
+          },
+        }
+      `);
+      });
+
+      it(`should exit with code one and print guidance for invalid prefix values`, async () => {
+        stubProcessExit = true;
+
+        const outputSpy = vi
+          .spyOn(output, 'error')
+          .mockImplementationOnce(() => {
+            return undefined as never;
+          });
+
+        await releaseVersionGenerator(tree, {
+          projects: Object.values(projectGraph.nodes), // version all projects
+          projectGraph,
+          specifier: 'major',
+          currentVersionResolver: 'disk',
+          releaseGroup: createReleaseGroup('fixed'),
+          versionPrefix: '$' as never,
         });
 
-        it(`should not update dependents when filtering to a subset of projects by default, if "updateDependents" is set to "never"`, async () => {
-          expect(
-            readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
-              .version,
-          ).toEqual('0.0.1');
-          expect(
-            readPyprojectToml(
-              tree,
-              'libs/project-with-dependency-on-my-pkg/pyproject.toml',
-            ),
-          ).toMatchInlineSnapshot(`
-            {
-              "tool": {
-                "poetry": {
-                  "dependencies": {
-                    "my-lib": {
-                      "develop": true,
-                      "path": "../my-lib",
-                    },
-                  },
-                  "name": "project-with-dependency-on-my-pkg",
-                  "version": "0.0.1",
-                },
-              },
-            }
-          `);
-          expect(
-            readPyprojectToml(
-              tree,
-              'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
-            ),
-          ).toMatchInlineSnapshot(`
-            {
-              "tool": {
-                "poetry": {
-                  "group": {
-                    "dev": {
-                      "dependencies": {
-                        "my-lib": {
-                          "develop": true,
-                          "path": "../my-lib",
-                        },
-                      },
-                    },
-                  },
-                  "name": "project-with-devDependency-on-my-pkg",
-                  "version": "0.0.1",
-                },
-              },
-            }
-          `);
+        expect(outputSpy).toHaveBeenCalledWith({
+          title: `Invalid value for version.generatorOptions.versionPrefix: "$"
 
+Valid values are: "auto", "", "~", "^", "="`,
+        });
+
+        outputSpy.mockRestore();
+        expect(processExitSpy).toHaveBeenCalledWith(1);
+
+        stubProcessExit = false;
+      });
+    });
+
+    describe('transitive updateDependents', () => {
+      beforeEach(() => {
+        projectGraph = createPoetryWorkspaceWithPackageDependencies(tree, {
+          'my-lib': {
+            projectRoot: 'libs/my-lib',
+            packageName: 'my-lib',
+            version: '0.0.1',
+            pyprojectTomlPath: 'libs/my-lib/pyproject.toml',
+            localDependencies: [],
+          },
+          'project-with-dependency-on-my-lib': {
+            projectRoot: 'libs/project-with-dependency-on-my-lib',
+            packageName: 'project-with-dependency-on-my-lib',
+            version: '0.0.1',
+            pyprojectTomlPath:
+              'libs/project-with-dependency-on-my-lib/pyproject.toml',
+            localDependencies: [
+              {
+                projectName: 'my-lib',
+                dependencyCollection: 'dependencies',
+              },
+            ],
+          },
+          'project-with-transitive-dependency-on-my-lib': {
+            projectRoot: 'libs/project-with-transitive-dependency-on-my-lib',
+            packageName: 'project-with-transitive-dependency-on-my-lib',
+            version: '0.0.1',
+            pyprojectTomlPath:
+              'libs/project-with-transitive-dependency-on-my-lib/pyproject.toml',
+            localDependencies: [
+              {
+                // Depends on my-lib via the project-with-dependency-on-my-lib
+                projectName: 'project-with-dependency-on-my-lib',
+                dependencyCollection: 'dev',
+              },
+            ],
+          },
+        });
+      });
+
+      it('should not update transitive dependents when updateDependents is set to "never" and the transitive dependents are not in the same batch', async () => {
+        expect(
+          readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
+            .version,
+        ).toEqual('0.0.1');
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/project-with-dependency-on-my-lib/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "dependencies": {
+                "my-lib": {
+                  "develop": true,
+                  "path": "../my-lib",
+                },
+              },
+              "name": "project-with-dependency-on-my-lib",
+              "version": "0.0.1",
+            },
+          },
+        }
+      `);
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/project-with-transitive-dependency-on-my-lib/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "group": {
+                "dev": {
+                  "dependencies": {
+                    "project-with-dependency-on-my-lib": {
+                      "develop": true,
+                      "path": "../project-with-dependency-on-my-lib",
+                    },
+                  },
+                },
+              },
+              "name": "project-with-transitive-dependency-on-my-lib",
+              "version": "0.0.1",
+            },
+          },
+        }
+      `);
+
+        // It should not include transitive dependents in the versionData because we are filtering to only my-lib and updateDependents is set to "never"
+        expect(
           await releaseVersionGenerator(tree, {
             projects: [projectGraph.nodes['my-lib']], // version only my-lib
             projectGraph,
-            specifier: '9.9.9', // user CLI specifier override set, no prompting should occur
+            specifier: '9.9.9',
             currentVersionResolver: 'disk',
             specifierSource: 'prompt',
             releaseGroup: createReleaseGroup('independent'),
             updateDependents: 'never',
-          });
+          }),
+        ).toMatchInlineSnapshot(`
+        {
+          "callback": [Function],
+          "data": {
+            "my-lib": {
+              "currentVersion": "0.0.1",
+              "dependentProjects": [],
+              "newVersion": "9.9.9",
+            },
+          },
+        }
+      `);
 
-          expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
-            .toMatchInlineSnapshot(`
-            {
-              "tool": {
-                "poetry": {
-                  "name": "my-lib",
-                  "version": "9.9.9",
+        expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
+          .toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "name": "my-lib",
+              "version": "9.9.9",
+            },
+          },
+        }
+      `);
+
+        // The version of project-with-dependency-on-my-lib is untouched because it is not in the same batch as my-lib and updateDependents is set to "never"
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/project-with-dependency-on-my-lib/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "dependencies": {
+                "my-lib": {
+                  "develop": true,
+                  "path": "../my-lib",
                 },
               },
-            }
-          `);
+              "name": "project-with-dependency-on-my-lib",
+              "version": "0.0.1",
+            },
+          },
+        }
+      `);
 
-          expect(
-            readPyprojectToml(
-              tree,
-              'libs/project-with-dependency-on-my-pkg/pyproject.toml',
-            ),
-          ).toMatchInlineSnapshot(`
-            {
-              "tool": {
-                "poetry": {
+        // The version of project-with-transitive-dependency-on-my-lib is untouched because it is not in the same batch as my-lib and updateDependents is set to "never"
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/project-with-transitive-dependency-on-my-lib/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "group": {
+                "dev": {
                   "dependencies": {
-                    "my-lib": {
+                    "project-with-dependency-on-my-lib": {
                       "develop": true,
-                      "path": "../my-lib",
+                      "path": "../project-with-dependency-on-my-lib",
                     },
                   },
-                  "name": "project-with-dependency-on-my-pkg",
-                  "version": "0.0.1",
                 },
               },
-            }
-          `);
-          expect(
-            readPyprojectToml(
-              tree,
-              'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
-            ),
-          ).toMatchInlineSnapshot(`
-            {
-              "tool": {
-                "poetry": {
-                  "group": {
-                    "dev": {
-                      "dependencies": {
-                        "my-lib": {
-                          "develop": true,
-                          "path": "../my-lib",
-                        },
-                      },
-                    },
-                  },
-                  "name": "project-with-devDependency-on-my-pkg",
-                  "version": "0.0.1",
-                },
-              },
-            }
-          `);
-        });
+              "name": "project-with-transitive-dependency-on-my-lib",
+              "version": "0.0.1",
+            },
+          },
+        }
+      `);
+      });
 
-        it(`should update dependents even when filtering to a subset of projects which do not include those dependents, if "updateDependents" is "auto"`, async () => {
-          expect(
-            readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
-              .version,
-          ).toEqual('0.0.1');
-          expect(
-            readPyprojectToml(
-              tree,
-              'libs/project-with-dependency-on-my-pkg/pyproject.toml',
-            ),
-          ).toMatchInlineSnapshot(`
-            {
-              "tool": {
-                "poetry": {
+      it('should always update transitive dependents when updateDependents is set to "auto"', async () => {
+        expect(
+          readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
+            .version,
+        ).toEqual('0.0.1');
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/project-with-dependency-on-my-lib/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "dependencies": {
+                "my-lib": {
+                  "develop": true,
+                  "path": "../my-lib",
+                },
+              },
+              "name": "project-with-dependency-on-my-lib",
+              "version": "0.0.1",
+            },
+          },
+        }
+      `);
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/project-with-transitive-dependency-on-my-lib/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "group": {
+                "dev": {
                   "dependencies": {
-                    "my-lib": {
+                    "project-with-dependency-on-my-lib": {
                       "develop": true,
-                      "path": "../my-lib",
+                      "path": "../project-with-dependency-on-my-lib",
                     },
                   },
-                  "name": "project-with-dependency-on-my-pkg",
-                  "version": "0.0.1",
                 },
               },
-            }
-          `);
-          expect(
-            readPyprojectToml(
-              tree,
-              'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
-            ),
-          ).toMatchInlineSnapshot(`
-            {
-              "tool": {
-                "poetry": {
-                  "group": {
-                    "dev": {
-                      "dependencies": {
-                        "my-lib": {
-                          "develop": true,
-                          "path": "../my-lib",
-                        },
-                      },
-                    },
-                  },
-                  "name": "project-with-devDependency-on-my-pkg",
-                  "version": "0.0.1",
-                },
-              },
-            }
-          `);
+              "name": "project-with-transitive-dependency-on-my-lib",
+              "version": "0.0.1",
+            },
+          },
+        }
+      `);
 
+        // It should include the appropriate versionData for transitive dependents
+        expect(
           await releaseVersionGenerator(tree, {
             projects: [projectGraph.nodes['my-lib']], // version only my-lib
             projectGraph,
-            specifier: '9.9.9', // user CLI specifier override set, no prompting should occur
+            specifier: '9.9.9',
             currentVersionResolver: 'disk',
             specifierSource: 'prompt',
             releaseGroup: createReleaseGroup('independent'),
             updateDependents: 'auto',
-          });
+          }),
+        ).toMatchInlineSnapshot(`
+          {
+            "callback": [Function],
+            "data": {
+              "my-lib": {
+                "currentVersion": "0.0.1",
+                "dependentProjects": [
+                  {
+                    "dependencyCollection": "dependencies",
+                    "rawVersionSpec": "0.0.1",
+                    "source": "project-with-dependency-on-my-lib",
+                    "target": "my-lib",
+                    "type": "static",
+                  },
+                ],
+                "newVersion": "9.9.9",
+              },
+              "project-with-dependency-on-my-lib": {
+                "currentVersion": "0.0.1",
+                "dependentProjects": [
+                  {
+                    "dependencyCollection": "devDependencies",
+                    "groupKey": undefined,
+                    "rawVersionSpec": "0.0.1",
+                    "source": "project-with-transitive-dependency-on-my-lib",
+                    "target": "project-with-dependency-on-my-lib",
+                    "type": "static",
+                  },
+                ],
+                "newVersion": "0.0.2",
+              },
+              "project-with-transitive-dependency-on-my-lib": {
+                "currentVersion": "0.0.1",
+                "dependentProjects": [],
+                "newVersion": "0.0.2",
+              },
+            },
+          }
+        `);
 
-          expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
-            .toMatchInlineSnapshot(`
-            {
-              "tool": {
-                "poetry": {
-                  "name": "my-lib",
-                  "version": "9.9.9",
+        expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
+          .toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "name": "my-lib",
+              "version": "9.9.9",
+            },
+          },
+        }
+      `);
+
+        // The version of project-with-dependency-on-my-lib gets bumped by a patch number and the dependencies reference is updated to the new version of my-lib
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/project-with-dependency-on-my-lib/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "dependencies": {
+                "my-lib": {
+                  "develop": true,
+                  "path": "../my-lib",
                 },
               },
-            }
-          `);
+              "name": "project-with-dependency-on-my-lib",
+              "version": "0.0.2",
+            },
+          },
+        }
+      `);
 
-          expect(
-            readPyprojectToml(
-              tree,
-              'libs/project-with-dependency-on-my-pkg/pyproject.toml',
-            ),
-          ).toMatchInlineSnapshot(`
-            {
-              "tool": {
-                "poetry": {
+        // The version of project-with-transitive-dependency-on-my-lib gets bumped by a patch number and the devDependencies reference is updated to the new version of project-with-dependency-on-my-lib because of the transitive dependency on my-lib
+        expect(
+          readPyprojectToml(
+            tree,
+            'libs/project-with-transitive-dependency-on-my-lib/pyproject.toml',
+          ),
+        ).toMatchInlineSnapshot(`
+        {
+          "tool": {
+            "poetry": {
+              "group": {
+                "dev": {
                   "dependencies": {
-                    "my-lib": {
+                    "project-with-dependency-on-my-lib": {
                       "develop": true,
-                      "path": "../my-lib",
+                      "path": "../project-with-dependency-on-my-lib",
                     },
                   },
-                  "name": "project-with-dependency-on-my-pkg",
-                  "version": "0.0.2",
                 },
               },
-            }
-          `);
-          expect(
-            readPyprojectToml(
-              tree,
-              'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
-            ),
-          ).toMatchInlineSnapshot(`
-            {
-              "tool": {
-                "poetry": {
-                  "group": {
-                    "dev": {
-                      "dependencies": {
-                        "my-lib": {
-                          "develop": true,
-                          "path": "../my-lib",
-                        },
-                      },
-                    },
-                  },
-                  "name": "project-with-devDependency-on-my-pkg",
-                  "version": "0.0.2",
-                },
+              "name": "project-with-transitive-dependency-on-my-lib",
+              "version": "0.0.2",
+            },
+          },
+        }
+      `);
+      });
+    });
+
+    describe('circular dependencies', () => {
+      beforeEach(() => {
+        // package-a <-> package-b
+        projectGraph = createPoetryWorkspaceWithPackageDependencies(tree, {
+          'package-a': {
+            projectRoot: 'packages/package-a',
+            packageName: 'package-a',
+            version: '1.0.0',
+            pyprojectTomlPath: 'packages/package-a/pyproject.toml',
+            localDependencies: [
+              {
+                projectName: 'package-b',
+                dependencyCollection: 'dependencies',
               },
-            }
-          `);
+            ],
+          },
+          'package-b': {
+            projectRoot: 'packages/package-b',
+            packageName: 'package-b',
+            version: '1.0.0',
+            pyprojectTomlPath: 'packages/package-b/pyproject.toml',
+            localDependencies: [
+              {
+                projectName: 'package-a',
+                dependencyCollection: 'dependencies',
+              },
+            ],
+          },
         });
       });
-    });
-  });
 
-  describe('leading v in version', () => {
-    it(`should strip a leading v from the provided specifier`, async () => {
-      expect(
-        readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
-          .version,
-      ).toEqual('0.0.1');
-      await releaseVersionGenerator(tree, {
-        projects: Object.values(projectGraph.nodes), // version all projects
-        projectGraph,
-        specifier: 'v8.8.8',
-        currentVersionResolver: 'disk',
-        releaseGroup: createReleaseGroup('fixed'),
-      });
-      expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
-        .toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "name": "my-lib",
-              "version": "8.8.8",
-            },
-          },
-        }
-      `);
-
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/project-with-dependency-on-my-pkg/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "dependencies": {
-                "my-lib": {
-                  "develop": true,
-                  "path": "../my-lib",
-                },
-              },
-              "name": "project-with-dependency-on-my-pkg",
-              "version": "8.8.8",
-            },
-          },
-        }
-      `);
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "group": {
-                "dev": {
-                  "dependencies": {
-                    "my-lib": {
-                      "develop": true,
-                      "path": "../my-lib",
-                    },
-                  },
-                },
-              },
-              "name": "project-with-devDependency-on-my-pkg",
-              "version": "8.8.8",
-            },
-          },
-        }
-      `);
-    });
-  });
-
-  describe('dependent version prefix', () => {
-    beforeEach(() => {
-      projectGraph = createWorkspaceWithPackageDependencies(tree, {
-        'my-lib': {
-          projectRoot: 'libs/my-lib',
-          packageName: 'my-lib',
-          version: '0.0.1',
-          pyprojectTomlPath: 'libs/my-lib/pyproject.toml',
-          localDependencies: [],
-        },
-        'project-with-dependency-on-my-pkg': {
-          projectRoot: 'libs/project-with-dependency-on-my-pkg',
-          packageName: 'project-with-dependency-on-my-pkg',
-          version: '0.0.1',
-          pyprojectTomlPath:
-            'libs/project-with-dependency-on-my-pkg/pyproject.toml',
-          localDependencies: [
-            {
-              projectName: 'my-lib',
-              dependencyCollection: 'dependencies',
-            },
-          ],
-        },
-        'project-with-devDependency-on-my-pkg': {
-          projectRoot: 'libs/project-with-devDependency-on-my-pkg',
-          packageName: 'project-with-devDependency-on-my-pkg',
-          version: '0.0.1',
-          pyprojectTomlPath:
-            'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
-          localDependencies: [
-            {
-              projectName: 'my-lib',
-              dependencyCollection: 'dev',
-            },
-          ],
-        },
-        'another-project-with-devDependency-on-my-pkg': {
-          projectRoot: 'libs/another-project-with-devDependency-on-my-pkg',
-          packageName: 'another-project-with-devDependency-on-my-pkg',
-          version: '0.0.1',
-          pyprojectTomlPath:
-            'libs/another-project-with-devDependency-on-my-pkg/pyproject.toml',
-          localDependencies: [
-            {
-              projectName: 'my-lib',
-              dependencyCollection: 'dev',
-            },
-          ],
-        },
-      });
-    });
-
-    it('should work with an empty prefix', async () => {
-      expect(
-        readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
-          .version,
-      ).toEqual('0.0.1');
-      await releaseVersionGenerator(tree, {
-        projects: Object.values(projectGraph.nodes), // version all projects
-        projectGraph,
-        specifier: '9.9.9',
-        currentVersionResolver: 'disk',
-        releaseGroup: createReleaseGroup('fixed'),
-        versionPrefix: '',
-      });
-      expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
-        .toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "name": "my-lib",
-              "version": "9.9.9",
-            },
-          },
-        }
-      `);
-
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/project-with-dependency-on-my-pkg/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "dependencies": {
-                "my-lib": {
-                  "develop": true,
-                  "path": "../my-lib",
-                },
-              },
-              "name": "project-with-dependency-on-my-pkg",
-              "version": "9.9.9",
-            },
-          },
-        }
-      `);
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "group": {
-                "dev": {
-                  "dependencies": {
-                    "my-lib": {
-                      "develop": true,
-                      "path": "../my-lib",
-                    },
-                  },
-                },
-              },
-              "name": "project-with-devDependency-on-my-pkg",
-              "version": "9.9.9",
-            },
-          },
-        }
-      `);
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/another-project-with-devDependency-on-my-pkg/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "group": {
-                "dev": {
-                  "dependencies": {
-                    "my-lib": {
-                      "develop": true,
-                      "path": "../my-lib",
-                    },
-                  },
-                },
-              },
-              "name": "another-project-with-devDependency-on-my-pkg",
-              "version": "9.9.9",
-            },
-          },
-        }
-      `);
-    });
-
-    it('should work with a ^ prefix', async () => {
-      expect(
-        readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
-          .version,
-      ).toEqual('0.0.1');
-      await releaseVersionGenerator(tree, {
-        projects: Object.values(projectGraph.nodes), // version all projects
-        projectGraph,
-        specifier: '9.9.9',
-        currentVersionResolver: 'disk',
-        releaseGroup: createReleaseGroup('fixed'),
-        versionPrefix: '^',
-      });
-      expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
-        .toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "name": "my-lib",
-              "version": "9.9.9",
-            },
-          },
-        }
-      `);
-
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/project-with-dependency-on-my-pkg/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "dependencies": {
-                "my-lib": {
-                  "develop": true,
-                  "path": "../my-lib",
-                },
-              },
-              "name": "project-with-dependency-on-my-pkg",
-              "version": "9.9.9",
-            },
-          },
-        }
-      `);
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "group": {
-                "dev": {
-                  "dependencies": {
-                    "my-lib": {
-                      "develop": true,
-                      "path": "../my-lib",
-                    },
-                  },
-                },
-              },
-              "name": "project-with-devDependency-on-my-pkg",
-              "version": "9.9.9",
-            },
-          },
-        }
-      `);
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/another-project-with-devDependency-on-my-pkg/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "group": {
-                "dev": {
-                  "dependencies": {
-                    "my-lib": {
-                      "develop": true,
-                      "path": "../my-lib",
-                    },
-                  },
-                },
-              },
-              "name": "another-project-with-devDependency-on-my-pkg",
-              "version": "9.9.9",
-            },
-          },
-        }
-      `);
-    });
-
-    it('should work with a ~ prefix', async () => {
-      expect(
-        readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
-          .version,
-      ).toEqual('0.0.1');
-      await releaseVersionGenerator(tree, {
-        projects: Object.values(projectGraph.nodes), // version all projects
-        projectGraph,
-        specifier: '9.9.9',
-        currentVersionResolver: 'disk',
-        releaseGroup: createReleaseGroup('fixed'),
-        versionPrefix: '~',
-      });
-      expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
-        .toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "name": "my-lib",
-              "version": "9.9.9",
-            },
-          },
-        }
-      `);
-
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/project-with-dependency-on-my-pkg/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "dependencies": {
-                "my-lib": {
-                  "develop": true,
-                  "path": "../my-lib",
-                },
-              },
-              "name": "project-with-dependency-on-my-pkg",
-              "version": "9.9.9",
-            },
-          },
-        }
-      `);
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "group": {
-                "dev": {
-                  "dependencies": {
-                    "my-lib": {
-                      "develop": true,
-                      "path": "../my-lib",
-                    },
-                  },
-                },
-              },
-              "name": "project-with-devDependency-on-my-pkg",
-              "version": "9.9.9",
-            },
-          },
-        }
-      `);
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/another-project-with-devDependency-on-my-pkg/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "group": {
-                "dev": {
-                  "dependencies": {
-                    "my-lib": {
-                      "develop": true,
-                      "path": "../my-lib",
-                    },
-                  },
-                },
-              },
-              "name": "another-project-with-devDependency-on-my-pkg",
-              "version": "9.9.9",
-            },
-          },
-        }
-      `);
-    });
-
-    it('should respect any existing prefix when set to "auto"', async () => {
-      expect(
-        readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
-          .version,
-      ).toEqual('0.0.1');
-      await releaseVersionGenerator(tree, {
-        projects: Object.values(projectGraph.nodes), // version all projects
-        projectGraph,
-        specifier: '9.9.9',
-        currentVersionResolver: 'disk',
-        releaseGroup: createReleaseGroup('fixed'),
-        versionPrefix: 'auto',
-      });
-      expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
-        .toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "name": "my-lib",
-              "version": "9.9.9",
-            },
-          },
-        }
-      `);
-
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/project-with-dependency-on-my-pkg/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "dependencies": {
-                "my-lib": {
-                  "develop": true,
-                  "path": "../my-lib",
-                },
-              },
-              "name": "project-with-dependency-on-my-pkg",
-              "version": "9.9.9",
-            },
-          },
-        }
-      `);
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "group": {
-                "dev": {
-                  "dependencies": {
-                    "my-lib": {
-                      "develop": true,
-                      "path": "../my-lib",
-                    },
-                  },
-                },
-              },
-              "name": "project-with-devDependency-on-my-pkg",
-              "version": "9.9.9",
-            },
-          },
-        }
-      `);
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/another-project-with-devDependency-on-my-pkg/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "group": {
-                "dev": {
-                  "dependencies": {
-                    "my-lib": {
-                      "develop": true,
-                      "path": "../my-lib",
-                    },
-                  },
-                },
-              },
-              "name": "another-project-with-devDependency-on-my-pkg",
-              "version": "9.9.9",
-            },
-          },
-        }
-      `);
-    });
-
-    it('should use the behavior of "auto" by default', async () => {
-      expect(
-        readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
-          .version,
-      ).toEqual('0.0.1');
-      await releaseVersionGenerator(tree, {
-        projects: Object.values(projectGraph.nodes), // version all projects
-        projectGraph,
-        specifier: '9.9.9',
-        currentVersionResolver: 'disk',
-        releaseGroup: createReleaseGroup('fixed'),
-        versionPrefix: undefined,
-      });
-      expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
-        .toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "name": "my-lib",
-              "version": "9.9.9",
-            },
-          },
-        }
-      `);
-
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/project-with-dependency-on-my-pkg/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "dependencies": {
-                "my-lib": {
-                  "develop": true,
-                  "path": "../my-lib",
-                },
-              },
-              "name": "project-with-dependency-on-my-pkg",
-              "version": "9.9.9",
-            },
-          },
-        }
-      `);
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/project-with-devDependency-on-my-pkg/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "group": {
-                "dev": {
-                  "dependencies": {
-                    "my-lib": {
-                      "develop": true,
-                      "path": "../my-lib",
-                    },
-                  },
-                },
-              },
-              "name": "project-with-devDependency-on-my-pkg",
-              "version": "9.9.9",
-            },
-          },
-        }
-      `);
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/another-project-with-devDependency-on-my-pkg/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "group": {
-                "dev": {
-                  "dependencies": {
-                    "my-lib": {
-                      "develop": true,
-                      "path": "../my-lib",
-                    },
-                  },
-                },
-              },
-              "name": "another-project-with-devDependency-on-my-pkg",
-              "version": "9.9.9",
-            },
-          },
-        }
-      `);
-    });
-
-    it(`should exit with code one and print guidance for invalid prefix values`, async () => {
-      stubProcessExit = true;
-
-      const outputSpy = vi.spyOn(output, 'error').mockImplementationOnce(() => {
-        return undefined as never;
-      });
-
-      await releaseVersionGenerator(tree, {
-        projects: Object.values(projectGraph.nodes), // version all projects
-        projectGraph,
-        specifier: 'major',
-        currentVersionResolver: 'disk',
-        releaseGroup: createReleaseGroup('fixed'),
-        versionPrefix: '$' as never,
-      });
-
-      expect(outputSpy).toHaveBeenCalledWith({
-        title: `Invalid value for version.generatorOptions.versionPrefix: "$"
-
-Valid values are: "auto", "", "~", "^", "="`,
-      });
-
-      outputSpy.mockRestore();
-      expect(processExitSpy).toHaveBeenCalledWith(1);
-
-      stubProcessExit = false;
-    });
-  });
-
-  describe('transitive updateDependents', () => {
-    beforeEach(() => {
-      projectGraph = createWorkspaceWithPackageDependencies(tree, {
-        'my-lib': {
-          projectRoot: 'libs/my-lib',
-          packageName: 'my-lib',
-          version: '0.0.1',
-          pyprojectTomlPath: 'libs/my-lib/pyproject.toml',
-          localDependencies: [],
-        },
-        'project-with-dependency-on-my-lib': {
-          projectRoot: 'libs/project-with-dependency-on-my-lib',
-          packageName: 'project-with-dependency-on-my-lib',
-          version: '0.0.1',
-          pyprojectTomlPath:
-            'libs/project-with-dependency-on-my-lib/pyproject.toml',
-          localDependencies: [
-            {
-              projectName: 'my-lib',
-              dependencyCollection: 'dependencies',
-            },
-          ],
-        },
-        'project-with-transitive-dependency-on-my-lib': {
-          projectRoot: 'libs/project-with-transitive-dependency-on-my-lib',
-          packageName: 'project-with-transitive-dependency-on-my-lib',
-          version: '0.0.1',
-          pyprojectTomlPath:
-            'libs/project-with-transitive-dependency-on-my-lib/pyproject.toml',
-          localDependencies: [
-            {
-              // Depends on my-lib via the project-with-dependency-on-my-lib
-              projectName: 'project-with-dependency-on-my-lib',
-              dependencyCollection: 'dev',
-            },
-          ],
-        },
-      });
-    });
-
-    it('should not update transitive dependents when updateDependents is set to "never" and the transitive dependents are not in the same batch', async () => {
-      expect(
-        readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
-          .version,
-      ).toEqual('0.0.1');
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/project-with-dependency-on-my-lib/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "dependencies": {
-                "my-lib": {
-                  "develop": true,
-                  "path": "../my-lib",
-                },
-              },
-              "name": "project-with-dependency-on-my-lib",
-              "version": "0.0.1",
-            },
-          },
-        }
-      `);
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/project-with-transitive-dependency-on-my-lib/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "group": {
-                "dev": {
-                  "dependencies": {
-                    "project-with-dependency-on-my-lib": {
-                      "develop": true,
-                      "path": "../project-with-dependency-on-my-lib",
-                    },
-                  },
-                },
-              },
-              "name": "project-with-transitive-dependency-on-my-lib",
-              "version": "0.0.1",
-            },
-          },
-        }
-      `);
-
-      // It should not include transitive dependents in the versionData because we are filtering to only my-lib and updateDependents is set to "never"
-      expect(
-        await releaseVersionGenerator(tree, {
-          projects: [projectGraph.nodes['my-lib']], // version only my-lib
-          projectGraph,
-          specifier: '9.9.9',
-          currentVersionResolver: 'disk',
-          specifierSource: 'prompt',
-          releaseGroup: createReleaseGroup('independent'),
-          updateDependents: 'never',
-        }),
-      ).toMatchInlineSnapshot(`
-        {
-          "callback": [Function],
-          "data": {
-            "my-lib": {
-              "currentVersion": "0.0.1",
-              "dependentProjects": [],
-              "newVersion": "9.9.9",
-            },
-          },
-        }
-      `);
-
-      expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
-        .toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "name": "my-lib",
-              "version": "9.9.9",
-            },
-          },
-        }
-      `);
-
-      // The version of project-with-dependency-on-my-lib is untouched because it is not in the same batch as my-lib and updateDependents is set to "never"
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/project-with-dependency-on-my-lib/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "dependencies": {
-                "my-lib": {
-                  "develop": true,
-                  "path": "../my-lib",
-                },
-              },
-              "name": "project-with-dependency-on-my-lib",
-              "version": "0.0.1",
-            },
-          },
-        }
-      `);
-
-      // The version of project-with-transitive-dependency-on-my-lib is untouched because it is not in the same batch as my-lib and updateDependents is set to "never"
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/project-with-transitive-dependency-on-my-lib/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "group": {
-                "dev": {
-                  "dependencies": {
-                    "project-with-dependency-on-my-lib": {
-                      "develop": true,
-                      "path": "../project-with-dependency-on-my-lib",
-                    },
-                  },
-                },
-              },
-              "name": "project-with-transitive-dependency-on-my-lib",
-              "version": "0.0.1",
-            },
-          },
-        }
-      `);
-    });
-
-    it('should always update transitive dependents when updateDependents is set to "auto"', async () => {
-      expect(
-        readPyprojectToml(tree, 'libs/my-lib/pyproject.toml').tool.poetry
-          .version,
-      ).toEqual('0.0.1');
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/project-with-dependency-on-my-lib/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "dependencies": {
-                "my-lib": {
-                  "develop": true,
-                  "path": "../my-lib",
-                },
-              },
-              "name": "project-with-dependency-on-my-lib",
-              "version": "0.0.1",
-            },
-          },
-        }
-      `);
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/project-with-transitive-dependency-on-my-lib/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "group": {
-                "dev": {
-                  "dependencies": {
-                    "project-with-dependency-on-my-lib": {
-                      "develop": true,
-                      "path": "../project-with-dependency-on-my-lib",
-                    },
-                  },
-                },
-              },
-              "name": "project-with-transitive-dependency-on-my-lib",
-              "version": "0.0.1",
-            },
-          },
-        }
-      `);
-
-      // It should include the appropriate versionData for transitive dependents
-      expect(
-        await releaseVersionGenerator(tree, {
-          projects: [projectGraph.nodes['my-lib']], // version only my-lib
-          projectGraph,
-          specifier: '9.9.9',
-          currentVersionResolver: 'disk',
-          specifierSource: 'prompt',
-          releaseGroup: createReleaseGroup('independent'),
-          updateDependents: 'auto',
-        }),
-      ).toMatchInlineSnapshot(`
-        {
-          "callback": [Function],
-          "data": {
-            "my-lib": {
-              "currentVersion": "0.0.1",
-              "dependentProjects": [
-                {
-                  "dependencyCollection": "dependencies",
-                  "rawVersionSpec": "0.0.1",
-                  "source": "project-with-dependency-on-my-lib",
-                  "target": "my-lib",
-                  "type": "static",
-                },
-              ],
-              "newVersion": "9.9.9",
-            },
-            "project-with-dependency-on-my-lib": {
-              "currentVersion": "0.0.1",
-              "dependentProjects": [
-                {
-                  "dependencyCollection": "devDependencies",
-                  "groupKey": "dev",
-                  "rawVersionSpec": "0.0.1",
-                  "source": "project-with-transitive-dependency-on-my-lib",
-                  "target": "project-with-dependency-on-my-lib",
-                  "type": "static",
-                },
-              ],
-              "newVersion": "0.0.2",
-            },
-            "project-with-transitive-dependency-on-my-lib": {
-              "currentVersion": "0.0.1",
-              "dependentProjects": [],
-              "newVersion": "0.0.2",
-            },
-          },
-        }
-      `);
-
-      expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
-        .toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "name": "my-lib",
-              "version": "9.9.9",
-            },
-          },
-        }
-      `);
-
-      // The version of project-with-dependency-on-my-lib gets bumped by a patch number and the dependencies reference is updated to the new version of my-lib
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/project-with-dependency-on-my-lib/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "dependencies": {
-                "my-lib": {
-                  "develop": true,
-                  "path": "../my-lib",
-                },
-              },
-              "name": "project-with-dependency-on-my-lib",
-              "version": "0.0.2",
-            },
-          },
-        }
-      `);
-
-      // The version of project-with-transitive-dependency-on-my-lib gets bumped by a patch number and the devDependencies reference is updated to the new version of project-with-dependency-on-my-lib because of the transitive dependency on my-lib
-      expect(
-        readPyprojectToml(
-          tree,
-          'libs/project-with-transitive-dependency-on-my-lib/pyproject.toml',
-        ),
-      ).toMatchInlineSnapshot(`
-        {
-          "tool": {
-            "poetry": {
-              "group": {
-                "dev": {
-                  "dependencies": {
-                    "project-with-dependency-on-my-lib": {
-                      "develop": true,
-                      "path": "../project-with-dependency-on-my-lib",
-                    },
-                  },
-                },
-              },
-              "name": "project-with-transitive-dependency-on-my-lib",
-              "version": "0.0.2",
-            },
-          },
-        }
-      `);
-    });
-  });
-
-  describe('circular dependencies', () => {
-    beforeEach(() => {
-      // package-a <-> package-b
-      projectGraph = createWorkspaceWithPackageDependencies(tree, {
-        'package-a': {
-          projectRoot: 'packages/package-a',
-          packageName: 'package-a',
-          version: '1.0.0',
-          pyprojectTomlPath: 'packages/package-a/pyproject.toml',
-          localDependencies: [
-            {
-              projectName: 'package-b',
-              dependencyCollection: 'dependencies',
-            },
-          ],
-        },
-        'package-b': {
-          projectRoot: 'packages/package-b',
-          packageName: 'package-b',
-          version: '1.0.0',
-          pyprojectTomlPath: 'packages/package-b/pyproject.toml',
-          localDependencies: [
-            {
-              projectName: 'package-a',
-              dependencyCollection: 'dependencies',
-            },
-          ],
-        },
-      });
-    });
-
-    describe("updateDependents: 'never'", () => {
-      it('should allow versioning of circular dependencies when not all projects are included in the current batch', async () => {
-        expect(readPyprojectToml(tree, 'packages/package-a/pyproject.toml'))
-          .toMatchInlineSnapshot(`
+      describe("updateDependents: 'never'", () => {
+        it('should allow versioning of circular dependencies when not all projects are included in the current batch', async () => {
+          expect(readPyprojectToml(tree, 'packages/package-a/pyproject.toml'))
+            .toMatchInlineSnapshot(`
           {
             "tool": {
               "poetry": {
@@ -1952,8 +1957,8 @@ Valid values are: "auto", "", "~", "^", "="`,
             },
           }
         `);
-        expect(readPyprojectToml(tree, 'packages/package-b/pyproject.toml'))
-          .toMatchInlineSnapshot(`
+          expect(readPyprojectToml(tree, 'packages/package-b/pyproject.toml'))
+            .toMatchInlineSnapshot(`
           {
             "tool": {
               "poetry": {
@@ -1970,17 +1975,17 @@ Valid values are: "auto", "", "~", "^", "="`,
           }
         `);
 
-        expect(
-          await releaseVersionGenerator(tree, {
-            projects: [projectGraph.nodes['package-a']], // version only package-a
-            projectGraph,
-            specifier: '2.0.0',
-            currentVersionResolver: 'disk',
-            specifierSource: 'prompt',
-            releaseGroup: createReleaseGroup('independent'),
-            updateDependents: 'never',
-          }),
-        ).toMatchInlineSnapshot(`
+          expect(
+            await releaseVersionGenerator(tree, {
+              projects: [projectGraph.nodes['package-a']], // version only package-a
+              projectGraph,
+              specifier: '2.0.0',
+              currentVersionResolver: 'disk',
+              specifierSource: 'prompt',
+              releaseGroup: createReleaseGroup('independent'),
+              updateDependents: 'never',
+            }),
+          ).toMatchInlineSnapshot(`
           {
             "callback": [Function],
             "data": {
@@ -1993,8 +1998,8 @@ Valid values are: "auto", "", "~", "^", "="`,
           }
         `);
 
-        expect(readPyprojectToml(tree, 'packages/package-a/pyproject.toml'))
-          .toMatchInlineSnapshot(`
+          expect(readPyprojectToml(tree, 'packages/package-a/pyproject.toml'))
+            .toMatchInlineSnapshot(`
           {
             "tool": {
               "poetry": {
@@ -2010,9 +2015,9 @@ Valid values are: "auto", "", "~", "^", "="`,
             },
           }
         `);
-        // package-b is unchanged
-        expect(readPyprojectToml(tree, 'packages/package-b/pyproject.toml'))
-          .toMatchInlineSnapshot(`
+          // package-b is unchanged
+          expect(readPyprojectToml(tree, 'packages/package-b/pyproject.toml'))
+            .toMatchInlineSnapshot(`
           {
             "tool": {
               "poetry": {
@@ -2028,11 +2033,11 @@ Valid values are: "auto", "", "~", "^", "="`,
             },
           }
         `);
-      });
+        });
 
-      it('should allow versioning of circular dependencies when all projects are included in the current batch', async () => {
-        expect(readPyprojectToml(tree, 'packages/package-a/pyproject.toml'))
-          .toMatchInlineSnapshot(`
+        it('should allow versioning of circular dependencies when all projects are included in the current batch', async () => {
+          expect(readPyprojectToml(tree, 'packages/package-a/pyproject.toml'))
+            .toMatchInlineSnapshot(`
           {
             "tool": {
               "poetry": {
@@ -2048,8 +2053,8 @@ Valid values are: "auto", "", "~", "^", "="`,
             },
           }
         `);
-        expect(readPyprojectToml(tree, 'packages/package-b/pyproject.toml'))
-          .toMatchInlineSnapshot(`
+          expect(readPyprojectToml(tree, 'packages/package-b/pyproject.toml'))
+            .toMatchInlineSnapshot(`
           {
             "tool": {
               "poetry": {
@@ -2066,22 +2071,22 @@ Valid values are: "auto", "", "~", "^", "="`,
           }
         `);
 
-        expect(
-          await releaseVersionGenerator(tree, {
-            // version both packages
-            projects: [
-              projectGraph.nodes['package-a'],
-              projectGraph.nodes['package-b'],
-            ],
+          expect(
+            await releaseVersionGenerator(tree, {
+              // version both packages
+              projects: [
+                projectGraph.nodes['package-a'],
+                projectGraph.nodes['package-b'],
+              ],
 
-            projectGraph,
-            specifier: '2.0.0',
-            currentVersionResolver: 'disk',
-            specifierSource: 'prompt',
-            releaseGroup: createReleaseGroup('independent'),
-            updateDependents: 'never',
-          }),
-        ).toMatchInlineSnapshot(`
+              projectGraph,
+              specifier: '2.0.0',
+              currentVersionResolver: 'disk',
+              specifierSource: 'prompt',
+              releaseGroup: createReleaseGroup('independent'),
+              updateDependents: 'never',
+            }),
+          ).toMatchInlineSnapshot(`
           {
             "callback": [Function],
             "data": {
@@ -2115,9 +2120,9 @@ Valid values are: "auto", "", "~", "^", "="`,
           }
         `);
 
-        // Both the version of package-a, and the dependency on package-b are updated to 2.0.0
-        expect(readPyprojectToml(tree, 'packages/package-a/pyproject.toml'))
-          .toMatchInlineSnapshot(`
+          // Both the version of package-a, and the dependency on package-b are updated to 2.0.0
+          expect(readPyprojectToml(tree, 'packages/package-a/pyproject.toml'))
+            .toMatchInlineSnapshot(`
           {
             "tool": {
               "poetry": {
@@ -2133,9 +2138,9 @@ Valid values are: "auto", "", "~", "^", "="`,
             },
           }
         `);
-        // Both the version of package-b, and the dependency on package-a are updated to 2.0.0
-        expect(readPyprojectToml(tree, 'packages/package-b/pyproject.toml'))
-          .toMatchInlineSnapshot(`
+          // Both the version of package-b, and the dependency on package-a are updated to 2.0.0
+          expect(readPyprojectToml(tree, 'packages/package-b/pyproject.toml'))
+            .toMatchInlineSnapshot(`
           {
             "tool": {
               "poetry": {
@@ -2151,13 +2156,13 @@ Valid values are: "auto", "", "~", "^", "="`,
             },
           }
         `);
+        });
       });
-    });
 
-    describe("updateDependents: 'auto'", () => {
-      it('should allow versioning of circular dependencies when not all projects are included in the current batch', async () => {
-        expect(readPyprojectToml(tree, 'packages/package-a/pyproject.toml'))
-          .toMatchInlineSnapshot(`
+      describe("updateDependents: 'auto'", () => {
+        it('should allow versioning of circular dependencies when not all projects are included in the current batch', async () => {
+          expect(readPyprojectToml(tree, 'packages/package-a/pyproject.toml'))
+            .toMatchInlineSnapshot(`
           {
             "tool": {
               "poetry": {
@@ -2173,8 +2178,8 @@ Valid values are: "auto", "", "~", "^", "="`,
             },
           }
         `);
-        expect(readPyprojectToml(tree, 'packages/package-b/pyproject.toml'))
-          .toMatchInlineSnapshot(`
+          expect(readPyprojectToml(tree, 'packages/package-b/pyproject.toml'))
+            .toMatchInlineSnapshot(`
           {
             "tool": {
               "poetry": {
@@ -2191,17 +2196,17 @@ Valid values are: "auto", "", "~", "^", "="`,
           }
         `);
 
-        expect(
-          await releaseVersionGenerator(tree, {
-            projects: [projectGraph.nodes['package-a']], // version only package-a
-            projectGraph,
-            specifier: '2.0.0',
-            currentVersionResolver: 'disk',
-            specifierSource: 'prompt',
-            releaseGroup: createReleaseGroup('independent'),
-            updateDependents: 'auto',
-          }),
-        ).toMatchInlineSnapshot(`
+          expect(
+            await releaseVersionGenerator(tree, {
+              projects: [projectGraph.nodes['package-a']], // version only package-a
+              projectGraph,
+              specifier: '2.0.0',
+              currentVersionResolver: 'disk',
+              specifierSource: 'prompt',
+              releaseGroup: createReleaseGroup('independent'),
+              updateDependents: 'auto',
+            }),
+          ).toMatchInlineSnapshot(`
           {
             "callback": [Function],
             "data": {
@@ -2236,9 +2241,9 @@ Valid values are: "auto", "", "~", "^", "="`,
           }
         `);
 
-        // The version of package-a has been updated to 2.0.0, and the dependency on package-b has been updated to 1.0.1
-        expect(readPyprojectToml(tree, 'packages/package-a/pyproject.toml'))
-          .toMatchInlineSnapshot(`
+          // The version of package-a has been updated to 2.0.0, and the dependency on package-b has been updated to 1.0.1
+          expect(readPyprojectToml(tree, 'packages/package-a/pyproject.toml'))
+            .toMatchInlineSnapshot(`
           {
             "tool": {
               "poetry": {
@@ -2254,9 +2259,9 @@ Valid values are: "auto", "", "~", "^", "="`,
             },
           }
         `);
-        // The version of package-b has been patched to 1.0.1, and the dependency on package-a has been updated to 2.0.0
-        expect(readPyprojectToml(tree, 'packages/package-b/pyproject.toml'))
-          .toMatchInlineSnapshot(`
+          // The version of package-b has been patched to 1.0.1, and the dependency on package-a has been updated to 2.0.0
+          expect(readPyprojectToml(tree, 'packages/package-b/pyproject.toml'))
+            .toMatchInlineSnapshot(`
           {
             "tool": {
               "poetry": {
@@ -2272,11 +2277,11 @@ Valid values are: "auto", "", "~", "^", "="`,
             },
           }
         `);
-      });
+        });
 
-      it('should allow versioning of circular dependencies when all projects are included in the current batch', async () => {
-        expect(readPyprojectToml(tree, 'packages/package-a/pyproject.toml'))
-          .toMatchInlineSnapshot(`
+        it('should allow versioning of circular dependencies when all projects are included in the current batch', async () => {
+          expect(readPyprojectToml(tree, 'packages/package-a/pyproject.toml'))
+            .toMatchInlineSnapshot(`
           {
             "tool": {
               "poetry": {
@@ -2292,8 +2297,8 @@ Valid values are: "auto", "", "~", "^", "="`,
             },
           }
         `);
-        expect(readPyprojectToml(tree, 'packages/package-b/pyproject.toml'))
-          .toMatchInlineSnapshot(`
+          expect(readPyprojectToml(tree, 'packages/package-b/pyproject.toml'))
+            .toMatchInlineSnapshot(`
           {
             "tool": {
               "poetry": {
@@ -2310,21 +2315,21 @@ Valid values are: "auto", "", "~", "^", "="`,
           }
         `);
 
-        expect(
-          await releaseVersionGenerator(tree, {
-            // version both packages
-            projects: [
-              projectGraph.nodes['package-a'],
-              projectGraph.nodes['package-b'],
-            ],
-            projectGraph,
-            specifier: '2.0.0',
-            currentVersionResolver: 'disk',
-            specifierSource: 'prompt',
-            releaseGroup: createReleaseGroup('independent'),
-            updateDependents: 'auto',
-          }),
-        ).toMatchInlineSnapshot(`
+          expect(
+            await releaseVersionGenerator(tree, {
+              // version both packages
+              projects: [
+                projectGraph.nodes['package-a'],
+                projectGraph.nodes['package-b'],
+              ],
+              projectGraph,
+              specifier: '2.0.0',
+              currentVersionResolver: 'disk',
+              specifierSource: 'prompt',
+              releaseGroup: createReleaseGroup('independent'),
+              updateDependents: 'auto',
+            }),
+          ).toMatchInlineSnapshot(`
           {
             "callback": [Function],
             "data": {
@@ -2358,9 +2363,9 @@ Valid values are: "auto", "", "~", "^", "="`,
           }
         `);
 
-        // Both the version of package-a, and the dependency on package-b are updated to 2.0.0
-        expect(readPyprojectToml(tree, 'packages/package-a/pyproject.toml'))
-          .toMatchInlineSnapshot(`
+          // Both the version of package-a, and the dependency on package-b are updated to 2.0.0
+          expect(readPyprojectToml(tree, 'packages/package-a/pyproject.toml'))
+            .toMatchInlineSnapshot(`
           {
             "tool": {
               "poetry": {
@@ -2376,9 +2381,9 @@ Valid values are: "auto", "", "~", "^", "="`,
             },
           }
         `);
-        // Both the version of package-b, and the dependency on package-a are updated to 2.0.0
-        expect(readPyprojectToml(tree, 'packages/package-b/pyproject.toml'))
-          .toMatchInlineSnapshot(`
+          // Both the version of package-b, and the dependency on package-a are updated to 2.0.0
+          expect(readPyprojectToml(tree, 'packages/package-b/pyproject.toml'))
+            .toMatchInlineSnapshot(`
           {
             "tool": {
               "poetry": {
@@ -2394,6 +2399,7 @@ Valid values are: "auto", "", "~", "^", "="`,
             },
           }
         `);
+        });
       });
     });
   });
