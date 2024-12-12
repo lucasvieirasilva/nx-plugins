@@ -2,7 +2,6 @@ import {
   ProjectGraph,
   ProjectGraphDependency,
   ProjectGraphProjectNode,
-  Tree,
   workspaceRoot,
 } from '@nx/devkit';
 import { satisfies } from 'semver';
@@ -22,7 +21,6 @@ export interface LocalPackageDependency extends ProjectGraphDependency {
 }
 
 export function resolveLocalPackageDependencies(
-  tree: Tree,
   projectGraph: ProjectGraph,
   filteredProjects: ProjectGraphProjectNode[],
   projectNameToPackageRootMap: Map<string, string>,
@@ -50,7 +48,7 @@ export function resolveLocalPackageDependencies(
       // Append it to the map for later use within the release version generator
       projectNameToPackageRootMap.set(projectNode.name, packageRoot);
     }
-    const pkg = new Package(tree, provider, workspaceRoot, packageRoot);
+    const pkg = new Package(provider, workspaceRoot, packageRoot);
     projectNodeToPackageMap.set(projectNode, pkg);
   }
 

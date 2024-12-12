@@ -7,6 +7,7 @@ import * as poetryUtils from '../../provider/poetry/utils';
 import executor from './executor';
 import spawn from 'cross-spawn';
 import { ExecutorContext } from '@nx/devkit';
+import { UVProvider } from '../../provider/uv';
 
 describe('Ruff Check Executor', () => {
   beforeAll(() => {
@@ -172,6 +173,167 @@ describe('Ruff Check Executor', () => {
       expect(spawn.sync).toHaveBeenCalledTimes(1);
       expect(spawn.sync).toHaveBeenCalledWith(
         'poetry',
+        ['run', 'ruff', 'check', 'app'],
+        {
+          cwd: 'apps/app',
+          shell: true,
+          stdio: 'inherit',
+        },
+      );
+      expect(output.success).toBe(false);
+    });
+  });
+
+  describe('uv', () => {
+    let checkPrerequisites: MockInstance;
+
+    beforeEach(() => {
+      checkPrerequisites = vi
+        .spyOn(UVProvider.prototype, 'checkPrerequisites')
+        .mockResolvedValue(undefined);
+
+      vi.mocked(spawn.sync).mockReturnValue({
+        status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
+      });
+      vi.spyOn(process, 'chdir').mockReturnValue(undefined);
+    });
+
+    beforeEach(() => {
+      vol.fromJSON({
+        'uv.lock': '',
+      });
+    });
+
+    it('should return success false when the uv is not installed', async () => {
+      checkPrerequisites.mockRejectedValue(new Error('uv not found'));
+
+      const options = {
+        lintFilePatterns: ['app'],
+        __unparsed__: [],
+      };
+
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
+      const output = await executor(options, context);
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).not.toHaveBeenCalled();
+      expect(output.success).toBe(false);
+    });
+
+    it('should execute ruff check linting', async () => {
+      vi.mocked(spawn.sync).mockReturnValueOnce({
+        status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
+      });
+
+      const output = await executor(
+        {
+          lintFilePatterns: ['app'],
+          __unparsed__: [],
+        },
+        {
+          cwd: '',
+          root: '.',
+          isVerbose: false,
+          projectName: 'app',
+          projectsConfigurations: {
+            version: 2,
+            projects: {
+              app: {
+                root: 'apps/app',
+                targets: {},
+              },
+            },
+          },
+          nxJsonConfiguration: {},
+          projectGraph: {
+            dependencies: {},
+            nodes: {},
+          },
+        },
+      );
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledTimes(1);
+      expect(spawn.sync).toHaveBeenCalledWith(
+        'uv',
+        ['run', 'ruff', 'check', 'app'],
+        {
+          cwd: 'apps/app',
+          shell: true,
+          stdio: 'inherit',
+        },
+      );
+      expect(output.success).toBe(true);
+    });
+
+    it('should fail to execute ruff check linting ', async () => {
+      vi.mocked(spawn.sync).mockReturnValueOnce({
+        status: 1,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
+      });
+
+      const output = await executor(
+        {
+          lintFilePatterns: ['app'],
+          __unparsed__: [],
+        },
+        {
+          cwd: '',
+          root: '.',
+          isVerbose: false,
+          projectName: 'app',
+          projectsConfigurations: {
+            version: 2,
+            projects: {
+              app: {
+                root: 'apps/app',
+                targets: {},
+              },
+            },
+          },
+          nxJsonConfiguration: {},
+          projectGraph: {
+            dependencies: {},
+            nodes: {},
+          },
+        },
+      );
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledTimes(1);
+      expect(spawn.sync).toHaveBeenCalledWith(
+        'uv',
         ['run', 'ruff', 'check', 'app'],
         {
           cwd: 'apps/app',

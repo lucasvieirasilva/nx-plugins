@@ -1,7 +1,7 @@
 import { ProjectGraph, Tree } from '@nx/devkit';
 import { PoetryPyprojectToml } from '../../../provider/poetry';
+import { writePyprojectToml } from '../../../provider/utils';
 import path from 'path';
-import { writePyprojectToml } from '../../../provider/poetry/utils';
 
 interface ProjectAndPackageData {
   [projectName: string]: {

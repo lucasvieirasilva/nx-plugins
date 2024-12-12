@@ -11,6 +11,7 @@ import { v4 as uuid } from 'uuid';
 import { mkdirsSync, writeFileSync } from 'fs-extra';
 import spawn from 'cross-spawn';
 import { ExecutorContext } from '@nx/devkit';
+import { UVProvider } from '../../provider/uv';
 
 describe('Flake8 Executor', () => {
   let tmppath = null;
@@ -263,6 +264,281 @@ describe('Flake8 Executor', () => {
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
       expect(activateVenvMock).toHaveBeenCalledWith('.');
       expect(spawn.sync).toHaveBeenCalledTimes(1);
+      expect(output.success).toBe(false);
+    });
+  });
+
+  describe('uv', () => {
+    let checkPrerequisites: MockInstance;
+
+    beforeEach(() => {
+      tmppath = join(tmpdir(), 'nx-python', 'flake8', uuid());
+
+      checkPrerequisites = vi
+        .spyOn(UVProvider.prototype, 'checkPrerequisites')
+        .mockResolvedValue(undefined);
+
+      vi.mocked(spawn.sync).mockReturnValue({
+        status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
+      });
+      vi.spyOn(process, 'chdir').mockReturnValue(undefined);
+    });
+
+    beforeEach(() => {
+      vol.fromJSON({
+        'uv.lock': '',
+      });
+    });
+
+    it('should return success false when the uv is not installed', async () => {
+      checkPrerequisites.mockRejectedValue(new Error('uv not found'));
+
+      const options = {
+        outputFile: 'reports',
+        silent: false,
+      };
+
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
+      const output = await executor(options, context);
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).not.toHaveBeenCalled();
+      expect(output.success).toBe(false);
+    });
+
+    it('should execute flake8 linting', async () => {
+      const outputFile = join(tmppath, 'reports/apps/app/pylint.txt');
+      vi.mocked(spawn.sync).mockImplementation(() => {
+        writeFileSync(outputFile, '', { encoding: 'utf8' });
+        return {
+          status: 0,
+          output: [''],
+          pid: 0,
+          signal: null,
+          stderr: null,
+          stdout: null,
+        };
+      });
+
+      const output = await executor(
+        {
+          outputFile,
+          silent: false,
+        },
+        {
+          cwd: '',
+          root: '.',
+          isVerbose: false,
+          projectName: 'app',
+          projectsConfigurations: {
+            version: 2,
+            projects: {
+              app: {
+                root: 'apps/app',
+                targets: {},
+              },
+            },
+          },
+          nxJsonConfiguration: {},
+          projectGraph: {
+            dependencies: {},
+            nodes: {},
+          },
+        },
+      );
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledTimes(1);
+      expect(spawn.sync).toHaveBeenCalledWith(
+        'uv',
+        ['run', 'flake8', '--output-file', outputFile],
+        {
+          cwd: 'apps/app',
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
+      expect(output.success).toBe(true);
+    });
+
+    it('should execute flake8 linting when the reports folder already exists', async () => {
+      mkdirsSync(join(tmppath, 'reports/apps/app'));
+      const outputFile = join(tmppath, 'reports/apps/app/pylint.vi.mocked(txt');
+
+      vi.mocked(spawn.sync).mockImplementation(() => {
+        writeFileSync(outputFile, '', { encoding: 'utf8' });
+
+        return {
+          status: 0,
+          output: [''],
+          pid: 0,
+          signal: null,
+          stderr: null,
+          stdout: null,
+        };
+      });
+
+      const output = await executor(
+        {
+          outputFile,
+          silent: false,
+        },
+        {
+          cwd: '',
+          root: '.',
+          isVerbose: false,
+          projectName: 'app',
+          projectsConfigurations: {
+            version: 2,
+            projects: {
+              app: {
+                root: 'apps/app',
+                targets: {},
+              },
+            },
+          },
+          nxJsonConfiguration: {},
+          projectGraph: {
+            dependencies: {},
+            nodes: {},
+          },
+        },
+      );
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledTimes(1);
+      expect(spawn.sync).toHaveBeenCalledWith(
+        'uv',
+        ['run', 'flake8', '--output-file', outputFile],
+        {
+          cwd: 'apps/app',
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
+      expect(output.success).toBe(true);
+    });
+
+    it('should returns a error when run the flake8 CLI', async () => {
+      vi.mocked(spawn.sync).mockImplementation(() => {
+        throw new Error('Some error');
+      });
+
+      const outputFile = join(tmppath, 'reports/apps/app/pylint.txt');
+      const output = await executor(
+        {
+          outputFile,
+          silent: false,
+        },
+        {
+          cwd: '',
+          root: '.',
+          isVerbose: false,
+          projectName: 'app',
+          projectsConfigurations: {
+            version: 2,
+            projects: {
+              app: {
+                root: 'apps/app',
+                targets: {},
+              },
+            },
+          },
+          nxJsonConfiguration: {},
+          projectGraph: {
+            dependencies: {},
+            nodes: {},
+          },
+        },
+      );
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledTimes(1);
+      expect(spawn.sync).toHaveBeenCalledWith(
+        'uv',
+        ['run', 'flake8', '--output-file', outputFile],
+        {
+          cwd: 'apps/app',
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
+      expect(output.success).toBe(false);
+    });
+
+    it('should execute flake8 linting with pylint content more than 1 line', async () => {
+      mkdirsSync(join(tmppath, 'reports/apps/app'));
+      const outputFile = join(tmppath, 'reports/apps/app/pylint.txt');
+      vi.mocked(spawn.sync).mockImplementation(() => {
+        writeFileSync(outputFile, 'test\n', { encoding: 'utf8' });
+        return {
+          status: 0,
+          output: [''],
+          pid: 0,
+          signal: null,
+          stderr: null,
+          stdout: null,
+        };
+      });
+
+      const output = await executor(
+        {
+          outputFile,
+          silent: false,
+        },
+        {
+          cwd: '',
+          root: '.',
+          isVerbose: false,
+          projectName: 'app',
+          projectsConfigurations: {
+            version: 2,
+            projects: {
+              app: {
+                root: 'apps/app',
+                targets: {},
+              },
+            },
+          },
+          nxJsonConfiguration: {},
+          projectGraph: {
+            dependencies: {},
+            nodes: {},
+          },
+        },
+      );
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledTimes(1);
+      expect(spawn.sync).toHaveBeenCalledWith(
+        'uv',
+        ['run', 'flake8', '--output-file', outputFile],
+        {
+          cwd: 'apps/app',
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
       expect(output.success).toBe(false);
     });
   });

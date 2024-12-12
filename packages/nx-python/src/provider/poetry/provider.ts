@@ -25,14 +25,11 @@ import {
   getPoetryVersion,
   getProjectPackageName,
   getProjectTomlPath,
-  getPyprojectData,
   parseToml,
   POETRY_EXECUTABLE,
-  readPyprojectToml,
   runPoetry,
   RunPoetryOptions,
   updateProject,
-  writePyprojectToml,
 } from './utils';
 import chalk from 'chalk';
 import { parse, stringify } from '@iarna/toml';
@@ -61,20 +58,29 @@ import {
   LockedDependencyResolver,
   ProjectDependencyResolver,
 } from './build/resolvers';
+import {
+  getPyprojectData,
+  readPyprojectToml,
+  writePyprojectToml,
+} from '../utils';
 
 export class PoetryProvider implements IProvider {
-  constructor(protected logger: Logger) {}
+  constructor(
+    protected workspaceRoot: string,
+    protected logger: Logger,
+    protected tree?: Tree,
+  ) {}
 
   public async checkPrerequisites(): Promise<void> {
     await checkPoetryExecutable();
   }
 
-  public getMetadata(projectRoot: string, tree?: Tree): ProjectMetadata {
+  public getMetadata(projectRoot: string): ProjectMetadata {
     const pyprojectTomlPath = joinPathFragments(projectRoot, 'pyproject.toml');
 
-    const projectData = tree
-      ? readPyprojectToml(tree, pyprojectTomlPath)
-      : getPyprojectData(pyprojectTomlPath);
+    const projectData = this.tree
+      ? readPyprojectToml<PoetryPyprojectToml>(this.tree, pyprojectTomlPath)
+      : getPyprojectData<PoetryPyprojectToml>(pyprojectTomlPath);
 
     return {
       name: projectData?.tool?.poetry?.name as string,
@@ -82,38 +88,37 @@ export class PoetryProvider implements IProvider {
     };
   }
 
-  updateVersion(projectRoot: string, newVersion: string, tree?: Tree): void {
+  updateVersion(projectRoot: string, newVersion: string): void {
     const pyprojectTomlPath = joinPathFragments(projectRoot, 'pyproject.toml');
 
-    const projectData = tree
-      ? readPyprojectToml(tree, pyprojectTomlPath)
-      : getPyprojectData(pyprojectTomlPath);
+    const projectData = this.tree
+      ? readPyprojectToml<PoetryPyprojectToml>(this.tree, pyprojectTomlPath)
+      : getPyprojectData<PoetryPyprojectToml>(pyprojectTomlPath);
 
     if (!projectData.tool?.poetry) {
       throw new Error('Poetry section not found in pyproject.toml');
     }
     projectData.tool.poetry.version = newVersion;
 
-    tree
-      ? writePyprojectToml(tree, pyprojectTomlPath, projectData)
+    this.tree
+      ? writePyprojectToml(this.tree, pyprojectTomlPath, projectData)
       : writeFileSync(pyprojectTomlPath, stringify(projectData));
   }
 
   public getDependencyMetadata(
     projectRoot: string,
     dependencyName: string,
-    tree?: Tree,
   ): DependencyProjectMetadata {
     const pyprojectTomlPath = joinPathFragments(projectRoot, 'pyproject.toml');
 
-    const projectData = tree
-      ? readPyprojectToml(tree, pyprojectTomlPath)
-      : getPyprojectData(pyprojectTomlPath);
+    const projectData = this.tree
+      ? readPyprojectToml<PoetryPyprojectToml>(this.tree, pyprojectTomlPath)
+      : getPyprojectData<PoetryPyprojectToml>(pyprojectTomlPath);
 
     const main = projectData.tool?.poetry?.dependencies ?? {};
     if (typeof main[dependencyName] === 'object' && main[dependencyName].path) {
-      const dependentPyproject = readPyprojectToml(
-        tree,
+      const dependentPyproject = readPyprojectToml<PoetryPyprojectToml>(
+        this.tree,
         joinPathFragments(
           projectRoot,
           main[dependencyName].path,
@@ -141,8 +146,8 @@ export class PoetryProvider implements IProvider {
           'pyproject.toml',
         );
 
-        const dependentPyproject = readPyprojectToml(
-          tree,
+        const dependentPyproject = readPyprojectToml<PoetryPyprojectToml>(
+          this.tree,
           depPyprojectTomlPath,
         );
 
@@ -169,26 +174,27 @@ export class PoetryProvider implements IProvider {
 
     const deps: Dependency[] = [];
 
-    console.log('pyprojectToml', pyprojectToml, fs.existsSync(pyprojectToml));
     if (fs.existsSync(pyprojectToml)) {
-      const tomlData = getPyprojectData(pyprojectToml);
+      const tomlData = getPyprojectData<PoetryPyprojectToml>(pyprojectToml);
 
-      this.resolveDependencies(
-        tomlData.tool?.poetry?.dependencies,
-        projectData,
-        projects,
-        cwd,
-        deps,
-        'main',
-      );
-      for (const group in tomlData.tool?.poetry?.group || {}) {
-        this.resolveDependencies(
-          tomlData.tool.poetry.group[group].dependencies,
+      deps.push(
+        ...this.resolveDependencies(
+          tomlData.tool?.poetry?.dependencies,
           projectData,
           projects,
           cwd,
-          deps,
-          group,
+          'main',
+        ),
+      );
+      for (const group in tomlData.tool?.poetry?.group || {}) {
+        deps.push(
+          ...this.resolveDependencies(
+            tomlData.tool.poetry.group[group].dependencies,
+            projectData,
+            projects,
+            cwd,
+            group,
+          ),
         );
       }
     }
@@ -686,7 +692,7 @@ export class PoetryProvider implements IProvider {
     const pyprojectToml = joinPathFragments(projectData.root, 'pyproject.toml');
 
     if (fs.existsSync(pyprojectToml)) {
-      const tomlData = getPyprojectData(pyprojectToml);
+      const tomlData = getPyprojectData<PoetryPyprojectToml>(pyprojectToml);
 
       let isDep = this.isProjectDependent(
         tomlData.tool?.poetry?.dependencies,
@@ -740,9 +746,10 @@ export class PoetryProvider implements IProvider {
     projectData: ProjectConfiguration,
     projects: Record<string, ProjectConfiguration>,
     cwd: string,
-    deps: Dependency[],
     category: string,
   ) {
+    const deps: Dependency[] = [];
+
     for (const dep in dependencies || {}) {
       const depData = dependencies[dep];
 
@@ -759,5 +766,7 @@ export class PoetryProvider implements IProvider {
         }
       }
     }
+
+    return deps;
   }
 }

@@ -1,4 +1,3 @@
-import { MockInstance } from 'vitest';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import {
   Tree,

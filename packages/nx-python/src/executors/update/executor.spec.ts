@@ -9,6 +9,7 @@ import { parseToml } from '../../provider/poetry/utils';
 import dedent from 'string-dedent';
 import spawn from 'cross-spawn';
 import { ExecutorContext } from '@nx/devkit';
+import { UVProvider } from '../../provider/uv';
 
 describe('Update Executor', () => {
   afterEach(() => {
@@ -913,6 +914,115 @@ describe('Update Executor', () => {
           stdio: 'inherit',
         },
       );
+      expect(output.success).toBe(true);
+    });
+  });
+
+  describe('uv', () => {
+    let checkPrerequisites: MockInstance;
+
+    beforeEach(() => {
+      checkPrerequisites = vi
+        .spyOn(UVProvider.prototype, 'checkPrerequisites')
+        .mockResolvedValue(undefined);
+
+      vi.mocked(spawn.sync).mockReturnValue({
+        status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
+      });
+      vi.spyOn(process, 'chdir').mockReturnValue(undefined);
+    });
+
+    beforeEach(() => {
+      vol.fromJSON({
+        'uv.lock': '',
+      });
+    });
+
+    it('should return success false when the uv is not installed', async () => {
+      checkPrerequisites.mockRejectedValue(new Error('uv not found'));
+
+      const options = {
+        name: 'numpy',
+        local: false,
+      };
+
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
+      const output = await executor(options, context);
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).not.toHaveBeenCalled();
+      expect(output.success).toBe(false);
+    });
+
+    it('run update target and should update the dependency to the project', async () => {
+      const options = {
+        name: 'numpy',
+        local: false,
+      };
+
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
+      const output = await executor(options, context);
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledTimes(2);
+      expect(spawn.sync).toHaveBeenNthCalledWith(
+        1,
+        'uv',
+        ['lock', '--upgrade-package', 'numpy', '--project', 'apps/app'],
+        {
+          cwd: '.',
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
+      expect(spawn.sync).toHaveBeenNthCalledWith(2, 'uv', ['sync'], {
+        cwd: '.',
+        shell: false,
+        stdio: 'inherit',
+      });
       expect(output.success).toBe(true);
     });
   });

@@ -1,4 +1,4 @@
-import { ExecutorContext, ProjectConfiguration, Tree } from '@nx/devkit';
+import { ExecutorContext, ProjectConfiguration } from '@nx/devkit';
 import { AddExecutorSchema } from '../executors/add/schema';
 import { SpawnSyncOptions } from 'child_process';
 import { UpdateExecutorSchema } from '../executors/update/schema';
@@ -24,15 +24,14 @@ export type DependencyProjectMetadata = ProjectMetadata & {
 export interface IProvider {
   checkPrerequisites(): Promise<void>;
 
-  getMetadata(projectRoot: string, tree?: Tree): ProjectMetadata;
+  getMetadata(projectRoot: string): ProjectMetadata;
 
   getDependencyMetadata(
     projectRoot: string,
     dependencyName: string,
-    tree?: Tree,
   ): DependencyProjectMetadata;
 
-  updateVersion(projectRoot: string, newVersion: string, tree?: Tree): void;
+  updateVersion(projectRoot: string, newVersion: string): void;
 
   getDependencies(
     projectName: string,

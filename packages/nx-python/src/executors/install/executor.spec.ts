@@ -1,10 +1,13 @@
 import { vi, MockInstance } from 'vitest';
+import { vol } from 'memfs';
+import '../../utils/mocks/fs.mock';
 import '../../utils/mocks/cross-spawn.mock';
 import * as poetryUtils from '../../provider/poetry/utils';
 import executor from './executor';
 import path from 'path';
 import spawn from 'cross-spawn';
 import { ExecutorContext } from '@nx/devkit';
+import { UVProvider } from '../../provider/uv';
 
 describe('Install Executor', () => {
   const context: ExecutorContext = {
@@ -27,6 +30,10 @@ describe('Install Executor', () => {
       nodes: {},
     },
   };
+
+  afterEach(() => {
+    vol.reset();
+  });
 
   describe('poetry', () => {
     let checkPoetryExecutableMock: MockInstance;
@@ -198,6 +205,182 @@ describe('Install Executor', () => {
         stdio: 'inherit',
         shell: false,
         cwd: 'apps/app',
+      });
+      expect(output.success).toBe(false);
+    });
+  });
+
+  describe('uv', () => {
+    let checkPrerequisites: MockInstance;
+
+    beforeEach(() => {
+      vi.resetAllMocks();
+
+      checkPrerequisites = vi
+        .spyOn(UVProvider.prototype, 'checkPrerequisites')
+        .mockResolvedValue(undefined);
+
+      vi.mocked(spawn.sync).mockReturnValue({
+        status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
+      });
+      vi.spyOn(process, 'chdir').mockReturnValue(undefined);
+    });
+
+    beforeEach(() => {
+      vol.fromJSON({
+        'uv.lock': '',
+      });
+    });
+
+    it('should return success false when the uv is not installed', async () => {
+      checkPrerequisites.mockRejectedValue(new Error('uv not found'));
+
+      const options = {
+        silent: false,
+        debug: false,
+        verbose: false,
+      };
+
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
+      const output = await executor(options, context);
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).not.toHaveBeenCalled();
+      expect(output.success).toBe(false);
+    });
+
+    it('should install the dependencies using default values', async () => {
+      const options = {
+        silent: false,
+        debug: false,
+        verbose: false,
+      };
+
+      const output = await executor(options, context);
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledWith('uv', ['sync'], {
+        stdio: 'inherit',
+        shell: false,
+        cwd: '.',
+      });
+      expect(output.success).toBe(true);
+    });
+
+    it('should install the dependencies with args', async () => {
+      const options = {
+        silent: false,
+        debug: false,
+        verbose: false,
+        args: '--no-dev',
+      };
+
+      const output = await executor(options, context);
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledWith('uv', ['sync', '--no-dev'], {
+        stdio: 'inherit',
+        shell: false,
+        cwd: '.',
+      });
+      expect(output.success).toBe(true);
+    });
+
+    it('should install the dependencies with verbose flag', async () => {
+      const options = {
+        silent: false,
+        debug: false,
+        verbose: true,
+      };
+
+      const output = await executor(options, context);
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledWith('uv', ['sync', '-v'], {
+        stdio: 'inherit',
+        shell: false,
+        cwd: '.',
+      });
+      expect(output.success).toBe(true);
+    });
+
+    it('should install the dependencies with debug flag', async () => {
+      const options = {
+        silent: false,
+        debug: true,
+        verbose: false,
+      };
+
+      const output = await executor(options, context);
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledWith('uv', ['sync', '-vvv'], {
+        stdio: 'inherit',
+        shell: false,
+        cwd: '.',
+      });
+      expect(output.success).toBe(true);
+    });
+
+    it('should install the dependencies with custom cache dir', async () => {
+      const options = {
+        silent: false,
+        debug: false,
+        verbose: false,
+        cacheDir: 'apps/app/.cache/custom',
+      };
+
+      const output = await executor(options, context);
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledWith(
+        'uv',
+        ['sync', '--cache-dir', 'apps/app/.cache/custom'],
+        {
+          stdio: 'inherit',
+          cwd: '.',
+          shell: false,
+        },
+      );
+      expect(output.success).toBe(true);
+    });
+
+    it('should not install when the command fail', async () => {
+      vi.mocked(spawn.sync).mockImplementation(() => {
+        throw new Error('fake');
+      });
+
+      const options = {
+        silent: false,
+        debug: false,
+        verbose: false,
+      };
+
+      const output = await executor(options, context);
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledWith('uv', ['sync'], {
+        stdio: 'inherit',
+        shell: false,
+        cwd: '.',
       });
       expect(output.success).toBe(false);
     });

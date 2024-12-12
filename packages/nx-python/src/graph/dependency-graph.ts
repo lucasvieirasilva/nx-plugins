@@ -13,7 +13,7 @@ export const createDependencies: CreateDependencies = async (_, context) => {
     const deps = provider.getDependencies(
       project,
       context.projects,
-      process.cwd(),
+      context.workspaceRoot,
     );
 
     deps.forEach((dep) => {

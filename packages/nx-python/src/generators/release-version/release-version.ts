@@ -45,7 +45,7 @@ export async function releaseVersionGenerator(
   options: ReleaseVersionGeneratorSchema,
 ): Promise<ReleaseVersionGeneratorResult> {
   let logger: ProjectLogger | undefined;
-  const provider = await getProvider(tree.root);
+  const provider = await getProvider(tree.root, undefined, tree);
   const updatedProjects: string[] = [];
 
   try {
@@ -153,7 +153,7 @@ To fix this you will either need to add a pyproject.toml file at that location, 
       logger = new ProjectLogger(projectName, color);
 
       const { name: packageName, version: currentVersionFromDisk } =
-        provider.getMetadata(packageRoot, tree);
+        provider.getMetadata(packageRoot);
       logger.buffer(
         `🔍 Reading data for package "${packageName}" from ${pyprojectTomlPath}`,
       );
@@ -528,7 +528,6 @@ To fix this you will either need to add a pyproject.toml file at that location, 
 
       // Resolve any local package dependencies for this project (before applying the new version or updating the versionData)
       const localPackageDependencies = resolveLocalPackageDependencies(
-        tree,
         options.projectGraph,
         projects,
         projectNameToPackageRootMap,
@@ -659,7 +658,7 @@ To fix this you will either need to add a pyproject.toml file at that location, 
 
       updatedProjects.push(dirname(pyprojectTomlPath));
 
-      provider.updateVersion(packageRoot, newVersion, tree);
+      provider.updateVersion(packageRoot, newVersion);
 
       logger.buffer(
         `✍️  New version ${newVersion} written to ${pyprojectTomlPath}`,
@@ -699,7 +698,6 @@ To fix this you will either need to add a pyproject.toml file at that location, 
 
         const projectMetadata = provider.getMetadata(
           projectNameToPackageRootMap.get(dependentProject.source),
-          tree,
         );
 
         // Auto (i.e.infer existing) by default
@@ -707,7 +705,6 @@ To fix this you will either need to add a pyproject.toml file at that location, 
         const currentDependencyVersion = provider.getDependencyMetadata(
           projectNameToPackageRootMap.get(dependentProject.source),
           dependencyPackageName,
-          tree,
         ).version;
 
         const currentPackageVersion = projectMetadata.version;
@@ -752,7 +749,6 @@ To fix this you will either need to add a pyproject.toml file at that location, 
           provider.updateVersion(
             projectNameToPackageRootMap.get(dependentProject.source),
             newPackageVersion,
-            tree,
           );
 
           // Look up any dependent projects from the transitiveLocalPackageDependents list
@@ -829,10 +825,7 @@ To fix this you will either need to add a pyproject.toml file at that location, 
             `The project "${dependencyProjectName}" does not have a packageRoot available. Please report this issue on https://github.com/nrwl/nx`,
           );
         }
-        const dependencyMetadata = provider.getMetadata(
-          dependencyPackageRoot,
-          tree,
-        );
+        const dependencyMetadata = provider.getMetadata(dependencyPackageRoot);
 
         updateDependentProjectAndAddToVersionData({
           dependentProject: transitiveDependentProject,

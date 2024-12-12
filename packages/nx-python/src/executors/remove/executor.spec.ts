@@ -8,6 +8,7 @@ import executor from './executor';
 import dedent from 'string-dedent';
 import spawn from 'cross-spawn';
 import { ExecutorContext } from '@nx/devkit';
+import { UVProvider } from '../../provider/uv';
 
 describe('Delete Executor', () => {
   afterEach(() => {
@@ -658,6 +659,111 @@ describe('Delete Executor', () => {
         'poetry',
         ['install', '--no-root'],
         {
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
+      expect(output.success).toBe(true);
+    });
+  });
+
+  describe('uv', () => {
+    let checkPrerequisites: MockInstance;
+
+    beforeEach(() => {
+      checkPrerequisites = vi
+        .spyOn(UVProvider.prototype, 'checkPrerequisites')
+        .mockResolvedValue(undefined);
+
+      vi.mocked(spawn.sync).mockReturnValue({
+        status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
+      });
+      vi.spyOn(process, 'chdir').mockReturnValue(undefined);
+    });
+
+    beforeEach(() => {
+      vol.fromJSON({
+        'uv.lock': '',
+      });
+    });
+
+    it('should return success false when the uv is not installed', async () => {
+      checkPrerequisites.mockRejectedValue(new Error('uv not found'));
+
+      const options = {
+        name: 'shared1',
+        local: true,
+      };
+
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
+      const output = await executor(options, context);
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).not.toHaveBeenCalled();
+      expect(output.success).toBe(false);
+    });
+
+    it('should remove external dependency with args', async () => {
+      const options = {
+        name: 'click',
+        local: false,
+        args: '-vvv',
+      };
+
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
+      const output = await executor(options, context);
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledTimes(1);
+      expect(spawn.sync).toHaveBeenNthCalledWith(
+        1,
+        'uv',
+        ['remove', 'click', '--project', 'apps/app', '-vvv'],
+        {
+          cwd: '.',
           shell: false,
           stdio: 'inherit',
         },

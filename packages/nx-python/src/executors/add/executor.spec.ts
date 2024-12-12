@@ -3,6 +3,7 @@ import { vol } from 'memfs';
 import '../../utils/mocks/cross-spawn.mock';
 import '../../utils/mocks/fs.mock';
 import * as poetryUtils from '../../provider/poetry/utils';
+import { UVProvider } from '../../provider/uv/provider';
 import executor from './executor';
 import chalk from 'chalk';
 import { parseToml } from '../../provider/poetry/utils';
@@ -1301,6 +1302,236 @@ describe('Add Executor', () => {
         },
       );
       expect(output.success).toBe(true);
+    });
+  });
+
+  describe('uv', () => {
+    let checkPrerequisites: MockInstance;
+
+    beforeEach(() => {
+      checkPrerequisites = vi
+        .spyOn(UVProvider.prototype, 'checkPrerequisites')
+        .mockResolvedValue(undefined);
+      vi.mocked(spawn.sync).mockReturnValue({
+        status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
+      });
+      vi.spyOn(process, 'chdir').mockReturnValue(undefined);
+    });
+
+    beforeEach(() => {
+      vol.fromJSON({
+        'uv.lock': '',
+      });
+    });
+
+    it('should return success false when the uv is not installed', async () => {
+      checkPrerequisites.mockRejectedValue(new Error('uv not found'));
+
+      const options = {
+        name: 'numpy',
+        local: false,
+      };
+
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
+      const output = await executor(options, context);
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).not.toHaveBeenCalled();
+      expect(output.success).toBe(false);
+    });
+
+    it('run add target and should add the dependency to the project', async () => {
+      const options = {
+        name: 'numpy',
+        local: false,
+      };
+
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
+      const output = await executor(options, context);
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledWith(
+        'uv',
+        ['add', 'numpy', '--project', 'apps/app'],
+        {
+          cwd: '.',
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
+      expect(output.success).toBe(true);
+    });
+
+    it('run add target and should add the dependency to the project group dev', async () => {
+      const options = {
+        name: 'numpy',
+        local: false,
+        group: 'dev',
+      };
+
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
+      const output = await executor(options, context);
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledWith(
+        'uv',
+        ['add', 'numpy', '--project', 'apps/app', '--group', 'dev'],
+        {
+          cwd: '.',
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
+      expect(output.success).toBe(true);
+    });
+
+    it('run add target and should add the dependency to the project extras', async () => {
+      const options = {
+        name: 'numpy',
+        local: false,
+        extras: ['dev'],
+      };
+
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
+      const output = await executor(options, context);
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledWith(
+        'uv',
+        ['add', 'numpy', '--project', 'apps/app', '--extra', 'dev'],
+        {
+          cwd: '.',
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
+      expect(output.success).toBe(true);
+    });
+
+    it('run add target and should throw an exception', async () => {
+      vi.mocked(spawn.sync).mockImplementation(() => {
+        throw new Error('fake error');
+      });
+
+      const options = {
+        name: 'numpy',
+        local: false,
+      };
+
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
+      const output = await executor(options, context);
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledWith(
+        'uv',
+        ['add', 'numpy', '--project', 'apps/app'],
+        {
+          cwd: '.',
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
+      expect(output.success).toBe(false);
     });
   });
 });

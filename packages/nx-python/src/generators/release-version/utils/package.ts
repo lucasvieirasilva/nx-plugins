@@ -1,4 +1,4 @@
-import { joinPathFragments, Tree } from '@nx/devkit';
+import { joinPathFragments } from '@nx/devkit';
 import { IProvider } from '../../../provider/base';
 
 export class Package {
@@ -7,12 +7,11 @@ export class Package {
   location: string;
 
   constructor(
-    private tree: Tree,
     private provider: IProvider,
     workspaceRoot: string,
     private workspaceRelativeLocation: string,
   ) {
-    const metadata = provider.getMetadata(workspaceRelativeLocation, tree);
+    const metadata = provider.getMetadata(workspaceRelativeLocation);
     this.name = metadata.name;
     this.version = metadata.version;
     this.location = joinPathFragments(workspaceRoot, workspaceRelativeLocation);
@@ -26,7 +25,6 @@ export class Package {
     const depMatadata = this.provider.getDependencyMetadata(
       this.workspaceRelativeLocation,
       depName,
-      this.tree,
     );
 
     return {

@@ -1,4 +1,6 @@
 import { vi, MockInstance } from 'vitest';
+import { vol } from 'memfs';
+import '../../utils/mocks/cross-spawn.mock';
 
 const fsExtraMocks = vi.hoisted(() => {
   return {
@@ -26,10 +28,20 @@ vi.mock('@nx/devkit', async (importOriginal) => {
   };
 });
 
-vi.mock('fs-extra', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('fs-extra')>();
+vi.mock('fs', async () => {
+  const memfs = (await vi.importActual('memfs')) as typeof import('memfs');
+
   return {
-    ...actual,
+    default: memfs.fs,
+    ...memfs.fs,
+  };
+});
+
+vi.mock('fs-extra', async () => {
+  const memfs = (await vi.importActual('memfs')) as typeof import('memfs');
+  return {
+    default: memfs.fs,
+    ...memfs.fs,
     ...fsExtraMocks,
   };
 });
@@ -47,6 +59,8 @@ import * as poetryUtils from '../../provider/poetry/utils';
 import executor from './executor';
 import { EventEmitter } from 'events';
 import { ExecutorContext } from '@nx/devkit';
+import { UVProvider } from '../../provider/uv';
+import spawn from 'cross-spawn';
 
 describe('Publish Executor', () => {
   beforeAll(() => {
@@ -342,6 +356,169 @@ describe('Publish Executor', () => {
         },
         context,
       );
+    });
+  });
+
+  describe('uv', () => {
+    let checkPrerequisites: MockInstance;
+
+    beforeEach(() => {
+      checkPrerequisites = vi
+        .spyOn(UVProvider.prototype, 'checkPrerequisites')
+        .mockResolvedValue(undefined);
+
+      vi.mocked(spawn.sync).mockReturnValue({
+        status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
+      });
+      vi.spyOn(process, 'chdir').mockReturnValue(undefined);
+    });
+
+    beforeEach(() => {
+      vol.fromJSON({
+        'uv.lock': '',
+      });
+    });
+
+    it('should return success false when the uv is not installed', async () => {
+      checkPrerequisites.mockRejectedValue(new Error('uv not found'));
+
+      const options = {
+        buildTarget: 'build',
+        silent: false,
+        dryRun: false,
+      };
+
+      const output = await executor(options, context);
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(childProcessMocks.spawn).not.toHaveBeenCalled();
+      expect(output.success).toBe(false);
+    });
+
+    it('should return success false when the build target fails', async () => {
+      nxDevkitMocks.runExecutor.mockResolvedValueOnce([{ success: false }]);
+
+      const options = {
+        buildTarget: 'build',
+        silent: false,
+        dryRun: false,
+      };
+
+      const output = await executor(options, context);
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(childProcessMocks.spawn).not.toHaveBeenCalled();
+      expect(output.success).toBe(false);
+    });
+
+    it('should return success false when the build target does not return the temp folder', async () => {
+      nxDevkitMocks.runExecutor.mockResolvedValueOnce([{ success: true }]);
+
+      const options = {
+        buildTarget: 'build',
+        silent: false,
+        dryRun: false,
+        __unparsed__: [],
+      };
+
+      const output = await executor(options, context);
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(childProcessMocks.spawn).not.toHaveBeenCalled();
+      expect(output.success).toBe(false);
+    });
+
+    it('should run poetry publish command without agrs', async () => {
+      nxDevkitMocks.runExecutor.mockResolvedValueOnce([
+        { success: true, buildFolderPath: 'tmp' },
+      ]);
+      fsExtraMocks.removeSync.mockReturnValue(undefined);
+
+      const options = {
+        buildTarget: 'build',
+        silent: false,
+        dryRun: false,
+      };
+
+      const spawnEvent = new EventEmitter();
+      childProcessMocks.spawn.mockReturnValue({
+        stdout: new EventEmitter(),
+        stderr: new EventEmitter(),
+        on: vi.fn().mockImplementation((event, callback) => {
+          spawnEvent.on(event, callback);
+          spawnEvent.emit('close', 0);
+        }),
+      });
+
+      const output = await executor(options, context);
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledTimes(1);
+      expect(spawn.sync).toHaveBeenCalledWith('uv', ['publish'], {
+        cwd: 'tmp',
+        shell: false,
+        stdio: 'inherit',
+      });
+      expect(output.success).toBe(true);
+      expect(nxDevkitMocks.runExecutor).toHaveBeenCalledWith(
+        {
+          configuration: undefined,
+          project: 'app',
+          target: 'build',
+        },
+        {
+          keepBuildFolder: true,
+        },
+        context,
+      );
+      expect(fsExtraMocks.removeSync).toHaveBeenCalledWith('tmp');
+    });
+
+    it('should run poetry publish command with agrs', async () => {
+      nxDevkitMocks.runExecutor.mockResolvedValueOnce([
+        { success: true, buildFolderPath: 'tmp' },
+      ]);
+      fsExtraMocks.removeSync.mockReturnValue(undefined);
+
+      const options = {
+        buildTarget: 'build',
+        silent: false,
+        dryRun: false,
+        __unparsed__: ['-vvv'],
+      };
+
+      const spawnEvent = new EventEmitter();
+      childProcessMocks.spawn.mockReturnValue({
+        stdout: new EventEmitter(),
+        stderr: new EventEmitter(),
+        on: vi.fn().mockImplementation((event, callback) => {
+          spawnEvent.on(event, callback);
+          spawnEvent.emit('close', 0);
+        }),
+      });
+
+      const output = await executor(options, context);
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledTimes(1);
+      expect(spawn.sync).toHaveBeenCalledWith('uv', ['publish', '-vvv'], {
+        cwd: 'tmp',
+        shell: false,
+        stdio: 'inherit',
+      });
+      expect(output.success).toBe(true);
+      expect(nxDevkitMocks.runExecutor).toHaveBeenCalledWith(
+        {
+          configuration: undefined,
+          project: 'app',
+          target: 'build',
+        },
+        {
+          keepBuildFolder: true,
+        },
+        context,
+      );
+      expect(fsExtraMocks.removeSync).toHaveBeenCalledWith('tmp');
     });
   });
 });
