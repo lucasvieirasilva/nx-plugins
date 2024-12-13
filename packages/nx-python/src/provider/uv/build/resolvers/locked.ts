@@ -68,6 +68,10 @@ export class LockedDependencyResolver {
         continue;
       }
 
+      this.logger.info(
+        chalk`    • Adding {blue.bold ${line.trim()}} dependency`,
+      );
+
       result.push({
         name: line.trim(),
       });
