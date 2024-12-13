@@ -482,7 +482,7 @@ export class UVProvider implements IProvider {
           ? packageMetadata?.['requires-dist']?.[dep]
           : packageMetadata?.['requires-dev']?.[category]?.[dep];
 
-      if (!depMetadata || !depMetadata.editable) {
+      if (!depMetadata?.editable) {
         continue;
       }
 

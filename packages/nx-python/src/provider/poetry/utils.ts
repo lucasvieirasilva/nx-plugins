@@ -29,7 +29,7 @@ export async function getPoetryVersion() {
   }
   const versionRegex = /version (\d+\.\d+\.\d+)/;
   const match = result.stdout.toString().trim().match(versionRegex);
-  const version = match && match[1];
+  const version = match?.[1];
   return version;
 }
 

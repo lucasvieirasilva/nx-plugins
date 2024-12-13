@@ -224,7 +224,7 @@ function addTestDependencies(
 ) {
   const newDependencies = [...dependencies];
   const dependencyNames = dependencies
-    .map((dep) => dep.match(/^[a-zA-Z0-9-]+/)?.[0])
+    .map((dep) => /^[a-zA-Z0-9-]+/.exec(dep)?.[0])
     .filter((d) => !!d);
 
   if (
