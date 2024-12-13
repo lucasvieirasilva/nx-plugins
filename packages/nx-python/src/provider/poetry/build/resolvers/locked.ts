@@ -78,7 +78,7 @@ export class LockedDependencyResolver {
         }
 
         dep.name = elements[0].split('==')[0];
-        dep.version = elements[0].split('==')[1];
+        dep.version = elements[0].split('==')[1]?.trim();
         this.logger.info(
           chalk`${tab}• Adding {blue.bold ${dep.name}==${dep.version}} dependency`,
         );
