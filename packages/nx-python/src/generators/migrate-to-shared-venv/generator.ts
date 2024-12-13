@@ -110,6 +110,12 @@ function updateRootPoetryLock() {
 }
 
 async function generator(host: Tree, options: Schema) {
+  if (host.exists('uv.lock')) {
+    throw new Error(
+      'Uv project detected, this generator is only for poetry projects.',
+    );
+  }
+
   await checkPoetryExecutable();
 
   await addFiles(host, options);
