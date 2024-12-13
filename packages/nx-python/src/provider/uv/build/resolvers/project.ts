@@ -13,9 +13,9 @@ import { createHash } from 'crypto';
 
 export class ProjectDependencyResolver {
   constructor(
-    private logger: Logger,
-    private options: BuildExecutorSchema,
-    private context: ExecutorContext,
+    private readonly logger: Logger,
+    private readonly options: BuildExecutorSchema,
+    private readonly context: ExecutorContext,
   ) {}
 
   resolve(
@@ -111,7 +111,7 @@ export class ProjectDependencyResolver {
         continue;
       }
 
-      const match = dependency.match(/^[a-zA-Z0-9-]+/);
+      const match = /^[a-zA-Z0-9-]+/.exec(dependency);
       if (match) {
         if (depMap[match[0]]) {
           continue;

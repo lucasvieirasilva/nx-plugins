@@ -83,8 +83,8 @@ export class PoetryProvider implements IProvider {
       : getPyprojectData<PoetryPyprojectToml>(pyprojectTomlPath);
 
     return {
-      name: projectData?.tool?.poetry?.name as string,
-      version: projectData?.tool?.poetry?.version as string,
+      name: projectData?.tool?.poetry?.name,
+      version: projectData?.tool?.poetry?.version,
     };
   }
 
@@ -127,8 +127,8 @@ export class PoetryProvider implements IProvider {
       );
 
       return {
-        name: dependentPyproject.tool?.poetry?.name as string,
-        version: dependentPyproject.tool?.poetry?.version as string,
+        name: dependentPyproject.tool?.poetry?.name,
+        version: dependentPyproject.tool?.poetry?.version,
         group: 'main',
       };
     }
@@ -152,8 +152,8 @@ export class PoetryProvider implements IProvider {
         );
 
         return {
-          name: dependentPyproject.tool?.poetry?.name as string,
-          version: dependentPyproject.tool?.poetry?.version as string,
+          name: dependentPyproject.tool?.poetry?.name,
+          version: dependentPyproject.tool?.poetry?.version,
           group: key,
         };
       }
@@ -582,7 +582,7 @@ export class PoetryProvider implements IProvider {
     activateVenv(workspaceRoot);
     await checkPoetryExecutable();
 
-    return await runPoetry(['run', ...args], options);
+    runPoetry(['run', ...args], options);
   }
 
   public activateVenv(workspaceRoot: string): void {

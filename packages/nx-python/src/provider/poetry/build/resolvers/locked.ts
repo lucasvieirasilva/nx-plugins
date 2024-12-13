@@ -13,11 +13,7 @@ import { PackageDependency } from '../../../base';
 import { getLoggingTab } from '../../../utils';
 
 export class LockedDependencyResolver {
-  private logger: Logger;
-
-  constructor(logger: Logger) {
-    this.logger = logger;
-  }
+  constructor(private readonly logger: Logger) {}
 
   public resolve(
     root: string,

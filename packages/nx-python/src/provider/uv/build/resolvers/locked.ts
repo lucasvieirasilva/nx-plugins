@@ -10,7 +10,7 @@ import { includeDependencyPackage } from './utils';
 import { existsSync } from 'fs';
 
 export class LockedDependencyResolver {
-  constructor(private logger: Logger) {}
+  constructor(private readonly logger: Logger) {}
 
   public resolve(
     projectRoot: string,

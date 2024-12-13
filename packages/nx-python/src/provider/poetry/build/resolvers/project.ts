@@ -12,14 +12,10 @@ import { PackageDependency } from '../../../base';
 import { getLoggingTab } from '../../../utils';
 
 export class ProjectDependencyResolver {
-  private logger: Logger;
-  private options: BuildExecutorSchema;
-  private context: ExecutorContext;
-
   constructor(
-    logger: Logger,
-    options: BuildExecutorSchema,
-    context: ExecutorContext,
+    private readonly logger: Logger,
+    private readonly options: BuildExecutorSchema,
+    private readonly context: ExecutorContext,
   ) {
     this.logger = logger;
     this.options = options;

@@ -73,8 +73,8 @@ export class UVProvider implements IProvider {
       : getPyprojectData<UVPyprojectToml>(pyprojectTomlPath);
 
     return {
-      name: projectData?.project?.name as string,
-      version: projectData?.project?.version as string,
+      name: projectData?.project?.name,
+      version: projectData?.project?.version,
     };
   }
 
