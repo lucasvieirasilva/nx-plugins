@@ -45,7 +45,7 @@ export async function releaseVersionGenerator(
   options: ReleaseVersionGeneratorSchema,
 ): Promise<ReleaseVersionGeneratorResult> {
   let logger: ProjectLogger | undefined;
-  const provider = await getProvider(tree.root, undefined, tree);
+  const provider = await getProvider('.', undefined, tree);
   const updatedProjects: string[] = [];
 
   try {

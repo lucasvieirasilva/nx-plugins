@@ -2446,6 +2446,7 @@ Valid values are: "auto", "", "~", "^", "="`,
   describe('uv', () => {
     beforeEach(() => {
       tree = createTreeWithEmptyWorkspace();
+      tree.root = '.';
 
       projectGraph = createUvWorkspaceWithPackageDependencies(tree, {
         'my-lib': {
