@@ -5,17 +5,17 @@ import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import { Tree, readProjectConfiguration } from '@nx/devkit';
 
 import generator from './generator';
-import { PoetryProjectGeneratorSchema } from './schema';
 import dedent from 'string-dedent';
 import { parse, stringify } from '@iarna/toml';
 import path from 'path';
 import spawn from 'cross-spawn';
 import { PoetryPyprojectToml } from '../../provider/poetry';
+import { BasePythonProjectGeneratorSchema } from '../types';
 
 describe('application generator', () => {
   let checkPoetryExecutableMock: MockInstance;
   let appTree: Tree;
-  const options: PoetryProjectGeneratorSchema = {
+  const options: BasePythonProjectGeneratorSchema = {
     name: 'test',
     projectType: 'application',
     pyprojectPythonDependency: '',
@@ -40,13 +40,26 @@ describe('application generator', () => {
     appTree = createTreeWithEmptyWorkspace({ layout: 'apps-libs' });
     checkPoetryExecutableMock = vi.spyOn(poetryUtils, 'checkPoetryExecutable');
     checkPoetryExecutableMock.mockResolvedValue(undefined);
-    vi.mocked(spawn.sync).mockReturnValue({
-      status: 0,
-      output: [''],
-      pid: 0,
-      signal: null,
-      stderr: null,
-      stdout: null,
+    vi.mocked(spawn.sync).mockImplementation((command) => {
+      if (command === 'python') {
+        return {
+          status: 0,
+          output: [''],
+          pid: 0,
+          signal: null,
+          stderr: null,
+          stdout: Buffer.from('Python 3.9.7'),
+        };
+      }
+
+      return {
+        status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
+      };
     });
   });
 
@@ -490,9 +503,12 @@ describe('application generator', () => {
 
       expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
 
-      expect(spawn.sync).toHaveBeenCalledTimes(2);
+      expect(spawn.sync).toHaveBeenCalledTimes(3);
+      expect(spawn.sync).toHaveBeenNthCalledWith(1, 'python', ['--version'], {
+        stdio: 'pipe',
+      });
       expect(spawn.sync).toHaveBeenNthCalledWith(
-        1,
+        2,
         'poetry',
         ['lock', '--no-update'],
         {
@@ -500,7 +516,7 @@ describe('application generator', () => {
           stdio: 'inherit',
         },
       );
-      expect(spawn.sync).toHaveBeenNthCalledWith(2, 'poetry', ['install'], {
+      expect(spawn.sync).toHaveBeenNthCalledWith(3, 'poetry', ['install'], {
         shell: false,
         stdio: 'inherit',
       });
@@ -542,9 +558,12 @@ describe('application generator', () => {
 
       expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
 
-      expect(spawn.sync).toHaveBeenCalledTimes(2);
+      expect(spawn.sync).toHaveBeenCalledTimes(3);
+      expect(spawn.sync).toHaveBeenNthCalledWith(1, 'python', ['--version'], {
+        stdio: 'pipe',
+      });
       expect(spawn.sync).toHaveBeenNthCalledWith(
-        1,
+        2,
         'poetry',
         ['lock', '--no-update'],
         {
@@ -552,7 +571,7 @@ describe('application generator', () => {
           stdio: 'inherit',
         },
       );
-      expect(spawn.sync).toHaveBeenNthCalledWith(2, 'poetry', ['install'], {
+      expect(spawn.sync).toHaveBeenNthCalledWith(3, 'poetry', ['install'], {
         shell: false,
         stdio: 'inherit',
       });
@@ -594,9 +613,12 @@ describe('application generator', () => {
 
       expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
 
-      expect(spawn.sync).toHaveBeenCalledTimes(2);
+      expect(spawn.sync).toHaveBeenCalledTimes(3);
+      expect(spawn.sync).toHaveBeenNthCalledWith(1, 'python', ['--version'], {
+        stdio: 'pipe',
+      });
       expect(spawn.sync).toHaveBeenNthCalledWith(
-        1,
+        2,
         'poetry',
         ['lock', '--no-update'],
         {
@@ -604,7 +626,7 @@ describe('application generator', () => {
           stdio: 'inherit',
         },
       );
-      expect(spawn.sync).toHaveBeenNthCalledWith(2, 'poetry', ['install'], {
+      expect(spawn.sync).toHaveBeenNthCalledWith(3, 'poetry', ['install'], {
         shell: false,
         stdio: 'inherit',
       });
@@ -649,9 +671,12 @@ describe('application generator', () => {
 
       expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
 
-      expect(spawn.sync).toHaveBeenCalledTimes(2);
+      expect(spawn.sync).toHaveBeenCalledTimes(3);
+      expect(spawn.sync).toHaveBeenNthCalledWith(1, 'python', ['--version'], {
+        stdio: 'pipe',
+      });
       expect(spawn.sync).toHaveBeenNthCalledWith(
-        1,
+        2,
         'poetry',
         ['lock', '--no-update'],
         {
@@ -659,7 +684,7 @@ describe('application generator', () => {
           stdio: 'inherit',
         },
       );
-      expect(spawn.sync).toHaveBeenNthCalledWith(2, 'poetry', ['install'], {
+      expect(spawn.sync).toHaveBeenNthCalledWith(3, 'poetry', ['install'], {
         shell: false,
         stdio: 'inherit',
       });

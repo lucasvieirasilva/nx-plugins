@@ -1,14 +1,16 @@
 import { parse } from '@iarna/toml';
 import { readFileSync, existsSync } from 'fs-extra';
 import path, { join, relative } from 'path';
-import { PoetryLock, Dependency, PoetryLockPackage } from './types';
+import { PoetryLock, PoetryLockPackage } from './types';
 import chalk from 'chalk';
 import uri2path from 'file-uri-to-path';
-import { getLoggingTab, includeDependencyPackage } from './utils';
+import { includeDependencyPackage } from './utils';
 import { Logger } from '../../../../executors/utils/logger';
 import { PoetryPyprojectToml } from '../../types';
 import { parseToml, runPoetry } from '../../utils';
 import { isWindows } from '../../../../executors/utils/os';
+import { PackageDependency } from '../../../base';
+import { getLoggingTab } from '../../../utils';
 
 export class LockedDependencyResolver {
   private logger: Logger;
@@ -23,7 +25,7 @@ export class LockedDependencyResolver {
     buildTomlData: PoetryPyprojectToml,
     devDependencies: boolean,
     workspaceRoot: string,
-  ): Dependency[] {
+  ): PackageDependency[] {
     this.logger.info(chalk`  Resolving dependencies...`);
     return this.resolveDependencies(
       devDependencies,
@@ -40,9 +42,9 @@ export class LockedDependencyResolver {
     buildFolderPath: string,
     buildTomlData: PoetryPyprojectToml,
     workspaceRoot: string,
-    deps: Dependency[] = [],
+    deps: PackageDependency[] = [],
     level = 1,
-  ): Dependency[] {
+  ): PackageDependency[] {
     const tab = getLoggingTab(level);
     const requerimentsTxt = this.getProjectRequirementsTxt(
       devDependencies,
@@ -58,7 +60,7 @@ export class LockedDependencyResolver {
     const requerimentsLines = requerimentsTxt.split('\n');
     for (const line of requerimentsLines) {
       if (line.trim()) {
-        const dep = {} as Dependency;
+        const dep = {} as PackageDependency;
         const elements = line.split(';');
 
         if (elements.length > 1) {
@@ -152,12 +154,12 @@ export class LockedDependencyResolver {
   private resolveSourceDependency(
     tab: string,
     exportedLineElements: string[],
-    dep: Dependency,
+    dep: PackageDependency,
     lockData: PoetryLock,
     workspaceRoot: string,
     buildFolderPath: string,
     buildTomlData: PoetryPyprojectToml,
-    deps: Dependency[],
+    deps: PackageDependency[],
   ) {
     const { packageName, location } =
       this.extractLocalPackageInfo(exportedLineElements);
@@ -211,7 +213,7 @@ export class LockedDependencyResolver {
     return { packageName, location };
   }
 
-  private resolvePackageExtras(dep: Dependency) {
+  private resolvePackageExtras(dep: PackageDependency) {
     if (dep.name.indexOf('[') !== -1) {
       dep.extras = dep.name
         .substring(dep.name.indexOf('[') + 1, dep.name.lastIndexOf(']'))
@@ -261,8 +263,8 @@ export class LockedDependencyResolver {
   private includeGitDependency(
     tab: string,
     lockedPkg: PoetryLockPackage,
-    dep: Dependency,
-    deps: Dependency[],
+    dep: PackageDependency,
+    deps: PackageDependency[],
   ) {
     dep.git = lockedPkg.source.url;
     dep.optional = lockedPkg.optional;

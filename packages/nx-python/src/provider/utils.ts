@@ -25,3 +25,7 @@ export function writePyprojectToml(
 ) {
   tree.write(tomlFile, toml.stringify(data));
 }
+
+export function getLoggingTab(level: number): string {
+  return '    '.repeat(level);
+}

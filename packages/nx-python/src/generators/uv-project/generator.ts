@@ -12,25 +12,22 @@ import * as path from 'path';
 import { parse, stringify } from '@iarna/toml';
 import chalk from 'chalk';
 import _ from 'lodash';
-import {
-  PoetryPyprojectToml,
-  PoetryPyprojectTomlDependencies,
-} from '../../provider/poetry';
-import { checkPoetryExecutable, runPoetry } from '../../provider/poetry/utils';
-import {
-  BaseNormalizedSchema,
-  BasePythonProjectGeneratorSchema,
-} from '../types';
+import { UVPyprojectToml } from '../../provider/uv/types';
+import { checkUvExecutable, runUv } from '../../provider/uv/utils';
+import { DEV_DEPENDENCIES_VERSION_MAP } from '../consts';
+import wcmatch from 'wildcard-match';
 import {
   normalizeOptions as baseNormalizeOptions,
   getPyprojectTomlByProjectName,
 } from '../utils';
-import { DEV_DEPENDENCIES_VERSION_MAP } from '../consts';
+import {
+  BaseNormalizedSchema,
+  BasePythonProjectGeneratorSchema,
+} from '../types';
 
 interface NormalizedSchema extends BaseNormalizedSchema {
   devDependenciesProjectPath?: string;
   devDependenciesProjectPkgName?: string;
-  individualPackage: boolean;
 }
 
 function normalizeOptions(
@@ -46,12 +43,11 @@ function normalizeOptions(
       tree,
       options.devDependenciesProject,
     );
-    const { pyprojectToml } =
-      getPyprojectTomlByProjectName<PoetryPyprojectToml>(
-        tree,
-        options.devDependenciesProject,
-      );
-    devDependenciesProjectPkgName = pyprojectToml.tool.poetry.name;
+    const { pyprojectToml } = getPyprojectTomlByProjectName<UVPyprojectToml>(
+      tree,
+      options.devDependenciesProject,
+    );
+    devDependenciesProjectPkgName = pyprojectToml.project.name;
     devDependenciesProjectPath = path.relative(
       newOptions.projectRoot,
       projectConfig.root,
@@ -63,7 +59,6 @@ function normalizeOptions(
     devDependenciesProject: options.devDependenciesProject ?? '',
     devDependenciesProjectPath,
     devDependenciesProjectPkgName,
-    individualPackage: !tree.exists('pyproject.toml'),
   };
 }
 
@@ -113,154 +108,199 @@ function addFiles(tree: Tree, options: NormalizedSchema) {
 }
 
 function updateRootPyprojectToml(
-  host: Tree,
+  tree: Tree,
   normalizedOptions: NormalizedSchema,
 ) {
-  if (!normalizedOptions.individualPackage) {
-    const rootPyprojectToml = parse(
-      host.read('./pyproject.toml', 'utf-8'),
-    ) as PoetryPyprojectToml;
-
-    const group = normalizedOptions.rootPyprojectDependencyGroup ?? 'main';
-
-    if (group === 'main') {
-      rootPyprojectToml.tool.poetry.dependencies[
-        normalizedOptions.packageName
-      ] = {
-        path: normalizedOptions.projectRoot,
-        develop: true,
-      };
-    } else {
-      rootPyprojectToml.tool.poetry.group = {
-        ...(rootPyprojectToml.tool.poetry.group || {}),
-        [group]: {
-          ...(rootPyprojectToml.tool.poetry.group?.[group] || {}),
-          dependencies: {
-            ...(rootPyprojectToml.tool.poetry.group?.[group]?.dependencies ||
-              {}),
-            [normalizedOptions.packageName]: {
-              path: normalizedOptions.projectRoot,
-              develop: true,
+  const rootPyprojectToml: UVPyprojectToml = tree.exists('./pyproject.toml')
+    ? (parse(tree.read('./pyproject.toml', 'utf-8')) as UVPyprojectToml)
+    : {
+        project: { name: 'nx-workspace', version: '1.0.0', dependencies: [] },
+        'dependency-groups': {},
+        tool: {
+          uv: {
+            sources: {},
+            workspace: {
+              members: [`${normalizedOptions.projectRoot.split('/')[0]}/*`],
             },
           },
         },
       };
+
+  const group = normalizedOptions.rootPyprojectDependencyGroup ?? 'main';
+
+  if (group === 'main') {
+    rootPyprojectToml.project.dependencies ??= [];
+    rootPyprojectToml.project.dependencies.push(normalizedOptions.packageName);
+  } else {
+    rootPyprojectToml['dependency-groups'] ??= {};
+    rootPyprojectToml['dependency-groups'][group] ??= [];
+    rootPyprojectToml['dependency-groups'][group].push(
+      normalizedOptions.packageName,
+    );
+  }
+
+  rootPyprojectToml.tool ??= {};
+  rootPyprojectToml.tool.uv ??= {};
+  rootPyprojectToml.tool.uv.sources ??= {};
+  rootPyprojectToml.tool.uv.sources[normalizedOptions.packageName] = {
+    workspace: true,
+  };
+
+  if (!normalizedOptions.devDependenciesProject) {
+    rootPyprojectToml['dependency-groups'] ??= {};
+    rootPyprojectToml['dependency-groups'].dev ??= [];
+
+    const { changed, dependencies } = addTestDependencies(
+      rootPyprojectToml['dependency-groups'].dev ?? [],
+      normalizedOptions,
+      true,
+    );
+
+    if (changed) {
+      rootPyprojectToml['dependency-groups'].dev = dependencies;
     }
+  }
 
-    if (!normalizedOptions.devDependenciesProject) {
-      const { changed, dependencies } = addTestDependencies(
-        rootPyprojectToml.tool.poetry.group?.dev?.dependencies || {},
-        normalizedOptions,
-      );
+  rootPyprojectToml.tool ??= {};
+  rootPyprojectToml.tool.uv ??= {};
+  rootPyprojectToml.tool.uv.workspace ??= {
+    members: [],
+  };
 
-      if (changed) {
-        rootPyprojectToml.tool.poetry.group = {
-          ...(rootPyprojectToml.tool.poetry.group || {}),
-          dev: {
-            dependencies: dependencies,
-          },
-        };
+  if (rootPyprojectToml.tool.uv.workspace.members.length === 0) {
+    rootPyprojectToml.tool.uv.workspace.members.push(
+      `${normalizedOptions.projectRoot.split('/')[0]}/*`,
+    );
+  } else {
+    for (const memberPattern of rootPyprojectToml.tool.uv.workspace.members) {
+      if (
+        !wcmatch(
+          memberPattern.endsWith('**')
+            ? memberPattern
+            : memberPattern.endsWith('*')
+              ? `${memberPattern}*`
+              : memberPattern,
+        )(normalizedOptions.projectRoot)
+      ) {
+        rootPyprojectToml.tool.uv.workspace.members.push(
+          `${normalizedOptions.projectRoot.split('/')[0]}/*`,
+        );
       }
     }
-
-    host.write('./pyproject.toml', stringify(rootPyprojectToml));
   }
+
+  tree.write('./pyproject.toml', stringify(rootPyprojectToml));
 }
 
 function updateDevDependenciesProject(
-  host: Tree,
+  tree: Tree,
   normalizedOptions: NormalizedSchema,
 ) {
   if (normalizedOptions.devDependenciesProject) {
     const { pyprojectToml, pyprojectTomlPath } =
-      getPyprojectTomlByProjectName<PoetryPyprojectToml>(
-        host,
+      getPyprojectTomlByProjectName<UVPyprojectToml>(
+        tree,
         normalizedOptions.devDependenciesProject,
       );
 
     const { changed, dependencies } = addTestDependencies(
-      pyprojectToml.tool.poetry.dependencies,
+      pyprojectToml.project.dependencies,
       normalizedOptions,
+      false,
     );
 
     if (changed) {
-      pyprojectToml.tool.poetry.dependencies = {
-        ...pyprojectToml.tool.poetry.dependencies,
-        ...dependencies,
-      };
+      pyprojectToml.project.dependencies = dependencies;
 
-      host.write(pyprojectTomlPath, stringify(pyprojectToml));
+      tree.write(pyprojectTomlPath, stringify(pyprojectToml));
     }
   }
 }
 
 function addTestDependencies(
-  dependencies: PoetryPyprojectTomlDependencies,
+  dependencies: string[],
   normalizedOptions: NormalizedSchema,
+  rootPyproject: boolean,
 ) {
-  const originalDependencies = _.clone(dependencies);
+  const newDependencies = [...dependencies];
+  const dependencyNames = dependencies
+    .map((dep) => dep.match(/^[a-zA-Z0-9-]+/)?.[0])
+    .filter((d) => !!d);
 
-  if (normalizedOptions.linter === 'flake8' && !dependencies['flake8']) {
-    dependencies['flake8'] = DEV_DEPENDENCIES_VERSION_MAP.flake8;
+  if (
+    normalizedOptions.linter === 'flake8' &&
+    !dependencyNames.includes('flake8')
+  ) {
+    newDependencies.push(`flake8>=${DEV_DEPENDENCIES_VERSION_MAP.flake8}`);
   }
 
-  if (normalizedOptions.linter === 'ruff' && !dependencies['ruff']) {
-    dependencies['ruff'] = DEV_DEPENDENCIES_VERSION_MAP.ruff;
+  if (
+    normalizedOptions.linter === 'ruff' &&
+    !dependencyNames.includes('ruff')
+  ) {
+    newDependencies.push(`ruff>=${DEV_DEPENDENCIES_VERSION_MAP.ruff}`);
   }
 
-  if (!dependencies['autopep8']) {
-    dependencies['autopep8'] = DEV_DEPENDENCIES_VERSION_MAP.autopep8;
+  if (
+    !dependencyNames.includes('autopep8') &&
+    ((rootPyproject && !normalizedOptions.devDependenciesProject) ||
+      !rootPyproject)
+  ) {
+    newDependencies.push(`autopep8>=${DEV_DEPENDENCIES_VERSION_MAP.autopep8}`);
   }
 
   if (
     normalizedOptions.unitTestRunner === 'pytest' &&
-    !dependencies['pytest']
+    !dependencyNames.includes('pytest')
   ) {
-    dependencies['pytest'] = DEV_DEPENDENCIES_VERSION_MAP.pytest;
+    newDependencies.push(`pytest>=${DEV_DEPENDENCIES_VERSION_MAP.pytest}`);
   }
   if (
     normalizedOptions.unitTestRunner === 'pytest' &&
-    !dependencies['pytest-sugar']
+    !dependencyNames.includes('pytest-sugar')
   ) {
-    dependencies['pytest-sugar'] = DEV_DEPENDENCIES_VERSION_MAP['pytest-sugar'];
+    newDependencies.push(
+      `pytest-sugar>=${DEV_DEPENDENCIES_VERSION_MAP['pytest-sugar']}`,
+    );
   }
 
   if (
     normalizedOptions.unitTestRunner === 'pytest' &&
     normalizedOptions.codeCoverage &&
-    !dependencies['pytest-cov']
+    !dependencyNames.includes('pytest-cov')
   ) {
-    dependencies['pytest-cov'] = DEV_DEPENDENCIES_VERSION_MAP['pytest-cov'];
+    newDependencies.push(
+      `pytest-cov>=${DEV_DEPENDENCIES_VERSION_MAP['pytest-cov']}`,
+    );
   }
 
   if (
     normalizedOptions.unitTestRunner === 'pytest' &&
     normalizedOptions.codeCoverageHtmlReport &&
-    !dependencies['pytest-html']
+    !dependencyNames.includes('pytest-html')
   ) {
-    dependencies['pytest-html'] = DEV_DEPENDENCIES_VERSION_MAP['pytest-html'];
+    newDependencies.push(
+      `pytest-html>=${DEV_DEPENDENCIES_VERSION_MAP['pytest-html']}`,
+    );
   }
 
   return {
-    changed: !_.isEqual(originalDependencies, dependencies),
-    dependencies,
+    changed: !_.isEqual(dependencies, newDependencies),
+    dependencies: newDependencies,
   };
 }
 
-function updateRootPoetryLock(host: Tree) {
-  if (host.exists('./pyproject.toml')) {
-    console.log(chalk`  Updating root {bgBlue poetry.lock}...`);
-    runPoetry(['lock', '--no-update'], { log: false });
-    runPoetry(['install']);
-    console.log(chalk`\n  {bgBlue poetry.lock} updated.\n`);
-  }
+function updateRootUvLock() {
+  console.log(chalk`  Updating root {bgBlue uv.lock}...`);
+  runUv(['sync'], { log: false });
+  console.log(chalk`\n  {bgBlue uv.lock} updated.\n`);
 }
 
 export default async function (
   tree: Tree,
   options: BasePythonProjectGeneratorSchema,
 ) {
-  await checkPoetryExecutable();
+  await checkUvExecutable();
 
   const normalizedOptions = normalizeOptions(tree, options);
 
@@ -268,7 +308,7 @@ export default async function (
     lock: {
       executor: '@nxlv/python:run-commands',
       options: {
-        command: 'poetry lock --no-update',
+        command: 'uv lock',
         cwd: normalizedOptions.projectRoot,
       },
     },
@@ -292,16 +332,6 @@ export default async function (
         publish: normalizedOptions.publishable,
         lockedVersions: normalizedOptions.buildLockedVersions,
         bundleLocalDependencies: normalizedOptions.buildBundleLocalDependencies,
-      },
-    },
-    install: {
-      executor: '@nxlv/python:install',
-      options: {
-        silent: false,
-        args: '',
-        cacheDir: `.cache/pypoetry`,
-        verbose: false,
-        debug: false,
       },
     },
   };
@@ -338,7 +368,7 @@ export default async function (
         `{workspaceRoot}/coverage/${normalizedOptions.projectRoot}`,
       ],
       options: {
-        command: `poetry run pytest tests/`,
+        command: `uv run pytest tests/`,
         cwd: normalizedOptions.projectRoot,
       },
     };
@@ -379,6 +409,6 @@ export default async function (
   await formatFiles(tree);
 
   return () => {
-    updateRootPoetryLock(tree);
+    updateRootUvLock();
   };
 }

@@ -12,6 +12,17 @@ export type Dependency = {
   category: string;
 };
 
+export type PackageDependency = {
+  name: string;
+  version?: string;
+  markers?: string;
+  optional?: boolean;
+  extras?: string[];
+  git?: string;
+  rev?: string;
+  source?: string;
+};
+
 export type ProjectMetadata = {
   name: string;
   version: string;

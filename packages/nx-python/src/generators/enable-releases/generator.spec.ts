@@ -11,13 +11,26 @@ describe('nx-python enable-releases', () => {
 
   beforeEach(() => {
     appTree = createTreeWithEmptyWorkspace({});
-    vi.mocked(spawn.sync).mockReturnValue({
-      status: 0,
-      output: [''],
-      pid: 0,
-      signal: null,
-      stderr: null,
-      stdout: null,
+    vi.mocked(spawn.sync).mockImplementation((command) => {
+      if (command === 'python') {
+        return {
+          status: 0,
+          output: [''],
+          pid: 0,
+          signal: null,
+          stderr: null,
+          stdout: Buffer.from('Python 3.9.7'),
+        };
+      }
+
+      return {
+        status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
+      };
     });
   });
 

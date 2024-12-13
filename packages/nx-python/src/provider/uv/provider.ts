@@ -23,9 +23,9 @@ import {
 } from '../../executors/build/schema';
 import { InstallExecutorSchema } from '../../executors/install/schema';
 import { checkUvExecutable, getUvLockfile, runUv } from './utils';
-import path from 'path';
+import path, { join } from 'path';
 import chalk from 'chalk';
-import { removeSync, writeFileSync } from 'fs-extra';
+import { copySync, removeSync, writeFileSync } from 'fs-extra';
 import {
   getPyprojectData,
   readPyprojectToml,
@@ -33,7 +33,13 @@ import {
 } from '../utils';
 import { UVLockfile, UVPyprojectToml } from './types';
 import toml from '@iarna/toml';
-import fs from 'fs';
+import fs, { mkdirSync, readdirSync } from 'fs';
+import { tmpdir } from 'os';
+import { v4 as uuid } from 'uuid';
+import {
+  LockedDependencyResolver,
+  ProjectDependencyResolver,
+} from './build/resolvers';
 
 export class UVProvider implements IProvider {
   protected _rootLockfile: UVLockfile;
@@ -155,7 +161,6 @@ export class UVProvider implements IProvider {
   public getDependents(
     projectName: string,
     projects: Record<string, ProjectConfiguration>,
-    cwd: string,
   ): string[] {
     const result: string[] = [];
 
@@ -335,7 +340,96 @@ export class UVProvider implements IProvider {
     options: BuildExecutorSchema,
     context: ExecutorContext,
   ): Promise<string> {
-    throw new Error('Method not implemented.');
+    await this.checkPrerequisites();
+    if (
+      options.lockedVersions === true &&
+      options.bundleLocalDependencies === false
+    ) {
+      throw new Error(
+        'Not supported operations, you cannot use lockedVersions without bundleLocalDependencies',
+      );
+    }
+
+    this.logger.info(
+      chalk`\n  {bold Building project {bgBlue  ${context.projectName} }...}\n`,
+    );
+
+    const { root } =
+      context.projectsConfigurations.projects[context.projectName];
+
+    const buildFolderPath = join(tmpdir(), 'nx-python', 'build', uuid());
+
+    mkdirSync(buildFolderPath, { recursive: true });
+
+    this.logger.info(chalk`  Copying project files to a temporary folder`);
+    readdirSync(root).forEach((file) => {
+      if (!options.ignorePaths.includes(file)) {
+        const source = join(root, file);
+        const target = join(buildFolderPath, file);
+        copySync(source, target);
+      }
+    });
+
+    const buildPyProjectToml = join(buildFolderPath, 'pyproject.toml');
+    const buildTomlData = getPyprojectData<UVPyprojectToml>(buildPyProjectToml);
+
+    const deps = options.lockedVersions
+      ? new LockedDependencyResolver(this.logger).resolve(
+          root,
+          buildFolderPath,
+          buildTomlData,
+          options.devDependencies,
+          context.root,
+        )
+      : new ProjectDependencyResolver(this.logger, options, context).resolve(
+          root,
+          buildFolderPath,
+          buildTomlData,
+          context.root,
+        );
+
+    buildTomlData.project.dependencies = [];
+    buildTomlData['dependency-groups'] = {};
+
+    if (buildTomlData.tool?.uv?.sources) {
+      buildTomlData.tool.uv.sources = {};
+    }
+
+    for (const dep of deps) {
+      if (dep.version) {
+        buildTomlData.project.dependencies.push(`${dep.name}==${dep.version}`);
+      } else {
+        buildTomlData.project.dependencies.push(dep.name);
+      }
+
+      if (dep.source) {
+        buildTomlData.tool.uv.sources[dep.name] = {
+          index: dep.source,
+        };
+      }
+    }
+
+    writeFileSync(buildPyProjectToml, toml.stringify(buildTomlData));
+    const distFolder = join(buildFolderPath, 'dist');
+
+    removeSync(distFolder);
+
+    this.logger.info(chalk`  Generating sdist and wheel artifacts`);
+    const buildArgs = ['build'];
+    runUv(buildArgs, { cwd: buildFolderPath });
+
+    removeSync(options.outputPath);
+    mkdirSync(options.outputPath, { recursive: true });
+    this.logger.info(
+      chalk`  Artifacts generated at {bold ${options.outputPath}} folder`,
+    );
+    copySync(distFolder, options.outputPath);
+
+    if (!options.keepBuildFolder) {
+      removeSync(buildFolderPath);
+    }
+
+    return buildFolderPath;
   }
 
   public async run(

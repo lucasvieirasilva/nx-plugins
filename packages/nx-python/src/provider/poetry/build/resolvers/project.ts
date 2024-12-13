@@ -1,14 +1,15 @@
 import chalk from 'chalk';
-import { Dependency } from './types';
 import { join, normalize, relative, resolve } from 'path';
 import { readFileSync } from 'fs-extra';
 import { parse } from '@iarna/toml';
-import { getLoggingTab, includeDependencyPackage } from './utils';
+import { includeDependencyPackage } from './utils';
 import { ExecutorContext } from '@nx/devkit';
 import { createHash } from 'crypto';
 import { PoetryPyprojectToml, PoetryPyprojectTomlSource } from '../../types';
 import { BuildExecutorSchema } from '../../../../executors/build/schema';
 import { Logger } from '../../../../executors/utils/logger';
+import { PackageDependency } from '../../../base';
+import { getLoggingTab } from '../../../utils';
 
 export class ProjectDependencyResolver {
   private logger: Logger;
@@ -29,7 +30,7 @@ export class ProjectDependencyResolver {
     root: string,
     buildFolderPath: string,
     buildTomlData: PoetryPyprojectToml,
-  ): Dependency[] {
+  ): PackageDependency[] {
     this.logger.info(chalk`  Resolving dependencies...`);
     const pyprojectPath = join(root, 'pyproject.toml');
     const pyproject = parse(
@@ -52,14 +53,14 @@ export class ProjectDependencyResolver {
     level = 1,
   ) {
     const tab = getLoggingTab(level);
-    const deps: Dependency[] = [];
+    const deps: PackageDependency[] = [];
 
     const dependencies = Object.entries(
       pyproject.tool.poetry.dependencies,
     ).filter(([name]) => name != 'python');
 
     for (const [name, data] of dependencies) {
-      const dep = {} as Dependency;
+      const dep = {} as PackageDependency;
       dep.name = name;
 
       if (typeof data === 'string') {

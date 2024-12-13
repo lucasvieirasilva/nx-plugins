@@ -21,14 +21,24 @@ export type UVPyprojectToml = {
       sources?: {
         [key: string]: {
           workspace?: boolean;
+          index?: string;
         };
+      };
+      index?: UVPyprojectTomlIndex[];
+      workspace?: {
+        members: string[];
       };
     };
   };
 };
 
+export type UVPyprojectTomlIndex = {
+  name: string;
+  url: string;
+};
+
 export type UVLockfilePackageLocalSource = {
-  editable?: boolean;
+  editable?: string;
 };
 
 export type UVLockfilePackageDependency = {

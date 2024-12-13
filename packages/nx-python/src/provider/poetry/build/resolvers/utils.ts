@@ -30,7 +30,3 @@ export function includeDependencyPackage(
     }
   }
 }
-
-export function getLoggingTab(level: number): string {
-  return '    '.repeat(level);
-}

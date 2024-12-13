@@ -1,16 +1,5 @@
 import { PoetryPyprojectTomlDependency } from '../../types';
 
-export type Dependency = {
-  name: string;
-  version: string;
-  markers?: string;
-  optional: boolean;
-  extras?: string[];
-  git?: string;
-  rev?: string;
-  source?: string;
-};
-
 export type PoetryLockPackage = {
   name: string;
   version: string;

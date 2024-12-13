@@ -1,0 +1,73 @@
+<%if (codeCoverage) { -%>
+[tool.coverage.run]
+branch = true
+source = [ "<%= moduleName %>" ]
+
+[tool.coverage.report]
+exclude_lines = ['if TYPE_CHECKING:']
+show_missing = true
+
+<% } -%>
+<%if (unitTestRunner === 'pytest' && pythonAddopts) { -%>
+[tool.pytest.ini_options]
+addopts = "<%- pythonAddopts %>"
+
+<% } -%>
+[project]
+name = "<%= packageName %>"
+version = "1.0.0"
+description = "<%= description %>"
+requires-python = "<%- pyprojectPythonDependency %>"
+readme = 'README.md'
+dependencies = []
+
+[tool.hatch.build.targets.wheel]
+packages = ["<%= moduleName %>"]
+
+<%if (devDependenciesProject !== '') { -%>
+[dependency-groups]
+dev = [
+  "<%- devDependenciesProjectPkgName %>"
+]
+
+[tool.uv.sources]
+<%- devDependenciesProjectPkgName %> = { workspace = true }
+
+<% } -%>
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+<%if (linter === 'ruff') { -%>
+
+[tool.ruff]
+exclude = [
+  ".ruff_cache",
+  ".svn",
+  ".tox",
+  ".venv",
+  "dist",
+]
+
+line-length = 88
+indent-width = 4
+
+[tool.ruff.lint]
+select = [
+  # pycodestyle
+  "E",
+  # Pyflakes
+  "F",
+  # pyupgrade
+  "UP",
+  # flake8-bugbear
+  "B",
+  # flake8-simplify
+  "SIM",
+  # isort
+  "I",
+]
+ignore = []
+
+fixable = ["ALL"]
+unfixable = []
+<% } -%>
