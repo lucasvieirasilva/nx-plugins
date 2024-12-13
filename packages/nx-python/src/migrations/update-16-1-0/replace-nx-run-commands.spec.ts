@@ -5,7 +5,7 @@ import {
   updateProjectConfiguration,
 } from '@nx/devkit';
 import generator from '../../generators/poetry-project/generator';
-
+import * as poetryUtils from '../../provider/poetry/utils';
 import update from './replace-nx-run-commands';
 
 describe('16-1-0-replace-nx-run-commands migration', () => {
@@ -13,6 +13,8 @@ describe('16-1-0-replace-nx-run-commands migration', () => {
 
   beforeEach(() => {
     tree = createTreeWithEmptyWorkspace({ layout: 'apps-libs' });
+
+    vi.spyOn(poetryUtils, 'checkPoetryExecutable').mockReturnValue(undefined);
   });
 
   it('should run successfully', async () => {

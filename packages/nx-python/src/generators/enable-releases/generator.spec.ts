@@ -5,12 +5,15 @@ import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import generator from './generator';
 import projectGenerator from '../poetry-project/generator';
 import spawn from 'cross-spawn';
+import * as poetryUtils from '../../provider/poetry/utils';
 
 describe('nx-python enable-releases', () => {
   let appTree: Tree;
 
   beforeEach(() => {
     appTree = createTreeWithEmptyWorkspace({});
+
+    vi.spyOn(poetryUtils, 'checkPoetryExecutable').mockReturnValue(undefined);
     vi.mocked(spawn.sync).mockImplementation((command) => {
       if (command === 'python') {
         return {

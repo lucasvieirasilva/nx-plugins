@@ -47,6 +47,8 @@ describe('Serverless Framework Package Executor', () => {
         .spyOn(poetryUtils, 'activateVenv')
         .mockReturnValue(undefined);
       vi.spyOn(process, 'chdir').mockReturnValue(undefined);
+
+      vi.spyOn(poetryUtils, 'checkPoetryExecutable').mockReturnValue(undefined);
     });
 
     it('should throw an exception when the dist folder is empty', async () => {
