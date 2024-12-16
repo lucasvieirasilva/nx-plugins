@@ -18,6 +18,11 @@
       "schema": "./src/generators/poetry-project/schema.json",
       "description": "Python Poetry Project"
     },
+    "uv-project": {
+      "factory": "./src/generators/uv-project/generator",
+      "schema": "./src/generators/uv-project/schema.json",
+      "description": "Python UV Project"
+    },
     "release-version": {
       "factory": "./src/generators/release-version/release-version",
       "schema": "./src/generators/release-version/schema.json",

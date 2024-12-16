@@ -1,12 +1,12 @@
 import { join } from 'path';
 import { copySync } from 'fs-extra';
-import { PyprojectToml } from '../../../graph/dependency-graph';
+import { PoetryPyprojectToml } from '../../types';
 
 export function includeDependencyPackage(
-  tomlData: PyprojectToml,
+  tomlData: PoetryPyprojectToml,
   root: string,
   buildFolderPath: string,
-  buildTomlData: PyprojectToml,
+  buildTomlData: PoetryPyprojectToml,
 ) {
   for (const pkg of tomlData.tool.poetry.packages) {
     const pkgFolder = join(root, pkg.from ?? '', pkg.include);
@@ -29,8 +29,4 @@ export function includeDependencyPackage(
         tomlData.tool.poetry.plugins[pluginName];
     }
   }
-}
-
-export function getLoggingTab(level: number): string {
-  return '    '.repeat(level);
 }

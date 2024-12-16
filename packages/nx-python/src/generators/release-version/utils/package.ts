@@ -1,9 +1,5 @@
-import { joinPathFragments, Tree } from '@nx/devkit';
-import {
-  PyprojectToml,
-  PyprojectTomlDependencies,
-} from '../../../graph/dependency-graph';
-import { readPyprojectToml } from '../../../executors/utils/poetry';
+import { joinPathFragments } from '@nx/devkit';
+import { IProvider } from '../../../provider/base';
 
 export class Package {
   name: string;
@@ -11,13 +7,13 @@ export class Package {
   location: string;
 
   constructor(
-    private tree: Tree,
-    private pyprojectToml: PyprojectToml,
+    private readonly provider: IProvider,
     workspaceRoot: string,
     private workspaceRelativeLocation: string,
   ) {
-    this.name = pyprojectToml.tool.poetry.name;
-    this.version = pyprojectToml.tool.poetry.version;
+    const metadata = provider.getMetadata(workspaceRelativeLocation);
+    this.name = metadata.name;
+    this.version = metadata.version;
     this.location = joinPathFragments(workspaceRoot, workspaceRelativeLocation);
   }
 
@@ -26,62 +22,19 @@ export class Package {
     groupKey?: string;
     spec: string;
   } | null {
-    if (this.pyprojectToml.tool?.poetry?.dependencies?.[depName]) {
-      return {
-        collection: 'dependencies',
-        spec: extractDependencyVersion(
-          this.tree,
-          this.workspaceRelativeLocation,
-          this.pyprojectToml.tool?.poetry?.dependencies,
-          depName,
-        ),
-      };
-    }
+    const depMatadata = this.provider.getDependencyMetadata(
+      this.workspaceRelativeLocation,
+      depName,
+    );
 
-    for (const groupKey of Object.keys(
-      this.pyprojectToml.tool?.poetry?.group,
-    )) {
-      if (
-        this.pyprojectToml.tool?.poetry?.group[groupKey]?.dependencies?.[
-          depName
-        ]
-      ) {
-        return {
-          collection:
-            groupKey === 'dev' ? 'devDependencies' : 'optionalDependencies',
-          groupKey,
-          spec: extractDependencyVersion(
-            this.tree,
-            this.workspaceRelativeLocation,
-            this.pyprojectToml.tool?.poetry?.group[groupKey]?.dependencies,
-            depName,
-          ),
-        };
-      }
-    }
-
-    return null;
+    return {
+      collection:
+        depMatadata.group === 'main'
+          ? 'dependencies'
+          : depMatadata.group === 'dev'
+            ? 'devDependencies'
+            : 'optionalDependencies',
+      spec: depMatadata.version,
+    };
   }
-}
-
-export function extractDependencyVersion(
-  tree: Tree,
-  projectLocation: string,
-  dependencyGroup: PyprojectTomlDependencies,
-  depName: string,
-): string {
-  if (typeof dependencyGroup?.[depName] === 'string') {
-    return dependencyGroup?.[depName];
-  }
-
-  const dependentPyproject = readPyprojectToml(
-    tree,
-    joinPathFragments(
-      projectLocation,
-      dependencyGroup?.[depName].path,
-      'pyproject.toml',
-    ),
-  );
-
-  return dependentPyproject.tool.poetry.version;
 }

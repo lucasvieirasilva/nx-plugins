@@ -1,12 +1,12 @@
-import { ExecutorContext, ProjectConfiguration, Tree } from '@nx/devkit';
+import { ExecutorContext, ProjectConfiguration } from '@nx/devkit';
 import chalk from 'chalk';
 import spawn from 'cross-spawn';
 import path from 'path';
 import toml, { parse } from '@iarna/toml';
 import fs from 'fs';
-import { PyprojectToml } from '../../graph/dependency-graph';
 import commandExists from 'command-exists';
 import { SpawnSyncOptions } from 'child_process';
+import { PoetryPyprojectToml, PoetryPyprojectTomlDependencies } from './types';
 
 export const POETRY_EXECUTABLE = 'poetry';
 
@@ -29,7 +29,7 @@ export async function getPoetryVersion() {
   }
   const versionRegex = /version (\d+\.\d+\.\d+)/;
   const match = result.stdout.toString().trim().match(versionRegex);
-  const version = match && match[1];
+  const version = match?.[1];
   return version;
 }
 
@@ -81,24 +81,7 @@ export function getProjectTomlPath(targetConfig: ProjectConfiguration) {
 }
 
 export function parseToml(tomlFile: string) {
-  return toml.parse(fs.readFileSync(tomlFile, 'utf-8')) as PyprojectToml;
-}
-
-export function readPyprojectToml(tree: Tree, tomlFile: string) {
-  const content = tree.read(tomlFile, 'utf-8');
-  if (!content) {
-    return null;
-  }
-
-  return toml.parse(content) as PyprojectToml;
-}
-
-export function writePyprojectToml(
-  tree: Tree,
-  tomlFile: string,
-  data: PyprojectToml,
-) {
-  tree.write(tomlFile, toml.stringify(data));
+  return toml.parse(fs.readFileSync(tomlFile, 'utf-8')) as PoetryPyprojectToml;
 }
 
 export function getLocalDependencyConfig(
@@ -143,7 +126,7 @@ export function runPoetry(
 
   const result = spawn.sync(POETRY_EXECUTABLE, args, {
     ...options,
-    shell: false,
+    shell: options.shell ?? false,
     stdio: 'inherit',
   });
 
@@ -161,7 +144,7 @@ export function activateVenv(workspaceRoot: string) {
     if (fs.existsSync(rootPyproject)) {
       const rootConfig = parse(
         fs.readFileSync(rootPyproject, 'utf-8'),
-      ) as PyprojectToml;
+      ) as PoetryPyprojectToml;
       const autoActivate = rootConfig.tool.nx?.autoActivate ?? false;
       if (autoActivate) {
         console.log(
@@ -175,3 +158,39 @@ export function activateVenv(workspaceRoot: string) {
     }
   }
 }
+
+export const getProjectPackageName = (
+  context: ExecutorContext,
+  projectName: string,
+): string => {
+  const projectConfig = context.projectsConfigurations.projects[projectName];
+  const projectToml = getProjectTomlPath(projectConfig);
+  const {
+    tool: {
+      poetry: { name },
+    },
+  } = parseToml(projectToml);
+
+  return name;
+};
+
+/**
+ * Parses all dependency names from a Pyproject.toml file
+ * and returns a flattened collection of dependencies
+ *
+ * Optionally you may supply a list of groups to ignore
+ */
+export const getAllDependenciesFromPyprojectToml = (
+  tomlData: PoetryPyprojectToml,
+  /** optional dependency groups to omit from collection */
+  omitGroups: string[] = [],
+): PoetryPyprojectTomlDependencies => {
+  return {
+    ...(tomlData.tool?.poetry?.dependencies ?? {}),
+    ...Object.fromEntries(
+      Object.entries(tomlData.tool?.poetry?.group ?? {})
+        .filter(([name]) => !omitGroups.includes(name))
+        .flatMap(([, group]) => Object.entries(group.dependencies ?? {})),
+    ),
+  };
+};

@@ -1,6 +1,6 @@
 import { vi, MockInstance } from 'vitest';
 import '../../utils/mocks/cross-spawn.mock';
-import * as poetryUtils from '../../executors/utils/poetry';
+import * as poetryUtils from '../../provider/poetry/utils';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import { Tree, readProjectConfiguration } from '@nx/devkit';
 

@@ -5,11 +5,7 @@ import path from 'path';
 import chalk from 'chalk';
 import { Logger } from '../utils/logger';
 import { readdirSync, existsSync } from 'fs-extra';
-import {
-  activateVenv,
-  checkPoetryExecutable,
-  runPoetry,
-} from '../utils/poetry';
+import { getProvider } from '../../provider';
 
 const logger = new Logger();
 
@@ -21,8 +17,9 @@ export default async function executor(
   process.chdir(workspaceRoot);
   logger.setOptions(options);
   try {
-    activateVenv(workspaceRoot);
-    await checkPoetryExecutable();
+    const provider = await getProvider(workspaceRoot);
+    await provider.checkPrerequisites();
+
     const projectConfig =
       context.projectsConfigurations.projects[context.projectName];
     const distFolder = path.join(projectConfig.root, 'dist');
@@ -63,10 +60,13 @@ export default async function executor(
       path.join(distFolder, packageFile),
     );
 
-    const toxArgs = ['run', 'tox', '--installpkg', packagePath].concat(
+    const toxArgs = ['tox', '--installpkg', packagePath].concat(
       options.args ? options.args.split(' ') : [],
     );
-    runPoetry(toxArgs, { cwd: projectConfig.root });
+
+    await provider.run(toxArgs, workspaceRoot, {
+      cwd: projectConfig.root,
+    });
 
     return {
       success: true,

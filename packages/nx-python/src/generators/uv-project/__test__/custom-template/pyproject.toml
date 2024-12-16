@@ -1,0 +1,17 @@
+[project]
+name = "<%= packageName %>"
+version = "1.0.0"
+description = "<%= description %>"
+requires-python = "<%- pyprojectPythonDependency %>"
+
+[tool.hatch.build.targets.wheel]
+packages = ["<%= moduleName %>"]
+
+[dependency-groups]
+dev = [
+  "autopep8==1.5.7",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

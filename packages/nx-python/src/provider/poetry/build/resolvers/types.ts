@@ -1,15 +1,4 @@
-import { PyprojectTomlDependency } from '../../../graph/dependency-graph';
-
-export type Dependency = {
-  name: string;
-  version: string;
-  markers?: string;
-  optional: boolean;
-  extras?: string[];
-  git?: string;
-  rev?: string;
-  source?: string;
-};
+import { PoetryPyprojectTomlDependency } from '../../types';
 
 export type PoetryLockPackage = {
   name: string;
@@ -17,7 +6,7 @@ export type PoetryLockPackage = {
   category: string;
   optional: boolean;
   dependencies?: {
-    [key: string]: PyprojectTomlDependency;
+    [key: string]: PoetryPyprojectTomlDependency;
   };
   source?: {
     type: 'git' | 'directory' | 'file' | 'url';

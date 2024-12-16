@@ -9,9 +9,9 @@ import {
 import path from 'path';
 import { Schema } from './schema';
 import { parse, stringify } from '@iarna/toml';
-import { PyprojectToml } from '../../graph/dependency-graph';
 import chalk from 'chalk';
-import { checkPoetryExecutable, runPoetry } from '../../executors/utils/poetry';
+import { PoetryPyprojectToml } from '../../provider/poetry';
+import { checkPoetryExecutable, runPoetry } from '../../provider/poetry/utils';
 
 async function addFiles(host: Tree, options: Schema) {
   const packageJson = await readJsonFile('package.json');
@@ -34,7 +34,7 @@ function updatePyprojectRoot(host: Tree, options: Schema): LockUpdateTask[] {
 
   const rootPyprojectToml = parse(
     host.read('pyproject.toml').toString(),
-  ) as PyprojectToml;
+  ) as PoetryPyprojectToml;
 
   for (const project of getProjects(host)) {
     const [, projectConfig] = project;
@@ -42,7 +42,7 @@ function updatePyprojectRoot(host: Tree, options: Schema): LockUpdateTask[] {
     if (host.exists(pyprojectTomlPath)) {
       const pyprojectToml = parse(
         host.read(pyprojectTomlPath).toString(),
-      ) as PyprojectToml;
+      ) as PoetryPyprojectToml;
 
       rootPyprojectToml.tool.poetry.dependencies[
         pyprojectToml.tool.poetry.name
@@ -70,8 +70,8 @@ function updatePyprojectRoot(host: Tree, options: Schema): LockUpdateTask[] {
 }
 
 function moveDevDependencies(
-  pyprojectToml: PyprojectToml,
-  rootPyprojectToml: PyprojectToml,
+  pyprojectToml: PoetryPyprojectToml,
+  rootPyprojectToml: PoetryPyprojectToml,
   host: Tree,
   pyprojectTomlPath: string,
   projectConfig: ProjectConfiguration,
@@ -110,6 +110,12 @@ function updateRootPoetryLock() {
 }
 
 async function generator(host: Tree, options: Schema) {
+  if (host.exists('uv.lock')) {
+    throw new Error(
+      'Uv project detected, this generator is only for poetry projects.',
+    );
+  }
+
   await checkPoetryExecutable();
 
   await addFiles(host, options);

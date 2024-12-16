@@ -10,9 +10,9 @@ import {
 import path from 'path';
 import { Schema } from './schema';
 import { parse, stringify } from '@iarna/toml';
-import { PyprojectToml } from '../../graph/dependency-graph';
 import chalk from 'chalk';
-import { checkPoetryExecutable, runPoetry } from '../../executors/utils/poetry';
+import { PoetryPyprojectToml } from '../../provider/poetry';
+import { checkPoetryExecutable, runPoetry } from '../../provider/poetry/utils';
 
 export interface NormalizedSchema extends Schema {
   projectName: string;
@@ -111,7 +111,7 @@ function updateRootPyprojectToml(
   if (host.exists('./pyproject.toml')) {
     const rootPyprojectToml = parse(
       host.read('pyproject.toml', 'utf-8'),
-    ) as PyprojectToml;
+    ) as PoetryPyprojectToml;
     rootPyprojectToml.tool.poetry.dependencies[normalizedOptions.packageName] =
       {
         path: normalizedOptions.projectRoot,

@@ -2,13 +2,11 @@ import {
   ProjectGraph,
   ProjectGraphDependency,
   ProjectGraphProjectNode,
-  Tree,
-  joinPathFragments,
   workspaceRoot,
 } from '@nx/devkit';
 import { satisfies } from 'semver';
 import { Package } from './package';
-import { readPyprojectToml } from '../../../executors/utils/poetry';
+import { IProvider } from '../../../provider/base';
 
 export interface LocalPackageDependency extends ProjectGraphDependency {
   /**
@@ -23,10 +21,10 @@ export interface LocalPackageDependency extends ProjectGraphDependency {
 }
 
 export function resolveLocalPackageDependencies(
-  tree: Tree,
   projectGraph: ProjectGraph,
   filteredProjects: ProjectGraphProjectNode[],
   projectNameToPackageRootMap: Map<string, string>,
+  provider: IProvider,
   resolvePackageRoot: (projectNode: ProjectGraphProjectNode) => string,
   includeAll = false,
 ): Record<string, LocalPackageDependency[]> {
@@ -50,12 +48,7 @@ export function resolveLocalPackageDependencies(
       // Append it to the map for later use within the release version generator
       projectNameToPackageRootMap.set(projectNode.name, packageRoot);
     }
-    const pyprojectTomlPath = joinPathFragments(packageRoot, 'pyproject.toml');
-    if (!tree.exists(pyprojectTomlPath)) {
-      continue;
-    }
-    const pyprojectToml = readPyprojectToml(tree, pyprojectTomlPath);
-    const pkg = new Package(tree, pyprojectToml, workspaceRoot, packageRoot);
+    const pkg = new Package(provider, workspaceRoot, packageRoot);
     projectNodeToPackageMap.set(projectNode, pkg);
   }
 

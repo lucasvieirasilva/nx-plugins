@@ -37,21 +37,16 @@ import {
   resolveLocalPackageDependencies,
 } from './utils/resolve-local-package-dependencies';
 import { sortProjectsTopologically } from './utils/sort-projects-topologically';
-import {
-  readPyprojectToml,
-  runPoetry,
-  writePyprojectToml,
-} from '../../executors/utils/poetry';
-import { extractDependencyVersion } from './utils/package';
 import path, { dirname } from 'node:path';
+import { getProvider } from '../../provider';
 
 export async function releaseVersionGenerator(
   tree: Tree,
   options: ReleaseVersionGeneratorSchema,
 ): Promise<ReleaseVersionGeneratorResult> {
   let logger: ProjectLogger | undefined;
-
-  const poetryLocks: string[] = [];
+  const provider = await getProvider('.', undefined, tree);
+  const updatedProjects: string[] = [];
 
   try {
     const versionData: VersionData = {};
@@ -157,13 +152,11 @@ To fix this you will either need to add a pyproject.toml file at that location, 
       const color = getColor(projectName);
       logger = new ProjectLogger(projectName, color);
 
-      const pyprojectToml = readPyprojectToml(tree, pyprojectTomlPath);
-      logger.buffer(
-        `🔍 Reading data for package "${pyprojectToml.tool.poetry.name}" from ${pyprojectTomlPath}`,
-      );
-
       const { name: packageName, version: currentVersionFromDisk } =
-        pyprojectToml.tool.poetry;
+        provider.getMetadata(packageRoot);
+      logger.buffer(
+        `🔍 Reading data for package "${packageName}" from ${pyprojectTomlPath}`,
+      );
 
       switch (options.currentVersionResolver) {
         case 'registry': {
@@ -535,10 +528,10 @@ To fix this you will either need to add a pyproject.toml file at that location, 
 
       // Resolve any local package dependencies for this project (before applying the new version or updating the versionData)
       const localPackageDependencies = resolveLocalPackageDependencies(
-        tree,
         options.projectGraph,
         projects,
         projectNameToPackageRootMap,
+        provider,
         resolvePackageRoot,
         // includeAll when the release group is independent, as we may be filtering to a specific subset of projects, but we still want to update their dependents
         options.releaseGroup.projectsRelationship === 'independent',
@@ -647,7 +640,7 @@ To fix this you will either need to add a pyproject.toml file at that location, 
 
       if (!specifier) {
         logger.buffer(
-          `🚫 Skipping versioning "${pyprojectToml.tool.poetry.name}" as no changes were detected.`,
+          `🚫 Skipping versioning "${packageName}" as no changes were detected.`,
         );
         // Print the buffered logs for this unchanged project, as long as the user has not explicitly disabled this behavior
         if (logUnchangedProjects) {
@@ -663,18 +656,9 @@ To fix this you will either need to add a pyproject.toml file at that location, 
       );
       versionData[projectName].newVersion = newVersion;
 
-      poetryLocks.push(dirname(pyprojectTomlPath));
+      updatedProjects.push(dirname(pyprojectTomlPath));
 
-      writePyprojectToml(tree, pyprojectTomlPath, {
-        ...pyprojectToml,
-        tool: {
-          ...pyprojectToml.tool,
-          poetry: {
-            ...pyprojectToml.tool.poetry,
-            version: newVersion,
-          },
-        },
-      });
+      provider.updateVersion(packageRoot, newVersion);
 
       logger.buffer(
         `✍️  New version ${newVersion} written to ${pyprojectTomlPath}`,
@@ -702,50 +686,28 @@ To fix this you will either need to add a pyproject.toml file at that location, 
       const updateDependentProjectAndAddToVersionData = ({
         dependentProject,
         dependencyPackageName,
-        newDependencyVersion,
         forceVersionBump,
       }: {
         dependentProject: LocalPackageDependency;
         dependencyPackageName: string;
-        newDependencyVersion: string;
         forceVersionBump: 'major' | 'minor' | 'patch' | false;
       }) => {
-        const updatedPyprojectFilePath = joinPathFragments(
+        updatedProjects.push(
           projectNameToPackageRootMap.get(dependentProject.source),
-          'pyproject.toml',
         );
 
-        poetryLocks.push(dirname(updatedPyprojectFilePath));
-
-        const updatedPyproject = readPyprojectToml(
-          tree,
-          updatedPyprojectFilePath,
+        const projectMetadata = provider.getMetadata(
+          projectNameToPackageRootMap.get(dependentProject.source),
         );
-
-        if (!updatedPyproject?.tool?.poetry) {
-          return;
-        }
 
         // Auto (i.e.infer existing) by default
         let versionPrefix = options.versionPrefix ?? 'auto';
-        const currentDependencyVersion =
-          dependentProject.dependencyCollection === 'dependencies'
-            ? extractDependencyVersion(
-                tree,
-                projectNameToPackageRootMap.get(dependentProject.source),
-                updatedPyproject.tool.poetry.dependencies,
-                dependencyPackageName,
-              )
-            : extractDependencyVersion(
-                tree,
-                projectNameToPackageRootMap.get(dependentProject.source),
-                updatedPyproject.tool.poetry.group[dependentProject.groupKey]
-                  ?.dependencies,
-                dependencyPackageName,
-              );
+        const currentDependencyVersion = provider.getDependencyMetadata(
+          projectNameToPackageRootMap.get(dependentProject.source),
+          dependencyPackageName,
+        ).version;
 
-        const currentPackageVersion =
-          updatedPyproject.tool.poetry.version ?? null;
+        const currentPackageVersion = projectMetadata.version;
         if (!currentPackageVersion) {
           if (forceVersionBump) {
             // Look up any dependent projects from the transitiveLocalPackageDependents list
@@ -760,7 +722,6 @@ To fix this you will either need to add a pyproject.toml file at that location, 
               dependentProjects: transitiveDependentProjects,
             };
           }
-          writePyprojectToml(tree, updatedPyprojectFilePath, updatedPyproject);
           return;
         }
 
@@ -778,33 +739,6 @@ To fix this you will either need to add a pyproject.toml file at that location, 
           }
         }
 
-        // Apply the new version of the dependency to the dependent (if not preserving locally linked package protocols)
-        // TODO
-        const shouldUpdateDependency =
-          !options.preserveLocalDependencyProtocols;
-        if (shouldUpdateDependency) {
-          const newDepVersion = `${versionPrefix}${newDependencyVersion}`;
-          if (dependentProject.dependencyCollection === 'dependencies') {
-            const mainGroup = updatedPyproject.tool.poetry.dependencies;
-
-            if (typeof mainGroup[dependencyPackageName] === 'string') {
-              mainGroup[dependencyPackageName] = newDepVersion;
-            } else if (mainGroup[dependencyPackageName].version) {
-              mainGroup[dependencyPackageName].version = newDepVersion;
-            }
-          } else {
-            const group =
-              updatedPyproject.tool.poetry.group[dependentProject.groupKey]
-                ?.dependencies;
-
-            if (typeof group[dependencyPackageName] === 'string') {
-              group[dependencyPackageName] = newDepVersion;
-            } else if (group[dependencyPackageName].version) {
-              group[dependencyPackageName].version = newDepVersion;
-            }
-          }
-        }
-
         // Bump the dependent's version if applicable and record it in the version data
         if (forceVersionBump) {
           const newPackageVersion = deriveNewSemverVersion(
@@ -812,7 +746,10 @@ To fix this you will either need to add a pyproject.toml file at that location, 
             forceVersionBump,
             options.preid,
           );
-          updatedPyproject.tool.poetry.version = newPackageVersion;
+          provider.updateVersion(
+            projectNameToPackageRootMap.get(dependentProject.source),
+            newPackageVersion,
+          );
 
           // Look up any dependent projects from the transitiveLocalPackageDependents list
           const transitiveDependentProjects =
@@ -827,8 +764,6 @@ To fix this you will either need to add a pyproject.toml file at that location, 
             dependentProjects: transitiveDependentProjects,
           };
         }
-
-        writePyprojectToml(tree, updatedPyprojectFilePath, updatedPyproject);
       };
 
       for (const dependentProject of dependentProjectsInCurrentBatch) {
@@ -846,7 +781,6 @@ To fix this you will either need to add a pyproject.toml file at that location, 
         updateDependentProjectAndAddToVersionData({
           dependentProject,
           dependencyPackageName: packageName,
-          newDependencyVersion: newVersion,
           // We don't force bump because we know they will come later in the topologically sorted projects loop and may have their own version update logic to take into account
           forceVersionBump: false,
         });
@@ -867,7 +801,6 @@ To fix this you will either need to add a pyproject.toml file at that location, 
           updateDependentProjectAndAddToVersionData({
             dependentProject,
             dependencyPackageName: packageName,
-            newDependencyVersion: newVersion,
             // For these additional dependents, we need to update their package.json version as well because we know they will not come later in the topologically sorted projects loop
             // (Unless using version plans and the dependent is not filtered out by --projects)
             forceVersionBump:
@@ -892,19 +825,11 @@ To fix this you will either need to add a pyproject.toml file at that location, 
             `The project "${dependencyProjectName}" does not have a packageRoot available. Please report this issue on https://github.com/nrwl/nx`,
           );
         }
-        const dependencyPyprojectTomlPath = joinPathFragments(
-          dependencyPackageRoot,
-          'pyproject.toml',
-        );
-        const dependencyPyprojectToml = readPyprojectToml(
-          tree,
-          dependencyPyprojectTomlPath,
-        );
+        const dependencyMetadata = provider.getMetadata(dependencyPackageRoot);
 
         updateDependentProjectAndAddToVersionData({
           dependentProject: transitiveDependentProject,
-          dependencyPackageName: dependencyPyprojectToml.tool.poetry.name,
-          newDependencyVersion: dependencyPyprojectToml.tool.poetry.version,
+          dependencyPackageName: dependencyMetadata.name,
           /**
            * For these additional dependents, we need to update their package.json version as well because we know they will not come later in the topologically sorted projects loop.
            * The one exception being if the dependent is part of a circular dependency, in which case we don't want to force a version bump as this would come in addition to the one
@@ -938,20 +863,33 @@ To fix this you will either need to add a pyproject.toml file at that location, 
         }
 
         changedFiles.push(
-          ...poetryLocks.map((lockDir) => path.join(lockDir, 'poetry.lock')),
+          ...updatedProjects
+            .map((lockDir) => {
+              if (tree.exists(path.join(lockDir, 'poetry.lock'))) {
+                return path.join(lockDir, 'poetry.lock');
+              } else if (tree.exists(path.join(lockDir, 'uv.lock'))) {
+                return path.join(lockDir, 'uv.lock');
+              }
+
+              return '';
+            })
+            .filter((f) => !!f),
         );
         if (!opts.dryRun) {
-          for (const lockDir of poetryLocks) {
-            runPoetry(['lock', '--no-update'], {
-              cwd: lockDir,
-            });
+          for (const lockDir of updatedProjects) {
+            await provider.lock(lockDir);
           }
         }
 
         if (!opts.dryRun) {
           if (tree.exists('pyproject.toml')) {
-            changedFiles.push('poetry.lock');
-            runPoetry(['lock', '--no-update'], { cwd: tree.root });
+            if (tree.exists('poetry.lock')) {
+              changedFiles.push('poetry.lock');
+            } else if (tree.exists('uv.lock')) {
+              changedFiles.push('uv.lock');
+            }
+
+            await provider.lock(tree.root);
           }
         }
 

@@ -1,4 +1,3 @@
-import { vi, MockInstance } from 'vitest';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import {
   Tree,
@@ -6,19 +5,16 @@ import {
   updateProjectConfiguration,
 } from '@nx/devkit';
 import generator from '../../generators/poetry-project/generator';
-import * as poetryUtils from '../../executors/utils/poetry';
-
+import * as poetryUtils from '../../provider/poetry/utils';
 import update from './replace-nx-run-commands';
 
 describe('16-1-0-replace-nx-run-commands migration', () => {
   let tree: Tree;
-  let checkPoetryExecutableMock: MockInstance;
 
   beforeEach(() => {
     tree = createTreeWithEmptyWorkspace({ layout: 'apps-libs' });
-    checkPoetryExecutableMock = vi
-      .spyOn(poetryUtils, 'checkPoetryExecutable')
-      .mockResolvedValue(undefined);
+
+    vi.spyOn(poetryUtils, 'checkPoetryExecutable').mockReturnValue(undefined);
   });
 
   it('should run successfully', async () => {
@@ -57,6 +53,5 @@ describe('16-1-0-replace-nx-run-commands migration', () => {
     expect(updatedProjectConfig.targets.test.executor).toEqual(
       '@nxlv/python:run-commands',
     );
-    expect(checkPoetryExecutableMock).toHaveBeenCalled();
   });
 });

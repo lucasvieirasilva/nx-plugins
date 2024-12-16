@@ -1,0 +1,130 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "UVPythonProject",
+  "title": "Generate a new UV Python Project.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What name would you like to use?"
+    },
+    "projectType": {
+      "type": "string",
+      "description": "Project type",
+      "default": "application",
+      "enum": ["application", "library"]
+    },
+    "templateDir": {
+      "type": "string",
+      "description": "Custom template directory, this will override the default template, if not provided the default template will be used"
+    },
+    "packageName": {
+      "type": "string",
+      "description": "Python package name"
+    },
+    "moduleName": {
+      "type": "string",
+      "description": "Python module name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Project short description"
+    },
+    "pyprojectPythonDependency": {
+      "type": "string",
+      "description": "Pyproject python dependency version range",
+      "default": ">=3.9,<4"
+    },
+    "pyenvPythonVersion": {
+      "type": "string",
+      "description": "Pyenv .python-version content (default to current python version)"
+    },
+    "publishable": {
+      "type": "boolean",
+      "description": "Project is publishable",
+      "default": false
+    },
+    "buildLockedVersions": {
+      "type": "boolean",
+      "description": "Use locked versions for build dependencies",
+      "default": true
+    },
+    "buildBundleLocalDependencies": {
+      "type": "boolean",
+      "description": "Bundle local dependencies",
+      "default": true
+    },
+    "linter": {
+      "type": "string",
+      "description": "Project linter",
+      "default": "ruff",
+      "enum": ["flake8", "ruff", "none"]
+    },
+    "unitTestRunner": {
+      "type": "string",
+      "description": "Project unit test runner",
+      "default": "pytest",
+      "enum": ["pytest", "none"]
+    },
+    "devDependenciesProject": {
+      "type": "string",
+      "description": "This approach installs all the missing dev dependencies in a separate project (optional)",
+      "x-dropdown": "projects"
+    },
+    "rootPyprojectDependencyGroup": {
+      "type": "string",
+      "description": "If a shared pyproject.toml is used, which dependency group does this new project should belong to",
+      "default": "main"
+    },
+    "unitTestHtmlReport": {
+      "type": "boolean",
+      "description": "Generate html report for unit tests",
+      "default": true
+    },
+    "unitTestJUnitReport": {
+      "type": "boolean",
+      "description": "Generate junit report for unit tests",
+      "default": true
+    },
+    "codeCoverage": {
+      "type": "boolean",
+      "description": "Generate code coverage report",
+      "default": true
+    },
+    "codeCoverageHtmlReport": {
+      "type": "boolean",
+      "description": "Generate html report for code coverage",
+      "default": true
+    },
+    "codeCoverageXmlReport": {
+      "type": "boolean",
+      "description": "Generate Xml report for code coverage",
+      "default": true
+    },
+    "codeCoverageThreshold": {
+      "type": "number",
+      "description": "Code coverage threshold"
+    },
+    "tags": {
+      "type": "string",
+      "description": "Add tags to the project (used for linting)",
+      "alias": "t"
+    },
+    "directory": {
+      "type": "string",
+      "description": "A directory where the project is placed"
+    },
+    "projectNameAndRootFormat": {
+      "description": "Whether to generate the project name and root directory as provided (`as-provided`) or generate them composing their values and taking the configured layout into account (`derived`).",
+      "type": "string",
+      "enum": ["as-provided", "derived"],
+      "default": "as-provided"
+    }
+  },
+  "required": ["name", "projectType"]
+}

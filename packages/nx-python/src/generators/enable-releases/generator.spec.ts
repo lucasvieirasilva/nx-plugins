@@ -1,27 +1,39 @@
-import { vi, MockInstance } from 'vitest';
+import { vi } from 'vitest';
 import '../../utils/mocks/cross-spawn.mock';
-import * as poetryUtils from '../../executors/utils/poetry';
 import { readJson, Tree } from '@nx/devkit';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import generator from './generator';
 import projectGenerator from '../poetry-project/generator';
 import spawn from 'cross-spawn';
+import * as poetryUtils from '../../provider/poetry/utils';
 
 describe('nx-python enable-releases', () => {
-  let checkPoetryExecutableMock: MockInstance;
   let appTree: Tree;
 
   beforeEach(() => {
     appTree = createTreeWithEmptyWorkspace({});
-    checkPoetryExecutableMock = vi.spyOn(poetryUtils, 'checkPoetryExecutable');
-    checkPoetryExecutableMock.mockResolvedValue(undefined);
-    vi.mocked(spawn.sync).mockReturnValue({
-      status: 0,
-      output: [''],
-      pid: 0,
-      signal: null,
-      stderr: null,
-      stdout: null,
+
+    vi.spyOn(poetryUtils, 'checkPoetryExecutable').mockReturnValue(undefined);
+    vi.mocked(spawn.sync).mockImplementation((command) => {
+      if (command === 'python') {
+        return {
+          status: 0,
+          output: [''],
+          pid: 0,
+          signal: null,
+          stderr: null,
+          stdout: Buffer.from('Python 3.9.7'),
+        };
+      }
+
+      return {
+        status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
+      };
     });
   });
 

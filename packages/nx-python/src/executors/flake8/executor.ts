@@ -4,11 +4,7 @@ import { Logger } from '../utils/logger';
 import { Flake8ExecutorSchema } from './schema';
 import path from 'path';
 import { mkdirsSync, existsSync, readFileSync, rmSync } from 'fs-extra';
-import {
-  activateVenv,
-  checkPoetryExecutable,
-  runPoetry,
-} from '../utils/poetry';
+import { getProvider } from '../../provider';
 
 const logger = new Logger();
 
@@ -20,8 +16,6 @@ export default async function executor(
   const workspaceRoot = context.root;
   process.chdir(workspaceRoot);
   try {
-    activateVenv(workspaceRoot);
-    await checkPoetryExecutable();
     logger.info(
       chalk`\n  {bold Running flake8 linting on project {bgBlue  ${context.projectName} }...}\n`,
     );
@@ -40,8 +34,13 @@ export default async function executor(
       rmSync(absPath, { force: true });
     }
 
-    const lintingArgs = ['run', 'flake8', '--output-file', absPath];
-    runPoetry(lintingArgs, { cwd, log: false, error: false });
+    const lintingArgs = ['flake8', '--output-file', absPath];
+    const provider = await getProvider(workspaceRoot);
+    await provider.run(lintingArgs, workspaceRoot, {
+      cwd,
+      log: false,
+      error: false,
+    });
 
     const output = readFileSync(absPath, 'utf8');
     const lines = output.split('\n').length;
