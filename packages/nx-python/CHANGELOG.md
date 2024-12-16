@@ -1,3 +1,9 @@
+# [20.1.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.0.1...nx-python-v20.1.0) (2024-12-16)
+
+### Features
+
+- **nx-python:** add `uv` support ([#257](https://github.com/lucasvieirasilva/nx-plugins/issues/257)) ([816930e](https://github.com/lucasvieirasilva/nx-plugins/commit/816930ee823f424264a4d9037dcd8e51d36b6320))
+
 ## [20.0.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.0.0...nx-python-v20.0.1) (2024-11-25)
 
 ### Bug Fixes
