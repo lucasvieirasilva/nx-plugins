@@ -15,7 +15,6 @@ import _ from 'lodash';
 import { UVPyprojectToml } from '../../provider/uv/types';
 import { checkUvExecutable, runUv } from '../../provider/uv/utils';
 import { DEV_DEPENDENCIES_VERSION_MAP } from '../consts';
-import wcmatch from 'wildcard-match';
 import {
   normalizeOptions as baseNormalizeOptions,
   getPyprojectTomlByProjectName,
@@ -28,6 +27,7 @@ import {
 interface NormalizedSchema extends BaseNormalizedSchema {
   devDependenciesProjectPath?: string;
   devDependenciesProjectPkgName?: string;
+  individualPackage: boolean;
 }
 
 function normalizeOptions(
@@ -59,6 +59,7 @@ function normalizeOptions(
     devDependenciesProject: options.devDependenciesProject ?? '',
     devDependenciesProjectPath,
     devDependenciesProjectPkgName,
+    individualPackage: !tree.exists('pyproject.toml'),
   };
 }
 
@@ -111,20 +112,13 @@ function updateRootPyprojectToml(
   tree: Tree,
   normalizedOptions: NormalizedSchema,
 ) {
-  const rootPyprojectToml: UVPyprojectToml = tree.exists('./pyproject.toml')
-    ? (parse(tree.read('./pyproject.toml', 'utf-8')) as UVPyprojectToml)
-    : {
-        project: { name: 'nx-workspace', version: '1.0.0', dependencies: [] },
-        'dependency-groups': {},
-        tool: {
-          uv: {
-            sources: {},
-            workspace: {
-              members: [`${normalizedOptions.projectRoot.split('/')[0]}/*`],
-            },
-          },
-        },
-      };
+  if (normalizedOptions.individualPackage) {
+    return;
+  }
+
+  const rootPyprojectToml: UVPyprojectToml = parse(
+    tree.read('./pyproject.toml', 'utf-8'),
+  ) as UVPyprojectToml;
 
   const group = normalizedOptions.rootPyprojectDependencyGroup ?? 'main';
 
@@ -167,28 +161,9 @@ function updateRootPyprojectToml(
     members: [],
   };
 
-  if (rootPyprojectToml.tool.uv.workspace.members.length === 0) {
-    rootPyprojectToml.tool.uv.workspace.members.push(
-      `${normalizedOptions.projectRoot.split('/')[0]}/*`,
-    );
-  } else {
-    for (const memberPattern of rootPyprojectToml.tool.uv.workspace.members) {
-      if (
-        !wcmatch(
-          memberPattern.endsWith('**')
-            ? memberPattern
-            : memberPattern.endsWith('*')
-              ? `${memberPattern}*`
-              : memberPattern,
-        )(normalizedOptions.projectRoot)
-      ) {
-        rootPyprojectToml.tool.uv.workspace.members.push(
-          `${normalizedOptions.projectRoot.split('/')[0]}/*`,
-        );
-      }
-    }
-  }
-
+  rootPyprojectToml.tool.uv.workspace.members.push(
+    normalizedOptions.projectRoot,
+  );
   tree.write('./pyproject.toml', stringify(rootPyprojectToml));
 }
 
@@ -290,10 +265,12 @@ function addTestDependencies(
   };
 }
 
-function updateRootUvLock() {
-  console.log(chalk`  Updating root {bgBlue uv.lock}...`);
-  runUv(['sync'], { log: false });
-  console.log(chalk`\n  {bgBlue uv.lock} updated.\n`);
+function updateRootUvLock(tree: Tree) {
+  if (tree.exists('pyproject.toml')) {
+    console.log(chalk`  Updating root {bgBlue uv.lock}...`);
+    runUv(['sync'], { log: false });
+    console.log(chalk`\n  {bgBlue uv.lock} updated.\n`);
+  }
 }
 
 export default async function (
@@ -332,6 +309,15 @@ export default async function (
         publish: normalizedOptions.publishable,
         lockedVersions: normalizedOptions.buildLockedVersions,
         bundleLocalDependencies: normalizedOptions.buildBundleLocalDependencies,
+      },
+    },
+    install: {
+      executor: '@nxlv/python:install',
+      options: {
+        silent: false,
+        args: '',
+        verbose: false,
+        debug: false,
       },
     },
   };
@@ -409,6 +395,6 @@ export default async function (
   await formatFiles(tree);
 
   return () => {
-    updateRootUvLock();
+    updateRootUvLock(tree);
   };
 }

@@ -30,6 +30,15 @@ exports[`application generator > as-provided > should run successfully minimal c
         "{projectRoot}/dist",
       ],
     },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "args": "",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
+    },
     "lock": {
       "executor": "@nxlv/python:run-commands",
       "options": {
@@ -67,6 +76,14 @@ dependencies = []
 
 [tool.hatch.build.targets.wheel]
 packages = ["my_app_test"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[dependency-groups]
+dev = [
+  "autopep8>=2.3.1",
+]
 
 [build-system]
 requires = ["hatchling"]
@@ -119,6 +136,15 @@ exports[`application generator > as-provided > should run successfully minimal c
         "{projectRoot}/dist",
       ],
     },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "args": "",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
+    },
     "lock": {
       "executor": "@nxlv/python:run-commands",
       "options": {
@@ -156,6 +182,14 @@ dependencies = []
 
 [tool.hatch.build.targets.wheel]
 packages = ["my_app_test"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[dependency-groups]
+dev = [
+  "autopep8>=2.3.1",
+]
 
 [build-system]
 requires = ["hatchling"]
@@ -208,6 +242,15 @@ exports[`application generator > custom template dir > should run successfully w
         "{projectRoot}/dist",
       ],
     },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "args": "",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
+    },
     "lock": {
       "executor": "@nxlv/python:run-commands",
       "options": {
@@ -250,7 +293,7 @@ build-backend = "hatchling.build"
 
 exports[`application generator > custom template dir > should run successfully with custom template dir 3`] = `null`;
 
-exports[`application generator > should run successfully minimal configuration as a library 1`] = `
+exports[`application generator > project > should run successfully minimal configuration as a library 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -280,6 +323,15 @@ exports[`application generator > should run successfully minimal configuration a
         "{projectRoot}/dist",
       ],
     },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "args": "",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
+    },
     "lock": {
       "executor": "@nxlv/python:run-commands",
       "options": {
@@ -299,14 +351,14 @@ exports[`application generator > should run successfully minimal configuration a
 }
 `;
 
-exports[`application generator > should run successfully minimal configuration as a library 2`] = `
+exports[`application generator > project > should run successfully minimal configuration as a library 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator > should run successfully minimal configuration as a library 3`] = `
+exports[`application generator > project > should run successfully minimal configuration as a library 3`] = `
 "[project]
 name = "test"
 version = "1.0.0"
@@ -318,13 +370,21 @@ dependencies = []
 [tool.hatch.build.targets.wheel]
 packages = ["test"]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[dependency-groups]
+dev = [
+  "autopep8>=2.3.1",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 "
 `;
 
-exports[`application generator > should run successfully minimal configuration as a library 4`] = `
+exports[`application generator > project > should run successfully minimal configuration as a library 4`] = `
 """"Sample Hello World application."""
 
 
@@ -334,29 +394,14 @@ def hello():
 "
 `;
 
-exports[`application generator > should run successfully minimal configuration as a library 5`] = `
+exports[`application generator > project > should run successfully minimal configuration as a library 5`] = `
 "3.9.7
 "
 `;
 
-exports[`application generator > should run successfully minimal configuration as a library 6`] = `
-"[project]
-name = "nx-workspace"
-version = "1.0.0"
-dependencies = [ "test" ]
+exports[`application generator > project > should run successfully minimal configuration as a library 6`] = `null`;
 
-[dependency-groups]
-dev = [ "autopep8>=2.3.1" ]
-
-[tool.uv.sources.test]
-workspace = true
-
-[tool.uv.workspace]
-members = [ "libs/*" ]
-"
-`;
-
-exports[`application generator > should run successfully minimal configuration custom directory 1`] = `
+exports[`application generator > project > should run successfully minimal configuration custom directory 1`] = `
 {
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "name": "subdir-test",
@@ -386,6 +431,15 @@ exports[`application generator > should run successfully minimal configuration c
         "{projectRoot}/dist",
       ],
     },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "args": "",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
+    },
     "lock": {
       "executor": "@nxlv/python:run-commands",
       "options": {
@@ -405,14 +459,14 @@ exports[`application generator > should run successfully minimal configuration c
 }
 `;
 
-exports[`application generator > should run successfully minimal configuration custom directory 2`] = `
+exports[`application generator > project > should run successfully minimal configuration custom directory 2`] = `
 "# subdir-test
 
 Project description here.
 "
 `;
 
-exports[`application generator > should run successfully minimal configuration custom directory 3`] = `
+exports[`application generator > project > should run successfully minimal configuration custom directory 3`] = `
 "[project]
 name = "subdir-test"
 version = "1.0.0"
@@ -424,13 +478,21 @@ dependencies = []
 [tool.hatch.build.targets.wheel]
 packages = ["subdir_test"]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[dependency-groups]
+dev = [
+  "autopep8>=2.3.1",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 "
 `;
 
-exports[`application generator > should run successfully minimal configuration custom directory 4`] = `
+exports[`application generator > project > should run successfully minimal configuration custom directory 4`] = `
 """"Sample Hello World application."""
 
 
@@ -440,29 +502,14 @@ def hello():
 "
 `;
 
-exports[`application generator > should run successfully minimal configuration custom directory 5`] = `
+exports[`application generator > project > should run successfully minimal configuration custom directory 5`] = `
 "3.9.7
 "
 `;
 
-exports[`application generator > should run successfully minimal configuration custom directory 6`] = `
-"[project]
-name = "nx-workspace"
-version = "1.0.0"
-dependencies = [ "subdir-test" ]
+exports[`application generator > project > should run successfully minimal configuration custom directory 6`] = `null`;
 
-[dependency-groups]
-dev = [ "autopep8>=2.3.1" ]
-
-[tool.uv.sources.subdir-test]
-workspace = true
-
-[tool.uv.workspace]
-members = [ "apps/*" ]
-"
-`;
-
-exports[`application generator > should run successfully minimal configuration with tags 1`] = `
+exports[`application generator > project > should run successfully minimal configuration with tags 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -495,6 +542,15 @@ exports[`application generator > should run successfully minimal configuration w
         "{projectRoot}/dist",
       ],
     },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "args": "",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
+    },
     "lock": {
       "executor": "@nxlv/python:run-commands",
       "options": {
@@ -514,14 +570,14 @@ exports[`application generator > should run successfully minimal configuration w
 }
 `;
 
-exports[`application generator > should run successfully minimal configuration with tags 2`] = `
+exports[`application generator > project > should run successfully minimal configuration with tags 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator > should run successfully minimal configuration with tags 3`] = `
+exports[`application generator > project > should run successfully minimal configuration with tags 3`] = `
 "[project]
 name = "test"
 version = "1.0.0"
@@ -533,13 +589,21 @@ dependencies = []
 [tool.hatch.build.targets.wheel]
 packages = ["test"]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[dependency-groups]
+dev = [
+  "autopep8>=2.3.1",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 "
 `;
 
-exports[`application generator > should run successfully minimal configuration with tags 4`] = `
+exports[`application generator > project > should run successfully minimal configuration with tags 4`] = `
 """"Sample Hello World application."""
 
 
@@ -549,29 +613,14 @@ def hello():
 "
 `;
 
-exports[`application generator > should run successfully minimal configuration with tags 5`] = `
+exports[`application generator > project > should run successfully minimal configuration with tags 5`] = `
 "3.9.7
 "
 `;
 
-exports[`application generator > should run successfully minimal configuration with tags 6`] = `
-"[project]
-name = "nx-workspace"
-version = "1.0.0"
-dependencies = [ "test" ]
+exports[`application generator > project > should run successfully minimal configuration with tags 6`] = `null`;
 
-[dependency-groups]
-dev = [ "autopep8>=2.3.1" ]
-
-[tool.uv.sources.test]
-workspace = true
-
-[tool.uv.workspace]
-members = [ "apps/*" ]
-"
-`;
-
-exports[`application generator > should run successfully with flake8 linter 1`] = `
+exports[`application generator > project > should run successfully with flake8 linter 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -600,6 +649,15 @@ exports[`application generator > should run successfully with flake8 linter 1`] 
       "outputs": [
         "{projectRoot}/dist",
       ],
+    },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "args": "",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
     },
     "lint": {
       "executor": "@nxlv/python:flake8",
@@ -629,14 +687,14 @@ exports[`application generator > should run successfully with flake8 linter 1`] 
 }
 `;
 
-exports[`application generator > should run successfully with flake8 linter 2`] = `
+exports[`application generator > project > should run successfully with flake8 linter 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter 3`] = `
+exports[`application generator > project > should run successfully with flake8 linter 3`] = `
 "[project]
 name = "test"
 version = "1.0.0"
@@ -648,13 +706,22 @@ dependencies = []
 [tool.hatch.build.targets.wheel]
 packages = ["test"]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[dependency-groups]
+dev = [
+  "autopep8>=2.3.1",
+  "flake8>=7.1.1",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter 4`] = `
+exports[`application generator > project > should run successfully with flake8 linter 4`] = `
 """"Sample Hello World application."""
 
 
@@ -664,12 +731,12 @@ def hello():
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter 5`] = `
+exports[`application generator > project > should run successfully with flake8 linter 5`] = `
 "3.9.7
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter 6`] = `
+exports[`application generator > project > should run successfully with flake8 linter 6`] = `
 "[flake8]
 exclude =
 	.git,
@@ -684,24 +751,9 @@ max-line-length = 120
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter 7`] = `
-"[project]
-name = "nx-workspace"
-version = "1.0.0"
-dependencies = [ "test" ]
+exports[`application generator > project > should run successfully with flake8 linter 7`] = `null`;
 
-[dependency-groups]
-dev = [ "flake8>=7.1.1", "autopep8>=2.3.1" ]
-
-[tool.uv.sources.test]
-workspace = true
-
-[tool.uv.workspace]
-members = [ "apps/*" ]
-"
-`;
-
-exports[`application generator > should run successfully with flake8 linter and pytest with html coverage report 1`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html coverage report 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -730,6 +782,15 @@ exports[`application generator > should run successfully with flake8 linter and 
       "outputs": [
         "{projectRoot}/dist",
       ],
+    },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "args": "",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
     },
     "lint": {
       "executor": "@nxlv/python:flake8",
@@ -770,14 +831,14 @@ exports[`application generator > should run successfully with flake8 linter and 
 }
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html coverage report 2`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html coverage report 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html coverage report 3`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html coverage report 3`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "test" ]
@@ -800,13 +861,26 @@ dependencies = []
 [tool.hatch.build.targets.wheel]
 packages = ["test"]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[dependency-groups]
+dev = [
+  "autopep8>=2.3.1",
+  "flake8>=7.1.1",
+  "pytest>=8.3.4",
+  "pytest-sugar>=1.0.0",
+  "pytest-cov>=6.0.0",
+  "pytest-html>=4.1.1",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html coverage report 4`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html coverage report 4`] = `
 """"Sample Hello World application."""
 
 
@@ -816,12 +890,12 @@ def hello():
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html coverage report 5`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html coverage report 5`] = `
 "3.9.7
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html coverage report 6`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html coverage report 6`] = `
 "[flake8]
 exclude =
 	.git,
@@ -836,7 +910,7 @@ max-line-length = 120
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html coverage report 7`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html coverage report 7`] = `
 """"Hello unit test module."""
 
 from test.hello import hello
@@ -848,31 +922,9 @@ def test_hello():
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html coverage report 8`] = `
-"[project]
-name = "nx-workspace"
-version = "1.0.0"
-dependencies = [ "test" ]
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html coverage report 8`] = `null`;
 
-[dependency-groups]
-dev = [
-  "flake8>=7.1.1",
-  "autopep8>=2.3.1",
-  "pytest>=8.3.4",
-  "pytest-sugar>=1.0.0",
-  "pytest-cov>=6.0.0",
-  "pytest-html>=4.1.1"
-]
-
-[tool.uv.sources.test]
-workspace = true
-
-[tool.uv.workspace]
-members = [ "apps/*" ]
-"
-`;
-
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports 1`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -901,6 +953,15 @@ exports[`application generator > should run successfully with flake8 linter and 
       "outputs": [
         "{projectRoot}/dist",
       ],
+    },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "args": "",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
     },
     "lint": {
       "executor": "@nxlv/python:flake8",
@@ -941,14 +1002,14 @@ exports[`application generator > should run successfully with flake8 linter and 
 }
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports 2`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports 3`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports 3`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "test" ]
@@ -971,13 +1032,26 @@ dependencies = []
 [tool.hatch.build.targets.wheel]
 packages = ["test"]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[dependency-groups]
+dev = [
+  "autopep8>=2.3.1",
+  "flake8>=7.1.1",
+  "pytest>=8.3.4",
+  "pytest-sugar>=1.0.0",
+  "pytest-cov>=6.0.0",
+  "pytest-html>=4.1.1",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports 4`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports 4`] = `
 """"Sample Hello World application."""
 
 
@@ -987,12 +1061,12 @@ def hello():
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports 5`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports 5`] = `
 "3.9.7
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports 6`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports 6`] = `
 "[flake8]
 exclude =
 	.git,
@@ -1007,7 +1081,7 @@ max-line-length = 120
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports 7`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports 7`] = `
 """"Hello unit test module."""
 
 from test.hello import hello
@@ -1019,31 +1093,9 @@ def test_hello():
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports 8`] = `
-"[project]
-name = "nx-workspace"
-version = "1.0.0"
-dependencies = [ "test" ]
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports 8`] = `null`;
 
-[dependency-groups]
-dev = [
-  "flake8>=7.1.1",
-  "autopep8>=2.3.1",
-  "pytest>=8.3.4",
-  "pytest-sugar>=1.0.0",
-  "pytest-cov>=6.0.0",
-  "pytest-html>=4.1.1"
-]
-
-[tool.uv.sources.test]
-workspace = true
-
-[tool.uv.workspace]
-members = [ "apps/*" ]
-"
-`;
-
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 1`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -1072,6 +1124,15 @@ exports[`application generator > should run successfully with flake8 linter and 
       "outputs": [
         "{projectRoot}/dist",
       ],
+    },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "args": "",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
     },
     "lint": {
       "executor": "@nxlv/python:flake8",
@@ -1112,14 +1173,14 @@ exports[`application generator > should run successfully with flake8 linter and 
 }
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 2`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 3`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 3`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "test" ]
@@ -1142,13 +1203,26 @@ dependencies = []
 [tool.hatch.build.targets.wheel]
 packages = ["test"]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[dependency-groups]
+dev = [
+  "autopep8>=2.3.1",
+  "flake8>=7.1.1",
+  "pytest>=8.3.4",
+  "pytest-sugar>=1.0.0",
+  "pytest-cov>=6.0.0",
+  "pytest-html>=4.1.1",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 4`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 4`] = `
 """"Sample Hello World application."""
 
 
@@ -1158,12 +1232,12 @@ def hello():
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 5`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 5`] = `
 "3.9.7
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 6`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 6`] = `
 "[flake8]
 exclude =
 	.git,
@@ -1178,7 +1252,7 @@ max-line-length = 120
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 7`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 7`] = `
 """"Hello unit test module."""
 
 from test.hello import hello
@@ -1190,31 +1264,9 @@ def test_hello():
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 8`] = `
-"[project]
-name = "nx-workspace"
-version = "1.0.0"
-dependencies = [ "test" ]
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold 8`] = `null`;
 
-[dependency-groups]
-dev = [
-  "flake8>=7.1.1",
-  "autopep8>=2.3.1",
-  "pytest>=8.3.4",
-  "pytest-sugar>=1.0.0",
-  "pytest-cov>=6.0.0",
-  "pytest-html>=4.1.1"
-]
-
-[tool.uv.sources.test]
-workspace = true
-
-[tool.uv.workspace]
-members = [ "apps/*" ]
-"
-`;
-
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 1`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -1243,6 +1295,15 @@ exports[`application generator > should run successfully with flake8 linter and 
       "outputs": [
         "{projectRoot}/dist",
       ],
+    },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "args": "",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
     },
     "lint": {
       "executor": "@nxlv/python:flake8",
@@ -1283,14 +1344,14 @@ exports[`application generator > should run successfully with flake8 linter and 
 }
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 2`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 3`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 3`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "test" ]
@@ -1313,13 +1374,26 @@ dependencies = []
 [tool.hatch.build.targets.wheel]
 packages = ["test"]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[dependency-groups]
+dev = [
+  "autopep8>=2.3.1",
+  "flake8>=7.1.1",
+  "pytest>=8.3.4",
+  "pytest-sugar>=1.0.0",
+  "pytest-cov>=6.0.0",
+  "pytest-html>=4.1.1",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 4`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 4`] = `
 """"Sample Hello World application."""
 
 
@@ -1329,12 +1403,12 @@ def hello():
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 5`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 5`] = `
 "3.9.7
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 6`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 6`] = `
 "[flake8]
 exclude =
 	.git,
@@ -1349,7 +1423,7 @@ max-line-length = 120
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 7`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 7`] = `
 """"Hello unit test module."""
 
 from test.hello import hello
@@ -1361,31 +1435,9 @@ def test_hello():
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 8`] = `
-"[project]
-name = "nx-workspace"
-version = "1.0.0"
-dependencies = [ "test" ]
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report 8`] = `null`;
 
-[dependency-groups]
-dev = [
-  "flake8>=7.1.1",
-  "autopep8>=2.3.1",
-  "pytest>=8.3.4",
-  "pytest-sugar>=1.0.0",
-  "pytest-cov>=6.0.0",
-  "pytest-html>=4.1.1"
-]
-
-[tool.uv.sources.test]
-workspace = true
-
-[tool.uv.workspace]
-members = [ "apps/*" ]
-"
-`;
-
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 1`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -1414,6 +1466,15 @@ exports[`application generator > should run successfully with flake8 linter and 
       "outputs": [
         "{projectRoot}/dist",
       ],
+    },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "args": "",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
     },
     "lint": {
       "executor": "@nxlv/python:flake8",
@@ -1454,14 +1515,14 @@ exports[`application generator > should run successfully with flake8 linter and 
 }
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 2`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 3`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 3`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "test" ]
@@ -1484,13 +1545,26 @@ dependencies = []
 [tool.hatch.build.targets.wheel]
 packages = ["test"]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[dependency-groups]
+dev = [
+  "autopep8>=2.3.1",
+  "flake8>=7.1.1",
+  "pytest>=8.3.4",
+  "pytest-sugar>=1.0.0",
+  "pytest-cov>=6.0.0",
+  "pytest-html>=4.1.1",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 4`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 4`] = `
 """"Sample Hello World application."""
 
 
@@ -1500,12 +1574,12 @@ def hello():
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 5`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 5`] = `
 "3.9.7
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 6`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 6`] = `
 "[flake8]
 exclude =
 	.git,
@@ -1520,7 +1594,7 @@ max-line-length = 120
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 7`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 7`] = `
 """"Hello unit test module."""
 
 from test.hello import hello
@@ -1532,31 +1606,9 @@ def test_hello():
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 8`] = `
-"[project]
-name = "nx-workspace"
-version = "1.0.0"
-dependencies = [ "test" ]
+exports[`application generator > project > should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report 8`] = `null`;
 
-[dependency-groups]
-dev = [
-  "flake8>=7.1.1",
-  "autopep8>=2.3.1",
-  "pytest>=8.3.4",
-  "pytest-sugar>=1.0.0",
-  "pytest-cov>=6.0.0",
-  "pytest-html>=4.1.1"
-]
-
-[tool.uv.sources.test]
-workspace = true
-
-[tool.uv.workspace]
-members = [ "apps/*" ]
-"
-`;
-
-exports[`application generator > should run successfully with flake8 linter and pytest with no reports 1`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with no reports 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -1585,6 +1637,15 @@ exports[`application generator > should run successfully with flake8 linter and 
       "outputs": [
         "{projectRoot}/dist",
       ],
+    },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "args": "",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
     },
     "lint": {
       "executor": "@nxlv/python:flake8",
@@ -1625,14 +1686,14 @@ exports[`application generator > should run successfully with flake8 linter and 
 }
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with no reports 2`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with no reports 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with no reports 3`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with no reports 3`] = `
 "[project]
 name = "test"
 version = "1.0.0"
@@ -1644,13 +1705,24 @@ dependencies = []
 [tool.hatch.build.targets.wheel]
 packages = ["test"]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[dependency-groups]
+dev = [
+  "autopep8>=2.3.1",
+  "flake8>=7.1.1",
+  "pytest>=8.3.4",
+  "pytest-sugar>=1.0.0",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with no reports 4`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with no reports 4`] = `
 """"Sample Hello World application."""
 
 
@@ -1660,12 +1732,12 @@ def hello():
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with no reports 5`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with no reports 5`] = `
 "3.9.7
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with no reports 6`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with no reports 6`] = `
 "[flake8]
 exclude =
 	.git,
@@ -1680,7 +1752,7 @@ max-line-length = 120
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with no reports 7`] = `
+exports[`application generator > project > should run successfully with flake8 linter and pytest with no reports 7`] = `
 """"Hello unit test module."""
 
 from test.hello import hello
@@ -1692,29 +1764,9 @@ def test_hello():
 "
 `;
 
-exports[`application generator > should run successfully with flake8 linter and pytest with no reports 8`] = `
-"[project]
-name = "nx-workspace"
-version = "1.0.0"
-dependencies = [ "test" ]
+exports[`application generator > project > should run successfully with flake8 linter and pytest with no reports 8`] = `null`;
 
-[dependency-groups]
-dev = [
-  "flake8>=7.1.1",
-  "autopep8>=2.3.1",
-  "pytest>=8.3.4",
-  "pytest-sugar>=1.0.0"
-]
-
-[tool.uv.sources.test]
-workspace = true
-
-[tool.uv.workspace]
-members = [ "apps/*" ]
-"
-`;
-
-exports[`application generator > should run successfully with linting (flake8) and testing options with a dev dependency project 1`] = `
+exports[`application generator > project > should run successfully with linting (flake8) and testing options with a dev dependency project 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -1743,6 +1795,15 @@ exports[`application generator > should run successfully with linting (flake8) a
       "outputs": [
         "{projectRoot}/dist",
       ],
+    },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "args": "",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
     },
     "lint": {
       "executor": "@nxlv/python:flake8",
@@ -1783,14 +1844,14 @@ exports[`application generator > should run successfully with linting (flake8) a
 }
 `;
 
-exports[`application generator > should run successfully with linting (flake8) and testing options with a dev dependency project 2`] = `
+exports[`application generator > project > should run successfully with linting (flake8) and testing options with a dev dependency project 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator > should run successfully with linting (flake8) and testing options with a dev dependency project 3`] = `
+exports[`application generator > project > should run successfully with linting (flake8) and testing options with a dev dependency project 3`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "test" ]
@@ -1813,13 +1874,16 @@ dependencies = []
 [tool.hatch.build.targets.wheel]
 packages = ["test"]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [dependency-groups]
 dev = [
-  "shared-dev-lib"
+  "shared-dev-lib",
 ]
 
 [tool.uv.sources]
-shared-dev-lib = { workspace = true }
+shared-dev-lib = { path = "../../libs/shared/dev-lib" }
 
 [build-system]
 requires = ["hatchling"]
@@ -1827,7 +1891,7 @@ build-backend = "hatchling.build"
 "
 `;
 
-exports[`application generator > should run successfully with linting (flake8) and testing options with a dev dependency project 4`] = `
+exports[`application generator > project > should run successfully with linting (flake8) and testing options with a dev dependency project 4`] = `
 """"Sample Hello World application."""
 
 
@@ -1837,12 +1901,12 @@ def hello():
 "
 `;
 
-exports[`application generator > should run successfully with linting (flake8) and testing options with a dev dependency project 5`] = `
+exports[`application generator > project > should run successfully with linting (flake8) and testing options with a dev dependency project 5`] = `
 "3.9.7
 "
 `;
 
-exports[`application generator > should run successfully with linting (flake8) and testing options with a dev dependency project 6`] = `
+exports[`application generator > project > should run successfully with linting (flake8) and testing options with a dev dependency project 6`] = `
 "[flake8]
 exclude =
 	.git,
@@ -1857,7 +1921,7 @@ max-line-length = 120
 "
 `;
 
-exports[`application generator > should run successfully with linting (flake8) and testing options with a dev dependency project 7`] = `
+exports[`application generator > project > should run successfully with linting (flake8) and testing options with a dev dependency project 7`] = `
 """"Hello unit test module."""
 
 from test.hello import hello
@@ -1869,14 +1933,14 @@ def test_hello():
 "
 `;
 
-exports[`application generator > should run successfully with linting (flake8) and testing options with a dev dependency project 8`] = `
+exports[`application generator > project > should run successfully with linting (flake8) and testing options with a dev dependency project 8`] = `
 "# shared-dev-lib
 
 Project description here.
 "
 `;
 
-exports[`application generator > should run successfully with linting (flake8) and testing options with a dev dependency project 9`] = `
+exports[`application generator > project > should run successfully with linting (flake8) and testing options with a dev dependency project 9`] = `
 "[project]
 name = "shared-dev-lib"
 version = "1.0.0"
@@ -1895,13 +1959,19 @@ dependencies = [
 [tool.hatch.build.targets.wheel]
 packages = [ "shared_dev_lib" ]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[dependency-groups]
+dev = [ "autopep8>=2.3.1" ]
+
 [build-system]
 requires = [ "hatchling" ]
 build-backend = "hatchling.build"
 "
 `;
 
-exports[`application generator > should run successfully with linting (flake8) and testing options with a dev dependency project 10`] = `
+exports[`application generator > project > should run successfully with linting (flake8) and testing options with a dev dependency project 10`] = `
 """"Sample Hello World application."""
 
 
@@ -1911,32 +1981,14 @@ def hello():
 "
 `;
 
-exports[`application generator > should run successfully with linting (flake8) and testing options with a dev dependency project 11`] = `
+exports[`application generator > project > should run successfully with linting (flake8) and testing options with a dev dependency project 11`] = `
 "3.9.7
 "
 `;
 
-exports[`application generator > should run successfully with linting (flake8) and testing options with a dev dependency project 12`] = `
-"[project]
-name = "nx-workspace"
-version = "1.0.0"
-dependencies = [ "shared-dev-lib", "test" ]
+exports[`application generator > project > should run successfully with linting (flake8) and testing options with a dev dependency project 12`] = `null`;
 
-[dependency-groups]
-dev = [ "autopep8>=2.3.1" ]
-
-[tool.uv.sources.shared-dev-lib]
-workspace = true
-
-[tool.uv.sources.test]
-workspace = true
-
-[tool.uv.workspace]
-members = [ "libs/*", "apps/*" ]
-"
-`;
-
-exports[`application generator > should run successfully with linting (ruff) and testing options with a dev dependency project 1`] = `
+exports[`application generator > project > should run successfully with linting (ruff) and testing options with a dev dependency project 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -1965,6 +2017,15 @@ exports[`application generator > should run successfully with linting (ruff) and
       "outputs": [
         "{projectRoot}/dist",
       ],
+    },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "args": "",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
     },
     "lint": {
       "executor": "@nxlv/python:ruff-check",
@@ -2006,14 +2067,14 @@ exports[`application generator > should run successfully with linting (ruff) and
 }
 `;
 
-exports[`application generator > should run successfully with linting (ruff) and testing options with a dev dependency project 2`] = `
+exports[`application generator > project > should run successfully with linting (ruff) and testing options with a dev dependency project 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator > should run successfully with linting (ruff) and testing options with a dev dependency project 3`] = `
+exports[`application generator > project > should run successfully with linting (ruff) and testing options with a dev dependency project 3`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "test" ]
@@ -2036,13 +2097,16 @@ dependencies = []
 [tool.hatch.build.targets.wheel]
 packages = ["test"]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [dependency-groups]
 dev = [
-  "shared-dev-lib"
+  "shared-dev-lib",
 ]
 
 [tool.uv.sources]
-shared-dev-lib = { workspace = true }
+shared-dev-lib = { path = "../../libs/shared/dev-lib" }
 
 [build-system]
 requires = ["hatchling"]
@@ -2082,7 +2146,7 @@ unfixable = []
 "
 `;
 
-exports[`application generator > should run successfully with linting (ruff) and testing options with a dev dependency project 4`] = `
+exports[`application generator > project > should run successfully with linting (ruff) and testing options with a dev dependency project 4`] = `
 """"Sample Hello World application."""
 
 
@@ -2092,12 +2156,12 @@ def hello():
 "
 `;
 
-exports[`application generator > should run successfully with linting (ruff) and testing options with a dev dependency project 5`] = `
+exports[`application generator > project > should run successfully with linting (ruff) and testing options with a dev dependency project 5`] = `
 "3.9.7
 "
 `;
 
-exports[`application generator > should run successfully with linting (ruff) and testing options with a dev dependency project 6`] = `
+exports[`application generator > project > should run successfully with linting (ruff) and testing options with a dev dependency project 6`] = `
 """"Hello unit test module."""
 
 from test.hello import hello
@@ -2109,14 +2173,14 @@ def test_hello():
 "
 `;
 
-exports[`application generator > should run successfully with linting (ruff) and testing options with a dev dependency project 7`] = `
+exports[`application generator > project > should run successfully with linting (ruff) and testing options with a dev dependency project 7`] = `
 "# shared-dev-lib
 
 Project description here.
 "
 `;
 
-exports[`application generator > should run successfully with linting (ruff) and testing options with a dev dependency project 8`] = `
+exports[`application generator > project > should run successfully with linting (ruff) and testing options with a dev dependency project 8`] = `
 "[project]
 name = "shared-dev-lib"
 version = "1.0.0"
@@ -2135,13 +2199,19 @@ dependencies = [
 [tool.hatch.build.targets.wheel]
 packages = [ "shared_dev_lib" ]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[dependency-groups]
+dev = [ "autopep8>=2.3.1" ]
+
 [build-system]
 requires = [ "hatchling" ]
 build-backend = "hatchling.build"
 "
 `;
 
-exports[`application generator > should run successfully with linting (ruff) and testing options with a dev dependency project 9`] = `
+exports[`application generator > project > should run successfully with linting (ruff) and testing options with a dev dependency project 9`] = `
 """"Sample Hello World application."""
 
 
@@ -2151,32 +2221,14 @@ def hello():
 "
 `;
 
-exports[`application generator > should run successfully with linting (ruff) and testing options with a dev dependency project 10`] = `
+exports[`application generator > project > should run successfully with linting (ruff) and testing options with a dev dependency project 10`] = `
 "3.9.7
 "
 `;
 
-exports[`application generator > should run successfully with linting (ruff) and testing options with a dev dependency project 11`] = `
-"[project]
-name = "nx-workspace"
-version = "1.0.0"
-dependencies = [ "shared-dev-lib", "test" ]
+exports[`application generator > project > should run successfully with linting (ruff) and testing options with a dev dependency project 11`] = `null`;
 
-[dependency-groups]
-dev = [ "autopep8>=2.3.1" ]
-
-[tool.uv.sources.shared-dev-lib]
-workspace = true
-
-[tool.uv.sources.test]
-workspace = true
-
-[tool.uv.workspace]
-members = [ "libs/*", "apps/*" ]
-"
-`;
-
-exports[`application generator > should run successfully with linting and testing options with a dev dependency project with custom package name 1`] = `
+exports[`application generator > project > should run successfully with linting and testing options with a dev dependency project with custom package name 1`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "test" ]
@@ -2199,13 +2251,16 @@ dependencies = []
 [tool.hatch.build.targets.wheel]
 packages = ["test"]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [dependency-groups]
 dev = [
-  "custom-shared-dev-lib"
+  "custom-shared-dev-lib",
 ]
 
 [tool.uv.sources]
-custom-shared-dev-lib = { workspace = true }
+custom-shared-dev-lib = { path = "../../libs/shared/dev-lib" }
 
 [build-system]
 requires = ["hatchling"]
@@ -2213,27 +2268,9 @@ build-backend = "hatchling.build"
 "
 `;
 
-exports[`application generator > should run successfully with linting and testing options with a dev dependency project with custom package name 2`] = `
-"[project]
-name = "nx-workspace"
-version = "1.0.0"
-dependencies = [ "custom-shared-dev-lib", "test" ]
+exports[`application generator > project > should run successfully with linting and testing options with a dev dependency project with custom package name 2`] = `null`;
 
-[dependency-groups]
-dev = [ "autopep8>=2.3.1" ]
-
-[tool.uv.sources.custom-shared-dev-lib]
-workspace = true
-
-[tool.uv.sources.test]
-workspace = true
-
-[tool.uv.workspace]
-members = [ "libs/*", "apps/*" ]
-"
-`;
-
-exports[`application generator > should run successfully with linting and testing options with an existing dev dependency project 1`] = `
+exports[`application generator > project > should run successfully with linting and testing options with an existing dev dependency project 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -2262,6 +2299,15 @@ exports[`application generator > should run successfully with linting and testin
       "outputs": [
         "{projectRoot}/dist",
       ],
+    },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "args": "",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
     },
     "lint": {
       "executor": "@nxlv/python:flake8",
@@ -2302,14 +2348,14 @@ exports[`application generator > should run successfully with linting and testin
 }
 `;
 
-exports[`application generator > should run successfully with linting and testing options with an existing dev dependency project 2`] = `
+exports[`application generator > project > should run successfully with linting and testing options with an existing dev dependency project 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator > should run successfully with linting and testing options with an existing dev dependency project 3`] = `
+exports[`application generator > project > should run successfully with linting and testing options with an existing dev dependency project 3`] = `
 "[tool.coverage.run]
 branch = true
 source = [ "test" ]
@@ -2332,13 +2378,16 @@ dependencies = []
 [tool.hatch.build.targets.wheel]
 packages = ["test"]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [dependency-groups]
 dev = [
-  "shared-dev-lib"
+  "shared-dev-lib",
 ]
 
 [tool.uv.sources]
-shared-dev-lib = { workspace = true }
+shared-dev-lib = { path = "../../libs/shared/dev-lib" }
 
 [build-system]
 requires = ["hatchling"]
@@ -2346,7 +2395,7 @@ build-backend = "hatchling.build"
 "
 `;
 
-exports[`application generator > should run successfully with linting and testing options with an existing dev dependency project 4`] = `
+exports[`application generator > project > should run successfully with linting and testing options with an existing dev dependency project 4`] = `
 """"Sample Hello World application."""
 
 
@@ -2356,12 +2405,12 @@ def hello():
 "
 `;
 
-exports[`application generator > should run successfully with linting and testing options with an existing dev dependency project 5`] = `
+exports[`application generator > project > should run successfully with linting and testing options with an existing dev dependency project 5`] = `
 "3.9.7
 "
 `;
 
-exports[`application generator > should run successfully with linting and testing options with an existing dev dependency project 6`] = `
+exports[`application generator > project > should run successfully with linting and testing options with an existing dev dependency project 6`] = `
 "[flake8]
 exclude =
 	.git,
@@ -2376,7 +2425,7 @@ max-line-length = 120
 "
 `;
 
-exports[`application generator > should run successfully with linting and testing options with an existing dev dependency project 7`] = `
+exports[`application generator > project > should run successfully with linting and testing options with an existing dev dependency project 7`] = `
 """"Hello unit test module."""
 
 from test.hello import hello
@@ -2388,14 +2437,14 @@ def test_hello():
 "
 `;
 
-exports[`application generator > should run successfully with linting and testing options with an existing dev dependency project 8`] = `
+exports[`application generator > project > should run successfully with linting and testing options with an existing dev dependency project 8`] = `
 "# shared-dev-lib
 
 Project description here.
 "
 `;
 
-exports[`application generator > should run successfully with linting and testing options with an existing dev dependency project 9`] = `
+exports[`application generator > project > should run successfully with linting and testing options with an existing dev dependency project 9`] = `
 "[project]
 name = "shared-dev-lib"
 version = "1.0.0"
@@ -2415,13 +2464,19 @@ dependencies = [
 [tool.hatch.build.targets.wheel]
 packages = [ "shared_dev_lib" ]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[dependency-groups]
+dev = [ "autopep8>=2.3.1" ]
+
 [build-system]
 requires = [ "hatchling" ]
 build-backend = "hatchling.build"
 "
 `;
 
-exports[`application generator > should run successfully with linting and testing options with an existing dev dependency project 10`] = `
+exports[`application generator > project > should run successfully with linting and testing options with an existing dev dependency project 10`] = `
 """"Sample Hello World application."""
 
 
@@ -2431,10 +2486,336 @@ def hello():
 "
 `;
 
-exports[`application generator > should run successfully with linting and testing options with an existing dev dependency project 11`] = `
+exports[`application generator > project > should run successfully with linting and testing options with an existing dev dependency project 11`] = `
 "3.9.7
 "
 `;
+
+exports[`application generator > project > should run successfully with ruff linter 1`] = `
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "test",
+  "projectType": "application",
+  "release": {
+    "version": {
+      "generator": "@nxlv/python:release-version",
+    },
+  },
+  "root": "apps/test",
+  "sourceRoot": "apps/test/test",
+  "tags": [],
+  "targets": {
+    "add": {
+      "executor": "@nxlv/python:add",
+      "options": {},
+    },
+    "build": {
+      "executor": "@nxlv/python:build",
+      "options": {
+        "bundleLocalDependencies": false,
+        "lockedVersions": false,
+        "outputPath": "apps/test/dist",
+        "publish": false,
+      },
+      "outputs": [
+        "{projectRoot}/dist",
+      ],
+    },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "args": "",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
+    },
+    "lint": {
+      "executor": "@nxlv/python:ruff-check",
+      "options": {
+        "lintFilePatterns": [
+          "test",
+        ],
+      },
+      "outputs": [],
+    },
+    "lock": {
+      "executor": "@nxlv/python:run-commands",
+      "options": {
+        "command": "uv lock",
+        "cwd": "apps/test",
+      },
+    },
+    "remove": {
+      "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "update": {
+      "executor": "@nxlv/python:update",
+      "options": {},
+    },
+  },
+}
+`;
+
+exports[`application generator > project > should run successfully with ruff linter 2`] = `
+"# test
+
+Project description here.
+"
+`;
+
+exports[`application generator > project > should run successfully with ruff linter 3`] = `
+"[project]
+name = "test"
+version = "1.0.0"
+description = "Automatically generated by Nx."
+requires-python = ">=3.9,<4"
+readme = 'README.md'
+dependencies = []
+
+[tool.hatch.build.targets.wheel]
+packages = ["test"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[dependency-groups]
+dev = [
+  "autopep8>=2.3.1",
+  "ruff>=0.8.2",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+exclude = [
+  ".ruff_cache",
+  ".svn",
+  ".tox",
+  ".venv",
+  "dist",
+]
+
+line-length = 88
+indent-width = 4
+
+[tool.ruff.lint]
+select = [
+  # pycodestyle
+  "E",
+  # Pyflakes
+  "F",
+  # pyupgrade
+  "UP",
+  # flake8-bugbear
+  "B",
+  # flake8-simplify
+  "SIM",
+  # isort
+  "I",
+]
+ignore = []
+
+fixable = ["ALL"]
+unfixable = []
+"
+`;
+
+exports[`application generator > project > should run successfully with ruff linter 4`] = `
+""""Sample Hello World application."""
+
+
+def hello():
+    """Return a friendly greeting."""
+    return "Hello test"
+"
+`;
+
+exports[`application generator > project > should run successfully with ruff linter 5`] = `
+"3.9.7
+"
+`;
+
+exports[`application generator > project > should run successfully with ruff linter 6`] = `null`;
+
+exports[`application generator > project > should run successfully with ruff linter and pytest with no reports 1`] = `
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "test",
+  "projectType": "application",
+  "release": {
+    "version": {
+      "generator": "@nxlv/python:release-version",
+    },
+  },
+  "root": "apps/test",
+  "sourceRoot": "apps/test/test",
+  "tags": [],
+  "targets": {
+    "add": {
+      "executor": "@nxlv/python:add",
+      "options": {},
+    },
+    "build": {
+      "executor": "@nxlv/python:build",
+      "options": {
+        "bundleLocalDependencies": false,
+        "lockedVersions": false,
+        "outputPath": "apps/test/dist",
+        "publish": false,
+      },
+      "outputs": [
+        "{projectRoot}/dist",
+      ],
+    },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "args": "",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
+    },
+    "lint": {
+      "executor": "@nxlv/python:ruff-check",
+      "options": {
+        "lintFilePatterns": [
+          "test",
+          "tests",
+        ],
+      },
+      "outputs": [],
+    },
+    "lock": {
+      "executor": "@nxlv/python:run-commands",
+      "options": {
+        "command": "uv lock",
+        "cwd": "apps/test",
+      },
+    },
+    "remove": {
+      "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "test": {
+      "executor": "@nxlv/python:run-commands",
+      "options": {
+        "command": "uv run pytest tests/",
+        "cwd": "apps/test",
+      },
+      "outputs": [
+        "{workspaceRoot}/reports/apps/test/unittests",
+        "{workspaceRoot}/coverage/apps/test",
+      ],
+    },
+    "update": {
+      "executor": "@nxlv/python:update",
+      "options": {},
+    },
+  },
+}
+`;
+
+exports[`application generator > project > should run successfully with ruff linter and pytest with no reports 2`] = `
+"# test
+
+Project description here.
+"
+`;
+
+exports[`application generator > project > should run successfully with ruff linter and pytest with no reports 3`] = `
+"[project]
+name = "test"
+version = "1.0.0"
+description = "Automatically generated by Nx."
+requires-python = ">=3.9,<4"
+readme = 'README.md'
+dependencies = []
+
+[tool.hatch.build.targets.wheel]
+packages = ["test"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[dependency-groups]
+dev = [
+  "autopep8>=2.3.1",
+  "ruff>=0.8.2",
+  "pytest>=8.3.4",
+  "pytest-sugar>=1.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+exclude = [
+  ".ruff_cache",
+  ".svn",
+  ".tox",
+  ".venv",
+  "dist",
+]
+
+line-length = 88
+indent-width = 4
+
+[tool.ruff.lint]
+select = [
+  # pycodestyle
+  "E",
+  # Pyflakes
+  "F",
+  # pyupgrade
+  "UP",
+  # flake8-bugbear
+  "B",
+  # flake8-simplify
+  "SIM",
+  # isort
+  "I",
+]
+ignore = []
+
+fixable = ["ALL"]
+unfixable = []
+"
+`;
+
+exports[`application generator > project > should run successfully with ruff linter and pytest with no reports 4`] = `
+""""Sample Hello World application."""
+
+
+def hello():
+    """Return a friendly greeting."""
+    return "Hello test"
+"
+`;
+
+exports[`application generator > project > should run successfully with ruff linter and pytest with no reports 5`] = `
+"3.9.7
+"
+`;
+
+exports[`application generator > project > should run successfully with ruff linter and pytest with no reports 6`] = `
+""""Hello unit test module."""
+
+from test.hello import hello
+
+
+def test_hello():
+    """Test the hello function."""
+    assert hello() == "Hello test"
+"
+`;
+
+exports[`application generator > project > should run successfully with ruff linter and pytest with no reports 7`] = `null`;
 
 exports[`application generator > should run successfully with minimal options 1`] = `
 {
@@ -2465,6 +2846,15 @@ exports[`application generator > should run successfully with minimal options 1`
       "outputs": [
         "{projectRoot}/dist",
       ],
+    },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "args": "",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
     },
     "lock": {
       "executor": "@nxlv/python:run-commands",
@@ -2504,6 +2894,14 @@ dependencies = []
 [tool.hatch.build.targets.wheel]
 packages = ["test"]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[dependency-groups]
+dev = [
+  "autopep8>=2.3.1",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -2525,24 +2923,9 @@ exports[`application generator > should run successfully with minimal options 5`
 "
 `;
 
-exports[`application generator > should run successfully with minimal options 6`] = `
-"[project]
-name = "nx-workspace"
-version = "1.0.0"
-dependencies = [ "test" ]
+exports[`application generator > should run successfully with minimal options 6`] = `null`;
 
-[dependency-groups]
-dev = [ "autopep8>=2.3.1" ]
-
-[tool.uv.sources.test]
-workspace = true
-
-[tool.uv.workspace]
-members = [ "apps/*" ]
-"
-`;
-
-exports[`application generator > should run successfully with minimal options with custom rootPyprojectDependencyGroup 1`] = `
+exports[`application generator > workspace > should run successfully with minimal options with custom rootPyprojectDependencyGroup 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -2572,6 +2955,15 @@ exports[`application generator > should run successfully with minimal options wi
         "{projectRoot}/dist",
       ],
     },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "args": "",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
+    },
     "lock": {
       "executor": "@nxlv/python:run-commands",
       "options": {
@@ -2591,14 +2983,14 @@ exports[`application generator > should run successfully with minimal options wi
 }
 `;
 
-exports[`application generator > should run successfully with minimal options with custom rootPyprojectDependencyGroup 2`] = `
+exports[`application generator > workspace > should run successfully with minimal options with custom rootPyprojectDependencyGroup 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator > should run successfully with minimal options with custom rootPyprojectDependencyGroup 3`] = `
+exports[`application generator > workspace > should run successfully with minimal options with custom rootPyprojectDependencyGroup 3`] = `
 "[project]
 name = "test"
 version = "1.0.0"
@@ -2610,13 +3002,16 @@ dependencies = []
 [tool.hatch.build.targets.wheel]
 packages = ["test"]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 "
 `;
 
-exports[`application generator > should run successfully with minimal options with custom rootPyprojectDependencyGroup 4`] = `
+exports[`application generator > workspace > should run successfully with minimal options with custom rootPyprojectDependencyGroup 4`] = `
 """"Sample Hello World application."""
 
 
@@ -2626,12 +3021,12 @@ def hello():
 "
 `;
 
-exports[`application generator > should run successfully with minimal options with custom rootPyprojectDependencyGroup 5`] = `
+exports[`application generator > workspace > should run successfully with minimal options with custom rootPyprojectDependencyGroup 5`] = `
 "3.9.7
 "
 `;
 
-exports[`application generator > should run successfully with minimal options with custom rootPyprojectDependencyGroup 6`] = `
+exports[`application generator > workspace > should run successfully with minimal options with custom rootPyprojectDependencyGroup 6`] = `
 "[project]
 name = "nx-workspace"
 version = "1.0.0"
@@ -2644,11 +3039,11 @@ dev = [ "test", "autopep8>=2.3.1" ]
 workspace = true
 
 [tool.uv.workspace]
-members = [ "apps/*" ]
+members = [ "apps/test" ]
 "
 `;
 
-exports[`application generator > should run successfully with minimal options with existing custom rootPyprojectDependencyGroup 1`] = `
+exports[`application generator > workspace > should run successfully with minimal options with existing custom rootPyprojectDependencyGroup 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -2678,6 +3073,15 @@ exports[`application generator > should run successfully with minimal options wi
         "{projectRoot}/dist",
       ],
     },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "args": "",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
+    },
     "lock": {
       "executor": "@nxlv/python:run-commands",
       "options": {
@@ -2697,14 +3101,14 @@ exports[`application generator > should run successfully with minimal options wi
 }
 `;
 
-exports[`application generator > should run successfully with minimal options with existing custom rootPyprojectDependencyGroup 2`] = `
+exports[`application generator > workspace > should run successfully with minimal options with existing custom rootPyprojectDependencyGroup 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator > should run successfully with minimal options with existing custom rootPyprojectDependencyGroup 3`] = `
+exports[`application generator > workspace > should run successfully with minimal options with existing custom rootPyprojectDependencyGroup 3`] = `
 "[project]
 name = "test"
 version = "1.0.0"
@@ -2716,13 +3120,16 @@ dependencies = []
 [tool.hatch.build.targets.wheel]
 packages = ["test"]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 "
 `;
 
-exports[`application generator > should run successfully with minimal options with existing custom rootPyprojectDependencyGroup 4`] = `
+exports[`application generator > workspace > should run successfully with minimal options with existing custom rootPyprojectDependencyGroup 4`] = `
 """"Sample Hello World application."""
 
 
@@ -2732,12 +3139,12 @@ def hello():
 "
 `;
 
-exports[`application generator > should run successfully with minimal options with existing custom rootPyprojectDependencyGroup 5`] = `
+exports[`application generator > workspace > should run successfully with minimal options with existing custom rootPyprojectDependencyGroup 5`] = `
 "3.9.7
 "
 `;
 
-exports[`application generator > should run successfully with minimal options with existing custom rootPyprojectDependencyGroup 6`] = `
+exports[`application generator > workspace > should run successfully with minimal options with existing custom rootPyprojectDependencyGroup 6`] = `
 "[project]
 name = "nx-workspace"
 version = "1.0.0"
@@ -2750,11 +3157,11 @@ dev = [ "requests>=2.3.1", "test", "autopep8>=2.3.1" ]
 workspace = true
 
 [tool.uv.workspace]
-members = [ "apps/*" ]
+members = [ "apps/test" ]
 "
 `;
 
-exports[`application generator > should run successfully with minimal options without rootPyprojectDependencyGroup 1`] = `
+exports[`application generator > workspace > should run successfully with minimal options without rootPyprojectDependencyGroup 1`] = `
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "test",
@@ -2784,6 +3191,15 @@ exports[`application generator > should run successfully with minimal options wi
         "{projectRoot}/dist",
       ],
     },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "args": "",
+        "debug": false,
+        "silent": false,
+        "verbose": false,
+      },
+    },
     "lock": {
       "executor": "@nxlv/python:run-commands",
       "options": {
@@ -2803,14 +3219,14 @@ exports[`application generator > should run successfully with minimal options wi
 }
 `;
 
-exports[`application generator > should run successfully with minimal options without rootPyprojectDependencyGroup 2`] = `
+exports[`application generator > workspace > should run successfully with minimal options without rootPyprojectDependencyGroup 2`] = `
 "# test
 
 Project description here.
 "
 `;
 
-exports[`application generator > should run successfully with minimal options without rootPyprojectDependencyGroup 3`] = `
+exports[`application generator > workspace > should run successfully with minimal options without rootPyprojectDependencyGroup 3`] = `
 "[project]
 name = "test"
 version = "1.0.0"
@@ -2822,13 +3238,16 @@ dependencies = []
 [tool.hatch.build.targets.wheel]
 packages = ["test"]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 "
 `;
 
-exports[`application generator > should run successfully with minimal options without rootPyprojectDependencyGroup 4`] = `
+exports[`application generator > workspace > should run successfully with minimal options without rootPyprojectDependencyGroup 4`] = `
 """"Sample Hello World application."""
 
 
@@ -2838,347 +3257,24 @@ def hello():
 "
 `;
 
-exports[`application generator > should run successfully with minimal options without rootPyprojectDependencyGroup 5`] = `
+exports[`application generator > workspace > should run successfully with minimal options without rootPyprojectDependencyGroup 5`] = `
 "3.9.7
 "
 `;
 
-exports[`application generator > should run successfully with minimal options without rootPyprojectDependencyGroup 6`] = `
+exports[`application generator > workspace > should run successfully with minimal options without rootPyprojectDependencyGroup 6`] = `
 "[project]
 name = "nx-workspace"
 version = "1.0.0"
 dependencies = [ "test" ]
+
+[tool.uv.sources.test]
+workspace = true
+
+[tool.uv.workspace]
+members = [ "apps/test" ]
 
 [dependency-groups]
 dev = [ "autopep8>=2.3.1" ]
-
-[tool.uv.sources.test]
-workspace = true
-
-[tool.uv.workspace]
-members = [ "apps/*" ]
-"
-`;
-
-exports[`application generator > should run successfully with ruff linter 1`] = `
-{
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "name": "test",
-  "projectType": "application",
-  "release": {
-    "version": {
-      "generator": "@nxlv/python:release-version",
-    },
-  },
-  "root": "apps/test",
-  "sourceRoot": "apps/test/test",
-  "tags": [],
-  "targets": {
-    "add": {
-      "executor": "@nxlv/python:add",
-      "options": {},
-    },
-    "build": {
-      "executor": "@nxlv/python:build",
-      "options": {
-        "bundleLocalDependencies": false,
-        "lockedVersions": false,
-        "outputPath": "apps/test/dist",
-        "publish": false,
-      },
-      "outputs": [
-        "{projectRoot}/dist",
-      ],
-    },
-    "lint": {
-      "executor": "@nxlv/python:ruff-check",
-      "options": {
-        "lintFilePatterns": [
-          "test",
-        ],
-      },
-      "outputs": [],
-    },
-    "lock": {
-      "executor": "@nxlv/python:run-commands",
-      "options": {
-        "command": "uv lock",
-        "cwd": "apps/test",
-      },
-    },
-    "remove": {
-      "executor": "@nxlv/python:remove",
-      "options": {},
-    },
-    "update": {
-      "executor": "@nxlv/python:update",
-      "options": {},
-    },
-  },
-}
-`;
-
-exports[`application generator > should run successfully with ruff linter 2`] = `
-"# test
-
-Project description here.
-"
-`;
-
-exports[`application generator > should run successfully with ruff linter 3`] = `
-"[project]
-name = "test"
-version = "1.0.0"
-description = "Automatically generated by Nx."
-requires-python = ">=3.9,<4"
-readme = 'README.md'
-dependencies = []
-
-[tool.hatch.build.targets.wheel]
-packages = ["test"]
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[tool.ruff]
-exclude = [
-  ".ruff_cache",
-  ".svn",
-  ".tox",
-  ".venv",
-  "dist",
-]
-
-line-length = 88
-indent-width = 4
-
-[tool.ruff.lint]
-select = [
-  # pycodestyle
-  "E",
-  # Pyflakes
-  "F",
-  # pyupgrade
-  "UP",
-  # flake8-bugbear
-  "B",
-  # flake8-simplify
-  "SIM",
-  # isort
-  "I",
-]
-ignore = []
-
-fixable = ["ALL"]
-unfixable = []
-"
-`;
-
-exports[`application generator > should run successfully with ruff linter 4`] = `
-""""Sample Hello World application."""
-
-
-def hello():
-    """Return a friendly greeting."""
-    return "Hello test"
-"
-`;
-
-exports[`application generator > should run successfully with ruff linter 5`] = `
-"3.9.7
-"
-`;
-
-exports[`application generator > should run successfully with ruff linter 6`] = `
-"[project]
-name = "nx-workspace"
-version = "1.0.0"
-dependencies = [ "test" ]
-
-[dependency-groups]
-dev = [ "ruff>=0.8.2", "autopep8>=2.3.1" ]
-
-[tool.uv.sources.test]
-workspace = true
-
-[tool.uv.workspace]
-members = [ "apps/*" ]
-"
-`;
-
-exports[`application generator > should run successfully with ruff linter and pytest with no reports 1`] = `
-{
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "name": "test",
-  "projectType": "application",
-  "release": {
-    "version": {
-      "generator": "@nxlv/python:release-version",
-    },
-  },
-  "root": "apps/test",
-  "sourceRoot": "apps/test/test",
-  "tags": [],
-  "targets": {
-    "add": {
-      "executor": "@nxlv/python:add",
-      "options": {},
-    },
-    "build": {
-      "executor": "@nxlv/python:build",
-      "options": {
-        "bundleLocalDependencies": false,
-        "lockedVersions": false,
-        "outputPath": "apps/test/dist",
-        "publish": false,
-      },
-      "outputs": [
-        "{projectRoot}/dist",
-      ],
-    },
-    "lint": {
-      "executor": "@nxlv/python:ruff-check",
-      "options": {
-        "lintFilePatterns": [
-          "test",
-          "tests",
-        ],
-      },
-      "outputs": [],
-    },
-    "lock": {
-      "executor": "@nxlv/python:run-commands",
-      "options": {
-        "command": "uv lock",
-        "cwd": "apps/test",
-      },
-    },
-    "remove": {
-      "executor": "@nxlv/python:remove",
-      "options": {},
-    },
-    "test": {
-      "executor": "@nxlv/python:run-commands",
-      "options": {
-        "command": "uv run pytest tests/",
-        "cwd": "apps/test",
-      },
-      "outputs": [
-        "{workspaceRoot}/reports/apps/test/unittests",
-        "{workspaceRoot}/coverage/apps/test",
-      ],
-    },
-    "update": {
-      "executor": "@nxlv/python:update",
-      "options": {},
-    },
-  },
-}
-`;
-
-exports[`application generator > should run successfully with ruff linter and pytest with no reports 2`] = `
-"# test
-
-Project description here.
-"
-`;
-
-exports[`application generator > should run successfully with ruff linter and pytest with no reports 3`] = `
-"[project]
-name = "test"
-version = "1.0.0"
-description = "Automatically generated by Nx."
-requires-python = ">=3.9,<4"
-readme = 'README.md'
-dependencies = []
-
-[tool.hatch.build.targets.wheel]
-packages = ["test"]
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[tool.ruff]
-exclude = [
-  ".ruff_cache",
-  ".svn",
-  ".tox",
-  ".venv",
-  "dist",
-]
-
-line-length = 88
-indent-width = 4
-
-[tool.ruff.lint]
-select = [
-  # pycodestyle
-  "E",
-  # Pyflakes
-  "F",
-  # pyupgrade
-  "UP",
-  # flake8-bugbear
-  "B",
-  # flake8-simplify
-  "SIM",
-  # isort
-  "I",
-]
-ignore = []
-
-fixable = ["ALL"]
-unfixable = []
-"
-`;
-
-exports[`application generator > should run successfully with ruff linter and pytest with no reports 4`] = `
-""""Sample Hello World application."""
-
-
-def hello():
-    """Return a friendly greeting."""
-    return "Hello test"
-"
-`;
-
-exports[`application generator > should run successfully with ruff linter and pytest with no reports 5`] = `
-"3.9.7
-"
-`;
-
-exports[`application generator > should run successfully with ruff linter and pytest with no reports 6`] = `
-""""Hello unit test module."""
-
-from test.hello import hello
-
-
-def test_hello():
-    """Test the hello function."""
-    assert hello() == "Hello test"
-"
-`;
-
-exports[`application generator > should run successfully with ruff linter and pytest with no reports 7`] = `
-"[project]
-name = "nx-workspace"
-version = "1.0.0"
-dependencies = [ "test" ]
-
-[dependency-groups]
-dev = [
-  "ruff>=0.8.2",
-  "autopep8>=2.3.1",
-  "pytest>=8.3.4",
-  "pytest-sugar>=1.0.0"
-]
-
-[tool.uv.sources.test]
-workspace = true
-
-[tool.uv.workspace]
-members = [ "apps/*" ]
 "
 `;

@@ -686,89 +686,232 @@ describe('Delete Executor', () => {
       vi.spyOn(process, 'chdir').mockReturnValue(undefined);
     });
 
-    beforeEach(() => {
-      vol.fromJSON({
-        'uv.lock': '',
+    describe('workspace', () => {
+      beforeEach(() => {
+        vol.fromJSON({
+          'uv.lock': '',
+        });
+      });
+
+      it('should return success false when the uv is not installed', async () => {
+        checkPrerequisites.mockRejectedValue(new Error('uv not found'));
+
+        const options = {
+          name: 'shared1',
+          local: true,
+        };
+
+        const context: ExecutorContext = {
+          cwd: '',
+          root: '.',
+          isVerbose: false,
+          projectName: 'app',
+          projectsConfigurations: {
+            version: 2,
+            projects: {
+              app: {
+                root: 'apps/app',
+                targets: {},
+              },
+            },
+          },
+          nxJsonConfiguration: {},
+          projectGraph: {
+            dependencies: {},
+            nodes: {},
+          },
+        };
+
+        const output = await executor(options, context);
+        expect(checkPrerequisites).toHaveBeenCalled();
+        expect(spawn.sync).not.toHaveBeenCalled();
+        expect(output.success).toBe(false);
+      });
+
+      it('should remove external dependency with args', async () => {
+        const options = {
+          name: 'click',
+          local: false,
+          args: '-vvv',
+        };
+
+        const context: ExecutorContext = {
+          cwd: '',
+          root: '.',
+          isVerbose: false,
+          projectName: 'app',
+          projectsConfigurations: {
+            version: 2,
+            projects: {
+              app: {
+                root: 'apps/app',
+                targets: {},
+              },
+            },
+          },
+          nxJsonConfiguration: {},
+          projectGraph: {
+            dependencies: {},
+            nodes: {},
+          },
+        };
+
+        const output = await executor(options, context);
+        expect(checkPrerequisites).toHaveBeenCalled();
+        expect(spawn.sync).toHaveBeenCalledTimes(1);
+        expect(spawn.sync).toHaveBeenNthCalledWith(
+          1,
+          'uv',
+          ['remove', 'click', '--project', 'apps/app', '-vvv'],
+          {
+            cwd: '.',
+            shell: false,
+            stdio: 'inherit',
+          },
+        );
+        expect(output.success).toBe(true);
       });
     });
 
-    it('should return success false when the uv is not installed', async () => {
-      checkPrerequisites.mockRejectedValue(new Error('uv not found'));
+    describe('project', () => {
+      it('run remove target and should update all the dependency tree', async () => {
+        vol.fromJSON({
+          'apps/app/pyproject.toml': dedent`
+          [project]
+          name = "app"
+          version = "0.1.0"
+          readme = "README.md"
+          requires-python = ">=3.12"
+          dependencies = [
+              "lib1",
+          ]
 
-      const options = {
-        name: 'shared1',
-        local: true,
-      };
+          [tool.hatch.build.targets.wheel]
+          packages = ["app"]
 
-      const context: ExecutorContext = {
-        cwd: '',
-        root: '.',
-        isVerbose: false,
-        projectName: 'app',
-        projectsConfigurations: {
-          version: 2,
-          projects: {
-            app: {
-              root: 'apps/app',
-              targets: {},
+          [tool.uv.sources]
+          lib1 = { path = "../../libs/lib1" }
+          `,
+
+          'apps/app1/pyproject.toml': dedent`
+          [project]
+          name = "app1"
+          version = "0.1.0"
+          readme = "README.md"
+          requires-python = ">=3.12"
+          dependencies = [
+              "lib1",
+          ]
+
+          [tool.hatch.build.targets.wheel]
+          packages = ["app1"]
+
+          [tool.uv.sources]
+          lib1 = { path = "../../libs/lib1" }
+          `,
+
+          'libs/lib1/pyproject.toml': dedent`
+          [project]
+          name = "lib1"
+          version = "0.1.0"
+          readme = "README.md"
+          requires-python = ">=3.12"
+          dependencies = [
+              "shared1",
+          ]
+
+          [tool.hatch.build.targets.wheel]
+          packages = ["lib1"]
+
+          [tool.uv.sources]
+          shared1 = { path = "../shared1" }
+          `,
+
+          'libs/shared1/pyproject.toml': dedent`
+          [project]
+          name = "shared1"
+          version = "0.1.0"
+          readme = "README.md"
+          requires-python = ">=3.12"
+          dependencies = []
+
+          [tool.hatch.build.targets.wheel]
+          packages = ["shared1"]
+          `,
+        });
+
+        const options = {
+          name: 'numpy',
+          local: false,
+        };
+
+        const context: ExecutorContext = {
+          cwd: '',
+          root: '.',
+          isVerbose: false,
+          projectName: 'shared1',
+          projectsConfigurations: {
+            version: 2,
+            projects: {
+              app: {
+                root: 'apps/app',
+                targets: {},
+              },
+              app1: {
+                root: 'apps/app1',
+                targets: {},
+              },
+              app3: {
+                root: 'apps/app3',
+                targets: {},
+              },
+              lib1: {
+                root: 'libs/lib1',
+                targets: {},
+              },
+              shared1: {
+                root: 'libs/shared1',
+                targets: {},
+              },
             },
           },
-        },
-        nxJsonConfiguration: {},
-        projectGraph: {
-          dependencies: {},
-          nodes: {},
-        },
-      };
-
-      const output = await executor(options, context);
-      expect(checkPrerequisites).toHaveBeenCalled();
-      expect(spawn.sync).not.toHaveBeenCalled();
-      expect(output.success).toBe(false);
-    });
-
-    it('should remove external dependency with args', async () => {
-      const options = {
-        name: 'click',
-        local: false,
-        args: '-vvv',
-      };
-
-      const context: ExecutorContext = {
-        cwd: '',
-        root: '.',
-        isVerbose: false,
-        projectName: 'app',
-        projectsConfigurations: {
-          version: 2,
-          projects: {
-            app: {
-              root: 'apps/app',
-              targets: {},
-            },
+          nxJsonConfiguration: {},
+          projectGraph: {
+            dependencies: {},
+            nodes: {},
           },
-        },
-        nxJsonConfiguration: {},
-        projectGraph: {
-          dependencies: {},
-          nodes: {},
-        },
-      };
+        };
 
-      const output = await executor(options, context);
-      expect(checkPrerequisites).toHaveBeenCalled();
-      expect(spawn.sync).toHaveBeenCalledTimes(1);
-      expect(spawn.sync).toHaveBeenNthCalledWith(
-        1,
-        'uv',
-        ['remove', 'click', '--project', 'apps/app', '-vvv'],
-        {
-          cwd: '.',
+        const output = await executor(options, context);
+        expect(checkPrerequisites).toHaveBeenCalled();
+        expect(spawn.sync).toHaveBeenCalledTimes(4);
+        expect(spawn.sync).toHaveBeenNthCalledWith(
+          1,
+          'uv',
+          ['remove', 'numpy'],
+          {
+            cwd: 'libs/shared1',
+            shell: false,
+            stdio: 'inherit',
+          },
+        );
+        expect(spawn.sync).toHaveBeenNthCalledWith(2, 'uv', ['sync'], {
+          cwd: 'libs/lib1',
           shell: false,
           stdio: 'inherit',
-        },
-      );
-      expect(output.success).toBe(true);
+        });
+        expect(spawn.sync).toHaveBeenNthCalledWith(3, 'uv', ['sync'], {
+          cwd: 'apps/app',
+          shell: false,
+          stdio: 'inherit',
+        });
+        expect(spawn.sync).toHaveBeenNthCalledWith(4, 'uv', ['sync'], {
+          cwd: 'apps/app1',
+          shell: false,
+          stdio: 'inherit',
+        });
+        expect(output.success).toBe(true);
+      });
     });
   });
 });

@@ -1,0 +1,7 @@
+[project]
+name = "nx-workspace"
+version = "1.0.0"
+dependencies = []
+
+[tool.uv.workspace]
+members = []

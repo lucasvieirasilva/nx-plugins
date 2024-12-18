@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { join, normalize } from 'path';
+import path from 'path';
 import { existsSync } from 'fs-extra';
 import { UVLockfile, UVPyprojectToml, UVPyprojectTomlIndex } from '../../types';
 import { Logger } from '../../../../executors/utils/logger';
@@ -7,15 +7,18 @@ import { PackageDependency } from '../../../base';
 import { getLoggingTab, getPyprojectData } from '../../../utils';
 import { getUvLockfile } from '../../utils';
 import { includeDependencyPackage } from './utils';
-import { BuildExecutorSchema } from '../../../..//executors/build/schema';
+import { BuildExecutorSchema } from '../../../../executors/build/schema';
 import { ExecutorContext } from '@nx/devkit';
 import { createHash } from 'crypto';
 
 export class ProjectDependencyResolver {
+  private rootUvLock: UVLockfile | null = null;
+
   constructor(
     private readonly logger: Logger,
     private readonly options: BuildExecutorSchema,
     private readonly context: ExecutorContext,
+    private readonly isWorkspace: boolean,
   ) {}
 
   resolve(
@@ -25,13 +28,12 @@ export class ProjectDependencyResolver {
     workspaceRoot: string,
   ): PackageDependency[] {
     this.logger.info(chalk`  Resolving dependencies...`);
-    const pyprojectPath = join(projectRoot, 'pyproject.toml');
+    const pyprojectPath = path.join(projectRoot, 'pyproject.toml');
     const projectData = getPyprojectData<UVPyprojectToml>(pyprojectPath);
-    const rootUvLook = getUvLockfile(join(workspaceRoot, 'uv.lock'));
 
     return this.resolveDependencies(
+      projectRoot,
       projectData,
-      rootUvLook,
       buildFolderPath,
       buildTomlData,
       workspaceRoot,
@@ -39,8 +41,8 @@ export class ProjectDependencyResolver {
   }
 
   private resolveDependencies(
+    projectRoot: string,
     pyproject: UVPyprojectToml,
-    rootUvLook: UVLockfile,
     buildFolderPath: string,
     buildTomlData: UVPyprojectToml,
     workspaceRoot: string,
@@ -52,12 +54,20 @@ export class ProjectDependencyResolver {
 
     for (const dependency of pyproject.project.dependencies) {
       if (pyproject.tool?.uv?.sources[dependency]) {
-        const dependencyPath = rootUvLook.package[dependency]?.source?.editable;
+        const dependencyPath = this.getDependencyPath(
+          workspaceRoot,
+          dependency,
+          projectRoot,
+          pyproject.tool?.uv?.sources[dependency].path,
+        );
         if (!dependencyPath) {
           continue;
         }
 
-        const dependencyPyprojectPath = join(dependencyPath, 'pyproject.toml');
+        const dependencyPyprojectPath = path.join(
+          dependencyPath,
+          'pyproject.toml',
+        );
         if (!existsSync(dependencyPyprojectPath)) {
           this.logger.info(
             chalk`${tab}• Skipping local dependency {blue.bold ${dependency}} as pyproject.toml not found`,
@@ -92,8 +102,8 @@ export class ProjectDependencyResolver {
           );
 
           this.resolveDependencies(
+            dependencyPath,
             dependencyPyproject,
-            rootUvLook,
             buildFolderPath,
             buildTomlData,
             workspaceRoot,
@@ -131,6 +141,27 @@ export class ProjectDependencyResolver {
     return deps;
   }
 
+  private getDependencyPath(
+    workspaceRoot: string,
+    dependency: string,
+    projectRoot: string,
+    relativePath?: string,
+  ) {
+    if (this.isWorkspace) {
+      if (!this.rootUvLock) {
+        this.rootUvLock = getUvLockfile(path.join(workspaceRoot, 'uv.lock'));
+      }
+      return this.rootUvLock.package[dependency]?.source?.editable;
+    } else if (relativePath) {
+      return path.relative(
+        process.cwd(),
+        path.resolve(projectRoot, relativePath),
+      );
+    }
+
+    return undefined;
+  }
+
   private addIndex(
     buildTomlData: UVPyprojectToml,
     targetOptions: BuildExecutorSchema,
@@ -154,7 +185,7 @@ export class ProjectDependencyResolver {
     for (const [, config] of Object.entries(
       this.context.projectsConfigurations.projects,
     )) {
-      if (normalize(config.root) === normalize(root)) {
+      if (path.normalize(config.root) === path.normalize(root)) {
         return config;
       }
     }

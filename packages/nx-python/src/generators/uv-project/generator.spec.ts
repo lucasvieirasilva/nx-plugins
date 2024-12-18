@@ -62,10 +62,10 @@ describe('application generator', () => {
     });
   });
 
-  it('should throw an exception when the poetry is not installed', async () => {
-    checkUvExecutable.mockRejectedValue(new Error('poetry not found'));
+  it('should throw an exception when the uv is not installed', async () => {
+    checkUvExecutable.mockRejectedValue(new Error('uv not found'));
 
-    expect(generator(appTree, options)).rejects.toThrow('poetry not found');
+    expect(generator(appTree, options)).rejects.toThrow('uv not found');
 
     expect(checkUvExecutable).toHaveBeenCalled();
   });
@@ -129,463 +129,497 @@ describe('application generator', () => {
 
     expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
 
-    expect(spawn.sync).toHaveBeenCalledTimes(2);
+    expect(spawn.sync).toHaveBeenCalledTimes(1);
     expect(spawn.sync).toHaveBeenNthCalledWith(1, 'python', ['--version'], {
       stdio: 'pipe',
     });
-    expect(spawn.sync).toHaveBeenNthCalledWith(2, 'uv', ['sync'], {
-      shell: false,
-      stdio: 'inherit',
+  });
+
+  describe('project', () => {
+    it('should run successfully minimal configuration as a library', async () => {
+      await generator(appTree, {
+        ...options,
+        projectType: 'library',
+      });
+      const config = readProjectConfiguration(appTree, 'test');
+      expect(config).toMatchSnapshot();
+
+      const projectDirectory = 'libs/test';
+      const moduleName = 'test';
+
+      assertGeneratedFilesBase(appTree, projectDirectory, moduleName);
+
+      expect(appTree.exists(`${projectDirectory}/.flake8`)).toBeFalsy();
+      expect(
+        appTree.exists(`${projectDirectory}/tests/test_hello.py`),
+      ).toBeFalsy();
+      expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
+    });
+
+    it('should run successfully minimal configuration with tags', async () => {
+      await generator(appTree, {
+        ...options,
+        tags: 'one,two',
+      });
+      const config = readProjectConfiguration(appTree, 'test');
+      expect(config).toMatchSnapshot();
+
+      const projectDirectory = 'apps/test';
+      const moduleName = 'test';
+
+      assertGeneratedFilesBase(appTree, projectDirectory, moduleName);
+      expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
+    });
+
+    it('should run successfully minimal configuration custom directory', async () => {
+      await generator(appTree, {
+        ...options,
+        directory: 'subdir',
+      });
+      const config = readProjectConfiguration(appTree, 'subdir-test');
+      expect(config).toMatchSnapshot();
+
+      const projectDirectory = 'apps/subdir/test';
+      const moduleName = 'subdir_test';
+
+      assertGeneratedFilesBase(appTree, projectDirectory, moduleName);
+      expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
+    });
+
+    it('should run successfully with flake8 linter', async () => {
+      await generator(appTree, {
+        ...options,
+        linter: 'flake8',
+      });
+      const config = readProjectConfiguration(appTree, 'test');
+      expect(config).toMatchSnapshot();
+
+      assertGeneratedFilesBase(appTree, 'apps/test', 'test');
+      assertGeneratedFilesFlake8(appTree, 'apps/test');
+      expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
+    });
+
+    it('should run successfully with ruff linter', async () => {
+      await generator(appTree, {
+        ...options,
+        linter: 'ruff',
+      });
+      const config = readProjectConfiguration(appTree, 'test');
+      expect(config).toMatchSnapshot();
+
+      assertGeneratedFilesBase(appTree, 'apps/test', 'test');
+      expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
+    });
+
+    it('should run successfully with flake8 linter and pytest with no reports', async () => {
+      await generator(appTree, {
+        ...options,
+        linter: 'flake8',
+        unitTestRunner: 'pytest',
+      });
+      const config = readProjectConfiguration(appTree, 'test');
+      expect(config).toMatchSnapshot();
+
+      assertGeneratedFilesBase(appTree, 'apps/test', 'test');
+      assertGeneratedFilesFlake8(appTree, 'apps/test');
+      assertGeneratedFilesPyTest(appTree, 'apps/test');
+      expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
+    });
+
+    it('should run successfully with ruff linter and pytest with no reports', async () => {
+      await generator(appTree, {
+        ...options,
+        linter: 'ruff',
+        unitTestRunner: 'pytest',
+      });
+      const config = readProjectConfiguration(appTree, 'test');
+      expect(config).toMatchSnapshot();
+
+      assertGeneratedFilesBase(appTree, 'apps/test', 'test');
+      assertGeneratedFilesPyTest(appTree, 'apps/test');
+      expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
+    });
+
+    it('should run successfully with flake8 linter and pytest with html coverage report', async () => {
+      await generator(appTree, {
+        ...options,
+        linter: 'flake8',
+        unitTestRunner: 'pytest',
+        codeCoverage: true,
+        codeCoverageHtmlReport: true,
+      });
+      const config = readProjectConfiguration(appTree, 'test');
+      expect(config).toMatchSnapshot();
+
+      assertGeneratedFilesBase(appTree, 'apps/test', 'test');
+      assertGeneratedFilesFlake8(appTree, 'apps/test');
+      assertGeneratedFilesPyTest(appTree, 'apps/test');
+      expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
+    });
+
+    it('should run successfully with flake8 linter and pytest with html,xml coverage reports', async () => {
+      await generator(appTree, {
+        ...options,
+        linter: 'flake8',
+        unitTestRunner: 'pytest',
+        codeCoverage: true,
+        codeCoverageHtmlReport: true,
+        codeCoverageXmlReport: true,
+      });
+      const config = readProjectConfiguration(appTree, 'test');
+      expect(config).toMatchSnapshot();
+
+      assertGeneratedFilesBase(appTree, 'apps/test', 'test');
+      assertGeneratedFilesFlake8(appTree, 'apps/test');
+      assertGeneratedFilesPyTest(appTree, 'apps/test');
+      expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
+    });
+
+    it('should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold', async () => {
+      await generator(appTree, {
+        ...options,
+        linter: 'flake8',
+        unitTestRunner: 'pytest',
+        codeCoverage: true,
+        codeCoverageHtmlReport: true,
+        codeCoverageXmlReport: true,
+        codeCoverageThreshold: 100,
+      });
+      const config = readProjectConfiguration(appTree, 'test');
+      expect(config).toMatchSnapshot();
+
+      assertGeneratedFilesBase(appTree, 'apps/test', 'test');
+      assertGeneratedFilesFlake8(appTree, 'apps/test');
+      assertGeneratedFilesPyTest(appTree, 'apps/test');
+      expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
+    });
+
+    it('should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report', async () => {
+      await generator(appTree, {
+        ...options,
+        linter: 'flake8',
+        unitTestRunner: 'pytest',
+        codeCoverage: true,
+        codeCoverageHtmlReport: true,
+        codeCoverageXmlReport: true,
+        codeCoverageThreshold: 100,
+        unitTestJUnitReport: true,
+      });
+      const config = readProjectConfiguration(appTree, 'test');
+      expect(config).toMatchSnapshot();
+
+      assertGeneratedFilesBase(appTree, 'apps/test', 'test');
+      assertGeneratedFilesFlake8(appTree, 'apps/test');
+      assertGeneratedFilesPyTest(appTree, 'apps/test');
+
+      expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
+    });
+
+    it('should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report', async () => {
+      await generator(appTree, {
+        ...options,
+        linter: 'flake8',
+        unitTestRunner: 'pytest',
+        codeCoverage: true,
+        codeCoverageHtmlReport: true,
+        codeCoverageXmlReport: true,
+        codeCoverageThreshold: 100,
+        unitTestJUnitReport: true,
+        unitTestHtmlReport: true,
+      });
+      const config = readProjectConfiguration(appTree, 'test');
+      expect(config).toMatchSnapshot();
+
+      assertGeneratedFilesBase(appTree, 'apps/test', 'test');
+      assertGeneratedFilesFlake8(appTree, 'apps/test');
+      assertGeneratedFilesPyTest(appTree, 'apps/test');
+
+      expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
+    });
+
+    it('should run successfully with linting (flake8) and testing options with a dev dependency project', async () => {
+      await generator(appTree, {
+        ...options,
+        projectType: 'library',
+        name: 'dev-lib',
+        directory: 'shared',
+      });
+
+      await generator(appTree, {
+        ...options,
+        linter: 'flake8',
+        unitTestRunner: 'pytest',
+        codeCoverage: true,
+        codeCoverageHtmlReport: true,
+        codeCoverageXmlReport: true,
+        codeCoverageThreshold: 100,
+        unitTestJUnitReport: true,
+        unitTestHtmlReport: true,
+        devDependenciesProject: 'shared-dev-lib',
+      });
+
+      const config = readProjectConfiguration(appTree, 'test');
+      expect(config).toMatchSnapshot();
+
+      assertGeneratedFilesBase(appTree, 'apps/test', 'test');
+      assertGeneratedFilesFlake8(appTree, 'apps/test');
+      assertGeneratedFilesPyTest(appTree, 'apps/test');
+
+      assertGeneratedFilesBase(
+        appTree,
+        'libs/shared/dev-lib',
+        'shared_dev_lib',
+      );
+
+      expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
+    });
+
+    it('should run successfully with linting (ruff) and testing options with a dev dependency project', async () => {
+      await generator(appTree, {
+        ...options,
+        projectType: 'library',
+        name: 'dev-lib',
+        directory: 'shared',
+      });
+
+      await generator(appTree, {
+        ...options,
+        linter: 'ruff',
+        unitTestRunner: 'pytest',
+        codeCoverage: true,
+        codeCoverageHtmlReport: true,
+        codeCoverageXmlReport: true,
+        codeCoverageThreshold: 100,
+        unitTestJUnitReport: true,
+        unitTestHtmlReport: true,
+        devDependenciesProject: 'shared-dev-lib',
+      });
+
+      const config = readProjectConfiguration(appTree, 'test');
+      expect(config).toMatchSnapshot();
+
+      assertGeneratedFilesBase(appTree, 'apps/test', 'test');
+      assertGeneratedFilesPyTest(appTree, 'apps/test');
+
+      assertGeneratedFilesBase(
+        appTree,
+        'libs/shared/dev-lib',
+        'shared_dev_lib',
+      );
+
+      expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
+    });
+
+    it('should run successfully with linting and testing options with a dev dependency project with custom package name', async () => {
+      await generator(appTree, {
+        ...options,
+        projectType: 'library',
+        name: 'dev-lib',
+        directory: 'shared',
+        packageName: 'custom-shared-dev-lib',
+      });
+
+      await generator(appTree, {
+        ...options,
+        linter: 'flake8',
+        unitTestRunner: 'pytest',
+        codeCoverage: true,
+        codeCoverageHtmlReport: true,
+        codeCoverageXmlReport: true,
+        codeCoverageThreshold: 100,
+        unitTestJUnitReport: true,
+        unitTestHtmlReport: true,
+        devDependenciesProject: 'shared-dev-lib',
+      });
+
+      expect(appTree.exists(`apps/test/pyproject.toml`)).toBeTruthy();
+      expect(
+        appTree.read(`apps/test/pyproject.toml`, 'utf8'),
+      ).toMatchSnapshot();
+      expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
+    });
+
+    it('should run successfully with linting and testing options with an existing dev dependency project', async () => {
+      await generator(appTree, {
+        ...options,
+        projectType: 'library',
+        name: 'dev-lib',
+        directory: 'shared',
+      });
+
+      const pyprojectToml = parse(
+        appTree.read('libs/shared/dev-lib/pyproject.toml', 'utf-8'),
+      ) as UVPyprojectToml;
+
+      pyprojectToml.project.dependencies = [
+        'autopep8>=1.0.0',
+        'pytest>=1.0.0',
+        'pytest-sugar=>1.0.0',
+        'pytest-cov=>1.0.0',
+        'pytest-html=>1.0.0',
+        'flake8=>1.0.0',
+        'flake8-isort=>1.0.0',
+      ];
+
+      appTree.write(
+        'libs/shared/dev-lib/pyproject.toml',
+        stringify(pyprojectToml),
+      );
+
+      await generator(appTree, {
+        ...options,
+        linter: 'flake8',
+        unitTestRunner: 'pytest',
+        codeCoverage: true,
+        codeCoverageHtmlReport: true,
+        codeCoverageXmlReport: true,
+        codeCoverageThreshold: 100,
+        unitTestJUnitReport: true,
+        unitTestHtmlReport: true,
+        devDependenciesProject: 'shared-dev-lib',
+      });
+
+      const config = readProjectConfiguration(appTree, 'test');
+      expect(config).toMatchSnapshot();
+
+      assertGeneratedFilesBase(appTree, 'apps/test', 'test');
+      assertGeneratedFilesFlake8(appTree, 'apps/test');
+      assertGeneratedFilesPyTest(appTree, 'apps/test');
+
+      assertGeneratedFilesBase(
+        appTree,
+        'libs/shared/dev-lib',
+        'shared_dev_lib',
+      );
     });
   });
 
-  it('should run successfully with minimal options without rootPyprojectDependencyGroup', async () => {
-    const callbackTask = await generator(appTree, {
-      ...options,
-      rootPyprojectDependencyGroup: undefined,
-    });
-    callbackTask();
-    const config = readProjectConfiguration(appTree, 'test');
-    expect(config).toMatchSnapshot();
+  describe('workspace', () => {
+    it('should run successfully with minimal options with existing custom rootPyprojectDependencyGroup', async () => {
+      appTree.write(
+        'pyproject.toml',
+        dedent`
+        [project]
+        name = "nx-workspace"
+        version = "1.0.0"
+        dependencies = [ ]
 
-    const projectDirectory = 'apps/test';
-    const moduleName = 'test';
+        [dependency-groups]
+        dev = [ "requests>=2.3.1" ]
+        `,
+      );
 
-    assertGeneratedFilesBase(appTree, projectDirectory, moduleName);
+      const callbackTask = await generator(appTree, {
+        ...options,
+        rootPyprojectDependencyGroup: 'dev',
+      });
+      callbackTask();
+      const config = readProjectConfiguration(appTree, 'test');
+      expect(config).toMatchSnapshot();
 
-    expect(appTree.exists(`${projectDirectory}/.flake8`)).toBeFalsy();
-    expect(
-      appTree.exists(`${projectDirectory}/tests/test_hello.py`),
-    ).toBeFalsy();
+      const projectDirectory = 'apps/test';
+      const moduleName = 'test';
 
-    expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
+      assertGeneratedFilesBase(appTree, projectDirectory, moduleName);
 
-    expect(spawn.sync).toHaveBeenCalledTimes(2);
-    expect(spawn.sync).toHaveBeenNthCalledWith(1, 'python', ['--version'], {
-      stdio: 'pipe',
-    });
-    expect(spawn.sync).toHaveBeenNthCalledWith(2, 'uv', ['sync'], {
-      shell: false,
-      stdio: 'inherit',
-    });
-  });
+      expect(appTree.exists(`${projectDirectory}/.flake8`)).toBeFalsy();
+      expect(
+        appTree.exists(`${projectDirectory}/tests/test_hello.py`),
+      ).toBeFalsy();
 
-  it('should run successfully with minimal options with custom rootPyprojectDependencyGroup', async () => {
-    const callbackTask = await generator(appTree, {
-      ...options,
-      rootPyprojectDependencyGroup: 'dev',
-    });
-    callbackTask();
-    const config = readProjectConfiguration(appTree, 'test');
-    expect(config).toMatchSnapshot();
+      expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
 
-    const projectDirectory = 'apps/test';
-    const moduleName = 'test';
-
-    assertGeneratedFilesBase(appTree, projectDirectory, moduleName);
-
-    expect(appTree.exists(`${projectDirectory}/.flake8`)).toBeFalsy();
-    expect(
-      appTree.exists(`${projectDirectory}/tests/test_hello.py`),
-    ).toBeFalsy();
-
-    expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
-
-    expect(spawn.sync).toHaveBeenCalledTimes(2);
-    expect(spawn.sync).toHaveBeenNthCalledWith(1, 'python', ['--version'], {
-      stdio: 'pipe',
-    });
-    expect(spawn.sync).toHaveBeenNthCalledWith(2, 'uv', ['sync'], {
-      shell: false,
-      stdio: 'inherit',
-    });
-  });
-
-  it('should run successfully with minimal options with existing custom rootPyprojectDependencyGroup', async () => {
-    appTree.write(
-      'pyproject.toml',
-      dedent`
-    [project]
-    name = "nx-workspace"
-    version = "1.0.0"
-    dependencies = [ ]
-
-    [dependency-groups]
-    dev = [ "requests>=2.3.1" ]
-    `,
-    );
-
-    const callbackTask = await generator(appTree, {
-      ...options,
-      rootPyprojectDependencyGroup: 'dev',
-    });
-    callbackTask();
-    const config = readProjectConfiguration(appTree, 'test');
-    expect(config).toMatchSnapshot();
-
-    const projectDirectory = 'apps/test';
-    const moduleName = 'test';
-
-    assertGeneratedFilesBase(appTree, projectDirectory, moduleName);
-
-    expect(appTree.exists(`${projectDirectory}/.flake8`)).toBeFalsy();
-    expect(
-      appTree.exists(`${projectDirectory}/tests/test_hello.py`),
-    ).toBeFalsy();
-
-    expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
-
-    expect(spawn.sync).toHaveBeenCalledTimes(2);
-    expect(spawn.sync).toHaveBeenNthCalledWith(1, 'python', ['--version'], {
-      stdio: 'pipe',
-    });
-    expect(spawn.sync).toHaveBeenNthCalledWith(2, 'uv', ['sync'], {
-      shell: false,
-      stdio: 'inherit',
-    });
-  });
-
-  it('should run successfully minimal configuration as a library', async () => {
-    await generator(appTree, {
-      ...options,
-      projectType: 'library',
-    });
-    const config = readProjectConfiguration(appTree, 'test');
-    expect(config).toMatchSnapshot();
-
-    const projectDirectory = 'libs/test';
-    const moduleName = 'test';
-
-    assertGeneratedFilesBase(appTree, projectDirectory, moduleName);
-
-    expect(appTree.exists(`${projectDirectory}/.flake8`)).toBeFalsy();
-    expect(
-      appTree.exists(`${projectDirectory}/tests/test_hello.py`),
-    ).toBeFalsy();
-    expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
-  });
-
-  it('should run successfully minimal configuration with tags', async () => {
-    await generator(appTree, {
-      ...options,
-      tags: 'one,two',
-    });
-    const config = readProjectConfiguration(appTree, 'test');
-    expect(config).toMatchSnapshot();
-
-    const projectDirectory = 'apps/test';
-    const moduleName = 'test';
-
-    assertGeneratedFilesBase(appTree, projectDirectory, moduleName);
-    expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
-  });
-
-  it('should run successfully minimal configuration custom directory', async () => {
-    await generator(appTree, {
-      ...options,
-      directory: 'subdir',
-    });
-    const config = readProjectConfiguration(appTree, 'subdir-test');
-    expect(config).toMatchSnapshot();
-
-    const projectDirectory = 'apps/subdir/test';
-    const moduleName = 'subdir_test';
-
-    assertGeneratedFilesBase(appTree, projectDirectory, moduleName);
-    expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
-  });
-
-  it('should run successfully with flake8 linter', async () => {
-    await generator(appTree, {
-      ...options,
-      linter: 'flake8',
-    });
-    const config = readProjectConfiguration(appTree, 'test');
-    expect(config).toMatchSnapshot();
-
-    assertGeneratedFilesBase(appTree, 'apps/test', 'test');
-    assertGeneratedFilesFlake8(appTree, 'apps/test');
-    expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
-  });
-
-  it('should run successfully with ruff linter', async () => {
-    await generator(appTree, {
-      ...options,
-      linter: 'ruff',
-    });
-    const config = readProjectConfiguration(appTree, 'test');
-    expect(config).toMatchSnapshot();
-
-    assertGeneratedFilesBase(appTree, 'apps/test', 'test');
-    expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
-  });
-
-  it('should run successfully with flake8 linter and pytest with no reports', async () => {
-    await generator(appTree, {
-      ...options,
-      linter: 'flake8',
-      unitTestRunner: 'pytest',
-    });
-    const config = readProjectConfiguration(appTree, 'test');
-    expect(config).toMatchSnapshot();
-
-    assertGeneratedFilesBase(appTree, 'apps/test', 'test');
-    assertGeneratedFilesFlake8(appTree, 'apps/test');
-    assertGeneratedFilesPyTest(appTree, 'apps/test');
-    expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
-  });
-
-  it('should run successfully with ruff linter and pytest with no reports', async () => {
-    await generator(appTree, {
-      ...options,
-      linter: 'ruff',
-      unitTestRunner: 'pytest',
-    });
-    const config = readProjectConfiguration(appTree, 'test');
-    expect(config).toMatchSnapshot();
-
-    assertGeneratedFilesBase(appTree, 'apps/test', 'test');
-    assertGeneratedFilesPyTest(appTree, 'apps/test');
-    expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
-  });
-
-  it('should run successfully with flake8 linter and pytest with html coverage report', async () => {
-    await generator(appTree, {
-      ...options,
-      linter: 'flake8',
-      unitTestRunner: 'pytest',
-      codeCoverage: true,
-      codeCoverageHtmlReport: true,
-    });
-    const config = readProjectConfiguration(appTree, 'test');
-    expect(config).toMatchSnapshot();
-
-    assertGeneratedFilesBase(appTree, 'apps/test', 'test');
-    assertGeneratedFilesFlake8(appTree, 'apps/test');
-    assertGeneratedFilesPyTest(appTree, 'apps/test');
-    expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
-  });
-
-  it('should run successfully with flake8 linter and pytest with html,xml coverage reports', async () => {
-    await generator(appTree, {
-      ...options,
-      linter: 'flake8',
-      unitTestRunner: 'pytest',
-      codeCoverage: true,
-      codeCoverageHtmlReport: true,
-      codeCoverageXmlReport: true,
-    });
-    const config = readProjectConfiguration(appTree, 'test');
-    expect(config).toMatchSnapshot();
-
-    assertGeneratedFilesBase(appTree, 'apps/test', 'test');
-    assertGeneratedFilesFlake8(appTree, 'apps/test');
-    assertGeneratedFilesPyTest(appTree, 'apps/test');
-    expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
-  });
-
-  it('should run successfully with flake8 linter and pytest with html,xml coverage reports and threshold', async () => {
-    await generator(appTree, {
-      ...options,
-      linter: 'flake8',
-      unitTestRunner: 'pytest',
-      codeCoverage: true,
-      codeCoverageHtmlReport: true,
-      codeCoverageXmlReport: true,
-      codeCoverageThreshold: 100,
-    });
-    const config = readProjectConfiguration(appTree, 'test');
-    expect(config).toMatchSnapshot();
-
-    assertGeneratedFilesBase(appTree, 'apps/test', 'test');
-    assertGeneratedFilesFlake8(appTree, 'apps/test');
-    assertGeneratedFilesPyTest(appTree, 'apps/test');
-    expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
-  });
-
-  it('should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit report', async () => {
-    await generator(appTree, {
-      ...options,
-      linter: 'flake8',
-      unitTestRunner: 'pytest',
-      codeCoverage: true,
-      codeCoverageHtmlReport: true,
-      codeCoverageXmlReport: true,
-      codeCoverageThreshold: 100,
-      unitTestJUnitReport: true,
-    });
-    const config = readProjectConfiguration(appTree, 'test');
-    expect(config).toMatchSnapshot();
-
-    assertGeneratedFilesBase(appTree, 'apps/test', 'test');
-    assertGeneratedFilesFlake8(appTree, 'apps/test');
-    assertGeneratedFilesPyTest(appTree, 'apps/test');
-
-    expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
-  });
-
-  it('should run successfully with flake8 linter and pytest with html,xml coverage reports, threshold and junit,html report', async () => {
-    await generator(appTree, {
-      ...options,
-      linter: 'flake8',
-      unitTestRunner: 'pytest',
-      codeCoverage: true,
-      codeCoverageHtmlReport: true,
-      codeCoverageXmlReport: true,
-      codeCoverageThreshold: 100,
-      unitTestJUnitReport: true,
-      unitTestHtmlReport: true,
-    });
-    const config = readProjectConfiguration(appTree, 'test');
-    expect(config).toMatchSnapshot();
-
-    assertGeneratedFilesBase(appTree, 'apps/test', 'test');
-    assertGeneratedFilesFlake8(appTree, 'apps/test');
-    assertGeneratedFilesPyTest(appTree, 'apps/test');
-
-    expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
-  });
-
-  it('should run successfully with linting (flake8) and testing options with a dev dependency project', async () => {
-    await generator(appTree, {
-      ...options,
-      projectType: 'library',
-      name: 'dev-lib',
-      directory: 'shared',
+      expect(spawn.sync).toHaveBeenCalledTimes(2);
+      expect(spawn.sync).toHaveBeenNthCalledWith(1, 'python', ['--version'], {
+        stdio: 'pipe',
+      });
+      expect(spawn.sync).toHaveBeenNthCalledWith(2, 'uv', ['sync'], {
+        shell: false,
+        stdio: 'inherit',
+      });
     });
 
-    await generator(appTree, {
-      ...options,
-      linter: 'flake8',
-      unitTestRunner: 'pytest',
-      codeCoverage: true,
-      codeCoverageHtmlReport: true,
-      codeCoverageXmlReport: true,
-      codeCoverageThreshold: 100,
-      unitTestJUnitReport: true,
-      unitTestHtmlReport: true,
-      devDependenciesProject: 'shared-dev-lib',
+    it('should run successfully with minimal options without rootPyprojectDependencyGroup', async () => {
+      appTree.write(
+        'pyproject.toml',
+        dedent`
+        [project]
+        name = "nx-workspace"
+        version = "1.0.0"
+        dependencies = [ ]
+        `,
+      );
+
+      const callbackTask = await generator(appTree, {
+        ...options,
+        rootPyprojectDependencyGroup: undefined,
+      });
+      callbackTask();
+      const config = readProjectConfiguration(appTree, 'test');
+      expect(config).toMatchSnapshot();
+
+      const projectDirectory = 'apps/test';
+      const moduleName = 'test';
+
+      assertGeneratedFilesBase(appTree, projectDirectory, moduleName);
+
+      expect(appTree.exists(`${projectDirectory}/.flake8`)).toBeFalsy();
+      expect(
+        appTree.exists(`${projectDirectory}/tests/test_hello.py`),
+      ).toBeFalsy();
+
+      expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
+
+      expect(spawn.sync).toHaveBeenCalledTimes(2);
+      expect(spawn.sync).toHaveBeenNthCalledWith(1, 'python', ['--version'], {
+        stdio: 'pipe',
+      });
+      expect(spawn.sync).toHaveBeenNthCalledWith(2, 'uv', ['sync'], {
+        shell: false,
+        stdio: 'inherit',
+      });
     });
 
-    const config = readProjectConfiguration(appTree, 'test');
-    expect(config).toMatchSnapshot();
+    it('should run successfully with minimal options with custom rootPyprojectDependencyGroup', async () => {
+      appTree.write(
+        'pyproject.toml',
+        dedent`
+        [project]
+        name = "nx-workspace"
+        version = "1.0.0"
+        dependencies = [ ]
+        `,
+      );
 
-    assertGeneratedFilesBase(appTree, 'apps/test', 'test');
-    assertGeneratedFilesFlake8(appTree, 'apps/test');
-    assertGeneratedFilesPyTest(appTree, 'apps/test');
+      const callbackTask = await generator(appTree, {
+        ...options,
+        rootPyprojectDependencyGroup: 'dev',
+      });
+      callbackTask();
+      const config = readProjectConfiguration(appTree, 'test');
+      expect(config).toMatchSnapshot();
 
-    assertGeneratedFilesBase(appTree, 'libs/shared/dev-lib', 'shared_dev_lib');
+      const projectDirectory = 'apps/test';
+      const moduleName = 'test';
 
-    expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
-  });
+      assertGeneratedFilesBase(appTree, projectDirectory, moduleName);
 
-  it('should run successfully with linting (ruff) and testing options with a dev dependency project', async () => {
-    await generator(appTree, {
-      ...options,
-      projectType: 'library',
-      name: 'dev-lib',
-      directory: 'shared',
+      expect(appTree.exists(`${projectDirectory}/.flake8`)).toBeFalsy();
+      expect(
+        appTree.exists(`${projectDirectory}/tests/test_hello.py`),
+      ).toBeFalsy();
+
+      expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
+
+      expect(spawn.sync).toHaveBeenCalledTimes(2);
+      expect(spawn.sync).toHaveBeenNthCalledWith(1, 'python', ['--version'], {
+        stdio: 'pipe',
+      });
+      expect(spawn.sync).toHaveBeenNthCalledWith(2, 'uv', ['sync'], {
+        shell: false,
+        stdio: 'inherit',
+      });
     });
-
-    await generator(appTree, {
-      ...options,
-      linter: 'ruff',
-      unitTestRunner: 'pytest',
-      codeCoverage: true,
-      codeCoverageHtmlReport: true,
-      codeCoverageXmlReport: true,
-      codeCoverageThreshold: 100,
-      unitTestJUnitReport: true,
-      unitTestHtmlReport: true,
-      devDependenciesProject: 'shared-dev-lib',
-    });
-
-    const config = readProjectConfiguration(appTree, 'test');
-    expect(config).toMatchSnapshot();
-
-    assertGeneratedFilesBase(appTree, 'apps/test', 'test');
-    assertGeneratedFilesPyTest(appTree, 'apps/test');
-
-    assertGeneratedFilesBase(appTree, 'libs/shared/dev-lib', 'shared_dev_lib');
-
-    expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
-  });
-
-  it('should run successfully with linting and testing options with a dev dependency project with custom package name', async () => {
-    await generator(appTree, {
-      ...options,
-      projectType: 'library',
-      name: 'dev-lib',
-      directory: 'shared',
-      packageName: 'custom-shared-dev-lib',
-    });
-
-    await generator(appTree, {
-      ...options,
-      linter: 'flake8',
-      unitTestRunner: 'pytest',
-      codeCoverage: true,
-      codeCoverageHtmlReport: true,
-      codeCoverageXmlReport: true,
-      codeCoverageThreshold: 100,
-      unitTestJUnitReport: true,
-      unitTestHtmlReport: true,
-      devDependenciesProject: 'shared-dev-lib',
-    });
-
-    expect(appTree.exists(`apps/test/pyproject.toml`)).toBeTruthy();
-    expect(appTree.read(`apps/test/pyproject.toml`, 'utf8')).toMatchSnapshot();
-    expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
-  });
-
-  it('should run successfully with linting and testing options with an existing dev dependency project', async () => {
-    await generator(appTree, {
-      ...options,
-      projectType: 'library',
-      name: 'dev-lib',
-      directory: 'shared',
-    });
-
-    const pyprojectToml = parse(
-      appTree.read('libs/shared/dev-lib/pyproject.toml', 'utf-8'),
-    ) as UVPyprojectToml;
-
-    pyprojectToml.project.dependencies = [
-      'autopep8>=1.0.0',
-      'pytest>=1.0.0',
-      'pytest-sugar=>1.0.0',
-      'pytest-cov=>1.0.0',
-      'pytest-html=>1.0.0',
-      'flake8=>1.0.0',
-      'flake8-isort=>1.0.0',
-    ];
-
-    appTree.write(
-      'libs/shared/dev-lib/pyproject.toml',
-      stringify(pyprojectToml),
-    );
-
-    await generator(appTree, {
-      ...options,
-      linter: 'flake8',
-      unitTestRunner: 'pytest',
-      codeCoverage: true,
-      codeCoverageHtmlReport: true,
-      codeCoverageXmlReport: true,
-      codeCoverageThreshold: 100,
-      unitTestJUnitReport: true,
-      unitTestHtmlReport: true,
-      devDependenciesProject: 'shared-dev-lib',
-    });
-
-    const config = readProjectConfiguration(appTree, 'test');
-    expect(config).toMatchSnapshot();
-
-    assertGeneratedFilesBase(appTree, 'apps/test', 'test');
-    assertGeneratedFilesFlake8(appTree, 'apps/test');
-    assertGeneratedFilesPyTest(appTree, 'apps/test');
-
-    assertGeneratedFilesBase(appTree, 'libs/shared/dev-lib', 'shared_dev_lib');
   });
 
   describe('custom template dir', () => {

@@ -94,5 +94,5 @@ export interface IProvider {
     } & SpawnSyncOptions,
   ): Promise<void>;
 
-  activateVenv(workspaceRoot: string): void;
+  activateVenv(workspaceRoot: string, context?: ExecutorContext): void;
 }

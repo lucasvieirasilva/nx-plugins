@@ -27,6 +27,7 @@ import path, { join } from 'path';
 import chalk from 'chalk';
 import { copySync, removeSync, writeFileSync } from 'fs-extra';
 import {
+  getLocalDependencyConfig,
   getPyprojectData,
   readPyprojectToml,
   writePyprojectToml,
@@ -43,12 +44,18 @@ import {
 
 export class UVProvider implements IProvider {
   protected _rootLockfile: UVLockfile;
+  protected isWorkspace = false;
 
   constructor(
-    protected workspaceRoot: string,
-    protected logger: Logger,
-    protected tree?: Tree,
-  ) {}
+    protected readonly workspaceRoot: string,
+    protected readonly logger: Logger,
+    protected readonly tree?: Tree,
+  ) {
+    const uvLockPath = joinPathFragments(workspaceRoot, 'uv.lock');
+    this.isWorkspace = tree
+      ? tree.exists(uvLockPath)
+      : fs.existsSync(uvLockPath);
+  }
 
   private get rootLockfile(): UVLockfile {
     if (!this._rootLockfile) {
@@ -165,24 +172,46 @@ export class UVProvider implements IProvider {
     const result: string[] = [];
 
     const { root } = projects[projectName];
+    if (this.isWorkspace) {
+      Object.values(this.rootLockfile.package).forEach((pkg) => {
+        const deps = [
+          ...Object.values(pkg.metadata['requires-dist'] ?? {}),
+          ...Object.values(pkg.metadata['requires-dev'] ?? {})
+            .map((dev) => Object.values(dev))
+            .flat(),
+        ];
 
-    Object.values(this.rootLockfile.package).forEach((pkg) => {
-      const deps = [
-        ...Object.values(pkg.metadata['requires-dist'] ?? {}),
-        ...Object.values(pkg.metadata['requires-dev'] ?? {})
-          .map((dev) => Object.values(dev))
-          .flat(),
-      ];
+        for (const dep of deps) {
+          if (
+            dep.editable &&
+            path.normalize(dep.editable) === path.normalize(root)
+          ) {
+            result.push(pkg.name);
+          }
+        }
+      });
+    } else {
+      const pyprojectToml = getPyprojectData<UVPyprojectToml>(
+        joinPathFragments(root, 'pyproject.toml'),
+      );
 
-      for (const dep of deps) {
-        if (
-          dep.editable &&
-          path.normalize(dep.editable) === path.normalize(root)
-        ) {
-          result.push(pkg.name);
+      for (const project in projects) {
+        const projectData = projects[project];
+        const projectPyprojectTomlPath = joinPathFragments(
+          projectData.root,
+          'pyproject.toml',
+        );
+        if (fs.existsSync(projectPyprojectTomlPath)) {
+          const tomlData = getPyprojectData<UVPyprojectToml>(
+            projectPyprojectTomlPath,
+          );
+
+          if (tomlData.tool?.uv?.sources?.[pyprojectToml.project.name]) {
+            result.push(project);
+          }
         }
       }
-    });
+    }
 
     return result;
   }
@@ -192,11 +221,23 @@ export class UVProvider implements IProvider {
     context: ExecutorContext,
   ): Promise<void> {
     await this.checkPrerequisites();
+    const projectConfig =
+      context.projectsConfigurations.projects[context.projectName];
+    const projectRoot = projectConfig.root;
 
-    const projectRoot =
-      context.projectsConfigurations.projects[context.projectName].root;
+    const args = ['add'];
+    if (!this.isWorkspace && options.local) {
+      const dependencyConfig = getLocalDependencyConfig(context, options.name);
+      const dependencyPath = path.relative(
+        projectConfig.root,
+        dependencyConfig.root,
+      );
 
-    const args = ['add', options.name, '--project', projectRoot];
+      args.push('--editable', dependencyPath);
+    } else {
+      args.push(options.name);
+    }
+
     if (options.group) {
       args.push('--group', options.group);
     }
@@ -207,9 +248,20 @@ export class UVProvider implements IProvider {
 
     args.push(...(options.args ?? '').split(' ').filter((arg) => !!arg));
 
-    runUv(args, {
-      cwd: context.root,
-    });
+    if (this.isWorkspace) {
+      args.push('--project', projectRoot);
+      runUv(args, {
+        cwd: context.root,
+      });
+    } else {
+      runUv(args, {
+        cwd: projectRoot,
+      });
+    }
+
+    if (!this.isWorkspace) {
+      this.syncDependents(context, context.projectName);
+    }
   }
 
   public async update(
@@ -217,23 +269,23 @@ export class UVProvider implements IProvider {
     context: ExecutorContext,
   ): Promise<void> {
     await this.checkPrerequisites();
+    const projectRoot = this.getProjectRoot(context);
 
-    const projectRoot =
-      context.projectsConfigurations.projects[context.projectName].root;
+    const args = ['lock', '--upgrade-package', options.name];
+    if (this.isWorkspace) {
+      args.push('--project', projectRoot);
+    }
 
-    const args = [
-      'lock',
-      '--upgrade-package',
-      options.name,
-      '--project',
-      projectRoot,
-    ];
     runUv(args, {
-      cwd: context.root,
+      cwd: this.isWorkspace ? context.root : projectRoot,
     });
     runUv(['sync'], {
-      cwd: context.root,
+      cwd: this.isWorkspace ? context.root : projectRoot,
     });
+
+    if (!this.isWorkspace) {
+      this.syncDependents(context, context.projectName);
+    }
   }
 
   public async remove(
@@ -242,14 +294,21 @@ export class UVProvider implements IProvider {
   ): Promise<void> {
     await this.checkPrerequisites();
 
-    const projectRoot =
-      context.projectsConfigurations.projects[context.projectName].root;
+    const projectRoot = this.getProjectRoot(context);
 
-    const args = ['remove', options.name, '--project', projectRoot];
+    const args = ['remove', options.name];
+    if (this.isWorkspace) {
+      args.push('--project', projectRoot);
+    }
+
     args.push(...(options.args ?? '').split(' ').filter((arg) => !!arg));
     runUv(args, {
-      cwd: context.root,
+      cwd: this.isWorkspace ? context.root : projectRoot,
     });
+
+    if (!this.isWorkspace) {
+      this.syncDependents(context, context.projectName);
+    }
   }
 
   public async publish(
@@ -328,7 +387,7 @@ export class UVProvider implements IProvider {
     }
 
     runUv(args, {
-      cwd: context.root,
+      cwd: this.isWorkspace ? context.root : this.getProjectRoot(context),
     });
   }
 
@@ -354,17 +413,16 @@ export class UVProvider implements IProvider {
       chalk`\n  {bold Building project {bgBlue  ${context.projectName} }...}\n`,
     );
 
-    const { root } =
-      context.projectsConfigurations.projects[context.projectName];
+    const projectRoot = this.getProjectRoot(context);
 
     const buildFolderPath = join(tmpdir(), 'nx-python', 'build', uuid());
 
     mkdirSync(buildFolderPath, { recursive: true });
 
     this.logger.info(chalk`  Copying project files to a temporary folder`);
-    readdirSync(root).forEach((file) => {
+    readdirSync(projectRoot).forEach((file) => {
       if (!options.ignorePaths.includes(file)) {
-        const source = join(root, file);
+        const source = join(projectRoot, file);
         const target = join(buildFolderPath, file);
         copySync(source, target);
       }
@@ -374,19 +432,19 @@ export class UVProvider implements IProvider {
     const buildTomlData = getPyprojectData<UVPyprojectToml>(buildPyProjectToml);
 
     const deps = options.lockedVersions
-      ? new LockedDependencyResolver(this.logger).resolve(
-          root,
+      ? new LockedDependencyResolver(this.logger, this.isWorkspace).resolve(
+          projectRoot,
           buildFolderPath,
           buildTomlData,
           options.devDependencies,
           context.root,
         )
-      : new ProjectDependencyResolver(this.logger, options, context).resolve(
-          root,
-          buildFolderPath,
-          buildTomlData,
-          context.root,
-        );
+      : new ProjectDependencyResolver(
+          this.logger,
+          options,
+          context,
+          this.isWorkspace,
+        ).resolve(projectRoot, buildFolderPath, buildTomlData, context.root);
 
     buildTomlData.project.dependencies = [];
     buildTomlData['dependency-groups'] = {};
@@ -447,9 +505,18 @@ export class UVProvider implements IProvider {
     });
   }
 
-  public activateVenv(workspaceRoot: string): void {
+  public activateVenv(workspaceRoot: string, context?: ExecutorContext): void {
     if (!process.env.VIRTUAL_ENV) {
-      const virtualEnv = path.resolve(workspaceRoot, '.venv');
+      if (!this.isWorkspace && !context) {
+        throw new Error('context is required when not in a workspace');
+      }
+
+      const virtualEnv = path.resolve(
+        this.isWorkspace
+          ? workspaceRoot
+          : context.projectsConfigurations.projects[context.projectName].root,
+        '.venv',
+      );
       process.env.VIRTUAL_ENV = virtualEnv;
       process.env.PATH = `${virtualEnv}/bin:${process.env.PATH}`;
       delete process.env.PYTHONHOME;
@@ -500,5 +567,35 @@ export class UVProvider implements IProvider {
     }
 
     return deps;
+  }
+
+  private getProjectRoot(context: ExecutorContext) {
+    return context.projectsConfigurations.projects[context.projectName].root;
+  }
+
+  private syncDependents(
+    context: ExecutorContext,
+    projectName: string,
+    updatedProjects: string[] = [],
+  ) {
+    updatedProjects.push(projectName);
+    const deps = this.getDependents(
+      projectName,
+      context.projectsConfigurations.projects,
+    );
+
+    for (const dep of deps) {
+      if (updatedProjects.includes(dep)) {
+        continue;
+      }
+
+      this.logger.info(chalk`\nUpdating project {bold ${dep}}`);
+      const depConfig = context.projectsConfigurations.projects[dep];
+      runUv(['sync'], {
+        cwd: depConfig.root,
+      });
+
+      this.syncDependents(context, dep, updatedProjects);
+    }
   }
 }

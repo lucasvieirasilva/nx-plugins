@@ -6,6 +6,7 @@ import { UVLockfile } from './types';
 import toml from '@iarna/toml';
 import { readFileSync } from 'fs-extra';
 import { Tree } from '@nx/devkit';
+import { existsSync } from 'fs';
 
 export const UV_EXECUTABLE = 'uv';
 
@@ -55,7 +56,17 @@ export function runUv(args: string[], options: RunUvOptions = {}): void {
   }
 }
 
-export function getUvLockfile(lockfilePath: string, tree?: Tree): UVLockfile {
+export function getUvLockfile(
+  lockfilePath: string,
+  tree?: Tree,
+): UVLockfile | null {
+  if (tree && !tree.exists(lockfilePath)) {
+    return null;
+  }
+  if (!tree && !existsSync(lockfilePath)) {
+    return null;
+  }
+
   const data = toml.parse(
     tree
       ? tree.read(lockfilePath, 'utf-8')

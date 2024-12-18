@@ -2,33 +2,77 @@ import fs from 'fs';
 import path from 'path';
 import { IProvider } from './base';
 import { UVProvider } from './uv';
-import { PoetryProvider } from './poetry';
+import { PoetryProvider, PoetryPyprojectToml } from './poetry';
 import { Logger } from '../executors/utils/logger';
-import { Tree } from '@nx/devkit';
+import { ExecutorContext, joinPathFragments, Tree } from '@nx/devkit';
+import { getPyprojectData } from './utils';
+import { UVPyprojectToml } from './uv/types';
 
 export const getProvider = async (
   workspaceRoot: string,
   logger?: Logger,
   tree?: Tree,
+  context?: ExecutorContext,
 ): Promise<IProvider> => {
   const loggerInstance = logger ?? new Logger();
 
-  const uvLockPath = path.join(workspaceRoot, 'uv.lock');
-  const poetryLockPath = path.join(workspaceRoot, 'poetry.lock');
-
-  const isUv = tree ? tree.exists(uvLockPath) : fs.existsSync(uvLockPath);
-  const isPoetry = tree
-    ? tree.exists(poetryLockPath)
-    : fs.existsSync(poetryLockPath);
-  if (isUv && isPoetry) {
+  const uv = isUv(workspaceRoot, context, tree);
+  const poetry = isPoetry(workspaceRoot, context, tree);
+  if (uv && poetry) {
     throw new Error(
       'Both poetry.lock and uv.lock files found. Please remove one of them.',
     );
   }
 
-  if (isUv) {
+  if (uv) {
     return new UVProvider(workspaceRoot, loggerInstance, tree);
   } else {
     return new PoetryProvider(workspaceRoot, loggerInstance, tree);
   }
 };
+
+function isUv(workspaceRoot: string, context?: ExecutorContext, tree?: Tree) {
+  if (context) {
+    const pyprojectTomlPath = joinPathFragments(
+      context.projectsConfigurations.projects[context.projectName].root,
+      'pyproject.toml',
+    );
+
+    if (fs.existsSync(pyprojectTomlPath)) {
+      const projectData = getPyprojectData<
+        PoetryPyprojectToml | UVPyprojectToml
+      >(pyprojectTomlPath);
+
+      return (
+        'project' in projectData && !('poetry' in (projectData.tool ?? {}))
+      );
+    }
+  }
+
+  const lockPath = path.join(workspaceRoot, 'uv.lock');
+  return tree ? tree.exists(lockPath) : fs.existsSync(lockPath);
+}
+
+function isPoetry(
+  workspaceRoot: string,
+  context?: ExecutorContext,
+  tree?: Tree,
+) {
+  if (context) {
+    const pyprojectTomlPath = joinPathFragments(
+      context.projectsConfigurations.projects[context.projectName].root,
+      'pyproject.toml',
+    );
+
+    if (fs.existsSync(pyprojectTomlPath)) {
+      const projectData = getPyprojectData<
+        PoetryPyprojectToml | UVPyprojectToml
+      >(pyprojectTomlPath);
+
+      return 'poetry' in (projectData.tool ?? {});
+    }
+  }
+
+  const lockPath = path.join(workspaceRoot, 'poetry.lock');
+  return tree ? tree.exists(lockPath) : fs.existsSync(lockPath);
+}

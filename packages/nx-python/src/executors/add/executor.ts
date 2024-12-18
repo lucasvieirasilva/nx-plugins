@@ -10,7 +10,12 @@ export default async function executor(
   const workspaceRoot = context.root;
   process.chdir(workspaceRoot);
   try {
-    const provider = await getProvider(workspaceRoot);
+    const provider = await getProvider(
+      workspaceRoot,
+      undefined,
+      undefined,
+      context,
+    );
     await provider.add(options, context);
     return {
       success: true,

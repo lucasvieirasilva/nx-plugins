@@ -14,7 +14,12 @@ export default async function executor(
   const workspaceRoot = context.root;
   process.chdir(workspaceRoot);
   try {
-    const provider = await getProvider(context.root, logger);
+    const provider = await getProvider(
+      context.root,
+      logger,
+      undefined,
+      context,
+    );
     const buildFolderPath = await provider.build(options, context);
 
     return {
