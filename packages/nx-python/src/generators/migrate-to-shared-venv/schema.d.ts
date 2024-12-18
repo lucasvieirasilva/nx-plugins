@@ -3,4 +3,5 @@ export interface Schema {
   pyprojectPythonDependency: string;
   pyenvPythonVersion: string;
   autoActivate: boolean;
+  packageManager: 'poetry' | 'uv';
 }

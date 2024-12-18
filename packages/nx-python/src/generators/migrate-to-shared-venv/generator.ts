@@ -12,6 +12,8 @@ import { parse, stringify } from '@iarna/toml';
 import chalk from 'chalk';
 import { PoetryPyprojectToml } from '../../provider/poetry';
 import { checkPoetryExecutable, runPoetry } from '../../provider/poetry/utils';
+import { checkUvExecutable, runUv } from '../../provider/uv/utils';
+import { UVPyprojectToml } from '../../provider/uv/types';
 
 async function addFiles(host: Tree, options: Schema) {
   const packageJson = await readJsonFile('package.json');
@@ -24,12 +26,36 @@ async function addFiles(host: Tree, options: Schema) {
     description: packageJson.description || '',
   };
 
-  generateFiles(host, path.join(__dirname, 'files'), '.', templateOptions);
+  generateFiles(
+    host,
+    path.join(__dirname, 'files', 'base'),
+    '.',
+    templateOptions,
+  );
+
+  if (options.packageManager === 'poetry') {
+    generateFiles(
+      host,
+      path.join(__dirname, 'files', 'poetry'),
+      '.',
+      templateOptions,
+    );
+  } else if (options.packageManager === 'uv') {
+    generateFiles(
+      host,
+      path.join(__dirname, 'files', 'uv'),
+      '.',
+      templateOptions,
+    );
+  }
 }
 
 type LockUpdateTask = () => void;
 
-function updatePyprojectRoot(host: Tree, options: Schema): LockUpdateTask[] {
+function updatePoetryPyprojectRoot(
+  host: Tree,
+  options: Schema,
+): LockUpdateTask[] {
   const postGeneratorTasks = [];
 
   const rootPyprojectToml = parse(
@@ -52,7 +78,7 @@ function updatePyprojectRoot(host: Tree, options: Schema): LockUpdateTask[] {
       };
       if (options.moveDevDependencies) {
         postGeneratorTasks.push(
-          moveDevDependencies(
+          movePoetryDevDependencies(
             pyprojectToml,
             rootPyprojectToml,
             host,
@@ -69,7 +95,7 @@ function updatePyprojectRoot(host: Tree, options: Schema): LockUpdateTask[] {
   return postGeneratorTasks;
 }
 
-function moveDevDependencies(
+function movePoetryDevDependencies(
   pyprojectToml: PoetryPyprojectToml,
   rootPyprojectToml: PoetryPyprojectToml,
   host: Tree,
@@ -103,28 +129,116 @@ function moveDevDependencies(
   };
 }
 
-function updateRootPoetryLock() {
-  console.log(chalk`  Updating root {bgBlue poetry.lock}...`);
-  runPoetry(['install'], { log: false });
-  console.log(chalk`\n  {bgBlue poetry.lock} updated.\n`);
+function updateUvPyprojectRoot(host: Tree, options: Schema): LockUpdateTask[] {
+  const postGeneratorTasks = [];
+
+  const rootPyprojectToml = parse(
+    host.read('pyproject.toml').toString(),
+  ) as UVPyprojectToml;
+
+  for (const project of getProjects(host)) {
+    const [, projectConfig] = project;
+    const pyprojectTomlPath = path.join(projectConfig.root, 'pyproject.toml');
+    if (host.exists(pyprojectTomlPath)) {
+      const pyprojectToml = parse(
+        host.read(pyprojectTomlPath).toString(),
+      ) as UVPyprojectToml;
+
+      rootPyprojectToml.project.dependencies.push(pyprojectToml.project.name);
+      rootPyprojectToml.tool ??= {};
+      rootPyprojectToml.tool.uv ??= {};
+      rootPyprojectToml.tool.uv.sources ??= {};
+      rootPyprojectToml.tool.uv.sources[pyprojectToml.project.name] = {
+        workspace: true,
+      };
+      rootPyprojectToml.tool.uv.workspace ??= {
+        members: [],
+      };
+      rootPyprojectToml.tool.uv.workspace.members.push(projectConfig.root);
+
+      for (const source of Object.keys(pyprojectToml.tool?.uv?.sources ?? {})) {
+        if (pyprojectToml.tool.uv.sources[source].path) {
+          pyprojectToml.tool.uv.sources[source] = { workspace: true };
+        }
+      }
+
+      if (options.moveDevDependencies) {
+        moveUvDevDependencies(pyprojectToml, rootPyprojectToml);
+      }
+
+      host.write(pyprojectTomlPath, stringify(pyprojectToml));
+      host.delete(path.join(projectConfig.root, 'uv.lock'));
+      host.delete(path.join(projectConfig.root, '.venv'));
+    }
+  }
+
+  host.write('pyproject.toml', stringify(rootPyprojectToml));
+
+  return postGeneratorTasks;
+}
+
+function moveUvDevDependencies(
+  pyprojectToml: UVPyprojectToml,
+  rootPyprojectToml: UVPyprojectToml,
+) {
+  const devDependencies = pyprojectToml?.['dependency-groups']?.dev || [];
+  rootPyprojectToml['dependency-groups'] ??= {};
+  rootPyprojectToml['dependency-groups'].dev ??= [];
+
+  for (const devDependency of devDependencies) {
+    if (
+      rootPyprojectToml['dependency-groups'].dev.some(
+        (dep) =>
+          /^[a-zA-Z0-9-]+/.exec(dep)?.[0] ===
+          /^[a-zA-Z0-9-]+/.exec(devDependency)?.[0],
+      )
+    ) {
+      continue;
+    }
+    rootPyprojectToml['dependency-groups'].dev.push(devDependency);
+  }
+
+  if (pyprojectToml['dependency-groups']?.dev?.length) {
+    delete pyprojectToml['dependency-groups'].dev;
+  }
+
+  if (Object.keys(pyprojectToml['dependency-groups'] || {}).length === 0) {
+    delete pyprojectToml['dependency-groups'];
+  }
+}
+
+function updateRootLock(options: Schema) {
+  if (options.packageManager === 'poetry') {
+    console.log(chalk`  Updating root {bgBlue poetry.lock}...`);
+    runPoetry(['install'], { log: false });
+    console.log(chalk`\n  {bgBlue poetry.lock} updated.\n`);
+  } else if (options.packageManager === 'uv') {
+    console.log(chalk`  Updating root {bgBlue uv.lock}...`);
+    runUv(['sync'], { log: false });
+    console.log(chalk`\n  {bgBlue uv.lock} updated.\n`);
+  }
 }
 
 async function generator(host: Tree, options: Schema) {
-  if (host.exists('uv.lock')) {
-    throw new Error(
-      'Uv project detected, this generator is only for poetry projects.',
-    );
+  if (options.packageManager === 'poetry') {
+    await checkPoetryExecutable();
+  } else if (options.packageManager === 'uv') {
+    await checkUvExecutable();
   }
 
-  await checkPoetryExecutable();
-
   await addFiles(host, options);
-  const lockUpdateTasks = updatePyprojectRoot(host, options);
+  const lockUpdateTasks: LockUpdateTask[] = [];
+  if (options.packageManager === 'poetry') {
+    lockUpdateTasks.push(...updatePoetryPyprojectRoot(host, options));
+  } else if (options.packageManager === 'uv') {
+    lockUpdateTasks.push(...updateUvPyprojectRoot(host, options));
+  }
+
   await formatFiles(host);
 
   return () => {
     lockUpdateTasks.forEach((task) => task());
-    updateRootPoetryLock();
+    updateRootLock(options);
   };
 }
 

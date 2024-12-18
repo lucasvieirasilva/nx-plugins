@@ -1,5 +1,6 @@
 import toml, { JsonMap } from '@iarna/toml';
-import { Tree } from '@nx/devkit';
+import { ExecutorContext, Tree } from '@nx/devkit';
+import chalk from 'chalk';
 import { readFileSync } from 'fs';
 
 export const getPyprojectData = <T>(pyprojectToml: string): T => {
@@ -28,4 +29,18 @@ export function writePyprojectToml(
 
 export function getLoggingTab(level: number): string {
   return '    '.repeat(level);
+}
+
+export function getLocalDependencyConfig(
+  context: ExecutorContext,
+  dependencyName: string,
+) {
+  const dependencyConfig =
+    context.projectsConfigurations.projects[dependencyName];
+  if (!dependencyConfig) {
+    throw new Error(
+      chalk`project {bold ${dependencyName}} not found in the Nx workspace`,
+    );
+  }
+  return dependencyConfig;
 }

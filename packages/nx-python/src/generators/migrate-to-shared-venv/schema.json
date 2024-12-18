@@ -23,6 +23,12 @@
       "type": "boolean",
       "description": "Specifies if the root pyproject toml should be automatically activated when running @nxlv/python executors",
       "default": true
+    },
+    "packageManager": {
+      "type": "string",
+      "enum": ["poetry", "uv"],
+      "description": "Existing projects package manager",
+      "default": "poetry"
     }
   },
   "required": []

@@ -1,4 +1,4 @@
-import { join } from 'path';
+import path from 'path';
 import chalk from 'chalk';
 import { Logger } from '../../../../executors/utils/logger';
 import { UVPyprojectToml } from '../../types';
@@ -10,7 +10,10 @@ import { includeDependencyPackage } from './utils';
 import { existsSync } from 'fs';
 
 export class LockedDependencyResolver {
-  constructor(private readonly logger: Logger) {}
+  constructor(
+    private readonly logger: Logger,
+    private readonly isWorkspace: boolean,
+  ) {}
 
   public resolve(
     projectRoot: string,
@@ -34,17 +37,20 @@ export class LockedDependencyResolver {
         continue;
       }
 
-      if (line.startsWith('-e')) {
+      if (line.startsWith('-e') || line.startsWith('.')) {
         const location = line.replace('-e', '').trim();
-        const dependencyPyprojectPath = join(
-          workspaceRoot,
-          location,
+        const dependencyPath = this.isWorkspace
+          ? location
+          : path.relative(process.cwd(), path.resolve(projectRoot, location));
+
+        const dependencyPyprojectPath = path.join(
+          dependencyPath,
           'pyproject.toml',
         );
 
         if (!existsSync(dependencyPyprojectPath)) {
           this.logger.info(
-            chalk`    • Skipping local dependency {blue.bold ${location}} as pyproject.toml not found`,
+            chalk`    • Skipping local dependency {blue.bold ${dependencyPath}} as pyproject.toml not found`,
           );
           continue;
         }
@@ -59,7 +65,7 @@ export class LockedDependencyResolver {
 
         includeDependencyPackage(
           projectData,
-          location,
+          dependencyPath,
           buildFolderPath,
           buildTomlData,
           workspaceRoot,

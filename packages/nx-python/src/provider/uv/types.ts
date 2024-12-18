@@ -16,10 +16,14 @@ export type UVPyprojectToml = {
           };
         };
       };
+      metadata?: {
+        'allow-direct-references'?: boolean;
+      };
     };
     uv?: {
       sources?: {
         [key: string]: {
+          path?: string;
           workspace?: boolean;
           index?: string;
         };

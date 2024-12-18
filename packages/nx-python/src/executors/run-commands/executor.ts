@@ -8,7 +8,12 @@ export default async function executor(
   options: RunCommandsOptions,
   context: ExecutorContext,
 ) {
-  const provider = await getProvider(context.root);
-  provider.activateVenv(context.root);
+  const provider = await getProvider(
+    context.root,
+    undefined,
+    undefined,
+    context,
+  );
+  provider.activateVenv(context.root, context);
   return baseExecutor(options, context);
 }

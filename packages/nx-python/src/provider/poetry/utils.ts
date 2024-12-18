@@ -84,20 +84,6 @@ export function parseToml(tomlFile: string) {
   return toml.parse(fs.readFileSync(tomlFile, 'utf-8')) as PoetryPyprojectToml;
 }
 
-export function getLocalDependencyConfig(
-  context: ExecutorContext,
-  dependencyName: string,
-) {
-  const dependencyConfig =
-    context.projectsConfigurations.projects[dependencyName];
-  if (!dependencyConfig) {
-    throw new Error(
-      chalk`project {bold ${dependencyName}} not found in the Nx workspace`,
-    );
-  }
-  return dependencyConfig;
-}
-
 export type RunPoetryOptions = {
   log?: boolean;
   error?: boolean;

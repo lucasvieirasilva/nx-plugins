@@ -937,93 +937,241 @@ describe('Update Executor', () => {
       vi.spyOn(process, 'chdir').mockReturnValue(undefined);
     });
 
-    beforeEach(() => {
-      vol.fromJSON({
-        'uv.lock': '',
+    describe('workspace', () => {
+      beforeEach(() => {
+        vol.fromJSON({
+          'uv.lock': '',
+        });
       });
-    });
 
-    it('should return success false when the uv is not installed', async () => {
-      checkPrerequisites.mockRejectedValue(new Error('uv not found'));
+      it('should return success false when the uv is not installed', async () => {
+        checkPrerequisites.mockRejectedValue(new Error('uv not found'));
 
-      const options = {
-        name: 'numpy',
-        local: false,
-      };
+        const options = {
+          name: 'numpy',
+          local: false,
+        };
 
-      const context: ExecutorContext = {
-        cwd: '',
-        root: '.',
-        isVerbose: false,
-        projectName: 'app',
-        projectsConfigurations: {
-          version: 2,
-          projects: {
-            app: {
-              root: 'apps/app',
-              targets: {},
+        const context: ExecutorContext = {
+          cwd: '',
+          root: '.',
+          isVerbose: false,
+          projectName: 'app',
+          projectsConfigurations: {
+            version: 2,
+            projects: {
+              app: {
+                root: 'apps/app',
+                targets: {},
+              },
             },
           },
-        },
-        nxJsonConfiguration: {},
-        projectGraph: {
-          dependencies: {},
-          nodes: {},
-        },
-      };
+          nxJsonConfiguration: {},
+          projectGraph: {
+            dependencies: {},
+            nodes: {},
+          },
+        };
 
-      const output = await executor(options, context);
-      expect(checkPrerequisites).toHaveBeenCalled();
-      expect(spawn.sync).not.toHaveBeenCalled();
-      expect(output.success).toBe(false);
-    });
+        const output = await executor(options, context);
+        expect(checkPrerequisites).toHaveBeenCalled();
+        expect(spawn.sync).not.toHaveBeenCalled();
+        expect(output.success).toBe(false);
+      });
 
-    it('run update target and should update the dependency to the project', async () => {
-      const options = {
-        name: 'numpy',
-        local: false,
-      };
+      it('run update target and should update the dependency to the project', async () => {
+        const options = {
+          name: 'numpy',
+          local: false,
+        };
 
-      const context: ExecutorContext = {
-        cwd: '',
-        root: '.',
-        isVerbose: false,
-        projectName: 'app',
-        projectsConfigurations: {
-          version: 2,
-          projects: {
-            app: {
-              root: 'apps/app',
-              targets: {},
+        const context: ExecutorContext = {
+          cwd: '',
+          root: '.',
+          isVerbose: false,
+          projectName: 'app',
+          projectsConfigurations: {
+            version: 2,
+            projects: {
+              app: {
+                root: 'apps/app',
+                targets: {},
+              },
             },
           },
-        },
-        nxJsonConfiguration: {},
-        projectGraph: {
-          dependencies: {},
-          nodes: {},
-        },
-      };
+          nxJsonConfiguration: {},
+          projectGraph: {
+            dependencies: {},
+            nodes: {},
+          },
+        };
 
-      const output = await executor(options, context);
-      expect(checkPrerequisites).toHaveBeenCalled();
-      expect(spawn.sync).toHaveBeenCalledTimes(2);
-      expect(spawn.sync).toHaveBeenNthCalledWith(
-        1,
-        'uv',
-        ['lock', '--upgrade-package', 'numpy', '--project', 'apps/app'],
-        {
+        const output = await executor(options, context);
+        expect(checkPrerequisites).toHaveBeenCalled();
+        expect(spawn.sync).toHaveBeenCalledTimes(2);
+        expect(spawn.sync).toHaveBeenNthCalledWith(
+          1,
+          'uv',
+          ['lock', '--upgrade-package', 'numpy', '--project', 'apps/app'],
+          {
+            cwd: '.',
+            shell: false,
+            stdio: 'inherit',
+          },
+        );
+        expect(spawn.sync).toHaveBeenNthCalledWith(2, 'uv', ['sync'], {
           cwd: '.',
           shell: false,
           stdio: 'inherit',
-        },
-      );
-      expect(spawn.sync).toHaveBeenNthCalledWith(2, 'uv', ['sync'], {
-        cwd: '.',
-        shell: false,
-        stdio: 'inherit',
+        });
+        expect(output.success).toBe(true);
       });
-      expect(output.success).toBe(true);
+    });
+
+    describe('project', () => {
+      it('run update target and should update all the dependency tree', async () => {
+        vol.fromJSON({
+          'apps/app/pyproject.toml': dedent`
+          [project]
+          name = "app"
+          version = "0.1.0"
+          readme = "README.md"
+          requires-python = ">=3.12"
+          dependencies = [
+              "lib1",
+          ]
+
+          [tool.hatch.build.targets.wheel]
+          packages = ["app"]
+
+          [tool.uv.sources]
+          lib1 = { path = "../../libs/lib1" }
+          `,
+
+          'apps/app1/pyproject.toml': dedent`
+          [project]
+          name = "app1"
+          version = "0.1.0"
+          readme = "README.md"
+          requires-python = ">=3.12"
+          dependencies = [
+              "lib1",
+          ]
+
+          [tool.hatch.build.targets.wheel]
+          packages = ["app1"]
+
+          [tool.uv.sources]
+          lib1 = { path = "../../libs/lib1" }
+          `,
+
+          'libs/lib1/pyproject.toml': dedent`
+          [project]
+          name = "lib1"
+          version = "0.1.0"
+          readme = "README.md"
+          requires-python = ">=3.12"
+          dependencies = [
+              "shared1",
+          ]
+
+          [tool.hatch.build.targets.wheel]
+          packages = ["lib1"]
+
+          [tool.uv.sources]
+          shared1 = { path = "../shared1" }
+          `,
+
+          'libs/shared1/pyproject.toml': dedent`
+          [project]
+          name = "shared1"
+          version = "0.1.0"
+          readme = "README.md"
+          requires-python = ">=3.12"
+          dependencies = []
+
+          [tool.hatch.build.targets.wheel]
+          packages = ["shared1"]
+          `,
+        });
+
+        const options = {
+          name: 'numpy',
+          local: false,
+        };
+
+        const context: ExecutorContext = {
+          cwd: '',
+          root: '.',
+          isVerbose: false,
+          projectName: 'shared1',
+          projectsConfigurations: {
+            version: 2,
+            projects: {
+              app: {
+                root: 'apps/app',
+                targets: {},
+              },
+              app1: {
+                root: 'apps/app1',
+                targets: {},
+              },
+              app3: {
+                root: 'apps/app3',
+                targets: {},
+              },
+              lib1: {
+                root: 'libs/lib1',
+                targets: {},
+              },
+              shared1: {
+                root: 'libs/shared1',
+                targets: {},
+              },
+            },
+          },
+          nxJsonConfiguration: {},
+          projectGraph: {
+            dependencies: {},
+            nodes: {},
+          },
+        };
+
+        const output = await executor(options, context);
+        expect(checkPrerequisites).toHaveBeenCalled();
+        expect(spawn.sync).toHaveBeenCalledTimes(5);
+        expect(spawn.sync).toHaveBeenNthCalledWith(
+          1,
+          'uv',
+          ['lock', '--upgrade-package', 'numpy'],
+          {
+            cwd: 'libs/shared1',
+            shell: false,
+            stdio: 'inherit',
+          },
+        );
+        expect(spawn.sync).toHaveBeenNthCalledWith(2, 'uv', ['sync'], {
+          cwd: 'libs/shared1',
+          shell: false,
+          stdio: 'inherit',
+        });
+        expect(spawn.sync).toHaveBeenNthCalledWith(3, 'uv', ['sync'], {
+          cwd: 'libs/lib1',
+          shell: false,
+          stdio: 'inherit',
+        });
+        expect(spawn.sync).toHaveBeenNthCalledWith(4, 'uv', ['sync'], {
+          cwd: 'apps/app',
+          shell: false,
+          stdio: 'inherit',
+        });
+        expect(spawn.sync).toHaveBeenNthCalledWith(5, 'uv', ['sync'], {
+          cwd: 'apps/app1',
+          shell: false,
+          stdio: 'inherit',
+        });
+        expect(output.success).toBe(true);
+      });
     });
   });
 });

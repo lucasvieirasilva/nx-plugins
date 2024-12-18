@@ -14,7 +14,12 @@ export default async function executor(
   const workspaceRoot = context.root;
   process.chdir(workspaceRoot);
   try {
-    const provider = await getProvider(workspaceRoot, logger);
+    const provider = await getProvider(
+      workspaceRoot,
+      logger,
+      undefined,
+      context,
+    );
     await provider.install(options, context);
 
     return {

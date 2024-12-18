@@ -125,42 +125,6 @@ Nx documentation reference: <https://nx.dev/deprecated/as-provided-vs-derived#pr
 
 When the workspace is configured to use a shared virtual environment (see below), the `rootPyprojectDependencyGroup` option specifies the dependency group to be used in the root `pyproject.toml` file, by default, the main dependency group is used.
 
-###### Shared Virtual Environment
-
-By default, the `@nxlv/python` manages the projects individually, so, all the projects have their one set of dependencies and virtual environments.
-
-However, In some cases, we want to use a shared virtual environment for the entire workspace to save some installation time in your local environment and CI tool, we use this mode when the workspace contains many projects with the same dependencies and versions that don't conflict in the workspace level.
-
-To migrate to this mode, run the following command:
-
-```bash
-npx nx generate @nxlv/python:migrate-to-shared-venv
-```
-
-**Options**:
-
-| Option                  |   Type    | Description                                                                                                                                           | Required | Default |
-| ----------------------- | :-------: | ----------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------- |
-| `--moveDevDependencies` | `boolean` | Specifies if migration moves the dev dependencies from the projects to the root `pyproject.toml`                                                      | `true`   | `true`  |
-| `--autoActivate`        | `boolean` | Adds the `autoActivate` config in the root `pyproject.toml`, this flag is used to auto-activate the venv when the `@nxlv/python` executors are called | `true`   | `true`  |
-
-After the migration is completed, the workspace now has a `pyproject.toml` in the root directory, and all the local projects are referencing the root `pyproject.toml` file.
-
-> The projects still have their own `pyproject.toml` file to manage each project's dependencies, however, the package versions cannot conflict because the root `pyproject.toml` file is referencing all the dependencies.
-
-**Benefits**:
-
-- Save time in the local environment and CI tool
-- Reduce the size of the workspace
-- Reduce the number of dependencies installed in the local environment and CI tool
-- Single-version policy (recommended by Nx)
-- Better VSCode integration (currently, the VSCode Python extension doesn't support multiple virtual environments in the same workspace, it needs to switch between them manually)
-
-**Cons**:
-
-- Package versions cannot conflict at the workspace level
-- Local packages with the same module name don't work properly in the VSCode, because when the VSCode Python extension is activated, it uses the root `pyproject.toml` file to resolve the packages, so, it will use the first module found in the `pyproject.toml` file.
-
 ##### devDependenciesProject
 
 This approach consists of moving all the dev dependencies from the projects to separate projects, this project is referenced in the root `pyproject.toml` and all the local projects as a dev dependency.
@@ -254,9 +218,42 @@ nx generate @nxlv/python:uv-project myproject
 | `--codeCoverageThreshold`        | `number`  | Minimum Code Coverage Threshold                                                                                                                                                        | `false`  | N/A                                      |
 | `--projectNameAndRootFormat`     | `string`  | Whether to generate the project name and root directory as provided (`as-provided`) or generate them composing their values and taking the configured layout into account (`derived`). | `false`  | `as-provided`                            |
 
-Because the Uv package manager has native support for workspaces, the `@nxlv/python` plugin enforces the use of a shared virtual environment by default, so, all the projects in the workspace are using the same virtual environment.
+### Shared Virtual Environment
 
-**IMPORTANT**: The `@nxlv/python:migrate-to-shared-venv` generator is not available for Uv projects, since it's already enforced by default.
+By default, the `@nxlv/python` manages the projects individually, so, all the projects have their one set of dependencies and virtual environments.
+
+However, In some cases, we want to use a shared virtual environment for the entire workspace to save some installation time in your local environment and CI tool, we use this mode when the workspace contains many projects with the same dependencies and versions that don't conflict in the workspace level.
+
+To migrate to this mode, run the following command:
+
+```bash
+npx nx generate @nxlv/python:migrate-to-shared-venv
+```
+
+**Options**:
+
+| Option                  |   Type    | Description                                                                                                                                           | Required | Default  |
+| ----------------------- | :-------: | ----------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------- |
+| `--moveDevDependencies` | `boolean` | Specifies if migration moves the dev dependencies from the projects to the root `pyproject.toml`                                                      | `true`   | `true`   |
+| `--autoActivate`        | `boolean` | Adds the `autoActivate` config in the root `pyproject.toml`, this flag is used to auto-activate the venv when the `@nxlv/python` executors are called | `true`   | `true`   |
+| `--packageManager`      | `string`  | Specifies the package manager to be used in the root `pyproject.toml` (`poetry` or `uv`)                                                              | `true`   | `poetry` |
+
+After the migration is completed, the workspace now has a `pyproject.toml` in the root directory, and all the local projects are referencing the root `pyproject.toml` file.
+
+> The projects still have their own `pyproject.toml` file to manage each project's dependencies, however, the package versions cannot conflict because the root `pyproject.toml` file is referencing all the dependencies.
+
+**Benefits**:
+
+- Save time in the local environment and CI tool
+- Reduce the size of the workspace
+- Reduce the number of dependencies installed in the local environment and CI tool
+- Single-version policy (recommended by Nx)
+- Better VSCode integration (currently, the VSCode Python extension doesn't support multiple virtual environments in the same workspace, it needs to switch between them manually)
+
+**Cons**:
+
+- Package versions cannot conflict at the workspace level
+- Local packages with the same module name don't work properly in the VSCode, because when the VSCode Python extension is activated, it uses the root `pyproject.toml` file to resolve the packages, so, it will use the first module found in the `pyproject.toml` file.
 
 ### Executors
 
@@ -265,7 +262,7 @@ Because the Uv package manager has native support for workspaces, the `@nxlv/pyt
 The `@nxlv/python:add` executor handles `add` command to provide a level of abstraction and control in the monorepo projects.
 
 - `poetry`: `poetry add {args}`
-- `uv`: `uv add {args} --project {projectPath}`
+- `uv`: `uv add {args}`
 
 ##### Features
 
@@ -276,11 +273,11 @@ The `@nxlv/python:add` executor handles `add` command to provide a level of abst
 
 ##### Options
 
-| Option    |   Type    | Description                                                         | Required                                             | Default |
-| --------- | :-------: | ------------------------------------------------------------------- | ---------------------------------------------------- | ------- |
-| `--name`  | `string`  | Dependency name (if local dependency use the Nx project name)       | `true`                                               |         |
-| `--args`  | `string`  | Custom args to be used in the `add` command                         | `false`                                              |         |
-| `--local` | `boolean` | Specifies if the dependency is local, not necessary for Uv projects | `false` (only if the `--name` is a local dependency) |         |
+| Option    |   Type    | Description                                                   | Required                                             | Default |
+| --------- | :-------: | ------------------------------------------------------------- | ---------------------------------------------------- | ------- |
+| `--name`  | `string`  | Dependency name (if local dependency use the Nx project name) | `true`                                               |         |
+| `--args`  | `string`  | Custom args to be used in the `add` command                   | `false`                                              |         |
+| `--local` | `boolean` | Specifies if the dependency is local                          | `false` (only if the `--name` is a local dependency) |         |
 
 #### update
 
@@ -288,30 +285,30 @@ The `@nxlv/python:update` executor handles `update` command to provide a level o
 
 - `poetry`: `poetry update {args}`
 - `uv`: Uv doesn't have a native update command, so, the executor runs the following commands:
-  - `uv lock --upgrade-package {name} --project {projectPath}`
+  - `uv lock --upgrade-package {name}`
   - `uv sync`
 
 ##### Features
 
 - Update external dependencies
-- Update local dependencies (Poetry only)
+- Update local dependencies
 
 > Both features updates the local workspace dependency tree to keep the lock/venv updated.
 
 ##### Options
 
-| Option    |   Type    | Description                                                         | Required                                             | Default |
-| --------- | :-------: | ------------------------------------------------------------------- | ---------------------------------------------------- | ------- |
-| `--name`  | `string`  | Dependency name (if local dependency use the Nx project name)       | `false`                                              |         |
-| `--args`  | `string`  | Custom args to be used in the `update` command                      | `false`                                              |         |
-| `--local` | `boolean` | Specifies if the dependency is local, not necessary for Uv projects | `false` (only if the `--name` is a local dependency) |         |
+| Option    |   Type    | Description                                                   | Required                                             | Default |
+| --------- | :-------: | ------------------------------------------------------------- | ---------------------------------------------------- | ------- |
+| `--name`  | `string`  | Dependency name (if local dependency use the Nx project name) | `false`                                              |         |
+| `--args`  | `string`  | Custom args to be used in the `update` command                | `false`                                              |         |
+| `--local` | `boolean` | Specifies if the dependency is local                          | `false` (only if the `--name` is a local dependency) |         |
 
 #### remove
 
 The `@nxlv/python:remove` executor handles `remove` command to provide a level of abstraction and control in the monorepo projects.
 
 - `poetry`: `poetry remove {args}`
-- `uv`: `uv remove {args} --project {projectPath}`
+- `uv`: `uv remove {args}`
 
 ##### Features
 
@@ -322,11 +319,11 @@ The `@nxlv/python:remove` executor handles `remove` command to provide a level o
 
 ##### Options
 
-| Option    |   Type    | Description                                                         | Required                                             | Default |
-| --------- | :-------: | ------------------------------------------------------------------- | ---------------------------------------------------- | ------- |
-| `--name`  | `string`  | Dependency name (if local dependency use the Nx project name)       | `true`                                               |         |
-| `--args`  | `string`  | Custom args to be used in the `remove` command                      | `false`                                              |         |
-| `--local` | `boolean` | Specifies if the dependency is local, not necessary for Uv projects | `false` (only if the `--name` is a local dependency) |         |
+| Option    |   Type    | Description                                                   | Required                                             | Default |
+| --------- | :-------: | ------------------------------------------------------------- | ---------------------------------------------------- | ------- |
+| `--name`  | `string`  | Dependency name (if local dependency use the Nx project name) | `true`                                               |         |
+| `--args`  | `string`  | Custom args to be used in the `remove` command                | `false`                                              |         |
+| `--local` | `boolean` | Specifies if the dependency is local                          | `false` (only if the `--name` is a local dependency) |         |
 
 #### build
 
@@ -517,9 +514,12 @@ The `@nxlv/python:flake8` handles the `flake8` linting tasks and reporting gener
 | `--silent`     | `boolean` | Hide output text        | `false`  | `false` |
 | `--outputFile` | `string`  | Output pylint file path | `true`   |         |
 
-#### install (poetry only)
+#### install
 
-The `@nxlv/python:install` handles the `poetry install` command for a project.
+The `@nxlv/python:install` handles the `install` command for a project.
+
+- `poetry`: `poetry install {args}`
+- `uv`: `uv install {args}`
 
 ##### Options
 

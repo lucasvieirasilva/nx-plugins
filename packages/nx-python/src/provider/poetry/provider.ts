@@ -21,7 +21,6 @@ import {
   addLocalProjectToPoetryProject,
   checkPoetryExecutable,
   getAllDependenciesFromPyprojectToml,
-  getLocalDependencyConfig,
   getPoetryVersion,
   getProjectPackageName,
   getProjectTomlPath,
@@ -59,6 +58,7 @@ import {
   ProjectDependencyResolver,
 } from './build/resolvers';
 import {
+  getLocalDependencyConfig,
   getPyprojectData,
   readPyprojectToml,
   writePyprojectToml,

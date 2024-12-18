@@ -24,16 +24,47 @@ dependencies = []
 [tool.hatch.build.targets.wheel]
 packages = ["<%= moduleName %>"]
 
-<%if (devDependenciesProject !== '') { -%>
+[tool.hatch.metadata]
+allow-direct-references = true
+<%if (devDependenciesProject !== '' || individualPackage) { -%>
+
 [dependency-groups]
 dev = [
-  "<%- devDependenciesProjectPkgName %>"
+<%if (devDependenciesProject !== '') { -%>
+  "<%- devDependenciesProjectPkgName %>",
+<% } -%>
+<%if ((individualPackage && !devDependenciesProject) || (individualPackage && !devDependenciesProject)) { -%>
+  "autopep8>=<%- versionMap['autopep8'] %>",
+<%if (individualPackage && !devDependenciesProject && linter === 'flake8') { -%>
+  "flake8>=<%- versionMap['flake8'] %>",
+<% } -%>
+<%if (individualPackage && !devDependenciesProject && linter === 'ruff') { -%>
+  "ruff>=<%- versionMap['ruff'] %>",
+<% } -%>
+<%if (individualPackage && !devDependenciesProject && unitTestRunner === 'pytest') { -%>
+  "pytest>=<%- versionMap['pytest'] %>",
+  "pytest-sugar>=<%- versionMap['pytest-sugar'] %>",
+<% } -%>
+<%if (individualPackage && !devDependenciesProject && unitTestRunner === 'pytest' && codeCoverage) { -%>
+  "pytest-cov>=<%- versionMap['pytest-cov'] %>",
+<% } -%>
+<%if (individualPackage && !devDependenciesProject && unitTestRunner === 'pytest' && codeCoverage && codeCoverageHtmlReport) { -%>
+  "pytest-html>=<%- versionMap['pytest-html'] %>",
+<% } -%>
+<% } -%>
 ]
+<% } -%>
+<%if (devDependenciesProject !== '') { -%>
 
 [tool.uv.sources]
-<%- devDependenciesProjectPkgName %> = { workspace = true }
-
+<%if (individualPackage) { -%>
+<%- devDependenciesProjectPkgName %> = { path = "<%- devDependenciesProjectPath %>" }
 <% } -%>
+<%if (!individualPackage) { -%>
+<%- devDependenciesProjectPkgName %> = { workspace = true }
+<% } -%>
+<% } -%>
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
