@@ -1,3 +1,9 @@
+# [20.2.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.1.0...nx-python-v20.2.0) (2024-12-18)
+
+### Features
+
+- **nx-python:** change `uv` to support non-workspace projects ([#260](https://github.com/lucasvieirasilva/nx-plugins/issues/260)) ([6e1a634](https://github.com/lucasvieirasilva/nx-plugins/commit/6e1a634b64b666d2bbe6fcfcc8dc6be876b011fb))
+
 # [20.1.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.0.1...nx-python-v20.1.0) (2024-12-16)
 
 ### Features
