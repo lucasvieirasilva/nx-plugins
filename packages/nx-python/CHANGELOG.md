@@ -1,3 +1,9 @@
+# [20.3.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.2.0...nx-python-v20.3.0) (2024-12-23)
+
+### Features
+
+- **nx-python:** enable caching in UV and Poetry project generators ([0e74e82](https://github.com/lucasvieirasilva/nx-plugins/commit/0e74e822a2836d8df84166c19bd76865db7bdc95))
+
 # [20.2.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.1.0...nx-python-v20.2.0) (2024-12-18)
 
 ### Features
