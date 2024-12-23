@@ -293,6 +293,7 @@ export default async function (
         lockedVersions: normalizedOptions.buildLockedVersions,
         bundleLocalDependencies: normalizedOptions.buildBundleLocalDependencies,
       },
+      cache: true,
     },
     install: {
       executor: '@nxlv/python:install',
@@ -315,6 +316,7 @@ export default async function (
       options: {
         outputFile: `reports/${normalizedOptions.projectRoot}/pylint.txt`,
       },
+      cache: true,
     };
   }
 
@@ -327,6 +329,7 @@ export default async function (
           options.unitTestRunner === 'pytest' ? ['tests'] : [],
         ),
       },
+      cache: true,
     };
   }
 
@@ -341,6 +344,7 @@ export default async function (
         command: `poetry run pytest tests/`,
         cwd: normalizedOptions.projectRoot,
       },
+      cache: true,
     };
   }
 

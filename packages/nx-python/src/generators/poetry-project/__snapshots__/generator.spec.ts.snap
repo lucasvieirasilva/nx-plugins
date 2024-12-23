@@ -19,6 +19,7 @@ exports[`application generator > as-provided > should run successfully minimal c
       "options": {},
     },
     "build": {
+      "cache": true,
       "executor": "@nxlv/python:build",
       "options": {
         "bundleLocalDependencies": false,
@@ -121,6 +122,7 @@ exports[`application generator > as-provided > should run successfully minimal c
       "options": {},
     },
     "build": {
+      "cache": true,
       "executor": "@nxlv/python:build",
       "options": {
         "bundleLocalDependencies": false,
@@ -223,6 +225,7 @@ exports[`application generator > custom template dir > should run successfully w
       "options": {},
     },
     "build": {
+      "cache": true,
       "executor": "@nxlv/python:build",
       "options": {
         "bundleLocalDependencies": false,
@@ -307,6 +310,7 @@ exports[`application generator > individual package > should run successfully mi
       "options": {},
     },
     "build": {
+      "cache": true,
       "executor": "@nxlv/python:build",
       "options": {
         "bundleLocalDependencies": false,
@@ -409,6 +413,7 @@ exports[`application generator > individual package > should run successfully mi
       "options": {},
     },
     "build": {
+      "cache": true,
       "executor": "@nxlv/python:build",
       "options": {
         "bundleLocalDependencies": false,
@@ -511,6 +516,7 @@ exports[`application generator > individual package > should run successfully mi
       "options": {},
     },
     "build": {
+      "cache": true,
       "executor": "@nxlv/python:build",
       "options": {
         "bundleLocalDependencies": false,
@@ -616,6 +622,7 @@ exports[`application generator > individual package > should run successfully mi
       "options": {},
     },
     "build": {
+      "cache": true,
       "executor": "@nxlv/python:build",
       "options": {
         "bundleLocalDependencies": false,
@@ -718,6 +725,7 @@ exports[`application generator > individual package > should run successfully wi
       "options": {},
     },
     "build": {
+      "cache": true,
       "executor": "@nxlv/python:build",
       "options": {
         "bundleLocalDependencies": false,
@@ -740,6 +748,7 @@ exports[`application generator > individual package > should run successfully wi
       },
     },
     "lint": {
+      "cache": true,
       "executor": "@nxlv/python:flake8",
       "options": {
         "outputFile": "reports/apps/test/pylint.txt",
@@ -848,6 +857,7 @@ exports[`application generator > individual package > should run successfully wi
       "options": {},
     },
     "build": {
+      "cache": true,
       "executor": "@nxlv/python:build",
       "options": {
         "bundleLocalDependencies": false,
@@ -870,6 +880,7 @@ exports[`application generator > individual package > should run successfully wi
       },
     },
     "lint": {
+      "cache": true,
       "executor": "@nxlv/python:flake8",
       "options": {
         "outputFile": "reports/apps/test/pylint.txt",
@@ -890,6 +901,7 @@ exports[`application generator > individual package > should run successfully wi
       "options": {},
     },
     "test": {
+      "cache": true,
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
@@ -1016,6 +1028,7 @@ exports[`application generator > individual package > should run successfully wi
       "options": {},
     },
     "build": {
+      "cache": true,
       "executor": "@nxlv/python:build",
       "options": {
         "bundleLocalDependencies": false,
@@ -1038,6 +1051,7 @@ exports[`application generator > individual package > should run successfully wi
       },
     },
     "lint": {
+      "cache": true,
       "executor": "@nxlv/python:flake8",
       "options": {
         "outputFile": "reports/apps/test/pylint.txt",
@@ -1058,6 +1072,7 @@ exports[`application generator > individual package > should run successfully wi
       "options": {},
     },
     "test": {
+      "cache": true,
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
@@ -1184,6 +1199,7 @@ exports[`application generator > individual package > should run successfully wi
       "options": {},
     },
     "build": {
+      "cache": true,
       "executor": "@nxlv/python:build",
       "options": {
         "bundleLocalDependencies": false,
@@ -1206,6 +1222,7 @@ exports[`application generator > individual package > should run successfully wi
       },
     },
     "lint": {
+      "cache": true,
       "executor": "@nxlv/python:flake8",
       "options": {
         "outputFile": "reports/apps/test/pylint.txt",
@@ -1226,6 +1243,7 @@ exports[`application generator > individual package > should run successfully wi
       "options": {},
     },
     "test": {
+      "cache": true,
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
@@ -1352,6 +1370,7 @@ exports[`application generator > individual package > should run successfully wi
       "options": {},
     },
     "build": {
+      "cache": true,
       "executor": "@nxlv/python:build",
       "options": {
         "bundleLocalDependencies": false,
@@ -1374,6 +1393,7 @@ exports[`application generator > individual package > should run successfully wi
       },
     },
     "lint": {
+      "cache": true,
       "executor": "@nxlv/python:flake8",
       "options": {
         "outputFile": "reports/apps/test/pylint.txt",
@@ -1394,6 +1414,7 @@ exports[`application generator > individual package > should run successfully wi
       "options": {},
     },
     "test": {
+      "cache": true,
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
@@ -1520,6 +1541,7 @@ exports[`application generator > individual package > should run successfully wi
       "options": {},
     },
     "build": {
+      "cache": true,
       "executor": "@nxlv/python:build",
       "options": {
         "bundleLocalDependencies": false,
@@ -1542,6 +1564,7 @@ exports[`application generator > individual package > should run successfully wi
       },
     },
     "lint": {
+      "cache": true,
       "executor": "@nxlv/python:flake8",
       "options": {
         "outputFile": "reports/apps/test/pylint.txt",
@@ -1562,6 +1585,7 @@ exports[`application generator > individual package > should run successfully wi
       "options": {},
     },
     "test": {
+      "cache": true,
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
@@ -1688,6 +1712,7 @@ exports[`application generator > individual package > should run successfully wi
       "options": {},
     },
     "build": {
+      "cache": true,
       "executor": "@nxlv/python:build",
       "options": {
         "bundleLocalDependencies": false,
@@ -1710,6 +1735,7 @@ exports[`application generator > individual package > should run successfully wi
       },
     },
     "lint": {
+      "cache": true,
       "executor": "@nxlv/python:flake8",
       "options": {
         "outputFile": "reports/apps/test/pylint.txt",
@@ -1730,6 +1756,7 @@ exports[`application generator > individual package > should run successfully wi
       "options": {},
     },
     "test": {
+      "cache": true,
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
@@ -1843,6 +1870,7 @@ exports[`application generator > individual package > should run successfully wi
       "options": {},
     },
     "build": {
+      "cache": true,
       "executor": "@nxlv/python:build",
       "options": {
         "bundleLocalDependencies": false,
@@ -1865,6 +1893,7 @@ exports[`application generator > individual package > should run successfully wi
       },
     },
     "lint": {
+      "cache": true,
       "executor": "@nxlv/python:flake8",
       "options": {
         "outputFile": "reports/apps/test/pylint.txt",
@@ -1885,6 +1914,7 @@ exports[`application generator > individual package > should run successfully wi
       "options": {},
     },
     "test": {
+      "cache": true,
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
@@ -2056,6 +2086,7 @@ exports[`application generator > individual package > should run successfully wi
       "options": {},
     },
     "build": {
+      "cache": true,
       "executor": "@nxlv/python:build",
       "options": {
         "bundleLocalDependencies": false,
@@ -2078,6 +2109,7 @@ exports[`application generator > individual package > should run successfully wi
       },
     },
     "lint": {
+      "cache": true,
       "executor": "@nxlv/python:ruff-check",
       "options": {
         "lintFilePatterns": [
@@ -2099,6 +2131,7 @@ exports[`application generator > individual package > should run successfully wi
       "options": {},
     },
     "test": {
+      "cache": true,
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
@@ -2291,6 +2324,7 @@ exports[`application generator > individual package > should run successfully wi
       "options": {},
     },
     "build": {
+      "cache": true,
       "executor": "@nxlv/python:build",
       "options": {
         "bundleLocalDependencies": false,
@@ -2313,6 +2347,7 @@ exports[`application generator > individual package > should run successfully wi
       },
     },
     "lint": {
+      "cache": true,
       "executor": "@nxlv/python:flake8",
       "options": {
         "outputFile": "reports/apps/test/pylint.txt",
@@ -2333,6 +2368,7 @@ exports[`application generator > individual package > should run successfully wi
       "options": {},
     },
     "test": {
+      "cache": true,
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
@@ -2505,6 +2541,7 @@ exports[`application generator > individual package > should run successfully wi
       "options": {},
     },
     "build": {
+      "cache": true,
       "executor": "@nxlv/python:build",
       "options": {
         "bundleLocalDependencies": false,
@@ -2527,6 +2564,7 @@ exports[`application generator > individual package > should run successfully wi
       },
     },
     "lint": {
+      "cache": true,
       "executor": "@nxlv/python:ruff-check",
       "options": {
         "lintFilePatterns": [
@@ -2648,6 +2686,7 @@ exports[`application generator > individual package > should run successfully wi
       "options": {},
     },
     "build": {
+      "cache": true,
       "executor": "@nxlv/python:build",
       "options": {
         "bundleLocalDependencies": false,
@@ -2670,6 +2709,7 @@ exports[`application generator > individual package > should run successfully wi
       },
     },
     "lint": {
+      "cache": true,
       "executor": "@nxlv/python:ruff-check",
       "options": {
         "lintFilePatterns": [
@@ -2691,6 +2731,7 @@ exports[`application generator > individual package > should run successfully wi
       "options": {},
     },
     "test": {
+      "cache": true,
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
@@ -2821,6 +2862,7 @@ exports[`application generator > shared virtual environment > should run success
       "options": {},
     },
     "build": {
+      "cache": true,
       "executor": "@nxlv/python:build",
       "options": {
         "bundleLocalDependencies": false,
@@ -2943,6 +2985,7 @@ exports[`application generator > shared virtual environment > should run success
       "options": {},
     },
     "build": {
+      "cache": true,
       "executor": "@nxlv/python:build",
       "options": {
         "bundleLocalDependencies": false,
@@ -3065,6 +3108,7 @@ exports[`application generator > shared virtual environment > should run success
       "options": {},
     },
     "build": {
+      "cache": true,
       "executor": "@nxlv/python:build",
       "options": {
         "bundleLocalDependencies": false,
@@ -3188,6 +3232,7 @@ exports[`application generator > shared virtual environment > should run success
       "options": {},
     },
     "build": {
+      "cache": true,
       "executor": "@nxlv/python:build",
       "options": {
         "bundleLocalDependencies": false,
