@@ -116,7 +116,7 @@ export class LockedDependencyResolver {
 
     if (result.status !== 0) {
       throw new Error(
-        chalk`{bold failed to export requirements txt with exit code {bold ${result.status}}`,
+        chalk`{bold failed to export requirements txt with exit code {bold ${result.status}}}`,
       );
     }
 
