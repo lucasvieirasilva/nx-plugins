@@ -1,3 +1,9 @@
+## [20.3.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.3.0...nx-python-v20.3.1) (2024-12-31)
+
+### Bug Fixes
+
+- missing `}` bracket in chalk log ([#262](https://github.com/lucasvieirasilva/nx-plugins/issues/262)) ([b72109d](https://github.com/lucasvieirasilva/nx-plugins/commit/b72109d9dfa20c02e9f8b6b8ee846dbbfefebe72))
+
 # [20.3.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.2.0...nx-python-v20.3.0) (2024-12-23)
 
 ### Features
