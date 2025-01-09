@@ -15,7 +15,12 @@ export default async function executor(
   process.chdir(workspaceRoot);
 
   try {
-    const provider = await getProvider(workspaceRoot, logger);
+    const provider = await getProvider(
+      workspaceRoot,
+      logger,
+      undefined,
+      context,
+    );
     await provider.publish(options, context);
 
     return {

@@ -15,7 +15,12 @@ export default async function executor(
 ) {
   const workspaceRoot = context.root;
   process.chdir(workspaceRoot);
-  const provider = await getProvider(workspaceRoot);
+  const provider = await getProvider(
+    workspaceRoot,
+    undefined,
+    undefined,
+    context,
+  );
   provider.activateVenv(workspaceRoot);
 
   const projectConfig =

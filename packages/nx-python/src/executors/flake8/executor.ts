@@ -35,7 +35,12 @@ export default async function executor(
     }
 
     const lintingArgs = ['flake8', '--output-file', absPath];
-    const provider = await getProvider(workspaceRoot);
+    const provider = await getProvider(
+      workspaceRoot,
+      undefined,
+      undefined,
+      context,
+    );
     await provider.run(lintingArgs, workspaceRoot, {
       cwd,
       log: false,

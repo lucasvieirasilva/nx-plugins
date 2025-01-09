@@ -24,7 +24,12 @@ export default async function executor(
       .concat(options.lintFilePatterns)
       .concat(options.__unparsed__);
 
-    const provider = await getProvider(workspaceRoot);
+    const provider = await getProvider(
+      workspaceRoot,
+      undefined,
+      undefined,
+      context,
+    );
     await provider.run(commandArgs, workspaceRoot, {
       cwd: projectConfig.root,
       log: false,
