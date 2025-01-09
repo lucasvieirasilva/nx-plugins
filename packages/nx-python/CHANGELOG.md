@@ -1,3 +1,9 @@
+## [20.3.2](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.3.1...nx-python-v20.3.2) (2025-01-09)
+
+### Bug Fixes
+
+- update getProvider calls to include context parameter in executors ([5ae2025](https://github.com/lucasvieirasilva/nx-plugins/commit/5ae202595e9e6646b21e7bfd6179b431759d6ee2))
+
 ## [20.3.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.3.0...nx-python-v20.3.1) (2024-12-31)
 
 ### Bug Fixes
