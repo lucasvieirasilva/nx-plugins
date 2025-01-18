@@ -1,3 +1,10 @@
+## [20.3.3](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.3.2...nx-python-v20.3.3) (2025-01-18)
+
+### Bug Fixes
+
+- change dependency graph to detect non-workspace uv structure ([2a54308](https://github.com/lucasvieirasilva/nx-plugins/commit/2a5430898b9ccd3a470bcb6f62546edeeefa0c51))
+- generate uv.lock file if it does not exist before export requirements txt ([7e6fb0e](https://github.com/lucasvieirasilva/nx-plugins/commit/7e6fb0efbe30a94e327718961e82715e3e5eb296))
+
 ## [20.3.2](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.3.1...nx-python-v20.3.2) (2025-01-09)
 
 ### Bug Fixes
