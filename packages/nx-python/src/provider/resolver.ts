@@ -7,14 +7,29 @@ import { Logger } from '../executors/utils/logger';
 import { ExecutorContext, joinPathFragments, Tree } from '@nx/devkit';
 import { getPyprojectData } from './utils';
 import { UVPyprojectToml } from './uv/types';
+import { PluginOptions } from '../types';
 
 export const getProvider = async (
   workspaceRoot: string,
   logger?: Logger,
   tree?: Tree,
   context?: ExecutorContext,
+  options?: PluginOptions,
 ): Promise<IProvider> => {
   const loggerInstance = logger ?? new Logger();
+
+  if (options?.packageManager) {
+    switch (options.packageManager) {
+      case 'poetry':
+        return new UVProvider(workspaceRoot, loggerInstance, tree);
+      case 'uv':
+        return new UVProvider(workspaceRoot, loggerInstance, tree);
+      default:
+        throw new Error(
+          `Plugin option "packageManager" must be either "poetry" or "uv". Received "${options.packageManager}".`,
+        );
+    }
+  }
 
   const uv = isUv(workspaceRoot, context, tree);
   const poetry = isPoetry(workspaceRoot, context, tree);
