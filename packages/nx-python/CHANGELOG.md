@@ -1,3 +1,9 @@
+## [20.3.4](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.3.3...nx-python-v20.3.4) (2025-01-18)
+
+### Bug Fixes
+
+- formatting uv package manager instructions ([e94582d](https://github.com/lucasvieirasilva/nx-plugins/commit/e94582dd1a5532e8a19f1aa6e4e09488c3f48f0d))
+
 ## [20.3.3](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.3.2...nx-python-v20.3.3) (2025-01-18)
 
 ### Bug Fixes
