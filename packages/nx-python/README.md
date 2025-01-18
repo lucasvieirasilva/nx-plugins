@@ -76,7 +76,6 @@ for Nx 20.x or higher, use the following pattern:
 
 > **IMPORTANT**: To use `uv` package manager without workspaces, set the `packageManager` option to `uv` in the `nx.json` file, as shown below:
 
-````json
 ```json
 {
   ...
@@ -91,7 +90,7 @@ for Nx 20.x or higher, use the following pattern:
   ]
   ...
 }
-````
+```
 
 **NOTE**: The default package manager is `poetry`, but it's automatically detected if the repository is configured to use `uv` workspaces since the `uv.lock` filw will be present in the root directory.
 
