@@ -144,6 +144,7 @@ export class UVProvider implements IProvider {
       deps.push(
         ...this.resolveDependencies(
           tomlData,
+          projects[projectName],
           tomlData?.project?.dependencies || [],
           'main',
           projects,
@@ -154,6 +155,7 @@ export class UVProvider implements IProvider {
         deps.push(
           ...this.resolveDependencies(
             tomlData,
+            projects[projectName],
             tomlData['dependency-groups'][group],
             group,
             projects,
@@ -525,6 +527,7 @@ export class UVProvider implements IProvider {
 
   private resolveDependencies(
     pyprojectToml: UVPyprojectToml | undefined,
+    projectData: ProjectConfiguration,
     dependencies: string[],
     category: string,
     projects: Record<string, ProjectConfiguration>,
@@ -537,36 +540,98 @@ export class UVProvider implements IProvider {
     const sources = pyprojectToml?.tool?.uv?.sources ?? {};
 
     for (const dep of dependencies) {
-      if (!sources[dep]?.workspace) {
+      if (!sources[dep]) {
         continue;
       }
 
-      const packageMetadata =
-        this.rootLockfile.package[pyprojectToml?.project?.name]?.metadata;
-
-      const depMetadata =
-        category === 'main'
-          ? packageMetadata?.['requires-dist']?.[dep]
-          : packageMetadata?.['requires-dev']?.[category]?.[dep];
-
-      if (!depMetadata?.editable) {
-        continue;
+      if (this.isWorkspace) {
+        this.appendWorkspaceDependencyToDeps(
+          pyprojectToml,
+          dep,
+          category,
+          sources,
+          projects,
+          deps,
+        );
+      } else {
+        this.appendIndividualDependencyToDeps(
+          projectData,
+          dep,
+          category,
+          sources,
+          projects,
+          deps,
+        );
       }
-
-      const depProjectName = Object.keys(projects).find(
-        (proj) =>
-          path.normalize(projects[proj].root) ===
-          path.normalize(depMetadata.editable),
-      );
-
-      if (!depProjectName) {
-        continue;
-      }
-
-      deps.push({ name: depProjectName, category });
     }
 
     return deps;
+  }
+
+  private appendWorkspaceDependencyToDeps(
+    pyprojectToml: UVPyprojectToml | undefined,
+    dependencyName: string,
+    category: string,
+    sources: UVPyprojectToml['tool']['uv']['sources'],
+    projects: Record<string, ProjectConfiguration>,
+    deps: Dependency[],
+  ): void {
+    if (!sources[dependencyName]?.workspace) {
+      return;
+    }
+
+    const packageMetadata =
+      this.rootLockfile.package[pyprojectToml?.project?.name]?.metadata;
+
+    const depMetadata =
+      category === 'main'
+        ? packageMetadata?.['requires-dist']?.[dependencyName]
+        : packageMetadata?.['requires-dev']?.[category]?.[dependencyName];
+
+    if (!depMetadata?.editable) {
+      return;
+    }
+
+    const depProjectName = Object.keys(projects).find(
+      (proj) =>
+        path.normalize(projects[proj].root) ===
+        path.normalize(depMetadata.editable),
+    );
+
+    if (!depProjectName) {
+      return;
+    }
+
+    deps.push({ name: depProjectName, category });
+  }
+
+  private appendIndividualDependencyToDeps(
+    projectData: ProjectConfiguration,
+    dependencyName: string,
+    category: string,
+    sources: UVPyprojectToml['tool']['uv']['sources'],
+    projects: Record<string, ProjectConfiguration>,
+    deps: Dependency[],
+  ) {
+    if (!sources[dependencyName]?.path) {
+      return;
+    }
+
+    const depAbsPath = path.resolve(
+      projectData.root,
+      sources[dependencyName].path,
+    );
+    const depProjectName = Object.keys(projects).find(
+      (proj) =>
+        path.normalize(projects[proj].root) ===
+        path.normalize(path.relative(this.workspaceRoot, depAbsPath)),
+    );
+
+    if (!depProjectName) {
+      return;
+    }
+
+    deps.push({ name: depProjectName, category });
   }
 
   private getProjectRoot(context: ExecutorContext) {
