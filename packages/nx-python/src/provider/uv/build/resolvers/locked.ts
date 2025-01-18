@@ -108,6 +108,21 @@ export class LockedDependencyResolver {
       exportArgs.push('--no-dev');
     }
 
+    if (!existsSync(path.join(projectRoot, 'uv.lock'))) {
+      this.logger.info('  Generating uv.lock file');
+      const lockCmd = spawn.sync(UV_EXECUTABLE, ['lock'], {
+        cwd: projectRoot,
+        shell: true,
+        stdio: 'inherit',
+      });
+
+      if (lockCmd.status !== 0) {
+        throw new Error(
+          chalk`{bold failed to generate uv.lock file with exit code {bold ${lockCmd.status}}}`,
+        );
+      }
+    }
+
     const result = spawn.sync(UV_EXECUTABLE, exportArgs, {
       cwd: workspaceRoot,
       shell: true,
