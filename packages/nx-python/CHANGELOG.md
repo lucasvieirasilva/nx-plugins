@@ -1,3 +1,9 @@
+## [20.3.6](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.3.5...nx-python-v20.3.6) (2025-01-22)
+
+### Bug Fixes
+
+- change uv provider to not use lock files on release-version generator ([cf17bda](https://github.com/lucasvieirasilva/nx-plugins/commit/cf17bda0bc9fd6c0f0800a633ce054934493dd03))
+
 ## [20.3.5](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.3.4...nx-python-v20.3.5) (2025-01-22)
 
 ### Bug Fixes
