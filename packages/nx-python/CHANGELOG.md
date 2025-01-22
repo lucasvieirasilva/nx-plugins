@@ -1,3 +1,10 @@
+## [20.3.5](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.3.4...nx-python-v20.3.5) (2025-01-22)
+
+### Bug Fixes
+
+- change release-version to resolve package manager from plugin options ([ec0af4d](https://github.com/lucasvieirasilva/nx-plugins/commit/ec0af4dc847e9c45f47e775a8556f25c018ed0e7))
+- update uv provider to resolve lock from project when root lock is not available ([9282ad9](https://github.com/lucasvieirasilva/nx-plugins/commit/9282ad96d545f5458996b946118052b7b7b8b8c9))
+
 ## [20.3.4](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.3.3...nx-python-v20.3.4) (2025-01-18)
 
 ### Bug Fixes
