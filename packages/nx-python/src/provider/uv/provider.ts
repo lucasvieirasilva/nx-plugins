@@ -94,24 +94,58 @@ export class UVProvider implements IProvider {
       ? readPyprojectToml<UVPyprojectToml>(this.tree, pyprojectTomlPath)
       : getPyprojectData<UVPyprojectToml>(pyprojectTomlPath);
 
-    const lockData = this.isWorkspace
-      ? this.rootLockfile
-      : getUvLockfile(joinPathFragments(projectRoot, 'uv.lock'), this.tree);
+    if (this.isWorkspace) {
+      const data = this.rootLockfile.package[projectData.project.name];
+      const group = data?.dependencies?.find(
+        (item) => item.name === dependencyName,
+      )
+        ? 'main'
+        : Object.entries(data?.['dev-dependencies'] ?? {}).find(
+            ([, value]) => !!value.find((item) => item.name === dependencyName),
+          )?.[0];
 
-    const data = lockData.package[projectData.project.name];
-    const group = data?.dependencies?.find(
-      (item) => item.name === dependencyName,
-    )
-      ? 'main'
-      : Object.entries(data?.['dev-dependencies'] ?? {}).find(
-          ([, value]) => !!value.find((item) => item.name === dependencyName),
-        )?.[0];
+      return {
+        name: this.rootLockfile.package[dependencyName].name,
+        version: this.rootLockfile.package[dependencyName].version,
+        group,
+      };
+    } else {
+      const dependencyRelativePath =
+        projectData.tool?.uv?.sources?.[dependencyName]?.path;
+      if (!dependencyRelativePath) {
+        throw new Error(
+          `Dependency ${dependencyName} not found in pyproject.toml`,
+        );
+      }
 
-    return {
-      name: lockData.package[dependencyName].name,
-      version: lockData.package[dependencyName].version,
-      group,
-    };
+      const dependencyPyprojectPath = join(
+        projectRoot,
+        dependencyRelativePath,
+        'pyproject.toml',
+      );
+
+      const dependencyProjectData = this.tree
+        ? readPyprojectToml<UVPyprojectToml>(this.tree, dependencyPyprojectPath)
+        : getPyprojectData<UVPyprojectToml>(dependencyPyprojectPath);
+
+      if (!dependencyProjectData) {
+        throw new Error(`${dependencyPyprojectPath} not found`);
+      }
+
+      const group = projectData.project?.dependencies?.find(
+        (item) => item === dependencyName,
+      )
+        ? 'main'
+        : Object.entries(projectData['dependency-groups'] ?? {}).find(
+            ([, value]) => !!value.find((item) => item === dependencyName),
+          )?.[0];
+
+      return {
+        name: dependencyProjectData.project.name,
+        version: dependencyProjectData.project.version,
+        group,
+      };
+    }
   }
 
   public updateVersion(projectRoot: string, newVersion: string): void {
