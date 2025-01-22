@@ -1,9 +1,12 @@
 import {
+  ExpandedPluginConfiguration,
+  NxJsonConfiguration,
   ProjectGraphProjectNode,
   Tree,
   formatFiles,
   joinPathFragments,
   output,
+  readJson,
 } from '@nx/devkit';
 import chalk from 'chalk';
 import { exec } from 'node:child_process';
@@ -39,13 +42,26 @@ import {
 import { sortProjectsTopologically } from './utils/sort-projects-topologically';
 import path, { dirname } from 'node:path';
 import { getProvider } from '../../provider';
+import { PluginOptions } from '../../types';
 
 export async function releaseVersionGenerator(
   tree: Tree,
   options: ReleaseVersionGeneratorSchema,
 ): Promise<ReleaseVersionGeneratorResult> {
   let logger: ProjectLogger | undefined;
-  const provider = await getProvider('.', undefined, tree);
+  const nxJson = readJson<NxJsonConfiguration>(tree, 'nx.json');
+  const pluginConfig = nxJson.plugins?.find(
+    (plugin): plugin is ExpandedPluginConfiguration =>
+      typeof plugin === 'object' && plugin.plugin === '@nxlv/python',
+  );
+
+  const provider = await getProvider(
+    '.',
+    undefined,
+    tree,
+    undefined,
+    pluginConfig?.options as PluginOptions,
+  );
   const updatedProjects: string[] = [];
 
   try {
