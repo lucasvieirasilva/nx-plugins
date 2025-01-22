@@ -94,9 +94,11 @@ export class UVProvider implements IProvider {
       ? readPyprojectToml<UVPyprojectToml>(this.tree, pyprojectTomlPath)
       : getPyprojectData<UVPyprojectToml>(pyprojectTomlPath);
 
-    const data = this.rootLockfile.package[projectData.project.name];
-    console.log('data', data);
+    const lockData = this.isWorkspace
+      ? this.rootLockfile
+      : getUvLockfile(joinPathFragments(projectRoot, 'uv.lock'), this.tree);
 
+    const data = lockData.package[projectData.project.name];
     const group = data?.dependencies?.find(
       (item) => item.name === dependencyName,
     )
@@ -106,8 +108,8 @@ export class UVProvider implements IProvider {
         )?.[0];
 
     return {
-      name: this.rootLockfile.package[dependencyName].name,
-      version: this.rootLockfile.package[dependencyName].version,
+      name: lockData.package[dependencyName].name,
+      version: lockData.package[dependencyName].version,
       group,
     };
   }
