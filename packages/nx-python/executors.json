@@ -60,6 +60,11 @@
       "implementation": "./src/executors/ruff-check/executor",
       "schema": "./src/executors/ruff-check/schema.json",
       "description": "Ruff Check Executor"
+    },
+    "ruff-format": {
+      "implementation": "./src/executors/ruff-format/executor",
+      "schema": "./src/executors/ruff-format/schema.json",
+      "description": "Ruff Format Executor"
     }
   }
 }

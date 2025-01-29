@@ -2098,6 +2098,17 @@ exports[`application generator > individual package > should run successfully wi
         "{projectRoot}/dist",
       ],
     },
+    "format": {
+      "cache": true,
+      "executor": "@nxlv/python:ruff-format",
+      "options": {
+        "filePatterns": [
+          "test",
+          "tests",
+        ],
+      },
+      "outputs": [],
+    },
     "install": {
       "executor": "@nxlv/python:install",
       "options": {
@@ -2553,6 +2564,16 @@ exports[`application generator > individual package > should run successfully wi
         "{projectRoot}/dist",
       ],
     },
+    "format": {
+      "cache": true,
+      "executor": "@nxlv/python:ruff-format",
+      "options": {
+        "filePatterns": [
+          "test",
+        ],
+      },
+      "outputs": [],
+    },
     "install": {
       "executor": "@nxlv/python:install",
       "options": {
@@ -2697,6 +2718,17 @@ exports[`application generator > individual package > should run successfully wi
       "outputs": [
         "{projectRoot}/dist",
       ],
+    },
+    "format": {
+      "cache": true,
+      "executor": "@nxlv/python:ruff-format",
+      "options": {
+        "filePatterns": [
+          "test",
+          "tests",
+        ],
+      },
+      "outputs": [],
     },
     "install": {
       "executor": "@nxlv/python:install",
