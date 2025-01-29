@@ -1,3 +1,9 @@
+# [20.4.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.3.6...nx-python-v20.4.0) (2025-01-29)
+
+### Features
+
+- add ruff-format executor for formatting files ([ecdbb03](https://github.com/lucasvieirasilva/nx-plugins/commit/ecdbb03fff74ad6dc6e60e45cdd7f9aeaab27839))
+
 ## [20.3.6](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.3.5...nx-python-v20.3.6) (2025-01-22)
 
 ### Bug Fixes
