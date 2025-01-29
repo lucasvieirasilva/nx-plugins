@@ -10,7 +10,6 @@ import { parse, stringify } from '@iarna/toml';
 import chalk from 'chalk';
 import _ from 'lodash';
 import { UVPyprojectToml } from '../../provider/uv/types';
-import { checkUvExecutable, runUv } from '../../provider/uv/utils';
 import { DEV_DEPENDENCIES_VERSION_MAP } from '../consts';
 import {
   addFiles,
@@ -22,6 +21,8 @@ import {
   BaseNormalizedSchema,
   BasePythonProjectGeneratorSchema,
 } from '../types';
+import { UVProvider } from '../../provider/uv';
+import { IProvider } from '../../provider/base';
 
 interface NormalizedSchema extends BaseNormalizedSchema {
   devDependenciesProjectPath?: string;
@@ -219,10 +220,10 @@ function addTestDependencies(
   };
 }
 
-function updateRootUvLock(tree: Tree) {
+async function updateRootUvLock(tree: Tree, provider: IProvider) {
   if (tree.exists('pyproject.toml')) {
     console.log(chalk`  Updating root {bgBlue uv.lock}...`);
-    runUv(['sync'], { log: false });
+    await provider.install();
     console.log(chalk`\n  {bgBlue uv.lock} updated.\n`);
   }
 }
@@ -231,19 +232,13 @@ export default async function (
   tree: Tree,
   options: BasePythonProjectGeneratorSchema,
 ) {
-  await checkUvExecutable();
+  const provider = new UVProvider(tree.root, undefined, tree);
+  await provider.checkPrerequisites();
 
   const normalizedOptions = normalizeOptions(tree, options);
 
   const targets: ProjectConfiguration['targets'] = {
-    ...getDefaultPythonProjectTargets(normalizedOptions),
-    lock: {
-      executor: '@nxlv/python:run-commands',
-      options: {
-        command: 'uv lock',
-        cwd: normalizedOptions.projectRoot,
-      },
-    },
+    ...(await getDefaultPythonProjectTargets(normalizedOptions, provider)),
     install: {
       executor: '@nxlv/python:install',
       options: {
@@ -254,21 +249,6 @@ export default async function (
       },
     },
   };
-
-  if (options.unitTestRunner === 'pytest') {
-    targets.test = {
-      executor: '@nxlv/python:run-commands',
-      outputs: [
-        `{workspaceRoot}/reports/${normalizedOptions.projectRoot}/unittests`,
-        `{workspaceRoot}/coverage/${normalizedOptions.projectRoot}`,
-      ],
-      options: {
-        command: `uv run pytest tests/`,
-        cwd: normalizedOptions.projectRoot,
-      },
-      cache: true,
-    };
-  }
 
   const projectConfiguration: ProjectConfiguration = {
     root: normalizedOptions.projectRoot,
@@ -304,7 +284,7 @@ export default async function (
   updateRootPyprojectToml(tree, normalizedOptions);
   await formatFiles(tree);
 
-  return () => {
-    updateRootUvLock(tree);
+  return async () => {
+    await updateRootUvLock(tree, provider);
   };
 }

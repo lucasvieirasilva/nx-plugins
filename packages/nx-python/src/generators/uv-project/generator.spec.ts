@@ -113,7 +113,7 @@ describe('application generator', () => {
 
   it('should run successfully with minimal options', async () => {
     const callbackTask = await generator(appTree, options);
-    callbackTask();
+    await callbackTask();
     const config = readProjectConfiguration(appTree, 'test');
     expect(config).toMatchSnapshot();
 
@@ -513,7 +513,7 @@ describe('application generator', () => {
         ...options,
         rootPyprojectDependencyGroup: 'dev',
       });
-      callbackTask();
+      await callbackTask();
       const config = readProjectConfiguration(appTree, 'test');
       expect(config).toMatchSnapshot();
 
@@ -554,7 +554,7 @@ describe('application generator', () => {
         ...options,
         rootPyprojectDependencyGroup: undefined,
       });
-      callbackTask();
+      await callbackTask();
       const config = readProjectConfiguration(appTree, 'test');
       expect(config).toMatchSnapshot();
 
@@ -595,7 +595,7 @@ describe('application generator', () => {
         ...options,
         rootPyprojectDependencyGroup: 'dev',
       });
-      callbackTask();
+      await callbackTask();
       const config = readProjectConfiguration(appTree, 'test');
       expect(config).toMatchSnapshot();
 

@@ -28,7 +28,6 @@ import {
   POETRY_EXECUTABLE,
   runPoetry,
   RunPoetryOptions,
-  updateProject,
 } from './utils';
 import chalk from 'chalk';
 import { parse, stringify } from '@iarna/toml';
@@ -63,6 +62,7 @@ import {
   readPyprojectToml,
   writePyprojectToml,
 } from '../utils';
+import semver from 'semver';
 
 export class PoetryProvider implements IProvider {
   constructor(
@@ -234,7 +234,7 @@ export class PoetryProvider implements IProvider {
       this.logger.info(
         chalk`\n  {bold Adding {bgBlue  ${options.name} } workspace dependency...}\n`,
       );
-      this.updateLocalProject(
+      await this.updateLocalProject(
         context,
         options.name,
         projectConfig,
@@ -257,7 +257,7 @@ export class PoetryProvider implements IProvider {
       runPoetry(installArgs, { cwd: projectConfig.root });
     }
 
-    this.updateDependencyTree(context);
+    await this.updateDependencyTree(context);
 
     this.logger.info(
       chalk`\n  {green.bold '${options.name}'} {green dependency has been successfully added to the project}\n`,
@@ -289,7 +289,7 @@ export class PoetryProvider implements IProvider {
         );
       }
 
-      updateProject(projectConfig.root, rootPyprojectToml);
+      await this.updateProject(projectConfig.root, rootPyprojectToml);
     } else {
       if (options.name) {
         this.logger.info(
@@ -306,7 +306,7 @@ export class PoetryProvider implements IProvider {
       runPoetry(updateArgs, { cwd: projectConfig.root });
     }
 
-    this.updateDependencyTree(context);
+    await this.updateDependencyTree(context);
 
     this.logger.info(
       chalk`\n  {green.bold '${options.name}'} {green dependency has been successfully added to the project}\n`,
@@ -340,15 +340,15 @@ export class PoetryProvider implements IProvider {
       dependencyName = name;
     }
 
-    const poetryVersion = await getPoetryVersion();
-    const hasLockOption = poetryVersion >= '1.5.0';
+    const poetryVersion = await getPoetryVersion(context);
+    const hasLockOption = semver.gte(poetryVersion, '1.5.0');
 
     const removeArgs = ['remove', dependencyName]
       .concat(options.args ? options.args.split(' ') : [])
       .concat(rootPyprojectToml && hasLockOption ? ['--lock'] : []);
     runPoetry(removeArgs, { cwd: projectConfig.root });
 
-    this.updateDependencyTree(context);
+    await this.updateDependencyTree(context);
 
     this.logger.info(
       chalk`\n  {green.bold '${options.name}'} {green dependency has been successfully removed}\n`,
@@ -428,40 +428,63 @@ export class PoetryProvider implements IProvider {
   }
 
   public async install(
-    options: InstallExecutorSchema,
-    context: ExecutorContext,
+    options?: InstallExecutorSchema,
+    context?: ExecutorContext,
+  ): Promise<void>;
+
+  public async install(cwd?: string): Promise<void>;
+
+  public async install(
+    optionsOrCwd?: InstallExecutorSchema | string,
+    context?: ExecutorContext,
   ): Promise<void> {
     await checkPoetryExecutable();
     const projectConfig =
-      context.projectsConfigurations.projects[context.projectName];
+      context?.projectsConfigurations?.projects?.[context?.projectName];
     let verboseArg = '-v';
 
-    if (options.debug) {
-      verboseArg = '-vvv';
-    } else if (options.verbose) {
-      verboseArg = '-vv';
+    const installArgs: string[] = ['install'];
+
+    const execOpts: RunPoetryOptions = {};
+
+    if (optionsOrCwd && typeof optionsOrCwd === 'object') {
+      const options = optionsOrCwd;
+      if (options.debug) {
+        verboseArg = '-vvv';
+      } else if (options.verbose) {
+        verboseArg = '-vv';
+      }
+
+      installArgs.push(...(options.args ? options.args.split(' ') : []));
+      if (projectConfig?.root) {
+        execOpts.cwd = projectConfig?.root;
+      }
+
+      if (options?.cacheDir) {
+        execOpts.env = {
+          ...process.env,
+          POETRY_CACHE_DIR: path.resolve(options.cacheDir),
+        };
+      }
+    } else if (optionsOrCwd && typeof optionsOrCwd === 'string') {
+      execOpts.cwd = optionsOrCwd;
     }
 
-    const installArgs = ['install', verboseArg].concat(
-      options.args ? options.args.split(' ') : [],
-    );
-
-    const execOpts: RunPoetryOptions = {
-      cwd: projectConfig.root,
-    };
-
-    if (options.cacheDir) {
-      execOpts.env = {
-        ...process.env,
-        POETRY_CACHE_DIR: path.resolve(options.cacheDir),
-      };
-    }
-
-    runPoetry(installArgs, execOpts);
+    runPoetry([...installArgs, verboseArg], execOpts);
   }
 
-  public async lock(projectRoot: string): Promise<void> {
-    runPoetry(['lock', '--no-update'], { cwd: projectRoot });
+  public async getLockCommand(projectRoot?: string): Promise<string> {
+    const poetryVersion = await getPoetryVersion(projectRoot);
+    return `${POETRY_EXECUTABLE} lock${semver.lt(poetryVersion, '2.0.0') ? ' --no-update' : ''}`;
+  }
+
+  public async lock(projectRoot?: string): Promise<void> {
+    const lockCommand = await this.getLockCommand(projectRoot);
+
+    runPoetry(
+      lockCommand.split(' ').slice(1),
+      projectRoot ? { cwd: projectRoot } : undefined,
+    );
   }
 
   public async build(
@@ -571,6 +594,10 @@ export class PoetryProvider implements IProvider {
     return buildFolderPath;
   }
 
+  public async getRunCommand(args: string[]): Promise<string> {
+    return `${POETRY_EXECUTABLE} run ${args.join(' ')}`;
+  }
+
   public async run(
     args: string[],
     workspaceRoot: string,
@@ -589,7 +616,7 @@ export class PoetryProvider implements IProvider {
     activateVenv(workspaceRoot);
   }
 
-  private updateLocalProject(
+  private async updateLocalProject(
     context: ExecutorContext,
     dependencyName: string,
     projectConfig: ProjectConfiguration,
@@ -611,14 +638,14 @@ export class PoetryProvider implements IProvider {
       group,
       extras,
     );
-    updateProject(projectConfig.root, updateLockOnly);
+    await this.updateProject(projectConfig.root, updateLockOnly);
   }
 
-  private updateDependencyTree(context: ExecutorContext) {
+  private async updateDependencyTree(context: ExecutorContext) {
     const rootPyprojectToml = fs.existsSync('pyproject.toml');
     const pkgName = getProjectPackageName(context, context.projectName);
 
-    this.updateDependents(
+    await this.updateDependents(
       context,
       context.projectsConfigurations,
       context.projectName,
@@ -640,13 +667,18 @@ export class PoetryProvider implements IProvider {
           chalk`\nUpdating root {bold pyproject.toml} dependency {bold ${pkgName}}`,
         );
 
-        runPoetry(['lock', '--no-update']);
-        runPoetry(['install', '--no-root']);
+        await this.lock();
+        await this.install({
+          debug: false,
+          silent: false,
+          verbose: false,
+          args: '--no-root',
+        });
       }
     }
   }
 
-  private updateDependents(
+  private async updateDependents(
     context: ExecutorContext,
     workspace: ProjectsConfigurations,
     projectName: string,
@@ -669,9 +701,8 @@ export class PoetryProvider implements IProvider {
       this.logger.info(chalk`\nUpdating project {bold ${dep}}`);
       const depConfig = workspace.projects[dep];
 
-      updateProject(depConfig.root, updateLockOnly);
-
-      this.updateDependents(
+      await this.updateProject(depConfig.root, updateLockOnly);
+      await this.updateDependents(
         context,
         workspace,
         dep,
@@ -768,5 +799,12 @@ export class PoetryProvider implements IProvider {
     }
 
     return deps;
+  }
+
+  private async updateProject(cwd: string, updateLockOnly: boolean) {
+    await this.lock(cwd);
+    if (!updateLockOnly) {
+      await this.install(cwd);
+    }
   }
 }

@@ -17,6 +17,7 @@ import _ from 'lodash';
 import path from 'path';
 import { parse } from '@iarna/toml';
 import { DEV_DEPENDENCIES_VERSION_MAP } from './consts';
+import { IProvider } from '../provider/base';
 
 export function getPyTestAddopts(
   options: PytestGeneratorSchema,
@@ -205,10 +206,18 @@ export function addFiles(
   }
 }
 
-export function getDefaultPythonProjectTargets(
+export async function getDefaultPythonProjectTargets(
   options: BaseNormalizedSchema,
-): ProjectConfiguration['targets'] {
+  provider: IProvider,
+): Promise<ProjectConfiguration['targets']> {
   const targets: ProjectConfiguration['targets'] = {
+    lock: {
+      executor: '@nxlv/python:run-commands',
+      options: {
+        command: await provider.getLockCommand(),
+        cwd: options.projectRoot,
+      },
+    },
     add: {
       executor: '@nxlv/python:add',
       options: {},
@@ -264,6 +273,21 @@ export function getDefaultPythonProjectTargets(
         filePatterns: [options.moduleName].concat(
           options.unitTestRunner === 'pytest' ? ['tests'] : [],
         ),
+      },
+      cache: true,
+    };
+  }
+
+  if (options.unitTestRunner === 'pytest') {
+    targets.test = {
+      executor: '@nxlv/python:run-commands',
+      outputs: [
+        `{workspaceRoot}/reports/${options.projectRoot}/unittests`,
+        `{workspaceRoot}/coverage/${options.projectRoot}`,
+      ],
+      options: {
+        command: await provider.getRunCommand(['pytest', 'tests/']),
+        cwd: options.projectRoot,
       },
       cache: true,
     };

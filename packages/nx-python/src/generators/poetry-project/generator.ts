@@ -10,10 +10,10 @@ import { parse, stringify } from '@iarna/toml';
 import chalk from 'chalk';
 import _ from 'lodash';
 import {
+  PoetryProvider,
   PoetryPyprojectToml,
   PoetryPyprojectTomlDependencies,
 } from '../../provider/poetry';
-import { checkPoetryExecutable, runPoetry } from '../../provider/poetry/utils';
 import {
   BaseNormalizedSchema,
   BasePythonProjectGeneratorSchema,
@@ -25,6 +25,7 @@ import {
   getPyprojectTomlByProjectName,
 } from '../utils';
 import { DEV_DEPENDENCIES_VERSION_MAP } from '../consts';
+import { IProvider } from '../../provider/base';
 
 interface NormalizedSchema extends BaseNormalizedSchema {
   devDependenciesProjectPath?: string;
@@ -201,11 +202,11 @@ function addTestDependencies(
   };
 }
 
-function updateRootPoetryLock(host: Tree) {
-  if (host.exists('./pyproject.toml')) {
+async function updateRootPoetryLock(tree: Tree, provider: IProvider) {
+  if (tree.exists('./pyproject.toml')) {
     console.log(chalk`  Updating root {bgBlue poetry.lock}...`);
-    runPoetry(['lock', '--no-update'], { log: false });
-    runPoetry(['install']);
+    await provider.lock();
+    await provider.install();
     console.log(chalk`\n  {bgBlue poetry.lock} updated.\n`);
   }
 }
@@ -214,16 +215,17 @@ export default async function (
   tree: Tree,
   options: BasePythonProjectGeneratorSchema,
 ) {
-  await checkPoetryExecutable();
+  const provider = new PoetryProvider(tree.root, undefined, tree);
+  await provider.checkPrerequisites();
 
   const normalizedOptions = normalizeOptions(tree, options);
 
   const targets: ProjectConfiguration['targets'] = {
-    ...getDefaultPythonProjectTargets(normalizedOptions),
+    ...(await getDefaultPythonProjectTargets(normalizedOptions, provider)),
     lock: {
       executor: '@nxlv/python:run-commands',
       options: {
-        command: 'poetry lock --no-update',
+        command: await provider.getLockCommand(),
         cwd: normalizedOptions.projectRoot,
       },
     },
@@ -238,21 +240,6 @@ export default async function (
       },
     },
   };
-
-  if (options.unitTestRunner === 'pytest') {
-    targets.test = {
-      executor: '@nxlv/python:run-commands',
-      outputs: [
-        `{workspaceRoot}/reports/${normalizedOptions.projectRoot}/unittests`,
-        `{workspaceRoot}/coverage/${normalizedOptions.projectRoot}`,
-      ],
-      options: {
-        command: `poetry run pytest tests/`,
-        cwd: normalizedOptions.projectRoot,
-      },
-      cache: true,
-    };
-  }
 
   const projectConfiguration: ProjectConfiguration = {
     root: normalizedOptions.projectRoot,
@@ -288,7 +275,7 @@ export default async function (
   updateRootPyprojectToml(tree, normalizedOptions);
   await formatFiles(tree);
 
-  return () => {
-    updateRootPoetryLock(tree);
+  return async () => {
+    await updateRootPoetryLock(tree, provider);
   };
 }

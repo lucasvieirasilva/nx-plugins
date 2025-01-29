@@ -14,6 +14,7 @@ describe('nx-python enable-releases', () => {
     appTree = createTreeWithEmptyWorkspace({});
 
     vi.spyOn(poetryUtils, 'checkPoetryExecutable').mockReturnValue(undefined);
+    vi.spyOn(poetryUtils, 'getPoetryVersion').mockResolvedValue('1.8.2');
     vi.mocked(spawn.sync).mockImplementation((command) => {
       if (command === 'python') {
         return {
