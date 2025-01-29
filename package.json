@@ -32,6 +32,7 @@
     "@types/fs-extra": "^11.0.4",
     "@types/lodash": "^4.14.202",
     "@types/node": "18.19.21",
+    "@types/semver": "^7.5.8",
     "@typescript-eslint/eslint-plugin": "7.18.0",
     "@typescript-eslint/parser": "7.18.0",
     "@vitest/coverage-v8": "^2.0.5",
@@ -85,7 +86,7 @@
     "lodash": "^4.17.21",
     "ora": "5.3.0",
     "prompts": "^2.4.2",
-    "semver": "^7.5.3",
+    "semver": "^7.6.3",
     "tslib": "^2.3.0",
     "uuid": "^9.0.1",
     "wildcard-match": "^5.1.3"
