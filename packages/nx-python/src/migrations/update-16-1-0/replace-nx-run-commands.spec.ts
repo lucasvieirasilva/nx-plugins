@@ -15,6 +15,7 @@ describe('16-1-0-replace-nx-run-commands migration', () => {
     tree = createTreeWithEmptyWorkspace({ layout: 'apps-libs' });
 
     vi.spyOn(poetryUtils, 'checkPoetryExecutable').mockReturnValue(undefined);
+    vi.spyOn(poetryUtils, 'getPoetryVersion').mockResolvedValue('1.8.2');
   });
 
   it('should run successfully', async () => {

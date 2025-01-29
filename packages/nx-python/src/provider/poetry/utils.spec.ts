@@ -192,6 +192,55 @@ describe('Poetry Utils', () => {
       expect(version2).toEqual('1.2.2');
     });
 
+    it('should get the poetry CLI version with executor context', async () => {
+      vi.mocked(spawn.sync).mockReturnValueOnce({
+        status: 0,
+        stdout: Buffer.from('Poetry (version 1.5.0)'),
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+      });
+
+      const version = await poetryUtils.getPoetryVersion({
+        cwd: '.',
+        nxJsonConfiguration: {},
+        isVerbose: false,
+        projectGraph: {
+          nodes: {},
+          dependencies: {},
+        },
+        projectsConfigurations: {
+          projects: {
+            app1: {
+              root: 'apps/app1',
+            },
+          },
+          version: 2,
+        },
+        root: '.',
+        projectName: 'app1',
+      });
+
+      expect(version).toEqual('1.5.0');
+
+      vi.mocked(spawn.sync).mockReturnValueOnce({
+        status: 0,
+        stdout: Buffer.from('\n\nSomething else\n\nPoetry (version 1.2.2)'),
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+      });
+
+      const version2 = await poetryUtils.getPoetryVersion();
+
+      expect(version2).toEqual('1.2.2');
+      expect(spawn.sync).toHaveBeenCalledWith('poetry', ['--version'], {
+        cwd: 'apps/app1',
+      });
+    });
+
     it('should throw an error when the status is not 0', async () => {
       vi.mocked(spawn.sync).mockReturnValueOnce({
         status: 1,

@@ -34,6 +34,7 @@ describe('Install Executor', () => {
 
   afterEach(() => {
     vol.reset();
+    vi.resetAllMocks();
   });
 
   describe('poetry', () => {
@@ -122,7 +123,7 @@ describe('Install Executor', () => {
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
       expect(spawn.sync).toHaveBeenCalledWith(
         'poetry',
-        ['install', '-v', '--no-dev'],
+        ['install', '--no-dev', '-v'],
         {
           stdio: 'inherit',
           shell: false,
@@ -158,7 +159,7 @@ describe('Install Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(spawn.sync).toHaveBeenCalledWith('poetry', ['install', '-vv'], {
+      expect(spawn.sync).toHaveBeenCalledWith('poetry', ['install', '-vvv'], {
         stdio: 'inherit',
         shell: false,
         cwd: 'apps/app',
@@ -206,6 +207,10 @@ describe('Install Executor', () => {
         stdio: 'inherit',
         shell: false,
         cwd: 'apps/app',
+        env: {
+          ...process.env,
+          POETRY_CACHE_DIR: path.resolve('apps/app/.cache/pypoetry'),
+        },
       });
       expect(output.success).toBe(false);
     });

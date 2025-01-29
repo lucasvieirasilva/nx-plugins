@@ -11,9 +11,9 @@ import { Schema } from './schema';
 import { parse, stringify } from '@iarna/toml';
 import chalk from 'chalk';
 import { PoetryPyprojectToml } from '../../provider/poetry';
-import { checkPoetryExecutable, runPoetry } from '../../provider/poetry/utils';
-import { checkUvExecutable, runUv } from '../../provider/uv/utils';
 import { UVPyprojectToml } from '../../provider/uv/types';
+import { getProvider } from '../../provider';
+import { IProvider } from '../../provider/base';
 
 async function addFiles(host: Tree, options: Schema) {
   const packageJson = await readJsonFile('package.json');
@@ -50,11 +50,12 @@ async function addFiles(host: Tree, options: Schema) {
   }
 }
 
-type LockUpdateTask = () => void;
+type LockUpdateTask = () => Promise<void>;
 
 function updatePoetryPyprojectRoot(
   host: Tree,
   options: Schema,
+  provider: IProvider,
 ): LockUpdateTask[] {
   const postGeneratorTasks = [];
 
@@ -84,6 +85,7 @@ function updatePoetryPyprojectRoot(
             host,
             pyprojectTomlPath,
             projectConfig,
+            provider,
           ),
         );
       }
@@ -101,6 +103,7 @@ function movePoetryDevDependencies(
   host: Tree,
   pyprojectTomlPath: string,
   projectConfig: ProjectConfiguration,
+  provider: IProvider,
 ) {
   const devDependencies =
     pyprojectToml.tool.poetry.group?.dev?.dependencies || {};
@@ -119,12 +122,11 @@ function movePoetryDevDependencies(
   }
   host.write(pyprojectTomlPath, stringify(pyprojectToml));
 
-  return () => {
+  return async () => {
     console.log(
       chalk`  Updating ${pyprojectToml.tool.poetry.name} {bgBlue poetry.lock}...`,
     );
-    const lockArgs = ['lock', '--no-update'];
-    runPoetry(lockArgs, { cwd: projectConfig.root, log: false });
+    await provider.lock(projectConfig.root);
     console.log(chalk`\n  {bgBlue poetry.lock} updated.\n`);
   };
 }
@@ -207,38 +209,33 @@ function moveUvDevDependencies(
   }
 }
 
-function updateRootLock(options: Schema) {
-  if (options.packageManager === 'poetry') {
-    console.log(chalk`  Updating root {bgBlue poetry.lock}...`);
-    runPoetry(['install'], { log: false });
-    console.log(chalk`\n  {bgBlue poetry.lock} updated.\n`);
-  } else if (options.packageManager === 'uv') {
-    console.log(chalk`  Updating root {bgBlue uv.lock}...`);
-    runUv(['sync'], { log: false });
-    console.log(chalk`\n  {bgBlue uv.lock} updated.\n`);
-  }
-}
-
 async function generator(host: Tree, options: Schema) {
-  if (options.packageManager === 'poetry') {
-    await checkPoetryExecutable();
-  } else if (options.packageManager === 'uv') {
-    await checkUvExecutable();
-  }
+  const provider = await getProvider(
+    host.root,
+    undefined,
+    host,
+    undefined,
+    options,
+  );
+
+  await provider.checkPrerequisites();
 
   await addFiles(host, options);
   const lockUpdateTasks: LockUpdateTask[] = [];
   if (options.packageManager === 'poetry') {
-    lockUpdateTasks.push(...updatePoetryPyprojectRoot(host, options));
+    lockUpdateTasks.push(...updatePoetryPyprojectRoot(host, options, provider));
   } else if (options.packageManager === 'uv') {
     lockUpdateTasks.push(...updateUvPyprojectRoot(host, options));
   }
 
   await formatFiles(host);
 
-  return () => {
-    lockUpdateTasks.forEach((task) => task());
-    updateRootLock(options);
+  return async () => {
+    for (const task of lockUpdateTasks) {
+      await task();
+    }
+
+    await provider.install();
   };
 }
 

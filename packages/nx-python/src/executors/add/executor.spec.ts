@@ -29,6 +29,7 @@ describe('Add Executor', () => {
       checkPoetryExecutableMock = vi
         .spyOn(poetryUtils, 'checkPoetryExecutable')
         .mockResolvedValue(undefined);
+      vi.spyOn(poetryUtils, 'getPoetryVersion').mockResolvedValue('1.8.2');
       activateVenvMock = vi
         .spyOn(poetryUtils, 'activateVenv')
         .mockReturnValue(undefined);
@@ -478,11 +479,16 @@ describe('Add Executor', () => {
           stdio: 'inherit',
         },
       );
-      expect(spawn.sync).toHaveBeenNthCalledWith(3, 'poetry', ['install'], {
-        cwd: 'libs/lib1',
-        shell: false,
-        stdio: 'inherit',
-      });
+      expect(spawn.sync).toHaveBeenNthCalledWith(
+        3,
+        'poetry',
+        ['install', '-v'],
+        {
+          cwd: 'libs/lib1',
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
       expect(spawn.sync).toHaveBeenNthCalledWith(
         4,
         'poetry',
@@ -493,11 +499,16 @@ describe('Add Executor', () => {
           stdio: 'inherit',
         },
       );
-      expect(spawn.sync).toHaveBeenNthCalledWith(5, 'poetry', ['install'], {
-        cwd: 'apps/app',
-        shell: false,
-        stdio: 'inherit',
-      });
+      expect(spawn.sync).toHaveBeenNthCalledWith(
+        5,
+        'poetry',
+        ['install', '-v'],
+        {
+          cwd: 'apps/app',
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
       expect(spawn.sync).toHaveBeenNthCalledWith(
         6,
         'poetry',
@@ -508,11 +519,173 @@ describe('Add Executor', () => {
           stdio: 'inherit',
         },
       );
-      expect(spawn.sync).toHaveBeenNthCalledWith(7, 'poetry', ['install'], {
+      expect(spawn.sync).toHaveBeenNthCalledWith(
+        7,
+        'poetry',
+        ['install', '-v'],
+        {
+          cwd: 'apps/app1',
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
+      expect(output.success).toBe(true);
+    });
+
+    it('run add target and should update all the dependency tree (poetry 2.0.0)', async () => {
+      vi.spyOn(poetryUtils, 'getPoetryVersion').mockResolvedValue('2.0.0');
+      vol.fromJSON({
+        'apps/app/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "app"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
+
+        [tool.poetry.dependencies]
+        python = "^3.8"
+        click = "click"
+        lib1 = { path = "../../libs/lib1" }
+      `,
+
+        'apps/app1/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "app1"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
+
+        [tool.poetry.dependencies]
+        python = "^3.8"
+        click = "click"
+        lib1 = { path = "../../libs/lib1" }
+      `,
+
+        'libs/lib1/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "lib1"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
+
+        [tool.poetry.dependencies]
+        python = "^3.8"
+        shared1 = { path = "../shared1" }
+      `,
+
+        'libs/shared1/pyproject.toml': dedent`
+      [tool.poetry]
+      name = "shared1"
+      version = "1.0.0"
+        [[tool.poetry.packages]]
+        include = "app"
+
+        [tool.poetry.dependencies]
+        python = "^3.8"
+      `,
+      });
+
+      const options = {
+        name: 'numpy',
+        local: false,
+      };
+
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'shared1',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+            app1: {
+              root: 'apps/app1',
+              targets: {},
+            },
+            app3: {
+              root: 'apps/app3',
+              targets: {},
+            },
+            lib1: {
+              root: 'libs/lib1',
+              targets: {},
+            },
+            shared1: {
+              root: 'libs/shared1',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
+      const output = await executor(options, context);
+      expect(checkPoetryExecutableMock).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(spawn.sync).toHaveBeenCalledTimes(7);
+      expect(spawn.sync).toHaveBeenNthCalledWith(
+        1,
+        'poetry',
+        ['add', 'numpy'],
+        {
+          cwd: 'libs/shared1',
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
+      expect(spawn.sync).toHaveBeenNthCalledWith(2, 'poetry', ['lock'], {
+        cwd: 'libs/lib1',
+        shell: false,
+        stdio: 'inherit',
+      });
+      expect(spawn.sync).toHaveBeenNthCalledWith(
+        3,
+        'poetry',
+        ['install', '-v'],
+        {
+          cwd: 'libs/lib1',
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
+      expect(spawn.sync).toHaveBeenNthCalledWith(4, 'poetry', ['lock'], {
+        cwd: 'apps/app',
+        shell: false,
+        stdio: 'inherit',
+      });
+      expect(spawn.sync).toHaveBeenNthCalledWith(
+        5,
+        'poetry',
+        ['install', '-v'],
+        {
+          cwd: 'apps/app',
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
+      expect(spawn.sync).toHaveBeenNthCalledWith(6, 'poetry', ['lock'], {
         cwd: 'apps/app1',
         shell: false,
         stdio: 'inherit',
       });
+      expect(spawn.sync).toHaveBeenNthCalledWith(
+        7,
+        'poetry',
+        ['install', '-v'],
+        {
+          cwd: 'apps/app1',
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
       expect(output.success).toBe(true);
     });
 
@@ -634,11 +807,16 @@ describe('Add Executor', () => {
           stdio: 'inherit',
         },
       );
-      expect(spawn.sync).toHaveBeenNthCalledWith(3, 'poetry', ['install'], {
-        cwd: 'libs/lib1',
-        shell: false,
-        stdio: 'inherit',
-      });
+      expect(spawn.sync).toHaveBeenNthCalledWith(
+        3,
+        'poetry',
+        ['install', '-v'],
+        {
+          cwd: 'libs/lib1',
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
       expect(spawn.sync).toHaveBeenNthCalledWith(
         4,
         'poetry',
@@ -649,11 +827,16 @@ describe('Add Executor', () => {
           stdio: 'inherit',
         },
       );
-      expect(spawn.sync).toHaveBeenNthCalledWith(5, 'poetry', ['install'], {
-        cwd: 'apps/app',
-        shell: false,
-        stdio: 'inherit',
-      });
+      expect(spawn.sync).toHaveBeenNthCalledWith(
+        5,
+        'poetry',
+        ['install', '-v'],
+        {
+          cwd: 'apps/app',
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
       expect(spawn.sync).toHaveBeenNthCalledWith(
         6,
         'poetry',
@@ -664,11 +847,16 @@ describe('Add Executor', () => {
           stdio: 'inherit',
         },
       );
-      expect(spawn.sync).toHaveBeenNthCalledWith(7, 'poetry', ['install'], {
-        cwd: 'apps/app1',
-        shell: false,
-        stdio: 'inherit',
-      });
+      expect(spawn.sync).toHaveBeenNthCalledWith(
+        7,
+        'poetry',
+        ['install', '-v'],
+        {
+          cwd: 'apps/app1',
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
       expect(output.success).toBe(true);
     });
 
@@ -741,11 +929,16 @@ describe('Add Executor', () => {
           stdio: 'inherit',
         },
       );
-      expect(spawn.sync).toHaveBeenNthCalledWith(2, 'poetry', ['install'], {
-        cwd: 'apps/app',
-        shell: false,
-        stdio: 'inherit',
-      });
+      expect(spawn.sync).toHaveBeenNthCalledWith(
+        2,
+        'poetry',
+        ['install', '-v'],
+        {
+          cwd: 'apps/app',
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
       expect(output.success).toBe(true);
     });
 
@@ -820,11 +1013,16 @@ describe('Add Executor', () => {
           stdio: 'inherit',
         },
       );
-      expect(spawn.sync).toHaveBeenNthCalledWith(2, 'poetry', ['install'], {
-        cwd: 'apps/app',
-        shell: false,
-        stdio: 'inherit',
-      });
+      expect(spawn.sync).toHaveBeenNthCalledWith(
+        2,
+        'poetry',
+        ['install', '-v'],
+        {
+          cwd: 'apps/app',
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
       expect(output.success).toBe(true);
     });
 
@@ -899,11 +1097,16 @@ describe('Add Executor', () => {
           stdio: 'inherit',
         },
       );
-      expect(spawn.sync).toHaveBeenNthCalledWith(2, 'poetry', ['install'], {
-        cwd: 'apps/app',
-        shell: false,
-        stdio: 'inherit',
-      });
+      expect(spawn.sync).toHaveBeenNthCalledWith(
+        2,
+        'poetry',
+        ['install', '-v'],
+        {
+          cwd: 'apps/app',
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
       expect(output.success).toBe(true);
     });
 
@@ -979,11 +1182,16 @@ describe('Add Executor', () => {
           stdio: 'inherit',
         },
       );
-      expect(spawn.sync).toHaveBeenNthCalledWith(2, 'poetry', ['install'], {
-        cwd: 'apps/app',
-        shell: false,
-        stdio: 'inherit',
-      });
+      expect(spawn.sync).toHaveBeenNthCalledWith(
+        2,
+        'poetry',
+        ['install', '-v'],
+        {
+          cwd: 'apps/app',
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
       expect(output.success).toBe(true);
     });
 
@@ -1058,11 +1266,16 @@ describe('Add Executor', () => {
           stdio: 'inherit',
         },
       );
-      expect(spawn.sync).toHaveBeenNthCalledWith(2, 'poetry', ['install'], {
-        cwd: 'apps/app',
-        shell: false,
-        stdio: 'inherit',
-      });
+      expect(spawn.sync).toHaveBeenNthCalledWith(
+        2,
+        'poetry',
+        ['install', '-v'],
+        {
+          cwd: 'apps/app',
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
 
       const {
         tool: {
@@ -1208,7 +1421,7 @@ describe('Add Executor', () => {
       expect(spawn.sync).toHaveBeenNthCalledWith(
         3,
         'poetry',
-        ['install', '--no-root'],
+        ['install', '--no-root', '-v'],
         {
           shell: false,
           stdio: 'inherit',
@@ -1295,7 +1508,7 @@ describe('Add Executor', () => {
       expect(spawn.sync).toHaveBeenNthCalledWith(
         3,
         'poetry',
-        ['install', '--no-root'],
+        ['install', '--no-root', '-v'],
         {
           shell: false,
           stdio: 'inherit',

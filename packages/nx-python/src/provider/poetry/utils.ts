@@ -5,8 +5,12 @@ import path from 'path';
 import toml, { parse } from '@iarna/toml';
 import fs from 'fs';
 import commandExists from 'command-exists';
-import { SpawnSyncOptions } from 'child_process';
+import {
+  SpawnSyncOptions,
+  SpawnSyncOptionsWithBufferEncoding,
+} from 'child_process';
 import { PoetryPyprojectToml, PoetryPyprojectTomlDependencies } from './types';
+import semver from 'semver';
 
 export const POETRY_EXECUTABLE = 'poetry';
 
@@ -20,8 +24,32 @@ export async function checkPoetryExecutable() {
   }
 }
 
-export async function getPoetryVersion() {
-  const result = spawn.sync(POETRY_EXECUTABLE, ['--version']);
+export async function getPoetryVersion(cwd?: string): Promise<string>;
+
+export async function getPoetryVersion(
+  context?: ExecutorContext,
+): Promise<string>;
+
+export async function getPoetryVersion(
+  contextOrCwd?: ExecutorContext | string,
+): Promise<string> {
+  const options: SpawnSyncOptionsWithBufferEncoding = {};
+
+  if (typeof contextOrCwd === 'string') {
+    options.cwd = contextOrCwd;
+  } else if (
+    contextOrCwd?.projectName &&
+    contextOrCwd?.projectsConfigurations?.projects?.[contextOrCwd.projectName]
+  ) {
+    // Poetry commands don't work if the cwd doesn't have a pyproject.toml file,
+    // so, to ensure that the command runs in the correct folder,
+    // we set the cwd to the project root folder, when the context is provided.
+    const projectConfig =
+      contextOrCwd.projectsConfigurations.projects[contextOrCwd.projectName];
+    options.cwd = projectConfig.root;
+  }
+
+  const result = spawn.sync(POETRY_EXECUTABLE, ['--version'], options);
   if (result.error) {
     throw new Error(
       'Poetry is not installed. Please install Poetry before running this command.',
@@ -30,7 +58,16 @@ export async function getPoetryVersion() {
   const versionRegex = /version (\d+\.\d+\.\d+)/;
   const match = result.stdout.toString().trim().match(versionRegex);
   const version = match?.[1];
-  return version;
+  if (!version) {
+    throw new Error('Poetry version not found');
+  }
+
+  const cleanedVersion = semver.clean(version);
+  if (!cleanedVersion) {
+    throw new Error(`Invalid version: ${version}`);
+  }
+
+  return cleanedVersion;
 }
 
 export function addLocalProjectToPoetryProject(
@@ -67,13 +104,6 @@ export function addLocalProjectToPoetryProject(
   fs.writeFileSync(targetToml, toml.stringify(targetTomlData));
 
   return dependencyName;
-}
-
-export function updateProject(cwd: string, updateLockOnly: boolean) {
-  runPoetry(['lock', '--no-update'], { cwd });
-  if (!updateLockOnly) {
-    runPoetry(['install'], { cwd });
-  }
 }
 
 export function getProjectTomlPath(targetConfig: ProjectConfiguration) {

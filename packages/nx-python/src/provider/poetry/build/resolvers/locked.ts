@@ -7,10 +7,11 @@ import uri2path from 'file-uri-to-path';
 import { includeDependencyPackage } from './utils';
 import { Logger } from '../../../../executors/utils/logger';
 import { PoetryPyprojectToml } from '../../types';
-import { parseToml, runPoetry } from '../../utils';
+import { parseToml, POETRY_EXECUTABLE, runPoetry } from '../../utils';
 import { isWindows } from '../../../../executors/utils/os';
 import { PackageDependency } from '../../../base';
 import { getLoggingTab } from '../../../utils';
+import spawn from 'cross-spawn';
 
 export class LockedDependencyResolver {
   constructor(private readonly logger: Logger) {}
@@ -123,6 +124,23 @@ export class LockedDependencyResolver {
   ): string {
     const requerimentsTxtFilename = 'requirements.txt';
     const outputPath = join(buildFolderPath, requerimentsTxtFilename);
+
+    const result = spawn.sync(POETRY_EXECUTABLE, ['export', '--help'], {
+      cwd: root,
+      stdio: 'pipe',
+    });
+
+    if (
+      result.status !== 0 &&
+      result.stderr.includes('The command "export" does not exist')
+    ) {
+      const warning = chalk.bgHex('#FFA500');
+      console.log(
+        chalk`{bold ${warning(' WARNING ')} Poetry export plugin is not installed, installing it now...}`,
+      );
+
+      runPoetry(['self', 'add', 'poetry-plugin-export'], { cwd: root });
+    }
 
     const exportArgs = [
       'export',

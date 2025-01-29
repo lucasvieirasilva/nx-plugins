@@ -49,6 +49,7 @@ describe('nx-python migrate-shared-venv generator', () => {
         poetryUtils,
         'checkPoetryExecutable',
       );
+      vi.spyOn(poetryUtils, 'getPoetryVersion').mockResolvedValue('1.8.2');
       checkPoetryExecutableMock.mockResolvedValue(undefined);
     });
 
@@ -57,7 +58,7 @@ describe('nx-python migrate-shared-venv generator', () => {
         new Error('poetry not found'),
       );
 
-      expect(
+      await expect(
         generator(appTree, {
           moveDevDependencies: true,
           pyenvPythonVersion: '3.8.11',
@@ -93,7 +94,7 @@ describe('nx-python migrate-shared-venv generator', () => {
         autoActivate: false,
         packageManager: 'poetry',
       });
-      task();
+      await task();
 
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
       expect(
@@ -107,10 +108,63 @@ describe('nx-python migrate-shared-venv generator', () => {
         ['lock', '--no-update'],
         { cwd: 'apps/proj1', shell: false, stdio: 'inherit' },
       );
-      expect(spawn.sync).toHaveBeenNthCalledWith(2, 'poetry', ['install'], {
+      expect(spawn.sync).toHaveBeenNthCalledWith(
+        2,
+        'poetry',
+        ['install', '-v'],
+        {
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
+    });
+
+    it('should migrate an isolate venv to shared venv (poetry 2.0.0)', async () => {
+      vi.spyOn(poetryUtils, 'getPoetryVersion').mockResolvedValue('2.0.0');
+      await poetryProjectGenerator(appTree, {
+        name: 'proj1',
+        type: 'application',
+        publishable: true,
+        customSource: false,
+        addDevDependencies: true,
+        moduleName: 'proj1',
+        packageName: 'proj1',
+        buildLockedVersions: true,
+        buildBundleLocalDependencies: true,
+        pyenvPythonVersion: '3.8.11',
+        pyprojectPythonDependency: '>=3.8,<3.10',
+        toxEnvlist: 'py38',
+      });
+
+      const task = await generator(appTree, {
+        moveDevDependencies: true,
+        pyenvPythonVersion: '3.8.11',
+        pyprojectPythonDependency: '>=3.8,<3.10',
+        autoActivate: false,
+        packageManager: 'poetry',
+      });
+      await task();
+
+      expect(checkPoetryExecutableMock).toHaveBeenCalled();
+      expect(
+        appTree.read('apps/proj1/pyproject.toml', 'utf-8'),
+      ).toMatchSnapshot();
+      expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
+      expect(appTree.read('.python-version', 'utf-8')).toMatchSnapshot();
+      expect(spawn.sync).toHaveBeenNthCalledWith(1, 'poetry', ['lock'], {
+        cwd: 'apps/proj1',
         shell: false,
         stdio: 'inherit',
       });
+      expect(spawn.sync).toHaveBeenNthCalledWith(
+        2,
+        'poetry',
+        ['install', '-v'],
+        {
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
     });
 
     it('should migrate an isolate venv to shared venv project without dev dependencies', async () => {
@@ -136,7 +190,7 @@ describe('nx-python migrate-shared-venv generator', () => {
         autoActivate: false,
         packageManager: 'poetry',
       });
-      task();
+      await task();
 
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
       expect(
@@ -150,10 +204,15 @@ describe('nx-python migrate-shared-venv generator', () => {
         ['lock', '--no-update'],
         { cwd: 'apps/proj1', shell: false, stdio: 'inherit' },
       );
-      expect(spawn.sync).toHaveBeenNthCalledWith(2, 'poetry', ['install'], {
-        shell: false,
-        stdio: 'inherit',
-      });
+      expect(spawn.sync).toHaveBeenNthCalledWith(
+        2,
+        'poetry',
+        ['install', '-v'],
+        {
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
     });
 
     it('should migrate an isolate venv to shared venv with auto activate enabled', async () => {
@@ -197,7 +256,7 @@ describe('nx-python migrate-shared-venv generator', () => {
     it('should throw an exception when the uv is not installed', async () => {
       checkUvExecutableMock.mockRejectedValue(new Error('uv not found'));
 
-      expect(
+      await expect(
         generator(appTree, {
           moveDevDependencies: true,
           pyenvPythonVersion: '3.8.11',
@@ -236,7 +295,7 @@ describe('nx-python migrate-shared-venv generator', () => {
         autoActivate: false,
         packageManager: 'uv',
       });
-      task();
+      await task();
 
       expect(checkUvExecutableMock).toHaveBeenCalled();
       expect(
@@ -279,7 +338,7 @@ describe('nx-python migrate-shared-venv generator', () => {
         autoActivate: false,
         packageManager: 'uv',
       });
-      task();
+      await task();
 
       expect(checkUvExecutableMock).toHaveBeenCalled();
       expect(

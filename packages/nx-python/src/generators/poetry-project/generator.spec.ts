@@ -39,6 +39,7 @@ describe('application generator', () => {
 
     appTree = createTreeWithEmptyWorkspace({ layout: 'apps-libs' });
     checkPoetryExecutableMock = vi.spyOn(poetryUtils, 'checkPoetryExecutable');
+    vi.spyOn(poetryUtils, 'getPoetryVersion').mockResolvedValue('1.8.2');
     checkPoetryExecutableMock.mockResolvedValue(undefined);
     vi.mocked(spawn.sync).mockImplementation((command) => {
       if (command === 'python') {
@@ -487,7 +488,7 @@ describe('application generator', () => {
       );
 
       const callbackTask = await generator(appTree, options);
-      callbackTask();
+      await callbackTask();
       const config = readProjectConfiguration(appTree, 'test');
       expect(config).toMatchSnapshot();
 
@@ -516,10 +517,68 @@ describe('application generator', () => {
           stdio: 'inherit',
         },
       );
-      expect(spawn.sync).toHaveBeenNthCalledWith(3, 'poetry', ['install'], {
+      expect(spawn.sync).toHaveBeenNthCalledWith(
+        3,
+        'poetry',
+        ['install', '-v'],
+        {
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
+    });
+
+    it('should run successfully with minimal options (poetry 2.0.0)', async () => {
+      vi.spyOn(poetryUtils, 'getPoetryVersion').mockResolvedValue('2.0.0');
+      appTree.write(
+        'pyproject.toml',
+        dedent`
+      [tool.poetry]
+      name = "workspace"
+
+        [tool.poetry.dependencies]
+        python = ">=3.9,<3.11"
+
+      [build-system]
+      requires = ["poetry-core"]
+      build-backend = "poetry.core.masonry.api"
+      `,
+      );
+
+      const callbackTask = await generator(appTree, options);
+      await callbackTask();
+      const config = readProjectConfiguration(appTree, 'test');
+      expect(config).toMatchSnapshot();
+
+      const projectDirectory = 'apps/test';
+      const moduleName = 'test';
+
+      assertGeneratedFilesBase(appTree, projectDirectory, moduleName);
+
+      expect(appTree.exists(`${projectDirectory}/.flake8`)).toBeFalsy();
+      expect(
+        appTree.exists(`${projectDirectory}/tests/test_hello.py`),
+      ).toBeFalsy();
+
+      expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
+
+      expect(spawn.sync).toHaveBeenCalledTimes(3);
+      expect(spawn.sync).toHaveBeenNthCalledWith(1, 'python', ['--version'], {
+        stdio: 'pipe',
+      });
+      expect(spawn.sync).toHaveBeenNthCalledWith(2, 'poetry', ['lock'], {
         shell: false,
         stdio: 'inherit',
       });
+      expect(spawn.sync).toHaveBeenNthCalledWith(
+        3,
+        'poetry',
+        ['install', '-v'],
+        {
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
     });
 
     it('should run successfully with minimal options without rootPyprojectDependencyGroup', async () => {
@@ -542,7 +601,7 @@ describe('application generator', () => {
         ...options,
         rootPyprojectDependencyGroup: undefined,
       });
-      callbackTask();
+      await callbackTask();
       const config = readProjectConfiguration(appTree, 'test');
       expect(config).toMatchSnapshot();
 
@@ -571,10 +630,15 @@ describe('application generator', () => {
           stdio: 'inherit',
         },
       );
-      expect(spawn.sync).toHaveBeenNthCalledWith(3, 'poetry', ['install'], {
-        shell: false,
-        stdio: 'inherit',
-      });
+      expect(spawn.sync).toHaveBeenNthCalledWith(
+        3,
+        'poetry',
+        ['install', '-v'],
+        {
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
     });
 
     it('should run successfully with minimal options with custom rootPyprojectDependencyGroup', async () => {
@@ -597,7 +661,7 @@ describe('application generator', () => {
         ...options,
         rootPyprojectDependencyGroup: 'dev',
       });
-      callbackTask();
+      await callbackTask();
       const config = readProjectConfiguration(appTree, 'test');
       expect(config).toMatchSnapshot();
 
@@ -626,10 +690,15 @@ describe('application generator', () => {
           stdio: 'inherit',
         },
       );
-      expect(spawn.sync).toHaveBeenNthCalledWith(3, 'poetry', ['install'], {
-        shell: false,
-        stdio: 'inherit',
-      });
+      expect(spawn.sync).toHaveBeenNthCalledWith(
+        3,
+        'poetry',
+        ['install', '-v'],
+        {
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
     });
 
     it('should run successfully with minimal options with existing custom rootPyprojectDependencyGroup', async () => {
@@ -655,7 +724,7 @@ describe('application generator', () => {
         ...options,
         rootPyprojectDependencyGroup: 'dev',
       });
-      callbackTask();
+      await callbackTask();
       const config = readProjectConfiguration(appTree, 'test');
       expect(config).toMatchSnapshot();
 
@@ -684,10 +753,15 @@ describe('application generator', () => {
           stdio: 'inherit',
         },
       );
-      expect(spawn.sync).toHaveBeenNthCalledWith(3, 'poetry', ['install'], {
-        shell: false,
-        stdio: 'inherit',
-      });
+      expect(spawn.sync).toHaveBeenNthCalledWith(
+        3,
+        'poetry',
+        ['install', '-v'],
+        {
+          shell: false,
+          stdio: 'inherit',
+        },
+      );
     });
   });
 

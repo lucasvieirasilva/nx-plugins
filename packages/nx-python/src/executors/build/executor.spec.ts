@@ -148,6 +148,170 @@ describe('Build Executor', () => {
     });
 
     describe('locked resolver', () => {
+      it('should install poetry-plugin-export plugin before build python project', async () => {
+        vol.fromJSON({
+          'apps/app/.venv/pyvenv.cfg': 'fake',
+          'apps/app/app/index.py': 'print("Hello from app")',
+          'apps/app/poetry.lock': dedent`
+          [[package]]
+          name = "click"
+          version = "7.1.2"
+          description = "Composable command line interface toolkit"
+          category = "main"
+          optional = false
+          python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+          `,
+
+          'apps/app/pyproject.toml': dedent`
+          [tool.poetry]
+          name = "app"
+          version = "1.0.0"
+            [[tool.poetry.packages]]
+            include = "app"
+
+            [tool.poetry.dependencies]
+            python = "^3.8"
+            click = "7.1.2"
+
+            [tool.poetry.group.dev.dependencies]
+            pytest = "6.2.4"
+          `,
+        });
+
+        const spawnMock = vi.mocked(spawn.sync);
+
+        spawnMock
+          .mockReturnValueOnce({
+            status: 1,
+            output: [''],
+            pid: 0,
+            signal: null,
+            stderr: 'The command "export" does not exist',
+            stdout: null,
+          })
+          .mockImplementation((_, args, opts) => {
+            if (args[0] == 'build') {
+              spawnBuildMockImpl(opts);
+            } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
+              writeFileSync(
+                join(buildPath, 'requirements.txt'),
+                dedent`
+            click==7.1.2
+
+          `,
+              );
+            }
+            return {
+              status: 0,
+              output: [''],
+              pid: 0,
+              signal: null,
+              stderr: null,
+              stdout: null,
+            };
+          });
+
+        const options: BuildExecutorSchema = {
+          ignorePaths: ['.venv', '.tox', 'tests/'],
+          silent: false,
+          outputPath: 'dist/apps/app',
+          keepBuildFolder: true,
+          devDependencies: false,
+          lockedVersions: true,
+          bundleLocalDependencies: true,
+        };
+
+        const output = await executor(options, {
+          cwd: '',
+          root: '.',
+          isVerbose: false,
+          projectName: 'app',
+          projectsConfigurations: {
+            version: 2,
+            projects: {
+              app: {
+                root: 'apps/app',
+                targets: {},
+              },
+            },
+          },
+          nxJsonConfiguration: {},
+          projectGraph: {
+            dependencies: {},
+            nodes: {},
+          },
+        });
+
+        expect(checkPoetryExecutableMock).toHaveBeenCalled();
+        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(existsSync(buildPath)).toBeTruthy();
+        expect(existsSync(`${buildPath}/app`)).toBeTruthy();
+        expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
+        expect(spawn.sync).toHaveBeenCalledTimes(4);
+        expect(spawn.sync).toHaveBeenNthCalledWith(
+          1,
+          'poetry',
+          ['export', '--help'],
+          {
+            cwd: 'apps/app',
+            stdio: 'pipe',
+          },
+        );
+        expect(spawn.sync).toHaveBeenNthCalledWith(
+          2,
+          'poetry',
+          ['self', 'add', 'poetry-plugin-export'],
+          {
+            cwd: 'apps/app',
+            shell: false,
+            stdio: 'inherit',
+          },
+        );
+        expect(spawn.sync).toHaveBeenNthCalledWith(
+          3,
+          'poetry',
+          [
+            'export',
+            '--format',
+            'requirements.txt',
+            '--without-hashes',
+            '--without-urls',
+            '--output',
+            `${buildPath}/requirements.txt`,
+          ],
+          {
+            cwd: 'apps/app',
+            shell: false,
+            stdio: 'inherit',
+          },
+        );
+        expect(spawn.sync).toHaveBeenNthCalledWith(4, 'poetry', ['build'], {
+          cwd: buildPath,
+          shell: false,
+          stdio: 'inherit',
+        });
+
+        const projectTomlData = parse(
+          readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8'),
+        ) as PoetryPyprojectToml;
+
+        expect(projectTomlData.tool.poetry.packages).toStrictEqual([
+          {
+            include: 'app',
+          },
+        ]);
+
+        expect(projectTomlData.tool.poetry.dependencies).toStrictEqual({
+          python: '^3.8',
+          click: '7.1.2',
+        });
+        expect(
+          projectTomlData.tool.poetry.group.dev.dependencies,
+        ).toStrictEqual({});
+
+        expect(output.success).toBe(true);
+      });
+
       it('should build python project with local dependencies and keep the build folder', async () => {
         vol.fromJSON({
           'apps/app/.venv/pyvenv.cfg': 'fake',
@@ -1803,6 +1967,15 @@ describe('Build Executor', () => {
         expect(spawn.sync).toHaveBeenNthCalledWith(
           1,
           'poetry',
+          ['export', '--help'],
+          {
+            cwd: 'apps/app',
+            stdio: 'pipe',
+          },
+        );
+        expect(spawn.sync).toHaveBeenNthCalledWith(
+          2,
+          'poetry',
           [
             'export',
             '--format',
@@ -1820,7 +1993,7 @@ describe('Build Executor', () => {
             stdio: 'inherit',
           },
         );
-        expect(spawn.sync).toHaveBeenNthCalledWith(2, 'poetry', ['build'], {
+        expect(spawn.sync).toHaveBeenNthCalledWith(3, 'poetry', ['build'], {
           cwd: buildPath,
           shell: false,
           stdio: 'inherit',

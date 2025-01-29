@@ -21,7 +21,7 @@ export const getProvider = async (
   if (options?.packageManager) {
     switch (options.packageManager) {
       case 'poetry':
-        return new UVProvider(workspaceRoot, loggerInstance, tree);
+        return new PoetryProvider(workspaceRoot, loggerInstance, tree);
       case 'uv':
         return new UVProvider(workspaceRoot, loggerInstance, tree);
       default:

@@ -22,7 +22,13 @@ import {
   BuildExecutorSchema,
 } from '../../executors/build/schema';
 import { InstallExecutorSchema } from '../../executors/install/schema';
-import { checkUvExecutable, getUvLockfile, runUv } from './utils';
+import {
+  checkUvExecutable,
+  getUvLockfile,
+  runUv,
+  RunUvOptions,
+  UV_EXECUTABLE,
+} from './utils';
 import path, { join } from 'path';
 import chalk from 'chalk';
 import { copySync, removeSync, writeFileSync } from 'fs-extra';
@@ -406,31 +412,57 @@ export class UVProvider implements IProvider {
   }
 
   public async install(
-    options: InstallExecutorSchema,
-    context: ExecutorContext,
+    options?: InstallExecutorSchema,
+    context?: ExecutorContext,
+  ): Promise<void>;
+
+  public async install(cwd?: string): Promise<void>;
+
+  public async install(
+    optionsOrCwd?: InstallExecutorSchema | string,
+    context?: ExecutorContext,
   ): Promise<void> {
     await this.checkPrerequisites();
 
     const args = ['sync'];
-    if (options.verbose) {
-      args.push('-v');
-    } else if (options.debug) {
-      args.push('-vvv');
+    const execOptions: RunUvOptions = {
+      cwd: context
+        ? this.isWorkspace
+          ? context.root
+          : this.getProjectRoot(context)
+        : undefined,
+    };
+    if (optionsOrCwd && typeof optionsOrCwd === 'object') {
+      const options = optionsOrCwd;
+
+      if (options.verbose) {
+        args.push('-v');
+      } else if (options.debug) {
+        args.push('-vvv');
+      }
+
+      args.push(...(options.args ?? '').split(' ').filter((arg) => !!arg));
+      if (options.cacheDir) {
+        args.push('--cache-dir', options.cacheDir);
+      }
+    } else if (optionsOrCwd && typeof optionsOrCwd === 'string') {
+      execOptions.cwd = optionsOrCwd;
     }
 
-    args.push(...(options.args ?? '').split(' ').filter((arg) => !!arg));
-
-    if (options.cacheDir) {
-      args.push('--cache-dir', options.cacheDir);
-    }
-
-    runUv(args, {
-      cwd: this.isWorkspace ? context.root : this.getProjectRoot(context),
-    });
+    runUv(args, execOptions);
   }
 
-  public async lock(projectRoot: string): Promise<void> {
-    runUv(['lock'], { cwd: projectRoot });
+  public async getLockCommand(): Promise<string> {
+    return `${UV_EXECUTABLE} lock`;
+  }
+
+  public async lock(projectRoot?: string): Promise<void> {
+    const lockCommand = await this.getLockCommand();
+
+    runUv(
+      lockCommand.split(' ').slice(1),
+      projectRoot ? { cwd: projectRoot } : undefined,
+    );
   }
 
   public async build(
@@ -526,6 +558,10 @@ export class UVProvider implements IProvider {
     }
 
     return buildFolderPath;
+  }
+
+  public async getRunCommand(args: string[]): Promise<string> {
+    return `${UV_EXECUTABLE} run ${args.join(' ')}`;
   }
 
   public async run(

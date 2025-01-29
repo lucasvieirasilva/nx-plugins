@@ -74,16 +74,22 @@ export interface IProvider {
   ): Promise<void>;
 
   install(
-    options: InstallExecutorSchema,
-    context: ExecutorContext,
+    options?: InstallExecutorSchema,
+    context?: ExecutorContext,
   ): Promise<void>;
 
-  lock(projectRoot: string): Promise<void>;
+  install(cwd?: string): Promise<void>;
+
+  getLockCommand(projectRoot?: string): Promise<string>;
+
+  lock(projectRoot?: string): Promise<void>;
 
   build(
     options: BuildExecutorSchema,
     context: ExecutorContext,
   ): Promise<string>;
+
+  getRunCommand(args: string[]): Promise<string>;
 
   run(
     args: string[],
