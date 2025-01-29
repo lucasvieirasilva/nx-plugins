@@ -1,4 +1,5 @@
 import {
+  generateFiles,
   getWorkspaceLayout,
   names,
   offsetFromRoot,
@@ -14,6 +15,7 @@ import spawn from 'cross-spawn';
 import _ from 'lodash';
 import path from 'path';
 import { parse } from '@iarna/toml';
+import { DEV_DEPENDENCIES_VERSION_MAP } from './consts';
 
 export function getPyTestAddopts(
   options: PytestGeneratorSchema,
@@ -151,4 +153,53 @@ export function getPyprojectTomlByProjectName<T>(
   const pyprojectToml = parse(tree.read(pyprojectTomlPath, 'utf-8')) as T;
 
   return { pyprojectToml, pyprojectTomlPath };
+}
+
+export function addFiles(
+  tree: Tree,
+  options: BaseNormalizedSchema,
+  generatorBaseDir: string,
+) {
+  const templateOptions = {
+    ...options,
+    ...names(options.name),
+    offsetFromRoot: offsetFromRoot(options.projectRoot),
+    template: '',
+    dot: '.',
+    versionMap: DEV_DEPENDENCIES_VERSION_MAP,
+  };
+  if (options.templateDir) {
+    generateFiles(
+      tree,
+      path.join(options.templateDir),
+      options.projectRoot,
+      templateOptions,
+    );
+    return;
+  }
+
+  generateFiles(
+    tree,
+    path.join(generatorBaseDir, 'files', 'base'),
+    options.projectRoot,
+    templateOptions,
+  );
+
+  if (options.unitTestRunner === 'pytest') {
+    generateFiles(
+      tree,
+      path.join(generatorBaseDir, 'files', 'pytest'),
+      options.projectRoot,
+      templateOptions,
+    );
+  }
+
+  if (options.linter === 'flake8') {
+    generateFiles(
+      tree,
+      path.join(generatorBaseDir, 'files', 'flake8'),
+      options.projectRoot,
+      templateOptions,
+    );
+  }
 }
