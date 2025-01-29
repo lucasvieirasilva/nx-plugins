@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "title": "Ruff Format executor",
+  "description": "Run ruff format on the given folders/files, this executor forwards all arguments to ruff format, see https://docs.astral.sh/ruff/formatter/#ruff-format for more details.",
+  "type": "object",
+  "properties": {
+    "filePatterns": {
+      "type": "array",
+      "description": "File patterns to format (relative path to the project root)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "__unparsed__": {
+      "hidden": true,
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "$default": {
+        "$source": "unparsed"
+      },
+      "x-priority": "internal"
+    }
+  },
+  "required": ["filePatterns"]
+}

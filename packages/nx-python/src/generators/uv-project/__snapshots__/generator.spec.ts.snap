@@ -2048,6 +2048,17 @@ exports[`application generator > project > should run successfully with linting 
         "{projectRoot}/dist",
       ],
     },
+    "format": {
+      "cache": true,
+      "executor": "@nxlv/python:ruff-format",
+      "options": {
+        "filePatterns": [
+          "test",
+          "tests",
+        ],
+      },
+      "outputs": [],
+    },
     "install": {
       "executor": "@nxlv/python:install",
       "options": {
@@ -2557,6 +2568,16 @@ exports[`application generator > project > should run successfully with ruff lin
         "{projectRoot}/dist",
       ],
     },
+    "format": {
+      "cache": true,
+      "executor": "@nxlv/python:ruff-format",
+      "options": {
+        "filePatterns": [
+          "test",
+        ],
+      },
+      "outputs": [],
+    },
     "install": {
       "executor": "@nxlv/python:install",
       "options": {
@@ -2708,6 +2729,17 @@ exports[`application generator > project > should run successfully with ruff lin
       "outputs": [
         "{projectRoot}/dist",
       ],
+    },
+    "format": {
+      "cache": true,
+      "executor": "@nxlv/python:ruff-format",
+      "options": {
+        "filePatterns": [
+          "test",
+          "tests",
+        ],
+      },
+      "outputs": [],
     },
     "install": {
       "executor": "@nxlv/python:install",

@@ -347,6 +347,17 @@ export default async function (
       },
       cache: true,
     };
+
+    targets.format = {
+      executor: '@nxlv/python:ruff-format',
+      outputs: [],
+      options: {
+        filePatterns: [normalizedOptions.moduleName].concat(
+          options.unitTestRunner === 'pytest' ? ['tests'] : [],
+        ),
+      },
+      cache: true,
+    };
   }
 
   if (options.unitTestRunner === 'pytest') {
