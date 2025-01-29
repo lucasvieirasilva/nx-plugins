@@ -1,3 +1,9 @@
+# [20.5.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.4.0...nx-python-v20.5.0) (2025-01-29)
+
+### Features
+
+- add support for poetry 2.0.0 ([6743d9b](https://github.com/lucasvieirasilva/nx-plugins/commit/6743d9b788cf135ac24f3a7587c8e031bab9ac6b))
+
 # [20.4.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.3.6...nx-python-v20.4.0) (2025-01-29)
 
 ### Features
