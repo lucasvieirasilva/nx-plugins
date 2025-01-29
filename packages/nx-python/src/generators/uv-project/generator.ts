@@ -1,9 +1,6 @@
 import {
   addProjectConfiguration,
   formatFiles,
-  generateFiles,
-  names,
-  offsetFromRoot,
   ProjectConfiguration,
   readProjectConfiguration,
   Tree,
@@ -16,6 +13,7 @@ import { UVPyprojectToml } from '../../provider/uv/types';
 import { checkUvExecutable, runUv } from '../../provider/uv/utils';
 import { DEV_DEPENDENCIES_VERSION_MAP } from '../consts';
 import {
+  addFiles,
   normalizeOptions as baseNormalizeOptions,
   getPyprojectTomlByProjectName,
 } from '../utils';
@@ -61,51 +59,6 @@ function normalizeOptions(
     devDependenciesProjectPkgName,
     individualPackage: !tree.exists('pyproject.toml'),
   };
-}
-
-function addFiles(tree: Tree, options: NormalizedSchema) {
-  const templateOptions = {
-    ...options,
-    ...names(options.name),
-    offsetFromRoot: offsetFromRoot(options.projectRoot),
-    template: '',
-    dot: '.',
-    versionMap: DEV_DEPENDENCIES_VERSION_MAP,
-  };
-  if (options.templateDir) {
-    generateFiles(
-      tree,
-      path.join(options.templateDir),
-      options.projectRoot,
-      templateOptions,
-    );
-    return;
-  }
-
-  generateFiles(
-    tree,
-    path.join(__dirname, 'files', 'base'),
-    options.projectRoot,
-    templateOptions,
-  );
-
-  if (options.unitTestRunner === 'pytest') {
-    generateFiles(
-      tree,
-      path.join(__dirname, 'files', 'pytest'),
-      options.projectRoot,
-      templateOptions,
-    );
-  }
-
-  if (options.linter === 'flake8') {
-    generateFiles(
-      tree,
-      path.join(__dirname, 'files', 'flake8'),
-      options.projectRoot,
-      templateOptions,
-    );
-  }
 }
 
 function updateRootPyprojectToml(
@@ -404,7 +357,7 @@ export default async function (
     projectConfiguration,
   );
 
-  addFiles(tree, normalizedOptions);
+  addFiles(tree, normalizedOptions, __dirname);
   updateDevDependenciesProject(tree, normalizedOptions);
   updateRootPyprojectToml(tree, normalizedOptions);
   await formatFiles(tree);
