@@ -21,6 +21,7 @@ import {
 import {
   addFiles,
   normalizeOptions as baseNormalizeOptions,
+  getDefaultPythonProjectTargets,
   getPyprojectTomlByProjectName,
 } from '../utils';
 import { DEV_DEPENDENCIES_VERSION_MAP } from '../consts';
@@ -218,35 +219,13 @@ export default async function (
   const normalizedOptions = normalizeOptions(tree, options);
 
   const targets: ProjectConfiguration['targets'] = {
+    ...getDefaultPythonProjectTargets(normalizedOptions),
     lock: {
       executor: '@nxlv/python:run-commands',
       options: {
         command: 'poetry lock --no-update',
         cwd: normalizedOptions.projectRoot,
       },
-    },
-    add: {
-      executor: '@nxlv/python:add',
-      options: {},
-    },
-    update: {
-      executor: '@nxlv/python:update',
-      options: {},
-    },
-    remove: {
-      executor: '@nxlv/python:remove',
-      options: {},
-    },
-    build: {
-      executor: '@nxlv/python:build',
-      outputs: ['{projectRoot}/dist'],
-      options: {
-        outputPath: `${normalizedOptions.projectRoot}/dist`,
-        publish: normalizedOptions.publishable,
-        lockedVersions: normalizedOptions.buildLockedVersions,
-        bundleLocalDependencies: normalizedOptions.buildBundleLocalDependencies,
-      },
-      cache: true,
     },
     install: {
       executor: '@nxlv/python:install',
@@ -259,43 +238,6 @@ export default async function (
       },
     },
   };
-
-  if (options.linter === 'flake8') {
-    targets.lint = {
-      executor: '@nxlv/python:flake8',
-      outputs: [
-        `{workspaceRoot}/reports/${normalizedOptions.projectRoot}/pylint.txt`,
-      ],
-      options: {
-        outputFile: `reports/${normalizedOptions.projectRoot}/pylint.txt`,
-      },
-      cache: true,
-    };
-  }
-
-  if (options.linter === 'ruff') {
-    targets.lint = {
-      executor: '@nxlv/python:ruff-check',
-      outputs: [],
-      options: {
-        lintFilePatterns: [normalizedOptions.moduleName].concat(
-          options.unitTestRunner === 'pytest' ? ['tests'] : [],
-        ),
-      },
-      cache: true,
-    };
-
-    targets.format = {
-      executor: '@nxlv/python:ruff-format',
-      outputs: [],
-      options: {
-        filePatterns: [normalizedOptions.moduleName].concat(
-          options.unitTestRunner === 'pytest' ? ['tests'] : [],
-        ),
-      },
-      cache: true,
-    };
-  }
 
   if (options.unitTestRunner === 'pytest') {
     targets.test = {

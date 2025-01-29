@@ -3,6 +3,7 @@ import {
   getWorkspaceLayout,
   names,
   offsetFromRoot,
+  ProjectConfiguration,
   readProjectConfiguration,
   Tree,
 } from '@nx/devkit';
@@ -202,4 +203,71 @@ export function addFiles(
       templateOptions,
     );
   }
+}
+
+export function getDefaultPythonProjectTargets(
+  options: BaseNormalizedSchema,
+): ProjectConfiguration['targets'] {
+  const targets: ProjectConfiguration['targets'] = {
+    add: {
+      executor: '@nxlv/python:add',
+      options: {},
+    },
+    update: {
+      executor: '@nxlv/python:update',
+      options: {},
+    },
+    remove: {
+      executor: '@nxlv/python:remove',
+      options: {},
+    },
+    build: {
+      executor: '@nxlv/python:build',
+      outputs: ['{projectRoot}/dist'],
+      options: {
+        outputPath: `${options.projectRoot}/dist`,
+        publish: options.publishable,
+        lockedVersions: options.buildLockedVersions,
+        bundleLocalDependencies: options.buildBundleLocalDependencies,
+      },
+      cache: true,
+    },
+  };
+
+  if (options.linter === 'flake8') {
+    targets.lint = {
+      executor: '@nxlv/python:flake8',
+      outputs: [`{workspaceRoot}/reports/${options.projectRoot}/pylint.txt`],
+      options: {
+        outputFile: `reports/${options.projectRoot}/pylint.txt`,
+      },
+      cache: true,
+    };
+  }
+
+  if (options.linter === 'ruff') {
+    targets.lint = {
+      executor: '@nxlv/python:ruff-check',
+      outputs: [],
+      options: {
+        lintFilePatterns: [options.moduleName].concat(
+          options.unitTestRunner === 'pytest' ? ['tests'] : [],
+        ),
+      },
+      cache: true,
+    };
+
+    targets.format = {
+      executor: '@nxlv/python:ruff-format',
+      outputs: [],
+      options: {
+        filePatterns: [options.moduleName].concat(
+          options.unitTestRunner === 'pytest' ? ['tests'] : [],
+        ),
+      },
+      cache: true,
+    };
+  }
+
+  return targets;
 }
