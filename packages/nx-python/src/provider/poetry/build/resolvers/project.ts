@@ -52,7 +52,9 @@ export class ProjectDependencyResolver {
     const deps: PackageDependency[] = [];
 
     const dependencies = Object.entries(
-      pyproject.tool.poetry.dependencies,
+      pyproject.tool?.poetry?.dependencies ??
+        pyproject.tool?.poetry?.group?.main?.dependencies ??
+        {},
     ).filter(([name]) => name != 'python');
 
     for (const [name, data] of dependencies) {
