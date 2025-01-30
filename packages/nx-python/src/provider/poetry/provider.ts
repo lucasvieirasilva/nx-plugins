@@ -542,7 +542,10 @@ export class PoetryProvider implements IProvider {
           buildTomlData,
         );
 
-    const pythonDependency = buildTomlData.tool.poetry.dependencies.python;
+    const [format, pythonDependency] = buildTomlData.tool?.poetry?.dependencies
+      ?.python
+      ? ['implicit', buildTomlData.tool?.poetry?.dependencies?.python]
+      : ['main', buildTomlData.tool?.poetry?.group?.main?.dependencies?.python];
 
     buildTomlData.tool.poetry.dependencies = {};
     buildTomlData.tool.poetry.group = {
@@ -552,7 +555,14 @@ export class PoetryProvider implements IProvider {
     };
 
     if (pythonDependency) {
-      buildTomlData.tool.poetry.dependencies['python'] = pythonDependency;
+      if (format === 'implicit') {
+        buildTomlData.tool.poetry.dependencies['python'] = pythonDependency;
+      } else {
+        buildTomlData.tool.poetry.group ??= {};
+        buildTomlData.tool.poetry.group.main ??= { dependencies: {} };
+        buildTomlData.tool.poetry.group.main.dependencies['python'] =
+          pythonDependency;
+      }
     }
 
     for (const dep of deps) {
@@ -568,7 +578,15 @@ export class PoetryProvider implements IProvider {
               source: dep.source,
             }
           : dep.version;
-      buildTomlData.tool.poetry.dependencies[dep.name] = pyprojectDep;
+
+      if (format === 'implicit') {
+        buildTomlData.tool.poetry.dependencies[dep.name] = pyprojectDep;
+      } else {
+        buildTomlData.tool.poetry.group ??= {};
+        buildTomlData.tool.poetry.group.main ??= { dependencies: {} };
+        buildTomlData.tool.poetry.group.main.dependencies[dep.name] =
+          pyprojectDep;
+      }
     }
 
     writeFileSync(buildPyProjectToml, stringify(buildTomlData));
