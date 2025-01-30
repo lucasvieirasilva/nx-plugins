@@ -1,3 +1,9 @@
+## [20.5.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.5.0...nx-python-v20.5.1) (2025-01-30)
+
+### Bug Fixes
+
+- handle optional poetry dependencies and improve dependency resolution logic ([50eba58](https://github.com/lucasvieirasilva/nx-plugins/commit/50eba58e90d4829875790b9a659b97cd6637cbff))
+
 # [20.5.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.4.0...nx-python-v20.5.0) (2025-01-29)
 
 ### Features
