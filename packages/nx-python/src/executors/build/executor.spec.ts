@@ -3275,8 +3275,6 @@ describe('Build Executor', () => {
             [tool.uv.sources]
             dep1 = { workspace = true }
             `,
-
-            'apps/app/uv.lock': '',
           });
 
           vi.mocked(spawn.sync)
@@ -3428,7 +3426,6 @@ describe('Build Executor', () => {
             [tool.hatch.build.targets.wheel]
             packages = ["dep1"]
             `,
-            'libs/dep1/uv.lock': '',
           });
 
           vi.mocked(spawn.sync)
@@ -3581,7 +3578,6 @@ describe('Build Executor', () => {
             [tool.hatch.build.targets.wheel]
             packages = ["dep1"]
             `,
-            'libs/dep1/uv.lock': '',
           });
 
           vi.mocked(spawn.sync)
@@ -3735,7 +3731,6 @@ describe('Build Executor', () => {
             [tool.hatch.build.targets.wheel]
             packages = ["dep1"]
             `,
-            'libs/dep1/uv.lock': '',
           });
 
           vi.mocked(spawn.sync)
@@ -3831,7 +3826,8 @@ describe('Build Executor', () => {
           expect(output.success).toBe(true);
         });
 
-        it('should run uv lock command before executing the export command', async () => {
+        it('should run uv lock command before executing the export command if lock file does not exist', async () => {
+          vol.rmSync('uv.lock');
           vol.fromJSON({
             'apps/app/app1/index.py': 'print("Hello from app")',
             'apps/app/pyproject.toml': dedent`

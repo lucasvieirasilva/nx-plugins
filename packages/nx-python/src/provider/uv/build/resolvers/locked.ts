@@ -108,7 +108,7 @@ export class LockedDependencyResolver {
       exportArgs.push('--no-dev');
     }
 
-    if (!existsSync(path.join(projectRoot, 'uv.lock'))) {
+    if (!this.lockFileExists(projectRoot, workspaceRoot)) {
       this.logger.info('  Generating uv.lock file');
       const lockCmd = spawn.sync(UV_EXECUTABLE, ['lock'], {
         cwd: projectRoot,
@@ -136,5 +136,13 @@ export class LockedDependencyResolver {
     }
 
     return result.stdout.toString('utf-8');
+  }
+
+  private lockFileExists(projectRoot: string, workspaceRoot: string): boolean {
+    if (this.isWorkspace) {
+      return existsSync(path.join(workspaceRoot, 'uv.lock'));
+    } else {
+      return existsSync(path.join(projectRoot, 'uv.lock'));
+    }
   }
 }
