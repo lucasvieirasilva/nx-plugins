@@ -1,3 +1,9 @@
+## [20.5.2](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.5.1...nx-python-v20.5.2) (2025-02-17)
+
+### Bug Fixes
+
+- fix lock behavior during uv build ([b107d4b](https://github.com/lucasvieirasilva/nx-plugins/commit/b107d4be51f21e64bebf3b3679b916a1c9d6aaef))
+
 ## [20.5.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.5.0...nx-python-v20.5.1) (2025-01-30)
 
 ### Bug Fixes
