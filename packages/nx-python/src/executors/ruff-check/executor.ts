@@ -24,6 +24,10 @@ export default async function executor(
       .concat(options.lintFilePatterns)
       .concat(options.__unparsed__);
 
+    if (options.fix) {
+      commandArgs.push('--fix');
+    }
+
     const provider = await getProvider(
       workspaceRoot,
       undefined,
