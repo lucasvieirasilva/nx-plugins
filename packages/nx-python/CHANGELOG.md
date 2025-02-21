@@ -1,3 +1,9 @@
+# [20.6.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.5.2...nx-python-v20.6.0) (2025-02-21)
+
+### Features
+
+- **nx-python:** add an optional fix option for the ruff-check executor ([2e20bfe](https://github.com/lucasvieirasilva/nx-plugins/commit/2e20bfe83530d997bf4d337e98f9de8a8e73cdcf))
+
 ## [20.5.2](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.5.1...nx-python-v20.5.2) (2025-02-17)
 
 ### Bug Fixes
