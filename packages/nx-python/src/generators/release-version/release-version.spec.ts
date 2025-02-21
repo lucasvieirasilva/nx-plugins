@@ -28,6 +28,8 @@ import { ReleaseGroupWithName } from 'nx/src/command-line/release/config/filter-
 import { readPyprojectToml } from '../../provider/utils';
 import { PoetryPyprojectToml } from '../../provider/poetry/types';
 import { UVPyprojectToml } from '../../provider/uv/types';
+import { PoetryProvider } from '../../provider/poetry';
+import { ReleaseVersionGeneratorSchema } from './schema';
 
 process.env.NX_DAEMON = 'false';
 
@@ -126,6 +128,64 @@ describe('release-version', () => {
         },
       }
     `);
+    });
+
+    it('should not update the lock file if skipLockFileUpdate is true', async () => {
+      const generatorOptions: ReleaseVersionGeneratorSchema = {
+        projects: Object.values(projectGraph.nodes), // version all projects
+        projectGraph,
+        specifier: 'major',
+        currentVersionResolver: 'disk',
+        releaseGroup: createReleaseGroup('fixed'),
+        skipLockFileUpdate: true,
+      };
+      const { callback, data } = await releaseVersionGenerator(
+        tree,
+        generatorOptions,
+      );
+
+      expect(data).toEqual({
+        'my-lib': {
+          currentVersion: '0.0.1',
+          dependentProjects: [
+            {
+              dependencyCollection: 'dependencies',
+              rawVersionSpec: '0.0.1',
+              source: 'project-with-dependency-on-my-pkg',
+              target: 'my-lib',
+              type: 'static',
+            },
+            {
+              dependencyCollection: 'devDependencies',
+              rawVersionSpec: '0.0.1',
+              source: 'project-with-devDependency-on-my-pkg',
+              target: 'my-lib',
+              type: 'static',
+            },
+          ],
+          newVersion: '1.0.0',
+        },
+        'project-with-dependency-on-my-pkg': {
+          currentVersion: '0.0.1',
+          dependentProjects: [],
+          newVersion: '1.0.0',
+        },
+        'project-with-devDependency-on-my-pkg': {
+          currentVersion: '0.0.1',
+          dependentProjects: [],
+          newVersion: '1.0.0',
+        },
+      });
+
+      const lockMock = vi
+        .spyOn(PoetryProvider.prototype, 'lock')
+        .mockResolvedValue();
+      await callback(tree, {
+        dryRun: false,
+        generatorOptions: { ...generatorOptions },
+      });
+
+      expect(lockMock).not.toHaveBeenCalled();
     });
 
     describe('not all given projects have pyproject.toml files', () => {
