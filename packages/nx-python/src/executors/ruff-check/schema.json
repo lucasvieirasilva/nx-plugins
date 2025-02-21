@@ -11,6 +11,12 @@
         "type": "string"
       }
     },
+    "fix": {
+      "type": "boolean",
+      "description": "Fixes linting errors (may overwrite linted files).",
+      "default": false,
+      "x-priority": "important"
+    },
     "__unparsed__": {
       "hidden": true,
       "type": "array",
