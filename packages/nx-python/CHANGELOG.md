@@ -1,3 +1,9 @@
+## [20.6.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.6.0...nx-python-v20.6.1) (2025-02-21)
+
+### Bug Fixes
+
+- **nx-python:** use option to skip lock file update during release ([6f1bcd0](https://github.com/lucasvieirasilva/nx-plugins/commit/6f1bcd073ce37e1ee5c59e0794f7a00ec6f3c4f6))
+
 # [20.6.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.5.2...nx-python-v20.6.0) (2025-02-21)
 
 ### Features
