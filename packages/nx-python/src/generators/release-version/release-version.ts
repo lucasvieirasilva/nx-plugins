@@ -878,26 +878,26 @@ To fix this you will either need to add a pyproject.toml file at that location, 
           deletedFiles.push(...(await cb(opts.dryRun)));
         }
 
-        changedFiles.push(
-          ...updatedProjects
-            .map((lockDir) => {
-              if (tree.exists(path.join(lockDir, 'poetry.lock'))) {
-                return path.join(lockDir, 'poetry.lock');
-              } else if (tree.exists(path.join(lockDir, 'uv.lock'))) {
-                return path.join(lockDir, 'uv.lock');
-              }
+        if (!opts.generatorOptions?.skipLockFileUpdate) {
+          changedFiles.push(
+            ...updatedProjects
+              .map((lockDir) => {
+                if (tree.exists(path.join(lockDir, 'poetry.lock'))) {
+                  return path.join(lockDir, 'poetry.lock');
+                } else if (tree.exists(path.join(lockDir, 'uv.lock'))) {
+                  return path.join(lockDir, 'uv.lock');
+                }
 
-              return '';
-            })
-            .filter((f) => !!f),
-        );
-        if (!opts.dryRun) {
+                return '';
+              })
+              .filter((f) => !!f),
+          );
+        }
+        if (!opts.dryRun && !opts.generatorOptions?.skipLockFileUpdate) {
           for (const lockDir of updatedProjects) {
             await provider.lock(lockDir);
           }
-        }
 
-        if (!opts.dryRun) {
           if (tree.exists('pyproject.toml')) {
             if (tree.exists('poetry.lock')) {
               changedFiles.push('poetry.lock');
