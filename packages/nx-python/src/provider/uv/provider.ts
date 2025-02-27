@@ -182,10 +182,12 @@ export class UVProvider implements IProvider {
 
     if (fs.existsSync(pyprojectToml)) {
       const tomlData = getPyprojectData<UVPyprojectToml>(pyprojectToml);
+      const sources = this.sources(tomlData);
 
       deps.push(
         ...this.resolveDependencies(
-          tomlData,
+          projectName,
+          sources,
           projects[projectName],
           tomlData?.project?.dependencies || [],
           'main',
@@ -196,7 +198,8 @@ export class UVProvider implements IProvider {
       for (const group in tomlData['dependency-groups']) {
         deps.push(
           ...this.resolveDependencies(
-            tomlData,
+            projectName,
+            sources,
             projects[projectName],
             tomlData['dependency-groups'][group],
             group,
@@ -597,19 +600,31 @@ export class UVProvider implements IProvider {
     }
   }
 
+  private sources(
+    projectPyprojectToml: UVPyprojectToml | undefined,
+  ): UVPyprojectToml['tool']['uv']['sources'] {
+    if (!this.isWorkspace) {
+      return projectPyprojectToml?.tool?.uv?.sources ?? {};
+    }
+
+    const rootPyprojectToml = getPyprojectData<UVPyprojectToml>(
+      joinPathFragments(this.workspaceRoot, 'pyproject.toml'),
+    );
+    return {
+      ...(rootPyprojectToml?.tool?.uv?.sources ?? {}),
+      ...(projectPyprojectToml?.tool?.uv?.sources ?? {}),
+    };
+  }
+
   private resolveDependencies(
-    pyprojectToml: UVPyprojectToml | undefined,
+    projectName: string,
+    sources: UVPyprojectToml['tool']['uv']['sources'],
     projectData: ProjectConfiguration,
     dependencies: string[],
     category: string,
     projects: Record<string, ProjectConfiguration>,
   ) {
-    if (!pyprojectToml) {
-      return [];
-    }
-
     const deps: Dependency[] = [];
-    const sources = pyprojectToml?.tool?.uv?.sources ?? {};
 
     for (const dep of dependencies) {
       if (!sources[dep]) {
@@ -618,7 +633,7 @@ export class UVProvider implements IProvider {
 
       if (this.isWorkspace) {
         this.appendWorkspaceDependencyToDeps(
-          pyprojectToml,
+          projectName,
           dep,
           category,
           sources,
@@ -641,7 +656,7 @@ export class UVProvider implements IProvider {
   }
 
   private appendWorkspaceDependencyToDeps(
-    pyprojectToml: UVPyprojectToml | undefined,
+    projectName: string,
     dependencyName: string,
     category: string,
     sources: UVPyprojectToml['tool']['uv']['sources'],
@@ -652,8 +667,7 @@ export class UVProvider implements IProvider {
       return;
     }
 
-    const packageMetadata =
-      this.rootLockfile.package[pyprojectToml?.project?.name]?.metadata;
+    const packageMetadata = this.rootLockfile.package[projectName]?.metadata;
 
     const depMetadata =
       category === 'main'
