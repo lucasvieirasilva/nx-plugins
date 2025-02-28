@@ -1,3 +1,9 @@
+## [20.6.2](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.6.1...nx-python-v20.6.2) (2025-02-28)
+
+### Bug Fixes
+
+- read uv sources from root pyproject.toml ([8718398](https://github.com/lucasvieirasilva/nx-plugins/commit/8718398de793cf7adb6fa8228c2860210c8125b5))
+
 ## [20.6.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.6.0...nx-python-v20.6.1) (2025-02-21)
 
 ### Bug Fixes
