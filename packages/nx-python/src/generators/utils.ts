@@ -212,11 +212,14 @@ export async function getDefaultPythonProjectTargets(
 ): Promise<ProjectConfiguration['targets']> {
   const targets: ProjectConfiguration['targets'] = {
     lock: {
-      executor: '@nxlv/python:run-commands',
+      executor: '@nxlv/python:lock',
       options: {
-        command: await provider.getLockCommand(),
-        cwd: options.projectRoot,
+        update: false,
       },
+    },
+    sync: {
+      executor: '@nxlv/python:sync',
+      options: {},
     },
     add: {
       executor: '@nxlv/python:add',

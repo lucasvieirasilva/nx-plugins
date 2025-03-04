@@ -551,6 +551,53 @@ The `@nxlv/python:install` handles the `install` command for a project.
 | `--verbose`  | `boolean` | Use verbose mode in the install `poetry install -vv` | `false`  | `false` |
 | `--debug`    | `boolean` | Use debug mode in the install `poetry install -vvv`  | `false`  | `false` |
 
+#### sync
+
+The `@nxlv/python:sync` executor handles sync the locked dependencies with the python virtual environment.
+
+- `poetry`:
+  - v1: `poetry install --sync`
+  - v2: `poetry sync`
+- `uv`: `uv sync`
+
+##### Options
+
+| Option       |   Type    | Description                                                 | Required | Default |
+| ------------ | :-------: | ----------------------------------------------------------- | -------- | ------- |
+| `--silent`   | `boolean` | Hide output text                                            | `false`  | `false` |
+| `--args`     | `string`  | Custom arguments (e.g `--check dev`)                        | `false`  |         |
+| `--cacheDir` | `string`  | Custom poetry install cache directory                       | `false`  |         |
+| `--verbose`  | `boolean` | Use verbose mode in the install (e.g. `poetry install -vv`) | `false`  | `false` |
+| `--debug`    | `boolean` | Use debug mode in the install (e.g. `poetry install -vvv`)  | `false`  | `false` |
+
+#### lock
+
+The `@nxlv/python:lock` executor handles the `lock` command for a project.
+
+- `poetry`:
+  - With default options:
+    - v1: `poetry lock --no-update`
+    - v2: `poetry lock`
+  - With update option:
+    - v1: `poetry lock`
+    - v2: `poetry lock --regenerate`
+- `uv`:
+  - With default options:
+    - `uv lock`
+  - With update option:
+    - `uv lock --upgrade`
+
+##### Options
+
+| Option       |   Type    | Description                                              | Required | Default |
+| ------------ | :-------: | -------------------------------------------------------- | -------- | ------- |
+| `--silent`   | `boolean` | Hide output text                                         | `false`  | `false` |
+| `--args`     | `string`  | Custom arguments (e.g `--check dev`)                     | `false`  |         |
+| `--cacheDir` | `string`  | Custom poetry install cache directory                    | `false`  |         |
+| `--verbose`  | `boolean` | Use verbose mode in the install (e.g. `poetry lock -vv`) | `false`  | `false` |
+| `--debug`    | `boolean` | Use debug mode in the install (e.g. `poetry lock -vvv`)  | `false`  | `false` |
+| `--update`   | `boolean` | Update dependencies versions                             | `false`  | `false` |
+
 #### publish
 
 The `@nxlv/python:publish` executor handles the `publish` command for a project.

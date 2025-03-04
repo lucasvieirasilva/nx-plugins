@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "title": "Lock executor",
+  "description": "",
+  "type": "object",
+  "properties": {
+    "silent": {
+      "type": "boolean",
+      "description": "Hide output text.",
+      "default": false
+    },
+    "args": {
+      "type": "string",
+      "description": "Lock custom args"
+    },
+    "cacheDir": {
+      "type": "string",
+      "description": "Lock Custom Cache Directory"
+    },
+    "verbose": {
+      "type": "boolean",
+      "description": "Verbose level '-vv'",
+      "default": false
+    },
+    "debug": {
+      "type": "boolean",
+      "description": "Verbose debug level '-vvv'",
+      "default": false
+    },
+    "update": {
+      "type": "boolean",
+      "description": "Upgrade the dependencies",
+      "default": false
+    }
+  },
+  "required": []
+}

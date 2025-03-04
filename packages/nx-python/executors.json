@@ -65,6 +65,16 @@
       "implementation": "./src/executors/ruff-format/executor",
       "schema": "./src/executors/ruff-format/schema.json",
       "description": "Ruff Format Executor"
+    },
+    "sync": {
+      "implementation": "./src/executors/sync/executor",
+      "schema": "./src/executors/sync/schema.json",
+      "description": "Sync Dependencies Executor"
+    },
+    "lock": {
+      "implementation": "./src/executors/lock/executor",
+      "schema": "./src/executors/lock/schema.json",
+      "description": "Lock Dependencies Executor"
     }
   }
 }
