@@ -1,3 +1,9 @@
+# [20.7.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.6.2...nx-python-v20.7.0) (2025-03-04)
+
+### Features
+
+- **nx-python:** add sync and lock executors ([cf547ee](https://github.com/lucasvieirasilva/nx-plugins/commit/cf547ee995dad26e938d4fdd0fb55203d6e1df80))
+
 ## [20.6.2](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.6.1...nx-python-v20.6.2) (2025-02-28)
 
 ### Bug Fixes
