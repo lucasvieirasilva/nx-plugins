@@ -47,6 +47,8 @@ import {
   LockedDependencyResolver,
   ProjectDependencyResolver,
 } from './build/resolvers';
+import { LockExecutorSchema } from '../../executors/lock/schema';
+import { SyncExecutorSchema } from '../../executors/sync/schema';
 
 export class UVProvider implements IProvider {
   protected _rootLockfile: UVLockfile;
@@ -455,17 +457,98 @@ export class UVProvider implements IProvider {
     runUv(args, execOptions);
   }
 
-  public async getLockCommand(): Promise<string> {
-    return `${UV_EXECUTABLE} lock`;
+  public async getLockCommand(
+    _projectRoot?: string,
+    update?: boolean,
+  ): Promise<string> {
+    return `${UV_EXECUTABLE} lock${update ? ' --upgrade' : ''}`;
   }
 
-  public async lock(projectRoot?: string): Promise<void> {
-    const lockCommand = await this.getLockCommand();
+  public async lock(
+    options?: LockExecutorSchema,
+    context?: ExecutorContext,
+  ): Promise<void>;
 
-    runUv(
-      lockCommand.split(' ').slice(1),
-      projectRoot ? { cwd: projectRoot } : undefined,
-    );
+  public async lock(projectRoot?: string, update?: boolean): Promise<void>;
+
+  public async lock(
+    optionsOrprojectRoot?: LockExecutorSchema | string,
+    contextOrUpdate?: ExecutorContext | boolean,
+  ): Promise<void> {
+    await this.checkPrerequisites();
+
+    if (
+      typeof optionsOrprojectRoot === 'object' &&
+      contextOrUpdate &&
+      typeof contextOrUpdate === 'object'
+    ) {
+      const options = optionsOrprojectRoot;
+      const projectConfig =
+        contextOrUpdate.projectsConfigurations?.projects?.[
+          contextOrUpdate.projectName
+        ];
+
+      if (!projectConfig) {
+        throw new Error(
+          `Project ${contextOrUpdate.projectName} not found in the workspace`,
+        );
+      }
+
+      const cwd = this.isWorkspace ? contextOrUpdate.root : projectConfig.root;
+
+      const lockCommand = await this.getLockCommand(cwd, options.update);
+
+      const args = lockCommand.split(' ').slice(1);
+      if (options.args) {
+        args.push(...options.args.split(' '));
+      }
+
+      if (options.verbose) {
+        args.push('-v');
+      } else if (options.debug) {
+        args.push('-vvv');
+      }
+
+      if (options.cacheDir) {
+        args.push('--cache-dir', options.cacheDir);
+      }
+
+      const execOptions: RunUvOptions = { cwd };
+      if (options.silent) {
+        execOptions.log = false;
+      }
+
+      runUv(args, execOptions);
+    } else if (
+      typeof optionsOrprojectRoot === 'string' &&
+      (contextOrUpdate === undefined || typeof contextOrUpdate === 'boolean')
+    ) {
+      const updateOption =
+        contextOrUpdate === undefined ? false : (contextOrUpdate as boolean);
+
+      const lockCommand = await this.getLockCommand(
+        optionsOrprojectRoot,
+        updateOption,
+      );
+
+      runUv(
+        lockCommand.split(' ').slice(1),
+        optionsOrprojectRoot ? { cwd: optionsOrprojectRoot } : undefined,
+      );
+    } else {
+      const updateOption =
+        contextOrUpdate === undefined ? false : (contextOrUpdate as boolean);
+
+      const lockCommand = await this.getLockCommand(undefined, updateOption);
+      runUv(lockCommand.split(' ').slice(1));
+    }
+  }
+
+  public async sync(
+    options?: SyncExecutorSchema,
+    context?: ExecutorContext,
+  ): Promise<void> {
+    return await this.install(options, context);
   }
 
   public async build(

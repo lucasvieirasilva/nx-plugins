@@ -42,14 +42,17 @@ exports[`application generator > as-provided > should run successfully minimal c
       },
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "poetry lock --no-update",
-        "cwd": "src/app/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "update": {
@@ -145,14 +148,17 @@ exports[`application generator > as-provided > should run successfully minimal c
       },
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "poetry lock --no-update",
-        "cwd": "my-app-test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "update": {
@@ -248,14 +254,17 @@ exports[`application generator > custom template dir > should run successfully w
       },
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "poetry lock --no-update",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "update": {
@@ -333,14 +342,17 @@ exports[`application generator > individual package > should run successfully mi
       },
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "poetry lock --no-update",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "update": {
@@ -436,14 +448,17 @@ exports[`application generator > individual package > should run successfully mi
       },
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "poetry lock --no-update",
-        "cwd": "libs/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "update": {
@@ -539,14 +554,17 @@ exports[`application generator > individual package > should run successfully mi
       },
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "poetry lock --no-update",
-        "cwd": "apps/subdir/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "update": {
@@ -645,14 +663,17 @@ exports[`application generator > individual package > should run successfully mi
       },
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "poetry lock --no-update",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "update": {
@@ -758,14 +779,17 @@ exports[`application generator > individual package > should run successfully wi
       ],
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "poetry lock --no-update",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "update": {
@@ -890,14 +914,17 @@ exports[`application generator > individual package > should run successfully wi
       ],
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "poetry lock --no-update",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "test": {
@@ -1061,14 +1088,17 @@ exports[`application generator > individual package > should run successfully wi
       ],
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "poetry lock --no-update",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "test": {
@@ -1232,14 +1262,17 @@ exports[`application generator > individual package > should run successfully wi
       ],
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "poetry lock --no-update",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "test": {
@@ -1403,14 +1436,17 @@ exports[`application generator > individual package > should run successfully wi
       ],
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "poetry lock --no-update",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "test": {
@@ -1574,14 +1610,17 @@ exports[`application generator > individual package > should run successfully wi
       ],
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "poetry lock --no-update",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "test": {
@@ -1745,14 +1784,17 @@ exports[`application generator > individual package > should run successfully wi
       ],
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "poetry lock --no-update",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "test": {
@@ -1903,14 +1945,17 @@ exports[`application generator > individual package > should run successfully wi
       ],
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "poetry lock --no-update",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "test": {
@@ -2131,14 +2176,17 @@ exports[`application generator > individual package > should run successfully wi
       "outputs": [],
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "poetry lock --no-update",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "test": {
@@ -2368,14 +2416,17 @@ exports[`application generator > individual package > should run successfully wi
       ],
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "poetry lock --no-update",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "test": {
@@ -2595,14 +2646,17 @@ exports[`application generator > individual package > should run successfully wi
       "outputs": [],
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "poetry lock --no-update",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "update": {
@@ -2752,14 +2806,17 @@ exports[`application generator > individual package > should run successfully wi
       "outputs": [],
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "poetry lock --no-update",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "test": {
@@ -2917,14 +2974,17 @@ exports[`application generator > shared virtual environment > should run success
       },
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "poetry lock",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "update": {
@@ -3040,14 +3100,17 @@ exports[`application generator > shared virtual environment > should run success
       },
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "poetry lock --no-update",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "update": {
@@ -3163,14 +3226,17 @@ exports[`application generator > shared virtual environment > should run success
       },
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "poetry lock --no-update",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "update": {
@@ -3286,14 +3352,17 @@ exports[`application generator > shared virtual environment > should run success
       },
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "poetry lock --no-update",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "update": {
@@ -3410,14 +3479,17 @@ exports[`application generator > shared virtual environment > should run success
       },
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "poetry lock --no-update",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "update": {

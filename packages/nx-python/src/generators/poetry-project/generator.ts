@@ -222,13 +222,6 @@ export default async function (
 
   const targets: ProjectConfiguration['targets'] = {
     ...(await getDefaultPythonProjectTargets(normalizedOptions, provider)),
-    lock: {
-      executor: '@nxlv/python:run-commands',
-      options: {
-        command: await provider.getLockCommand(),
-        cwd: normalizedOptions.projectRoot,
-      },
-    },
     install: {
       executor: '@nxlv/python:install',
       options: {

@@ -63,6 +63,8 @@ import {
   writePyprojectToml,
 } from '../utils';
 import semver from 'semver';
+import { LockExecutorSchema } from '../../executors/lock/schema';
+import { SyncExecutorSchema } from '../../executors/sync/schema';
 
 export class PoetryProvider implements IProvider {
   constructor(
@@ -473,18 +475,146 @@ export class PoetryProvider implements IProvider {
     runPoetry([...installArgs, verboseArg], execOpts);
   }
 
-  public async getLockCommand(projectRoot?: string): Promise<string> {
+  public async getLockCommand(
+    projectRoot?: string,
+    update?: boolean,
+  ): Promise<string> {
     const poetryVersion = await getPoetryVersion(projectRoot);
-    return `${POETRY_EXECUTABLE} lock${semver.lt(poetryVersion, '2.0.0') ? ' --no-update' : ''}`;
+    if (semver.lt(poetryVersion, '2.0.0')) {
+      return `${POETRY_EXECUTABLE} lock${update ? '' : ' --no-update'}`;
+    } else {
+      return `${POETRY_EXECUTABLE} lock${update ? ' --regenerate' : ''}`;
+    }
   }
 
-  public async lock(projectRoot?: string): Promise<void> {
-    const lockCommand = await this.getLockCommand(projectRoot);
+  public async lock(
+    options?: LockExecutorSchema,
+    context?: ExecutorContext,
+  ): Promise<void>;
 
-    runPoetry(
-      lockCommand.split(' ').slice(1),
-      projectRoot ? { cwd: projectRoot } : undefined,
-    );
+  public async lock(projectRoot?: string, update?: boolean): Promise<void>;
+
+  public async lock(
+    optionsOrprojectRoot?: LockExecutorSchema | string,
+    contextOrUpdate?: ExecutorContext | boolean,
+  ): Promise<void> {
+    await this.checkPrerequisites();
+
+    if (
+      typeof optionsOrprojectRoot === 'object' &&
+      contextOrUpdate &&
+      typeof contextOrUpdate === 'object'
+    ) {
+      const options = optionsOrprojectRoot;
+      const projectConfig =
+        contextOrUpdate.projectsConfigurations?.projects?.[
+          contextOrUpdate.projectName
+        ];
+
+      if (!projectConfig) {
+        throw new Error(
+          `Project ${contextOrUpdate.projectName} not found in the workspace`,
+        );
+      }
+
+      const lockCommand = await this.getLockCommand(
+        projectConfig.root,
+        options.update,
+      );
+
+      const args = lockCommand.split(' ').slice(1);
+      if (options.args) {
+        args.push(...options.args.split(' '));
+      }
+
+      if (options.verbose) {
+        args.push('-v');
+      } else if (options.debug) {
+        args.push('-vvv');
+      }
+
+      const execOptions: RunPoetryOptions = { cwd: projectConfig.root };
+
+      if (options.cacheDir) {
+        execOptions.env = {
+          ...process.env,
+          POETRY_CACHE_DIR: path.resolve(options.cacheDir),
+        };
+      }
+
+      if (options.silent) {
+        execOptions.log = false;
+      }
+
+      runPoetry(args, execOptions);
+    } else if (
+      typeof optionsOrprojectRoot === 'string' &&
+      (contextOrUpdate === undefined || typeof contextOrUpdate === 'boolean')
+    ) {
+      const updateOption =
+        contextOrUpdate === undefined ? false : (contextOrUpdate as boolean);
+
+      const lockCommand = await this.getLockCommand(
+        optionsOrprojectRoot,
+        updateOption,
+      );
+
+      runPoetry(
+        lockCommand.split(' ').slice(1),
+        optionsOrprojectRoot ? { cwd: optionsOrprojectRoot } : undefined,
+      );
+    } else {
+      const updateOption =
+        contextOrUpdate === undefined ? false : (contextOrUpdate as boolean);
+
+      const lockCommand = await this.getLockCommand(undefined, updateOption);
+      runPoetry(lockCommand.split(' ').slice(1));
+    }
+  }
+
+  public async sync(
+    options?: SyncExecutorSchema,
+    context?: ExecutorContext,
+  ): Promise<void> {
+    await this.checkPrerequisites();
+
+    const projectConfig =
+      context?.projectsConfigurations?.projects?.[context?.projectName];
+    if (!projectConfig) {
+      throw new Error(
+        `Project ${context?.projectName} not found in the workspace`,
+      );
+    }
+
+    const poetryVersion = await getPoetryVersion(projectConfig.root);
+    const args = semver.lt(poetryVersion, '2.0.0')
+      ? ['install', '--sync']
+      : ['sync'];
+
+    if (options?.args) {
+      args.push(...options.args.split(' '));
+    }
+
+    if (options?.verbose) {
+      args.push('-v');
+    } else if (options?.debug) {
+      args.push('-vvv');
+    }
+
+    const execOptions: RunPoetryOptions = { cwd: projectConfig.root };
+
+    if (options?.cacheDir) {
+      execOptions.env = {
+        ...process.env,
+        POETRY_CACHE_DIR: path.resolve(options.cacheDir),
+      };
+    }
+
+    if (options?.silent) {
+      execOptions.log = false;
+    }
+
+    runPoetry(args, execOptions);
   }
 
   public async build(

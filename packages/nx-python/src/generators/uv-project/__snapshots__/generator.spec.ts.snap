@@ -41,14 +41,17 @@ exports[`application generator > as-provided > should run successfully minimal c
       },
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "uv lock",
-        "cwd": "src/app/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "update": {
@@ -148,14 +151,17 @@ exports[`application generator > as-provided > should run successfully minimal c
       },
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "uv lock",
-        "cwd": "my-app-test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "update": {
@@ -255,14 +261,17 @@ exports[`application generator > custom template dir > should run successfully w
       },
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "uv lock",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "update": {
@@ -337,14 +346,17 @@ exports[`application generator > project > should run successfully minimal confi
       },
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "uv lock",
-        "cwd": "libs/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "update": {
@@ -446,14 +458,17 @@ exports[`application generator > project > should run successfully minimal confi
       },
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "uv lock",
-        "cwd": "apps/subdir/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "update": {
@@ -558,14 +573,17 @@ exports[`application generator > project > should run successfully minimal confi
       },
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "uv lock",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "update": {
@@ -677,14 +695,17 @@ exports[`application generator > project > should run successfully with flake8 l
       ],
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "uv lock",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "update": {
@@ -812,14 +833,17 @@ exports[`application generator > project > should run successfully with flake8 l
       ],
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "uv lock",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "test": {
@@ -986,14 +1010,17 @@ exports[`application generator > project > should run successfully with flake8 l
       ],
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "uv lock",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "test": {
@@ -1160,14 +1187,17 @@ exports[`application generator > project > should run successfully with flake8 l
       ],
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "uv lock",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "test": {
@@ -1334,14 +1364,17 @@ exports[`application generator > project > should run successfully with flake8 l
       ],
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "uv lock",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "test": {
@@ -1508,14 +1541,17 @@ exports[`application generator > project > should run successfully with flake8 l
       ],
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "uv lock",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "test": {
@@ -1682,14 +1718,17 @@ exports[`application generator > project > should run successfully with flake8 l
       ],
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "uv lock",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "test": {
@@ -1843,14 +1882,17 @@ exports[`application generator > project > should run successfully with linting 
       ],
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "uv lock",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "test": {
@@ -2080,14 +2122,17 @@ exports[`application generator > project > should run successfully with linting 
       "outputs": [],
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "uv lock",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "test": {
@@ -2364,14 +2409,17 @@ exports[`application generator > project > should run successfully with linting 
       ],
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "uv lock",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "test": {
@@ -2598,14 +2646,17 @@ exports[`application generator > project > should run successfully with ruff lin
       "outputs": [],
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "uv lock",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "update": {
@@ -2762,14 +2813,17 @@ exports[`application generator > project > should run successfully with ruff lin
       "outputs": [],
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "uv lock",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "test": {
@@ -2930,14 +2984,17 @@ exports[`application generator > should run successfully with minimal options 1`
       },
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "uv lock",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "update": {
@@ -3039,14 +3096,17 @@ exports[`application generator > workspace > should run successfully with minima
       },
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "uv lock",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "update": {
@@ -3158,14 +3218,17 @@ exports[`application generator > workspace > should run successfully with minima
       },
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "uv lock",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "update": {
@@ -3277,14 +3340,17 @@ exports[`application generator > workspace > should run successfully with minima
       },
     },
     "lock": {
-      "executor": "@nxlv/python:run-commands",
+      "executor": "@nxlv/python:lock",
       "options": {
-        "command": "uv lock",
-        "cwd": "apps/test",
+        "update": false,
       },
     },
     "remove": {
       "executor": "@nxlv/python:remove",
+      "options": {},
+    },
+    "sync": {
+      "executor": "@nxlv/python:sync",
       "options": {},
     },
     "update": {

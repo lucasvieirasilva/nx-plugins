@@ -6,6 +6,8 @@ import { RemoveExecutorSchema } from '../executors/remove/schema';
 import { PublishExecutorSchema } from '../executors/publish/schema';
 import { InstallExecutorSchema } from '../executors/install/schema';
 import { BuildExecutorSchema } from '../executors/build/schema';
+import { LockExecutorSchema } from '../executors/lock/schema';
+import { SyncExecutorSchema } from '../executors/sync/schema';
 
 export type Dependency = {
   name: string;
@@ -80,9 +82,13 @@ export interface IProvider {
 
   install(cwd?: string): Promise<void>;
 
-  getLockCommand(projectRoot?: string): Promise<string>;
+  lock(options?: LockExecutorSchema, context?: ExecutorContext): Promise<void>;
 
-  lock(projectRoot?: string): Promise<void>;
+  lock(projectRoot?: string, update?: boolean): Promise<void>;
+
+  getLockCommand(projectRoot?: string, update?: boolean): Promise<string>;
+
+  sync(options?: SyncExecutorSchema, context?: ExecutorContext): Promise<void>;
 
   build(
     options: BuildExecutorSchema,
