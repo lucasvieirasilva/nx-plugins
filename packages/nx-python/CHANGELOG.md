@@ -1,3 +1,9 @@
+## [20.7.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.7.0...nx-python-v20.7.1) (2025-03-13)
+
+### Bug Fixes
+
+- handle null values in dependency metadata retrieval ([a1df3fe](https://github.com/lucasvieirasilva/nx-plugins/commit/a1df3feed23649223b7e5e398e579c7bd7887e47))
+
 # [20.7.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.6.2...nx-python-v20.7.0) (2025-03-04)
 
 ### Features
