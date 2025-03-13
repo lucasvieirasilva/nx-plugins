@@ -42,7 +42,7 @@ export interface IProvider {
   getDependencyMetadata(
     projectRoot: string,
     dependencyName: string,
-  ): DependencyProjectMetadata;
+  ): DependencyProjectMetadata | null;
 
   updateVersion(projectRoot: string, newVersion: string): void;
 
