@@ -110,14 +110,14 @@ export class PoetryProvider implements IProvider {
   public getDependencyMetadata(
     projectRoot: string,
     dependencyName: string,
-  ): DependencyProjectMetadata {
+  ): DependencyProjectMetadata | null {
     const pyprojectTomlPath = joinPathFragments(projectRoot, 'pyproject.toml');
 
     const projectData = this.tree
       ? readPyprojectToml<PoetryPyprojectToml>(this.tree, pyprojectTomlPath)
       : getPyprojectData<PoetryPyprojectToml>(pyprojectTomlPath);
 
-    const main = projectData.tool?.poetry?.dependencies ?? {};
+    const main = projectData?.tool?.poetry?.dependencies ?? {};
     if (typeof main[dependencyName] === 'object' && main[dependencyName].path) {
       const dependentPyproject = readPyprojectToml<PoetryPyprojectToml>(
         this.tree,
@@ -135,8 +135,8 @@ export class PoetryProvider implements IProvider {
       };
     }
 
-    for (const key in projectData.tool?.poetry?.group ?? {}) {
-      const group = projectData.tool?.poetry?.group[key].dependencies;
+    for (const key in projectData?.tool?.poetry?.group ?? {}) {
+      const group = projectData?.tool?.poetry?.group?.[key].dependencies;
 
       if (
         typeof group[dependencyName] === 'object' &&
@@ -161,9 +161,7 @@ export class PoetryProvider implements IProvider {
       }
     }
 
-    console.log('Dependency not found', projectRoot, dependencyName);
-
-    throw new Error('Dependency not found');
+    return null;
   }
 
   public getDependencies(

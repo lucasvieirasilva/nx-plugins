@@ -27,6 +27,10 @@ export class Package {
       depName,
     );
 
+    if (!depMatadata) {
+      return null;
+    }
+
     return {
       collection:
         depMatadata.group === 'main'

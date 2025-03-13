@@ -96,14 +96,18 @@ export class UVProvider implements IProvider {
   public getDependencyMetadata(
     projectRoot: string,
     dependencyName: string,
-  ): DependencyProjectMetadata {
+  ): DependencyProjectMetadata | null {
     const pyprojectTomlPath = joinPathFragments(projectRoot, 'pyproject.toml');
     const projectData = this.tree
       ? readPyprojectToml<UVPyprojectToml>(this.tree, pyprojectTomlPath)
       : getPyprojectData<UVPyprojectToml>(pyprojectTomlPath);
 
+    if (!projectData) {
+      return null;
+    }
+
     if (this.isWorkspace) {
-      const data = this.rootLockfile.package[projectData.project.name];
+      const data = this.rootLockfile.package?.[projectData?.project?.name];
       const group = data?.dependencies?.find(
         (item) => item.name === dependencyName,
       )
@@ -119,7 +123,7 @@ export class UVProvider implements IProvider {
       };
     } else {
       const dependencyRelativePath =
-        projectData.tool?.uv?.sources?.[dependencyName]?.path;
+        projectData?.tool?.uv?.sources?.[dependencyName]?.path;
       if (!dependencyRelativePath) {
         throw new Error(
           `Dependency ${dependencyName} not found in pyproject.toml`,
