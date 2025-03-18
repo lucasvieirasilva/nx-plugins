@@ -10,7 +10,7 @@ export function sortPreservingInsert(array: string[], s: string) {
   const sorted = isSorted(array);
   array.push(s);
   if (sorted) {
-    array.sort();
+    array.sort((a, b) => a.localeCompare(b));
   }
 }
 
@@ -33,7 +33,7 @@ export function sortPreservingSet<T extends object, K extends string & keyof T>(
   }
 
   keys.push(key);
-  keys.sort();
+  keys.sort((a, b) => a.localeCompare(b));
 
   obj[key] = value;
 
