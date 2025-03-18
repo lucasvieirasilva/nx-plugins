@@ -26,6 +26,7 @@ import {
 } from '../utils';
 import { DEV_DEPENDENCIES_VERSION_MAP } from '../consts';
 import { IProvider } from '../../provider/base';
+import { sortPreservingSet } from '../../utils/toml';
 
 interface NormalizedSchema extends BaseNormalizedSchema {
   devDependenciesProjectPath?: string;
@@ -79,27 +80,19 @@ function updateRootPyprojectToml(
     const group = normalizedOptions.rootPyprojectDependencyGroup ?? 'main';
 
     if (group === 'main') {
-      rootPyprojectToml.tool.poetry.dependencies[
-        normalizedOptions.packageName
-      ] = {
-        path: normalizedOptions.projectRoot,
-        develop: true,
-      };
+      sortPreservingSet(
+        rootPyprojectToml.tool.poetry.dependencies,
+        normalizedOptions.packageName,
+        { path: normalizedOptions.projectRoot, develop: true },
+      );
     } else {
-      rootPyprojectToml.tool.poetry.group = {
-        ...(rootPyprojectToml.tool.poetry.group || {}),
-        [group]: {
-          ...(rootPyprojectToml.tool.poetry.group?.[group] || {}),
-          dependencies: {
-            ...(rootPyprojectToml.tool.poetry.group?.[group]?.dependencies ||
-              {}),
-            [normalizedOptions.packageName]: {
-              path: normalizedOptions.projectRoot,
-              develop: true,
-            },
-          },
-        },
-      };
+      rootPyprojectToml.tool.poetry.group ??= {};
+      rootPyprojectToml.tool.poetry.group[group] ??= { dependencies: {} };
+      sortPreservingSet(
+        rootPyprojectToml.tool.poetry.group[group].dependencies,
+        normalizedOptions.packageName,
+        { path: normalizedOptions.projectRoot, develop: true },
+      );
     }
 
     if (!normalizedOptions.devDependenciesProject) {
