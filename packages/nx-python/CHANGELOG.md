@@ -1,3 +1,9 @@
+# [20.8.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.7.1...nx-python-v20.8.0) (2025-03-19)
+
+### Features
+
+- **nx-python:** preserve sorted-ness in root pyproject.toml ([#286](https://github.com/lucasvieirasilva/nx-plugins/issues/286)) ([dfd2217](https://github.com/lucasvieirasilva/nx-plugins/commit/dfd2217530c011674e38184053c95f765da18f15))
+
 ## [20.7.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.7.0...nx-python-v20.7.1) (2025-03-13)
 
 ### Bug Fixes
