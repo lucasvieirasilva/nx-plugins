@@ -23,6 +23,7 @@ import {
 } from '../types';
 import { UVProvider } from '../../provider/uv';
 import { IProvider } from '../../provider/base';
+import { sortPreservingInsert, sortPreservingSet } from '../../utils/toml';
 
 interface NormalizedSchema extends BaseNormalizedSchema {
   devDependenciesProjectPath?: string;
@@ -83,7 +84,8 @@ function updateRootPyprojectToml(
   } else {
     rootPyprojectToml['dependency-groups'] ??= {};
     rootPyprojectToml['dependency-groups'][group] ??= [];
-    rootPyprojectToml['dependency-groups'][group].push(
+    sortPreservingInsert(
+      rootPyprojectToml['dependency-groups'][group],
       normalizedOptions.packageName,
     );
   }
@@ -91,9 +93,11 @@ function updateRootPyprojectToml(
   rootPyprojectToml.tool ??= {};
   rootPyprojectToml.tool.uv ??= {};
   rootPyprojectToml.tool.uv.sources ??= {};
-  rootPyprojectToml.tool.uv.sources[normalizedOptions.packageName] = {
-    workspace: true,
-  };
+  sortPreservingSet(
+    rootPyprojectToml.tool.uv.sources,
+    normalizedOptions.packageName,
+    { workspace: true },
+  );
 
   if (!normalizedOptions.devDependenciesProject) {
     rootPyprojectToml['dependency-groups'] ??= {};
@@ -116,7 +120,8 @@ function updateRootPyprojectToml(
     members: [],
   };
 
-  rootPyprojectToml.tool.uv.workspace.members.push(
+  sortPreservingInsert(
+    rootPyprojectToml.tool.uv.workspace.members,
     normalizedOptions.projectRoot,
   );
   tree.write('./pyproject.toml', stringify(rootPyprojectToml));
