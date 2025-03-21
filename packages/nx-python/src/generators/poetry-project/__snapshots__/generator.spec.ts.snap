@@ -932,7 +932,7 @@ exports[`application generator > individual package > should run successfully wi
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
-        "cwd": "apps/test",
+        "cwd": "{projectRoot}",
       },
       "outputs": [
         "{workspaceRoot}/reports/{projectRoot}/unittests",
@@ -1109,7 +1109,7 @@ exports[`application generator > individual package > should run successfully wi
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
-        "cwd": "apps/test",
+        "cwd": "{projectRoot}",
       },
       "outputs": [
         "{workspaceRoot}/reports/{projectRoot}/unittests",
@@ -1287,7 +1287,7 @@ exports[`application generator > individual package > should run successfully wi
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
-        "cwd": "apps/test",
+        "cwd": "{projectRoot}",
       },
       "outputs": [
         "{workspaceRoot}/reports/{projectRoot}/unittests",
@@ -1466,7 +1466,7 @@ exports[`application generator > individual package > should run successfully wi
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
-        "cwd": "apps/test",
+        "cwd": "{projectRoot}",
       },
       "outputs": [
         "{workspaceRoot}/reports/{projectRoot}/unittests",
@@ -1646,7 +1646,7 @@ exports[`application generator > individual package > should run successfully wi
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
-        "cwd": "apps/test",
+        "cwd": "{projectRoot}",
       },
       "outputs": [
         "{workspaceRoot}/reports/{projectRoot}/unittests",
@@ -1827,7 +1827,7 @@ exports[`application generator > individual package > should run successfully wi
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
-        "cwd": "apps/test",
+        "cwd": "{projectRoot}",
       },
       "outputs": [
         "{workspaceRoot}/reports/{projectRoot}/unittests",
@@ -1988,7 +1988,7 @@ exports[`application generator > individual package > should run successfully wi
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
-        "cwd": "apps/test",
+        "cwd": "{projectRoot}",
       },
       "outputs": [
         "{workspaceRoot}/reports/{projectRoot}/unittests",
@@ -2226,7 +2226,7 @@ exports[`application generator > individual package > should run successfully wi
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
-        "cwd": "apps/test",
+        "cwd": "{projectRoot}",
       },
       "outputs": [
         "{workspaceRoot}/reports/{projectRoot}/unittests",
@@ -2480,7 +2480,7 @@ exports[`application generator > individual package > should run successfully wi
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
-        "cwd": "apps/test",
+        "cwd": "{projectRoot}",
       },
       "outputs": [
         "{workspaceRoot}/reports/{projectRoot}/unittests",
@@ -2877,7 +2877,7 @@ exports[`application generator > individual package > should run successfully wi
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "poetry run pytest tests/",
-        "cwd": "apps/test",
+        "cwd": "{projectRoot}",
       },
       "outputs": [
         "{workspaceRoot}/reports/{projectRoot}/unittests",

@@ -851,7 +851,7 @@ exports[`application generator > project > should run successfully with flake8 l
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "uv run pytest tests/",
-        "cwd": "apps/test",
+        "cwd": "{projectRoot}",
       },
       "outputs": [
         "{workspaceRoot}/reports/{projectRoot}/unittests",
@@ -1031,7 +1031,7 @@ exports[`application generator > project > should run successfully with flake8 l
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "uv run pytest tests/",
-        "cwd": "apps/test",
+        "cwd": "{projectRoot}",
       },
       "outputs": [
         "{workspaceRoot}/reports/{projectRoot}/unittests",
@@ -1212,7 +1212,7 @@ exports[`application generator > project > should run successfully with flake8 l
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "uv run pytest tests/",
-        "cwd": "apps/test",
+        "cwd": "{projectRoot}",
       },
       "outputs": [
         "{workspaceRoot}/reports/{projectRoot}/unittests",
@@ -1394,7 +1394,7 @@ exports[`application generator > project > should run successfully with flake8 l
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "uv run pytest tests/",
-        "cwd": "apps/test",
+        "cwd": "{projectRoot}",
       },
       "outputs": [
         "{workspaceRoot}/reports/{projectRoot}/unittests",
@@ -1577,7 +1577,7 @@ exports[`application generator > project > should run successfully with flake8 l
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "uv run pytest tests/",
-        "cwd": "apps/test",
+        "cwd": "{projectRoot}",
       },
       "outputs": [
         "{workspaceRoot}/reports/{projectRoot}/unittests",
@@ -1761,7 +1761,7 @@ exports[`application generator > project > should run successfully with flake8 l
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "uv run pytest tests/",
-        "cwd": "apps/test",
+        "cwd": "{projectRoot}",
       },
       "outputs": [
         "{workspaceRoot}/reports/{projectRoot}/unittests",
@@ -1925,7 +1925,7 @@ exports[`application generator > project > should run successfully with linting 
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "uv run pytest tests/",
-        "cwd": "apps/test",
+        "cwd": "{projectRoot}",
       },
       "outputs": [
         "{workspaceRoot}/reports/{projectRoot}/unittests",
@@ -2172,7 +2172,7 @@ exports[`application generator > project > should run successfully with linting 
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "uv run pytest tests/",
-        "cwd": "apps/test",
+        "cwd": "{projectRoot}",
       },
       "outputs": [
         "{workspaceRoot}/reports/{projectRoot}/unittests",
@@ -2473,7 +2473,7 @@ exports[`application generator > project > should run successfully with linting 
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "uv run pytest tests/",
-        "cwd": "apps/test",
+        "cwd": "{projectRoot}",
       },
       "outputs": [
         "{workspaceRoot}/reports/{projectRoot}/unittests",
@@ -2884,7 +2884,7 @@ exports[`application generator > project > should run successfully with ruff lin
       "executor": "@nxlv/python:run-commands",
       "options": {
         "command": "uv run pytest tests/",
-        "cwd": "apps/test",
+        "cwd": "{projectRoot}",
       },
       "outputs": [
         "{workspaceRoot}/reports/{projectRoot}/unittests",

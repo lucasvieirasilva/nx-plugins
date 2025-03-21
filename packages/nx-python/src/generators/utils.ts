@@ -294,7 +294,7 @@ export async function getDefaultPythonProjectTargets(
       ],
       options: {
         command: await provider.getRunCommand(['pytest', 'tests/']),
-        cwd: options.projectRoot,
+        cwd: '{projectRoot}',
       },
       cache: true,
     };
