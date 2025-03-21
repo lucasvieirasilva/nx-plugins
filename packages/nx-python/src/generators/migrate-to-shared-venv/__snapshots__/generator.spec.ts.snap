@@ -266,7 +266,13 @@ exclude_lines = [ "if TYPE_CHECKING:" ]
 show_missing = true
 
 [tool.pytest.ini_options]
-addopts = "--cov --cov-report html:'../../coverage/apps/proj1/html' --cov-report xml:'../../coverage/apps/proj1/coverage.xml' --html='../../reports/apps/proj1/unittests/html/index.html' --junitxml='../../reports/apps/proj1/unittests/junit.xml'"
+addopts = """
+ --cov
+ --cov-report html:'../../coverage/apps/proj1/html'
+ --cov-report xml:'../../coverage/apps/proj1/coverage.xml'
+ --html='../../reports/apps/proj1/unittests/html/index.html'
+ --junitxml='../../reports/apps/proj1/unittests/junit.xml'
+"""
 
 [tool.hatch.build.targets.wheel]
 packages = [ "proj1" ]

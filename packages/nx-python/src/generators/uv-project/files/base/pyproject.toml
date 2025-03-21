@@ -10,7 +10,7 @@ show_missing = true
 <% } -%>
 <%if (unitTestRunner === 'pytest' && pythonAddopts) { -%>
 [tool.pytest.ini_options]
-addopts = "<%- pythonAddopts %>"
+addopts = """<%- pythonAddopts %>"""
 
 <% } -%>
 [project]
