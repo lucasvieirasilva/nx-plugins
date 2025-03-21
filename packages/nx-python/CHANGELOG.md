@@ -1,3 +1,9 @@
+# [20.9.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.8.0...nx-python-v20.9.0) (2025-03-21)
+
+### Features
+
+- **nx-python:** update output paths and addopts formatting ([#287](https://github.com/lucasvieirasilva/nx-plugins/issues/287)) ([12d939e](https://github.com/lucasvieirasilva/nx-plugins/commit/12d939e9bb226dd09250072d246e481900bf15b9))
+
 # [20.8.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.7.1...nx-python-v20.8.0) (2025-03-19)
 
 ### Features
