@@ -1,3 +1,9 @@
+# [20.10.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.9.0...nx-python-v20.10.0) (2025-03-21)
+
+### Features
+
+- **nx-python:** standardize cwd paths in generator configurations ([b4e841d](https://github.com/lucasvieirasilva/nx-plugins/commit/b4e841d2c038df3cf358ae2b7cc255f8602f191e))
+
 # [20.9.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.8.0...nx-python-v20.9.0) (2025-03-21)
 
 ### Features
