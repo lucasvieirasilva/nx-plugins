@@ -24,7 +24,7 @@ exports[`application generator > as-provided > should run successfully minimal c
       "options": {
         "bundleLocalDependencies": false,
         "lockedVersions": false,
-        "outputPath": "src/app/test/dist",
+        "outputPath": "{projectRoot}/dist",
         "publish": false,
       },
       "outputs": [
@@ -134,7 +134,7 @@ exports[`application generator > as-provided > should run successfully minimal c
       "options": {
         "bundleLocalDependencies": false,
         "lockedVersions": false,
-        "outputPath": "my-app-test/dist",
+        "outputPath": "{projectRoot}/dist",
         "publish": false,
       },
       "outputs": [
@@ -244,7 +244,7 @@ exports[`application generator > custom template dir > should run successfully w
       "options": {
         "bundleLocalDependencies": false,
         "lockedVersions": false,
-        "outputPath": "apps/test/dist",
+        "outputPath": "{projectRoot}/dist",
         "publish": false,
       },
       "outputs": [
@@ -329,7 +329,7 @@ exports[`application generator > project > should run successfully minimal confi
       "options": {
         "bundleLocalDependencies": false,
         "lockedVersions": false,
-        "outputPath": "libs/test/dist",
+        "outputPath": "{projectRoot}/dist",
         "publish": false,
       },
       "outputs": [
@@ -441,7 +441,7 @@ exports[`application generator > project > should run successfully minimal confi
       "options": {
         "bundleLocalDependencies": false,
         "lockedVersions": false,
-        "outputPath": "apps/subdir/test/dist",
+        "outputPath": "{projectRoot}/dist",
         "publish": false,
       },
       "outputs": [
@@ -556,7 +556,7 @@ exports[`application generator > project > should run successfully minimal confi
       "options": {
         "bundleLocalDependencies": false,
         "lockedVersions": false,
-        "outputPath": "apps/test/dist",
+        "outputPath": "{projectRoot}/dist",
         "publish": false,
       },
       "outputs": [
@@ -668,7 +668,7 @@ exports[`application generator > project > should run successfully with flake8 l
       "options": {
         "bundleLocalDependencies": false,
         "lockedVersions": false,
-        "outputPath": "apps/test/dist",
+        "outputPath": "{projectRoot}/dist",
         "publish": false,
       },
       "outputs": [
@@ -688,10 +688,10 @@ exports[`application generator > project > should run successfully with flake8 l
       "cache": true,
       "executor": "@nxlv/python:flake8",
       "options": {
-        "outputFile": "reports/apps/test/pylint.txt",
+        "outputFile": "reports/{projectRoot}/pylint.txt",
       },
       "outputs": [
-        "{workspaceRoot}/reports/apps/test/pylint.txt",
+        "{workspaceRoot}/reports/{projectRoot}/pylint.txt",
       ],
     },
     "lock": {
@@ -806,7 +806,7 @@ exports[`application generator > project > should run successfully with flake8 l
       "options": {
         "bundleLocalDependencies": false,
         "lockedVersions": false,
-        "outputPath": "apps/test/dist",
+        "outputPath": "{projectRoot}/dist",
         "publish": false,
       },
       "outputs": [
@@ -826,10 +826,10 @@ exports[`application generator > project > should run successfully with flake8 l
       "cache": true,
       "executor": "@nxlv/python:flake8",
       "options": {
-        "outputFile": "reports/apps/test/pylint.txt",
+        "outputFile": "reports/{projectRoot}/pylint.txt",
       },
       "outputs": [
-        "{workspaceRoot}/reports/apps/test/pylint.txt",
+        "{workspaceRoot}/reports/{projectRoot}/pylint.txt",
       ],
     },
     "lock": {
@@ -854,8 +854,8 @@ exports[`application generator > project > should run successfully with flake8 l
         "cwd": "apps/test",
       },
       "outputs": [
-        "{workspaceRoot}/reports/apps/test/unittests",
-        "{workspaceRoot}/coverage/apps/test",
+        "{workspaceRoot}/reports/{projectRoot}/unittests",
+        "{workspaceRoot}/coverage/{projectRoot}",
       ],
     },
     "update": {
@@ -883,7 +883,10 @@ exclude_lines = ['if TYPE_CHECKING:']
 show_missing = true
 
 [tool.pytest.ini_options]
-addopts = "--cov --cov-report html:'../../coverage/apps/test/html'"
+addopts = """
+ --cov
+ --cov-report html:'../../coverage/apps/test/html'
+"""
 
 [project]
 name = "test"
@@ -983,7 +986,7 @@ exports[`application generator > project > should run successfully with flake8 l
       "options": {
         "bundleLocalDependencies": false,
         "lockedVersions": false,
-        "outputPath": "apps/test/dist",
+        "outputPath": "{projectRoot}/dist",
         "publish": false,
       },
       "outputs": [
@@ -1003,10 +1006,10 @@ exports[`application generator > project > should run successfully with flake8 l
       "cache": true,
       "executor": "@nxlv/python:flake8",
       "options": {
-        "outputFile": "reports/apps/test/pylint.txt",
+        "outputFile": "reports/{projectRoot}/pylint.txt",
       },
       "outputs": [
-        "{workspaceRoot}/reports/apps/test/pylint.txt",
+        "{workspaceRoot}/reports/{projectRoot}/pylint.txt",
       ],
     },
     "lock": {
@@ -1031,8 +1034,8 @@ exports[`application generator > project > should run successfully with flake8 l
         "cwd": "apps/test",
       },
       "outputs": [
-        "{workspaceRoot}/reports/apps/test/unittests",
-        "{workspaceRoot}/coverage/apps/test",
+        "{workspaceRoot}/reports/{projectRoot}/unittests",
+        "{workspaceRoot}/coverage/{projectRoot}",
       ],
     },
     "update": {
@@ -1060,7 +1063,11 @@ exclude_lines = ['if TYPE_CHECKING:']
 show_missing = true
 
 [tool.pytest.ini_options]
-addopts = "--cov --cov-report html:'../../coverage/apps/test/html' --cov-report xml:'../../coverage/apps/test/coverage.xml'"
+addopts = """
+ --cov
+ --cov-report html:'../../coverage/apps/test/html'
+ --cov-report xml:'../../coverage/apps/test/coverage.xml'
+"""
 
 [project]
 name = "test"
@@ -1160,7 +1167,7 @@ exports[`application generator > project > should run successfully with flake8 l
       "options": {
         "bundleLocalDependencies": false,
         "lockedVersions": false,
-        "outputPath": "apps/test/dist",
+        "outputPath": "{projectRoot}/dist",
         "publish": false,
       },
       "outputs": [
@@ -1180,10 +1187,10 @@ exports[`application generator > project > should run successfully with flake8 l
       "cache": true,
       "executor": "@nxlv/python:flake8",
       "options": {
-        "outputFile": "reports/apps/test/pylint.txt",
+        "outputFile": "reports/{projectRoot}/pylint.txt",
       },
       "outputs": [
-        "{workspaceRoot}/reports/apps/test/pylint.txt",
+        "{workspaceRoot}/reports/{projectRoot}/pylint.txt",
       ],
     },
     "lock": {
@@ -1208,8 +1215,8 @@ exports[`application generator > project > should run successfully with flake8 l
         "cwd": "apps/test",
       },
       "outputs": [
-        "{workspaceRoot}/reports/apps/test/unittests",
-        "{workspaceRoot}/coverage/apps/test",
+        "{workspaceRoot}/reports/{projectRoot}/unittests",
+        "{workspaceRoot}/coverage/{projectRoot}",
       ],
     },
     "update": {
@@ -1237,7 +1244,12 @@ exclude_lines = ['if TYPE_CHECKING:']
 show_missing = true
 
 [tool.pytest.ini_options]
-addopts = "--cov --cov-fail-under=100 --cov-report html:'../../coverage/apps/test/html' --cov-report xml:'../../coverage/apps/test/coverage.xml'"
+addopts = """
+ --cov
+ --cov-fail-under=100
+ --cov-report html:'../../coverage/apps/test/html'
+ --cov-report xml:'../../coverage/apps/test/coverage.xml'
+"""
 
 [project]
 name = "test"
@@ -1337,7 +1349,7 @@ exports[`application generator > project > should run successfully with flake8 l
       "options": {
         "bundleLocalDependencies": false,
         "lockedVersions": false,
-        "outputPath": "apps/test/dist",
+        "outputPath": "{projectRoot}/dist",
         "publish": false,
       },
       "outputs": [
@@ -1357,10 +1369,10 @@ exports[`application generator > project > should run successfully with flake8 l
       "cache": true,
       "executor": "@nxlv/python:flake8",
       "options": {
-        "outputFile": "reports/apps/test/pylint.txt",
+        "outputFile": "reports/{projectRoot}/pylint.txt",
       },
       "outputs": [
-        "{workspaceRoot}/reports/apps/test/pylint.txt",
+        "{workspaceRoot}/reports/{projectRoot}/pylint.txt",
       ],
     },
     "lock": {
@@ -1385,8 +1397,8 @@ exports[`application generator > project > should run successfully with flake8 l
         "cwd": "apps/test",
       },
       "outputs": [
-        "{workspaceRoot}/reports/apps/test/unittests",
-        "{workspaceRoot}/coverage/apps/test",
+        "{workspaceRoot}/reports/{projectRoot}/unittests",
+        "{workspaceRoot}/coverage/{projectRoot}",
       ],
     },
     "update": {
@@ -1414,7 +1426,13 @@ exclude_lines = ['if TYPE_CHECKING:']
 show_missing = true
 
 [tool.pytest.ini_options]
-addopts = "--cov --cov-fail-under=100 --cov-report html:'../../coverage/apps/test/html' --cov-report xml:'../../coverage/apps/test/coverage.xml' --junitxml='../../reports/apps/test/unittests/junit.xml'"
+addopts = """
+ --cov
+ --cov-fail-under=100
+ --cov-report html:'../../coverage/apps/test/html'
+ --cov-report xml:'../../coverage/apps/test/coverage.xml'
+ --junitxml='../../reports/apps/test/unittests/junit.xml'
+"""
 
 [project]
 name = "test"
@@ -1514,7 +1532,7 @@ exports[`application generator > project > should run successfully with flake8 l
       "options": {
         "bundleLocalDependencies": false,
         "lockedVersions": false,
-        "outputPath": "apps/test/dist",
+        "outputPath": "{projectRoot}/dist",
         "publish": false,
       },
       "outputs": [
@@ -1534,10 +1552,10 @@ exports[`application generator > project > should run successfully with flake8 l
       "cache": true,
       "executor": "@nxlv/python:flake8",
       "options": {
-        "outputFile": "reports/apps/test/pylint.txt",
+        "outputFile": "reports/{projectRoot}/pylint.txt",
       },
       "outputs": [
-        "{workspaceRoot}/reports/apps/test/pylint.txt",
+        "{workspaceRoot}/reports/{projectRoot}/pylint.txt",
       ],
     },
     "lock": {
@@ -1562,8 +1580,8 @@ exports[`application generator > project > should run successfully with flake8 l
         "cwd": "apps/test",
       },
       "outputs": [
-        "{workspaceRoot}/reports/apps/test/unittests",
-        "{workspaceRoot}/coverage/apps/test",
+        "{workspaceRoot}/reports/{projectRoot}/unittests",
+        "{workspaceRoot}/coverage/{projectRoot}",
       ],
     },
     "update": {
@@ -1591,7 +1609,14 @@ exclude_lines = ['if TYPE_CHECKING:']
 show_missing = true
 
 [tool.pytest.ini_options]
-addopts = "--cov --cov-fail-under=100 --cov-report html:'../../coverage/apps/test/html' --cov-report xml:'../../coverage/apps/test/coverage.xml' --html='../../reports/apps/test/unittests/html/index.html' --junitxml='../../reports/apps/test/unittests/junit.xml'"
+addopts = """
+ --cov
+ --cov-fail-under=100
+ --cov-report html:'../../coverage/apps/test/html'
+ --cov-report xml:'../../coverage/apps/test/coverage.xml'
+ --html='../../reports/apps/test/unittests/html/index.html'
+ --junitxml='../../reports/apps/test/unittests/junit.xml'
+"""
 
 [project]
 name = "test"
@@ -1691,7 +1716,7 @@ exports[`application generator > project > should run successfully with flake8 l
       "options": {
         "bundleLocalDependencies": false,
         "lockedVersions": false,
-        "outputPath": "apps/test/dist",
+        "outputPath": "{projectRoot}/dist",
         "publish": false,
       },
       "outputs": [
@@ -1711,10 +1736,10 @@ exports[`application generator > project > should run successfully with flake8 l
       "cache": true,
       "executor": "@nxlv/python:flake8",
       "options": {
-        "outputFile": "reports/apps/test/pylint.txt",
+        "outputFile": "reports/{projectRoot}/pylint.txt",
       },
       "outputs": [
-        "{workspaceRoot}/reports/apps/test/pylint.txt",
+        "{workspaceRoot}/reports/{projectRoot}/pylint.txt",
       ],
     },
     "lock": {
@@ -1739,8 +1764,8 @@ exports[`application generator > project > should run successfully with flake8 l
         "cwd": "apps/test",
       },
       "outputs": [
-        "{workspaceRoot}/reports/apps/test/unittests",
-        "{workspaceRoot}/coverage/apps/test",
+        "{workspaceRoot}/reports/{projectRoot}/unittests",
+        "{workspaceRoot}/coverage/{projectRoot}",
       ],
     },
     "update": {
@@ -1855,7 +1880,7 @@ exports[`application generator > project > should run successfully with linting 
       "options": {
         "bundleLocalDependencies": false,
         "lockedVersions": false,
-        "outputPath": "apps/test/dist",
+        "outputPath": "{projectRoot}/dist",
         "publish": false,
       },
       "outputs": [
@@ -1875,10 +1900,10 @@ exports[`application generator > project > should run successfully with linting 
       "cache": true,
       "executor": "@nxlv/python:flake8",
       "options": {
-        "outputFile": "reports/apps/test/pylint.txt",
+        "outputFile": "reports/{projectRoot}/pylint.txt",
       },
       "outputs": [
-        "{workspaceRoot}/reports/apps/test/pylint.txt",
+        "{workspaceRoot}/reports/{projectRoot}/pylint.txt",
       ],
     },
     "lock": {
@@ -1903,8 +1928,8 @@ exports[`application generator > project > should run successfully with linting 
         "cwd": "apps/test",
       },
       "outputs": [
-        "{workspaceRoot}/reports/apps/test/unittests",
-        "{workspaceRoot}/coverage/apps/test",
+        "{workspaceRoot}/reports/{projectRoot}/unittests",
+        "{workspaceRoot}/coverage/{projectRoot}",
       ],
     },
     "update": {
@@ -1932,7 +1957,14 @@ exclude_lines = ['if TYPE_CHECKING:']
 show_missing = true
 
 [tool.pytest.ini_options]
-addopts = "--cov --cov-fail-under=100 --cov-report html:'../../coverage/apps/test/html' --cov-report xml:'../../coverage/apps/test/coverage.xml' --html='../../reports/apps/test/unittests/html/index.html' --junitxml='../../reports/apps/test/unittests/junit.xml'"
+addopts = """
+ --cov
+ --cov-fail-under=100
+ --cov-report html:'../../coverage/apps/test/html'
+ --cov-report xml:'../../coverage/apps/test/coverage.xml'
+ --html='../../reports/apps/test/unittests/html/index.html'
+ --junitxml='../../reports/apps/test/unittests/junit.xml'
+"""
 
 [project]
 name = "test"
@@ -2083,7 +2115,7 @@ exports[`application generator > project > should run successfully with linting 
       "options": {
         "bundleLocalDependencies": false,
         "lockedVersions": false,
-        "outputPath": "apps/test/dist",
+        "outputPath": "{projectRoot}/dist",
         "publish": false,
       },
       "outputs": [
@@ -2143,8 +2175,8 @@ exports[`application generator > project > should run successfully with linting 
         "cwd": "apps/test",
       },
       "outputs": [
-        "{workspaceRoot}/reports/apps/test/unittests",
-        "{workspaceRoot}/coverage/apps/test",
+        "{workspaceRoot}/reports/{projectRoot}/unittests",
+        "{workspaceRoot}/coverage/{projectRoot}",
       ],
     },
     "update": {
@@ -2172,7 +2204,14 @@ exclude_lines = ['if TYPE_CHECKING:']
 show_missing = true
 
 [tool.pytest.ini_options]
-addopts = "--cov --cov-fail-under=100 --cov-report html:'../../coverage/apps/test/html' --cov-report xml:'../../coverage/apps/test/coverage.xml' --html='../../reports/apps/test/unittests/html/index.html' --junitxml='../../reports/apps/test/unittests/junit.xml'"
+addopts = """
+ --cov
+ --cov-fail-under=100
+ --cov-report html:'../../coverage/apps/test/html'
+ --cov-report xml:'../../coverage/apps/test/coverage.xml'
+ --html='../../reports/apps/test/unittests/html/index.html'
+ --junitxml='../../reports/apps/test/unittests/junit.xml'
+"""
 
 [project]
 name = "test"
@@ -2326,7 +2365,14 @@ exclude_lines = ['if TYPE_CHECKING:']
 show_missing = true
 
 [tool.pytest.ini_options]
-addopts = "--cov --cov-fail-under=100 --cov-report html:'../../coverage/apps/test/html' --cov-report xml:'../../coverage/apps/test/coverage.xml' --html='../../reports/apps/test/unittests/html/index.html' --junitxml='../../reports/apps/test/unittests/junit.xml'"
+addopts = """
+ --cov
+ --cov-fail-under=100
+ --cov-report html:'../../coverage/apps/test/html'
+ --cov-report xml:'../../coverage/apps/test/coverage.xml'
+ --html='../../reports/apps/test/unittests/html/index.html'
+ --junitxml='../../reports/apps/test/unittests/junit.xml'
+"""
 
 [project]
 name = "test"
@@ -2382,7 +2428,7 @@ exports[`application generator > project > should run successfully with linting 
       "options": {
         "bundleLocalDependencies": false,
         "lockedVersions": false,
-        "outputPath": "apps/test/dist",
+        "outputPath": "{projectRoot}/dist",
         "publish": false,
       },
       "outputs": [
@@ -2402,10 +2448,10 @@ exports[`application generator > project > should run successfully with linting 
       "cache": true,
       "executor": "@nxlv/python:flake8",
       "options": {
-        "outputFile": "reports/apps/test/pylint.txt",
+        "outputFile": "reports/{projectRoot}/pylint.txt",
       },
       "outputs": [
-        "{workspaceRoot}/reports/apps/test/pylint.txt",
+        "{workspaceRoot}/reports/{projectRoot}/pylint.txt",
       ],
     },
     "lock": {
@@ -2430,8 +2476,8 @@ exports[`application generator > project > should run successfully with linting 
         "cwd": "apps/test",
       },
       "outputs": [
-        "{workspaceRoot}/reports/apps/test/unittests",
-        "{workspaceRoot}/coverage/apps/test",
+        "{workspaceRoot}/reports/{projectRoot}/unittests",
+        "{workspaceRoot}/coverage/{projectRoot}",
       ],
     },
     "update": {
@@ -2459,7 +2505,14 @@ exclude_lines = ['if TYPE_CHECKING:']
 show_missing = true
 
 [tool.pytest.ini_options]
-addopts = "--cov --cov-fail-under=100 --cov-report html:'../../coverage/apps/test/html' --cov-report xml:'../../coverage/apps/test/coverage.xml' --html='../../reports/apps/test/unittests/html/index.html' --junitxml='../../reports/apps/test/unittests/junit.xml'"
+addopts = """
+ --cov
+ --cov-fail-under=100
+ --cov-report html:'../../coverage/apps/test/html'
+ --cov-report xml:'../../coverage/apps/test/coverage.xml'
+ --html='../../reports/apps/test/unittests/html/index.html'
+ --junitxml='../../reports/apps/test/unittests/junit.xml'
+"""
 
 [project]
 name = "test"
@@ -2609,7 +2662,7 @@ exports[`application generator > project > should run successfully with ruff lin
       "options": {
         "bundleLocalDependencies": false,
         "lockedVersions": false,
-        "outputPath": "apps/test/dist",
+        "outputPath": "{projectRoot}/dist",
         "publish": false,
       },
       "outputs": [
@@ -2774,7 +2827,7 @@ exports[`application generator > project > should run successfully with ruff lin
       "options": {
         "bundleLocalDependencies": false,
         "lockedVersions": false,
-        "outputPath": "apps/test/dist",
+        "outputPath": "{projectRoot}/dist",
         "publish": false,
       },
       "outputs": [
@@ -2834,8 +2887,8 @@ exports[`application generator > project > should run successfully with ruff lin
         "cwd": "apps/test",
       },
       "outputs": [
-        "{workspaceRoot}/reports/apps/test/unittests",
-        "{workspaceRoot}/coverage/apps/test",
+        "{workspaceRoot}/reports/{projectRoot}/unittests",
+        "{workspaceRoot}/coverage/{projectRoot}",
       ],
     },
     "update": {
@@ -2967,7 +3020,7 @@ exports[`application generator > should run successfully with minimal options 1`
       "options": {
         "bundleLocalDependencies": false,
         "lockedVersions": false,
-        "outputPath": "apps/test/dist",
+        "outputPath": "{projectRoot}/dist",
         "publish": false,
       },
       "outputs": [
@@ -3079,7 +3132,7 @@ exports[`application generator > workspace > should run successfully with minima
       "options": {
         "bundleLocalDependencies": false,
         "lockedVersions": false,
-        "outputPath": "apps/test/dist",
+        "outputPath": "{projectRoot}/dist",
         "publish": false,
       },
       "outputs": [
@@ -3201,7 +3254,7 @@ exports[`application generator > workspace > should run successfully with minima
       "options": {
         "bundleLocalDependencies": false,
         "lockedVersions": false,
-        "outputPath": "apps/test/dist",
+        "outputPath": "{projectRoot}/dist",
         "publish": false,
       },
       "outputs": [
@@ -3323,7 +3376,7 @@ exports[`application generator > workspace > should run successfully with minima
       "options": {
         "bundleLocalDependencies": false,
         "lockedVersions": false,
-        "outputPath": "apps/test/dist",
+        "outputPath": "{projectRoot}/dist",
         "publish": false,
       },
       "outputs": [

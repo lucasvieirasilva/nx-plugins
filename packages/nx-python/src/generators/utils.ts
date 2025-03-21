@@ -27,34 +27,38 @@ export function getPyTestAddopts(
     const args = [];
     const offset = offsetFromRoot(projectRoot);
     if (options.codeCoverage) {
-      args.push('--cov');
+      args.push(' --cov');
     }
     if (options.codeCoverageThreshold) {
-      args.push(`--cov-fail-under=${options.codeCoverageThreshold}`);
+      args.push(` --cov-fail-under=${options.codeCoverageThreshold}`);
     }
     if (options.codeCoverage && options.codeCoverageHtmlReport) {
-      args.push(`--cov-report html:'${offset}coverage/${projectRoot}/html'`);
+      args.push(` --cov-report html:'${offset}coverage/${projectRoot}/html'`);
     }
 
     if (options.codeCoverage && options.codeCoverageXmlReport) {
       args.push(
-        `--cov-report xml:'${offset}coverage/${projectRoot}/coverage.xml'`,
+        ` --cov-report xml:'${offset}coverage/${projectRoot}/coverage.xml'`,
       );
     }
 
     if (options.unitTestHtmlReport) {
       args.push(
-        `--html='${offset}reports/${projectRoot}/unittests/html/index.html'`,
+        ` --html='${offset}reports/${projectRoot}/unittests/html/index.html'`,
       );
     }
 
     if (options.unitTestJUnitReport) {
       args.push(
-        `--junitxml='${offset}reports/${projectRoot}/unittests/junit.xml'`,
+        ` --junitxml='${offset}reports/${projectRoot}/unittests/junit.xml'`,
       );
     }
 
-    return args.join(' ');
+    if (args.length === 0) {
+      return '';
+    }
+
+    return `\n${args.join('\n')}\n`;
   }
 }
 
@@ -237,7 +241,7 @@ export async function getDefaultPythonProjectTargets(
       executor: '@nxlv/python:build',
       outputs: ['{projectRoot}/dist'],
       options: {
-        outputPath: `${options.projectRoot}/dist`,
+        outputPath: `{projectRoot}/dist`,
         publish: options.publishable,
         lockedVersions: options.buildLockedVersions,
         bundleLocalDependencies: options.buildBundleLocalDependencies,
@@ -249,9 +253,9 @@ export async function getDefaultPythonProjectTargets(
   if (options.linter === 'flake8') {
     targets.lint = {
       executor: '@nxlv/python:flake8',
-      outputs: [`{workspaceRoot}/reports/${options.projectRoot}/pylint.txt`],
+      outputs: [`{workspaceRoot}/reports/{projectRoot}/pylint.txt`],
       options: {
-        outputFile: `reports/${options.projectRoot}/pylint.txt`,
+        outputFile: `reports/{projectRoot}/pylint.txt`,
       },
       cache: true,
     };
@@ -285,8 +289,8 @@ export async function getDefaultPythonProjectTargets(
     targets.test = {
       executor: '@nxlv/python:run-commands',
       outputs: [
-        `{workspaceRoot}/reports/${options.projectRoot}/unittests`,
-        `{workspaceRoot}/coverage/${options.projectRoot}`,
+        `{workspaceRoot}/reports/{projectRoot}/unittests`,
+        `{workspaceRoot}/coverage/{projectRoot}`,
       ],
       options: {
         command: await provider.getRunCommand(['pytest', 'tests/']),
