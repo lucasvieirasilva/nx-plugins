@@ -11,6 +11,11 @@
         "type": "string"
       }
     },
+    "check": {
+      "type": "boolean",
+      "description": "Only check if the files are formatted correctly, don't format them",
+      "default": false
+    },
     "__unparsed__": {
       "hidden": true,
       "type": "array",

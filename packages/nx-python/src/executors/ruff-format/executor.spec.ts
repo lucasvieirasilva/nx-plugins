@@ -50,6 +50,7 @@ describe('Ruff Format Executor', () => {
 
       const options = {
         filePatterns: ['app'],
+        check: false,
         __unparsed__: [],
       };
 
@@ -94,6 +95,7 @@ describe('Ruff Format Executor', () => {
       const output = await executor(
         {
           filePatterns: ['app'],
+          check: false,
           __unparsed__: [],
         },
         {
@@ -132,6 +134,58 @@ describe('Ruff Format Executor', () => {
       expect(output.success).toBe(true);
     });
 
+    it('should execute ruff format with check', async () => {
+      vi.mocked(spawn.sync).mockReturnValueOnce({
+        status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
+      });
+
+      const output = await executor(
+        {
+          filePatterns: ['app'],
+          check: true,
+          __unparsed__: [],
+        },
+        {
+          cwd: '',
+          root: '.',
+          isVerbose: false,
+          projectName: 'app',
+          projectsConfigurations: {
+            version: 2,
+            projects: {
+              app: {
+                root: 'apps/app',
+                targets: {},
+              },
+            },
+          },
+          nxJsonConfiguration: {},
+          projectGraph: {
+            dependencies: {},
+            nodes: {},
+          },
+        },
+      );
+      expect(checkPoetryExecutableMock).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(spawn.sync).toHaveBeenCalledTimes(1);
+      expect(spawn.sync).toHaveBeenCalledWith(
+        'poetry',
+        ['run', 'ruff', 'format', 'app', '--check'],
+        {
+          cwd: 'apps/app',
+          shell: true,
+          stdio: 'inherit',
+        },
+      );
+      expect(output.success).toBe(true);
+    });
+
     it('should fail to execute ruff format ', async () => {
       vi.mocked(spawn.sync).mockReturnValueOnce({
         status: 1,
@@ -145,6 +199,7 @@ describe('Ruff Format Executor', () => {
       const output = await executor(
         {
           filePatterns: ['app'],
+          check: false,
           __unparsed__: [],
         },
         {
@@ -214,6 +269,7 @@ describe('Ruff Format Executor', () => {
 
       const options = {
         filePatterns: ['app'],
+        check: false,
         __unparsed__: [],
       };
 
@@ -257,6 +313,7 @@ describe('Ruff Format Executor', () => {
       const output = await executor(
         {
           filePatterns: ['app'],
+          check: false,
           __unparsed__: [],
         },
         {
@@ -294,6 +351,57 @@ describe('Ruff Format Executor', () => {
       expect(output.success).toBe(true);
     });
 
+    it('should execute ruff format with check', async () => {
+      vi.mocked(spawn.sync).mockReturnValueOnce({
+        status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
+      });
+
+      const output = await executor(
+        {
+          filePatterns: ['app'],
+          check: true,
+          __unparsed__: [],
+        },
+        {
+          cwd: '',
+          root: '.',
+          isVerbose: false,
+          projectName: 'app',
+          projectsConfigurations: {
+            version: 2,
+            projects: {
+              app: {
+                root: 'apps/app',
+                targets: {},
+              },
+            },
+          },
+          nxJsonConfiguration: {},
+          projectGraph: {
+            dependencies: {},
+            nodes: {},
+          },
+        },
+      );
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledTimes(1);
+      expect(spawn.sync).toHaveBeenCalledWith(
+        'uv',
+        ['run', 'ruff', 'format', 'app', '--check'],
+        {
+          cwd: 'apps/app',
+          shell: true,
+          stdio: 'inherit',
+        },
+      );
+      expect(output.success).toBe(true);
+    });
+
     it('should fail to execute ruff format ', async () => {
       vi.mocked(spawn.sync).mockReturnValueOnce({
         status: 1,
@@ -307,6 +415,7 @@ describe('Ruff Format Executor', () => {
       const output = await executor(
         {
           filePatterns: ['app'],
+          check: false,
           __unparsed__: [],
         },
         {

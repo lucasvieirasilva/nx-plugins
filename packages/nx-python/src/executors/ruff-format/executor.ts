@@ -24,6 +24,10 @@ export default async function executor(
       .concat(options.filePatterns)
       .concat(options.__unparsed__);
 
+    if (options.check) {
+      commandArgs.push('--check');
+    }
+
     const provider = await getProvider(
       workspaceRoot,
       undefined,
