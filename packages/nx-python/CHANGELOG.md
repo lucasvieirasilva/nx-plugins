@@ -1,3 +1,9 @@
+# [20.11.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.10.0...nx-python-v20.11.0) (2025-03-24)
+
+### Features
+
+- **nx-python:** add 'check' option to Ruff Format Executor ([2a3aed0](https://github.com/lucasvieirasilva/nx-plugins/commit/2a3aed06ab9c8af614056d3839b7fe1c9aaf45ec))
+
 # [20.10.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.9.0...nx-python-v20.10.0) (2025-03-21)
 
 ### Features
