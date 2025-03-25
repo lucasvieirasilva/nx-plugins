@@ -396,6 +396,11 @@ export class PoetryProvider implements IProvider {
         ...(options.dryRun ? ['--dry-run'] : []),
         ...(options.__unparsed__ ?? []),
       ];
+
+      if (options.repository) {
+        commandArgs.push('--repository', options.repository);
+      }
+
       const commandStr = `${POETRY_EXECUTABLE} ${commandArgs.join(' ')}`;
 
       this.logger.info(

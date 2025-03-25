@@ -205,6 +205,56 @@ describe('Publish Executor', () => {
       expect(fsExtraMocks.removeSync).toHaveBeenCalledWith('tmp');
     });
 
+    it('should run poetry publish command with repository', async () => {
+      nxDevkitMocks.runExecutor.mockResolvedValueOnce([
+        { success: true, buildFolderPath: 'tmp' },
+      ]);
+      fsExtraMocks.removeSync.mockReturnValue(undefined);
+
+      const options = {
+        buildTarget: 'build',
+        silent: false,
+        dryRun: false,
+        repository: 'aws',
+      };
+
+      const spawnEvent = new EventEmitter();
+      childProcessMocks.spawn.mockReturnValue({
+        stdout: new EventEmitter(),
+        stderr: new EventEmitter(),
+        on: vi.fn().mockImplementation((event, callback) => {
+          spawnEvent.on(event, callback);
+          spawnEvent.emit('close', 0);
+        }),
+      });
+
+      const output = await executor(options, context);
+      expect(checkPoetryExecutableMock).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(childProcessMocks.spawn).toHaveBeenCalledWith(
+        'poetry publish --repository aws',
+        {
+          cwd: 'tmp',
+          env: { ...process.env, FORCE_COLOR: 'true' },
+          shell: true,
+          stdio: ['inherit', 'pipe', 'pipe'],
+        },
+      );
+      expect(output.success).toBe(true);
+      expect(nxDevkitMocks.runExecutor).toHaveBeenCalledWith(
+        {
+          configuration: undefined,
+          project: 'app',
+          target: 'build',
+        },
+        {
+          keepBuildFolder: true,
+        },
+        context,
+      );
+      expect(fsExtraMocks.removeSync).toHaveBeenCalledWith('tmp');
+    });
+
     it('should run poetry publish command with agrs', async () => {
       nxDevkitMocks.runExecutor.mockResolvedValueOnce([
         { success: true, buildFolderPath: 'tmp' },

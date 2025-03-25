@@ -611,6 +611,7 @@ The `@nxlv/python:publish` executor handles the `publish` command for a project.
 | --------------- | :-------: | ----------------------------------------------------------------------------------- | -------- | ------- |
 | `--silent`      | `boolean` | Hide output text                                                                    | `false`  | `false` |
 | `--buildTarget` | `string`  | Build Nx target (it needs to a target that uses the `@nxlv/python:build` execution) | `false`  | `build` |
+| `--repository`  | `string`  | The repository to publish to (Poetry only)                                          | `false`  |         |
 
 This executor first executes the `build` target to generate the tar/whl files and uses the `--keepBuildFolder` flag to keep the build folder after the build process.
 
