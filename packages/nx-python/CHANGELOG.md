@@ -1,3 +1,9 @@
+# [20.12.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.11.0...nx-python-v20.12.0) (2025-03-25)
+
+### Features
+
+- **nx-python:** add repository option to publish executor ([8f10f08](https://github.com/lucasvieirasilva/nx-plugins/commit/8f10f08575ca14c9824fa1d92a6039f417e589aa))
+
 # [20.11.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.10.0...nx-python-v20.11.0) (2025-03-24)
 
 ### Features
