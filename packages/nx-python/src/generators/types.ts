@@ -24,7 +24,7 @@ export interface BasePythonProjectGeneratorSchema
   packageName?: string;
   description?: string;
   moduleName?: string;
-  pyenvPythonVersion?: string;
+  pyenvPythonVersion?: string | number;
   tags?: string;
   directory?: string;
 }
