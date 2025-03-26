@@ -14,6 +14,14 @@ export function includeDependencyPackage(
 
     copySync(pkgFolder, buildPackageFolder);
 
+    if (
+      buildTomlData.tool.poetry.packages.find(
+        (p) => p.include === pkg.include && p.from === pkg.from,
+      )
+    ) {
+      continue;
+    }
+
     buildTomlData.tool.poetry.packages.push({
       include: pkg.include,
     });

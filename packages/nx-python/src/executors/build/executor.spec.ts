@@ -2714,6 +2714,160 @@ describe('Build Executor', () => {
         ).toStrictEqual({});
       });
 
+      it('should build the project without locked versions and bundle the local dependencies (duplicate packages)', async () => {
+        vol.fromJSON({
+          'apps/app/.venv/pyvenv.cfg': 'fake',
+          'apps/app/app/index.py': 'print("Hello from app")',
+          'apps/app/pyproject.toml': dedent`
+          [tool.poetry]
+          name = "app"
+          version = "1.0.0"
+            [[tool.poetry.packages]]
+            include = "app"
+
+            [tool.poetry.dependencies]
+            python = "^3.8"
+            dep1 = { path = "../../libs/dep1" }
+            dep2 = { path = "../../libs/dep2" }
+
+            [tool.poetry.group.dev.dependencies]
+            pytest = "6.2.4"
+          `,
+
+          'libs/dep1/.venv/pyvenv.cfg': 'fake',
+          'libs/dep1/dep1/index.py': 'print("Hello from app")',
+          'libs/dep1/pyproject.toml': dedent`
+          [tool.poetry]
+          name = "dep1"
+          version = "1.0.0"
+            [[tool.poetry.packages]]
+            include = "dep1"
+
+            [tool.poetry.dependencies]
+            python = "^3.8"
+            dep2 = { path = "../dep2" }
+
+            [tool.poetry.group.dev.dependencies]
+            pytest = "6.2.4"
+          `,
+
+          'libs/dep2/.venv/pyvenv.cfg': 'fake',
+          'libs/dep2/dep2/index.py': 'print("Hello from app")',
+          'libs/dep2/pyproject.toml': dedent`
+          [tool.poetry]
+          name = "dep2"
+          version = "1.0.0"
+            [[tool.poetry.packages]]
+            include = "dep2"
+
+            [tool.poetry.dependencies]
+            python = "^3.8"
+
+            [tool.poetry.group.dev.dependencies]
+            pytest = "6.2.4"
+          `,
+        });
+
+        vi.mocked(spawn.sync).mockImplementation((_, args, opts) => {
+          spawnBuildMockImpl(opts);
+          return {
+            status: 0,
+            output: [''],
+            pid: 0,
+            signal: null,
+            stderr: null,
+            stdout: null,
+          };
+        });
+
+        const options: BuildExecutorSchema = {
+          ignorePaths: ['.venv', '.tox', 'tests/'],
+          silent: false,
+          outputPath: 'dist/apps/app',
+          keepBuildFolder: true,
+          devDependencies: false,
+          lockedVersions: false,
+          bundleLocalDependencies: false,
+        };
+
+        const output = await executor(options, {
+          cwd: '',
+          root: '.',
+          isVerbose: false,
+          projectName: 'app',
+          projectsConfigurations: {
+            version: 2,
+            projects: {
+              app: {
+                root: 'apps/app',
+                targets: {},
+              },
+              dep1: {
+                root: 'libs/dep1',
+                targets: {
+                  build: {
+                    options: {
+                      publish: false,
+                    },
+                  },
+                },
+              },
+              dep2: {
+                root: 'libs/dep2',
+                targets: {
+                  build: {
+                    options: {
+                      publish: false,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          nxJsonConfiguration: {},
+          projectGraph: {
+            dependencies: {},
+            nodes: {},
+          },
+        });
+
+        expect(checkPoetryExecutableMock).toHaveBeenCalled();
+        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(output.success).toBe(true);
+        expect(existsSync(buildPath)).toBeTruthy();
+        expect(existsSync(`${buildPath}/app`)).toBeTruthy();
+        expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
+        expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
+        expect(spawn.sync).toHaveBeenCalledWith('poetry', ['build'], {
+          cwd: buildPath,
+          shell: false,
+          stdio: 'inherit',
+        });
+
+        const projectTomlData = parse(
+          readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8'),
+        ) as PoetryPyprojectToml;
+
+        expect(projectTomlData.tool.poetry.packages).toStrictEqual([
+          {
+            include: 'app',
+          },
+          {
+            include: 'dep1',
+          },
+          {
+            include: 'dep2',
+          },
+        ]);
+
+        expect(projectTomlData.tool.poetry.dependencies).toStrictEqual({
+          python: '^3.8',
+        });
+        expect(
+          projectTomlData.tool.poetry.group.dev.dependencies,
+        ).toStrictEqual({});
+      });
+
       it('should build the project without locked versions and bundle only local dependency and not the second level', async () => {
         vol.fromJSON({
           'apps/app/.venv/pyvenv.cfg': 'fake',
