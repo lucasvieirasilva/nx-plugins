@@ -1,3 +1,9 @@
+## [20.12.2](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.12.1...nx-python-v20.12.2) (2025-03-26)
+
+### Bug Fixes
+
+- **nx-python:** update pyenvPythonVersion type to accept string or number ([#290](https://github.com/lucasvieirasilva/nx-plugins/issues/290)) ([dbe7185](https://github.com/lucasvieirasilva/nx-plugins/commit/dbe7185529d7d212840323579591720d42bbf091))
+
 ## [20.12.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.12.0...nx-python-v20.12.1) (2025-03-26)
 
 ### Bug Fixes
