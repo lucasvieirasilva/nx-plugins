@@ -1,3 +1,9 @@
+## [20.12.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.12.0...nx-python-v20.12.1) (2025-03-26)
+
+### Bug Fixes
+
+- **nx-python:** check if package already exists before adding a new one ([8cc5a3f](https://github.com/lucasvieirasilva/nx-plugins/commit/8cc5a3f43938599afea6992b8f0d643fa94c1b56))
+
 # [20.12.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.11.0...nx-python-v20.12.0) (2025-03-25)
 
 ### Features
