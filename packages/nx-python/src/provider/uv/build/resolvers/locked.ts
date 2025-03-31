@@ -100,6 +100,7 @@ export class LockedDependencyResolver {
       '--frozen',
       '--no-emit-project',
       '--all-extras',
+      '--no-annotate',
       '--project',
       projectRoot,
     ];
