@@ -1,3 +1,9 @@
+## [20.12.3](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.12.2...nx-python-v20.12.3) (2025-04-01)
+
+### Bug Fixes
+
+- **nx-python:** preserve sorted-ness in `project.dependencies` ([#292](https://github.com/lucasvieirasilva/nx-plugins/issues/292)) ([190337d](https://github.com/lucasvieirasilva/nx-plugins/commit/190337dbad56a1e701b3102c8823c411196e830d))
+
 ## [20.12.2](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.12.1...nx-python-v20.12.2) (2025-03-26)
 
 ### Bug Fixes
