@@ -80,7 +80,10 @@ function updateRootPyprojectToml(
 
   if (group === 'main') {
     rootPyprojectToml.project.dependencies ??= [];
-    rootPyprojectToml.project.dependencies.push(normalizedOptions.packageName);
+    sortPreservingInsert(
+      rootPyprojectToml.project.dependencies,
+      normalizedOptions.packageName,
+    );
   } else {
     rootPyprojectToml['dependency-groups'] ??= {};
     rootPyprojectToml['dependency-groups'][group] ??= [];

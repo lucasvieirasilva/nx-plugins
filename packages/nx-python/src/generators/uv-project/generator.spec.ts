@@ -620,6 +620,64 @@ describe('application generator', () => {
         stdio: 'inherit',
       });
     });
+
+    it('should preserve sorted order in root pyproject.toml', async () => {
+      appTree.write(
+        'pyproject.toml',
+        dedent`
+        [project]
+        name = "nx-workspace"
+        version = "1.0.0"
+        dependencies = [ "aardvark", "zebra" ]
+
+        [tool.uv.sources.aardvark]
+        workspace = true
+
+        [tool.uv.sources.zebra]
+        workspace = true
+
+        [tool.uv.workspace]
+        members = [ "apps/aardvark", "libs/zebra" ]
+
+        [dependency-groups]
+        dev = [ "autopep8>=2.3.1" ]
+
+        `,
+      );
+
+      const callbackTask = await generator(appTree, {
+        name: 'test',
+        projectType: 'application',
+        rootPyprojectDependencyGroup: 'main',
+        ...options,
+      });
+      await callbackTask();
+
+      expect(appTree.read('pyproject.toml').toString()).toEqual(
+        dedent`
+        [project]
+        name = "nx-workspace"
+        version = "1.0.0"
+        dependencies = [ "aardvark", "test", "zebra" ]
+
+        [tool.uv.sources.aardvark]
+        workspace = true
+
+        [tool.uv.sources.test]
+        workspace = true
+
+        [tool.uv.sources.zebra]
+        workspace = true
+
+        [tool.uv.workspace]
+        members = [ "apps/aardvark", "apps/test", "libs/zebra" ]
+
+        [dependency-groups]
+        dev = [ "autopep8>=2.3.1" ]
+
+        `,
+      );
+    });
   });
 
   describe('custom template dir', () => {
