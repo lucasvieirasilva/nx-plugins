@@ -3439,6 +3439,16 @@ describe('Build Executor', () => {
               signal: null,
               stderr: null,
               stdout: Buffer.from(dedent`
+            -e 0.6.10
+            `),
+            })
+            .mockReturnValueOnce({
+              status: 0,
+              output: [''],
+              pid: 0,
+              signal: null,
+              stderr: null,
+              stdout: Buffer.from(dedent`
             -e ./libs/dep1
             django==5.1.4
             `),
@@ -3495,9 +3505,9 @@ describe('Build Executor', () => {
           expect(existsSync(`${buildPath}/app1`)).toBeTruthy();
           expect(existsSync(`${buildPath}/dep1`)).not.toBeTruthy();
           expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
-          expect(spawn.sync).toHaveBeenCalledTimes(2);
+          expect(spawn.sync).toHaveBeenCalledTimes(3);
           expect(spawn.sync).toHaveBeenNthCalledWith(
-            1,
+            2,
             'uv',
             [
               'export',
@@ -3508,7 +3518,6 @@ describe('Build Executor', () => {
               '--frozen',
               '--no-emit-project',
               '--all-extras',
-              '--no-annotate',
               '--project',
               'apps/app',
               '--no-dev',
@@ -3519,7 +3528,7 @@ describe('Build Executor', () => {
               stdio: 'pipe',
             },
           );
-          expect(spawn.sync).toHaveBeenNthCalledWith(2, 'uv', ['build'], {
+          expect(spawn.sync).toHaveBeenNthCalledWith(3, 'uv', ['build'], {
             cwd: buildPath,
             shell: false,
             stdio: 'inherit',
@@ -3591,6 +3600,16 @@ describe('Build Executor', () => {
               signal: null,
               stderr: null,
               stdout: Buffer.from(dedent`
+            -e 0.6.10
+            `),
+            })
+            .mockReturnValueOnce({
+              status: 0,
+              output: [''],
+              pid: 0,
+              signal: null,
+              stderr: null,
+              stdout: Buffer.from(dedent`
             -e ./libs/dep1
             django==5.1.4
             `),
@@ -3648,9 +3667,9 @@ describe('Build Executor', () => {
           expect(existsSync(`${buildPath}/app1`)).toBeTruthy();
           expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
           expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
-          expect(spawn.sync).toHaveBeenCalledTimes(2);
+          expect(spawn.sync).toHaveBeenCalledTimes(3);
           expect(spawn.sync).toHaveBeenNthCalledWith(
-            1,
+            2,
             'uv',
             [
               'export',
@@ -3661,7 +3680,6 @@ describe('Build Executor', () => {
               '--frozen',
               '--no-emit-project',
               '--all-extras',
-              '--no-annotate',
               '--project',
               'apps/app',
               '--no-dev',
@@ -3672,7 +3690,7 @@ describe('Build Executor', () => {
               stdio: 'pipe',
             },
           );
-          expect(spawn.sync).toHaveBeenNthCalledWith(2, 'uv', ['build'], {
+          expect(spawn.sync).toHaveBeenNthCalledWith(3, 'uv', ['build'], {
             cwd: buildPath,
             shell: false,
             stdio: 'inherit',
@@ -3744,6 +3762,16 @@ describe('Build Executor', () => {
               signal: null,
               stderr: null,
               stdout: Buffer.from(dedent`
+            -e 0.6.10
+            `),
+            })
+            .mockReturnValueOnce({
+              status: 0,
+              output: [''],
+              pid: 0,
+              signal: null,
+              stderr: null,
+              stdout: Buffer.from(dedent`
             -e ./libs/dep1
             django==5.1.4
             ruff>=0.8.2
@@ -3802,9 +3830,9 @@ describe('Build Executor', () => {
           expect(existsSync(`${buildPath}/app1`)).toBeTruthy();
           expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
           expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
-          expect(spawn.sync).toHaveBeenCalledTimes(2);
+          expect(spawn.sync).toHaveBeenCalledTimes(3);
           expect(spawn.sync).toHaveBeenNthCalledWith(
-            1,
+            2,
             'uv',
             [
               'export',
@@ -3815,7 +3843,6 @@ describe('Build Executor', () => {
               '--frozen',
               '--no-emit-project',
               '--all-extras',
-              '--no-annotate',
               '--project',
               'apps/app',
             ],
@@ -3825,7 +3852,171 @@ describe('Build Executor', () => {
               stdio: 'pipe',
             },
           );
-          expect(spawn.sync).toHaveBeenNthCalledWith(2, 'uv', ['build'], {
+          expect(spawn.sync).toHaveBeenNthCalledWith(3, 'uv', ['build'], {
+            cwd: buildPath,
+            shell: false,
+            stdio: 'inherit',
+          });
+
+          const projectTomlData = getPyprojectData<UVPyprojectToml>(
+            `${buildPath}/pyproject.toml`,
+          );
+
+          expect(
+            projectTomlData.tool.hatch.build.targets.wheel.packages,
+          ).toStrictEqual(['app1', 'dep1']);
+
+          expect(projectTomlData.project.dependencies).toStrictEqual([
+            'django==5.1.4',
+            'ruff>=0.8.2',
+          ]);
+          expect(projectTomlData['dependency-groups']).toStrictEqual({});
+
+          expect(output.success).toBe(true);
+        });
+
+        it('should build python project with local and dev dependencies uv 0.6.11', async () => {
+          vol.fromJSON({
+            'apps/app/app1/index.py': 'print("Hello from app")',
+
+            'apps/app/pyproject.toml': dedent`
+            [project]
+            name = "app1"
+            version = "0.1.0"
+            readme = "README.md"
+            requires-python = ">=3.12"
+            dependencies = [
+                "django>=5.1.4",
+                "dep1",
+            ]
+
+            [tool.hatch.build.targets.wheel]
+            packages = ["app1"]
+
+            [dependency-groups]
+            dev = [
+                "ruff>=0.8.2",
+            ]
+
+            [tool.uv.sources]
+            dep1 = { workspace = true }
+            `,
+            'apps/app/uv.lock': '',
+
+            'libs/dep1/dep1/index.py': 'print("Hello from dep1")',
+            'libs/dep1/pyproject.toml': dedent`
+            [project]
+            name = "dep1"
+            version = "0.1.0"
+            readme = "README.md"
+            requires-python = ">=3.12"
+            dependencies = []
+
+            [tool.hatch.build.targets.wheel]
+            packages = ["dep1"]
+            `,
+          });
+
+          vi.mocked(spawn.sync)
+            .mockReturnValueOnce({
+              status: 0,
+              output: [''],
+              pid: 0,
+              signal: null,
+              stderr: null,
+              stdout: Buffer.from(dedent`
+            -e 0.6.11
+            `),
+            })
+            .mockReturnValueOnce({
+              status: 0,
+              output: [''],
+              pid: 0,
+              signal: null,
+              stderr: null,
+              stdout: Buffer.from(dedent`
+            -e ./libs/dep1
+            django==5.1.4
+            ruff>=0.8.2
+            `),
+            })
+            .mockImplementationOnce((_, args, opts) => {
+              spawnBuildMockImpl(opts);
+              return {
+                status: 0,
+                output: [''],
+                pid: 0,
+                signal: null,
+                stderr: null,
+                stdout: null,
+              };
+            });
+
+          const options: BuildExecutorSchema = {
+            ignorePaths: ['.venv', '.tox', 'tests/'],
+            silent: false,
+            outputPath: 'dist/apps/app',
+            keepBuildFolder: true,
+            devDependencies: true,
+            lockedVersions: true,
+            bundleLocalDependencies: true,
+          };
+
+          const output = await executor(options, {
+            cwd: '',
+            root: '.',
+            isVerbose: false,
+            projectName: 'app',
+            projectsConfigurations: {
+              version: 2,
+              projects: {
+                app: {
+                  root: 'apps/app',
+                  targets: {},
+                },
+                dep1: {
+                  root: 'libs/dep1',
+                  targets: {},
+                },
+              },
+            },
+            nxJsonConfiguration: {},
+            projectGraph: {
+              dependencies: {},
+              nodes: {},
+            },
+          });
+
+          expect(checkPrerequisites).toHaveBeenCalled();
+          console.log('buildPath', buildPath);
+          expect(existsSync(buildPath)).toBeTruthy();
+          expect(existsSync(`${buildPath}/app1`)).toBeTruthy();
+          expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
+          expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
+          expect(spawn.sync).toHaveBeenCalledTimes(3);
+          expect(spawn.sync).toHaveBeenNthCalledWith(
+            2,
+            'uv',
+            [
+              'export',
+              '--format',
+              'requirements-txt',
+              '--no-hashes',
+              '--no-header',
+              '--no-annotate',
+              '--frozen',
+              '--no-emit-project',
+              '--all-extras',
+              '--project',
+              'apps/app',
+            ],
+            {
+              cwd: '.',
+              shell: true,
+              stdio: 'pipe',
+            },
+          );
+          expect(spawn.sync).toHaveBeenNthCalledWith(3, 'uv', ['build'], {
             cwd: buildPath,
             shell: false,
             stdio: 'inherit',
@@ -3898,6 +4089,16 @@ describe('Build Executor', () => {
               signal: null,
               stderr: null,
               stdout: Buffer.from(dedent`
+            -e 0.6.10
+            `),
+            })
+            .mockReturnValueOnce({
+              status: 0,
+              output: [''],
+              pid: 0,
+              signal: null,
+              stderr: null,
+              stdout: Buffer.from(dedent`
             -e ./libs/dep1
             django==5.1.4
             `),
@@ -3951,9 +4152,9 @@ describe('Build Executor', () => {
 
           expect(checkPrerequisites).toHaveBeenCalled();
           expect(existsSync(buildPath)).not.toBeTruthy();
-          expect(spawn.sync).toHaveBeenCalledTimes(2);
+          expect(spawn.sync).toHaveBeenCalledTimes(3);
           expect(spawn.sync).toHaveBeenNthCalledWith(
-            1,
+            2,
             'uv',
             [
               'export',
@@ -3964,7 +4165,6 @@ describe('Build Executor', () => {
               '--frozen',
               '--no-emit-project',
               '--all-extras',
-              '--no-annotate',
               '--project',
               'apps/app',
               '--no-dev',
@@ -3975,7 +4175,7 @@ describe('Build Executor', () => {
               stdio: 'pipe',
             },
           );
-          expect(spawn.sync).toHaveBeenNthCalledWith(2, 'uv', ['build'], {
+          expect(spawn.sync).toHaveBeenNthCalledWith(3, 'uv', ['build'], {
             cwd: buildPath,
             shell: false,
             stdio: 'inherit',
@@ -4009,6 +4209,16 @@ describe('Build Executor', () => {
           });
 
           vi.mocked(spawn.sync)
+            .mockReturnValueOnce({
+              status: 0,
+              output: [''],
+              pid: 0,
+              signal: null,
+              stderr: null,
+              stdout: Buffer.from(dedent`
+            -e 0.6.10
+            `),
+            })
             .mockReturnValueOnce({
               status: 0,
               output: [''],
@@ -4074,14 +4284,14 @@ describe('Build Executor', () => {
           expect(existsSync(buildPath)).toBeTruthy();
           expect(existsSync(`${buildPath}/app1`)).toBeTruthy();
           expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
-          expect(spawn.sync).toHaveBeenCalledTimes(3);
-          expect(spawn.sync).toHaveBeenNthCalledWith(1, 'uv', ['lock'], {
+          expect(spawn.sync).toHaveBeenCalledTimes(4);
+          expect(spawn.sync).toHaveBeenNthCalledWith(2, 'uv', ['lock'], {
             cwd: 'apps/app',
             shell: true,
             stdio: 'inherit',
           });
           expect(spawn.sync).toHaveBeenNthCalledWith(
-            2,
+            3,
             'uv',
             [
               'export',
@@ -4092,7 +4302,6 @@ describe('Build Executor', () => {
               '--frozen',
               '--no-emit-project',
               '--all-extras',
-              '--no-annotate',
               '--project',
               'apps/app',
               '--no-dev',
@@ -4103,7 +4312,7 @@ describe('Build Executor', () => {
               stdio: 'pipe',
             },
           );
-          expect(spawn.sync).toHaveBeenNthCalledWith(3, 'uv', ['build'], {
+          expect(spawn.sync).toHaveBeenNthCalledWith(4, 'uv', ['build'], {
             cwd: buildPath,
             shell: false,
             stdio: 'inherit',
@@ -4182,6 +4391,16 @@ describe('Build Executor', () => {
               signal: null,
               stderr: null,
               stdout: Buffer.from(dedent`
+          -e 0.6.10
+          `),
+            })
+            .mockReturnValueOnce({
+              status: 0,
+              output: [''],
+              pid: 0,
+              signal: null,
+              stderr: null,
+              stdout: Buffer.from(dedent`
               ../../libs/dep1
               django==5.1.4
               `),
@@ -4239,9 +4458,9 @@ describe('Build Executor', () => {
           expect(existsSync(`${buildPath}/app1`)).toBeTruthy();
           expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
           expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
-          expect(spawn.sync).toHaveBeenCalledTimes(2);
+          expect(spawn.sync).toHaveBeenCalledTimes(3);
           expect(spawn.sync).toHaveBeenNthCalledWith(
-            1,
+            2,
             'uv',
             [
               'export',
@@ -4252,7 +4471,6 @@ describe('Build Executor', () => {
               '--frozen',
               '--no-emit-project',
               '--all-extras',
-              '--no-annotate',
               '--project',
               'apps/app',
               '--no-dev',
@@ -4263,7 +4481,7 @@ describe('Build Executor', () => {
               stdio: 'pipe',
             },
           );
-          expect(spawn.sync).toHaveBeenNthCalledWith(2, 'uv', ['build'], {
+          expect(spawn.sync).toHaveBeenNthCalledWith(3, 'uv', ['build'], {
             cwd: buildPath,
             shell: false,
             stdio: 'inherit',
