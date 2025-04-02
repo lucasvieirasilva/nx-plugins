@@ -1,3 +1,9 @@
+## [20.12.4](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.12.3...nx-python-v20.12.4) (2025-04-02)
+
+### Bug Fixes
+
+- **nx-python:** add --no-annotate to uv export ([#291](https://github.com/lucasvieirasilva/nx-plugins/issues/291)) ([8b5cd75](https://github.com/lucasvieirasilva/nx-plugins/commit/8b5cd751aaf8c3f83ab69bf5b071cf9e387356c1))
+
 ## [20.12.3](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.12.2...nx-python-v20.12.3) (2025-04-01)
 
 ### Bug Fixes
