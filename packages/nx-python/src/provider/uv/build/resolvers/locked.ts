@@ -2,12 +2,13 @@ import path from 'path';
 import chalk from 'chalk';
 import { Logger } from '../../../../executors/utils/logger';
 import { UVPyprojectToml } from '../../types';
-import { UV_EXECUTABLE } from '../../utils';
+import { getUvVersion, UV_EXECUTABLE } from '../../utils';
 import spawn from 'cross-spawn';
 import { getPyprojectData } from '../../../utils';
 import { PackageDependency } from '../../../base';
 import { includeDependencyPackage } from './utils';
 import { existsSync } from 'fs';
+import semver from 'semver';
 
 export class LockedDependencyResolver {
   constructor(
@@ -25,14 +26,14 @@ export class LockedDependencyResolver {
     const result: PackageDependency[] = [];
     this.logger.info(chalk`  Resolving dependencies...`);
 
-    const requerimentsTxt = this.getProjectRequirementsTxt(
+    const requirementsTxt = this.getProjectRequirementsTxt(
       devDependencies,
       projectRoot,
       workspaceRoot,
     );
 
-    const requerimentsLines = requerimentsTxt.split('\n');
-    for (const line of requerimentsLines) {
+    const requirementsLines = requirementsTxt.split('\n');
+    for (const line of requirementsLines) {
       if (!line.trim()) {
         continue;
       }
@@ -91,12 +92,16 @@ export class LockedDependencyResolver {
     projectRoot: string,
     workspaceRoot: string,
   ): string {
+    const uvVersion = getUvVersion();
+    const noAnnotateSupported = semver.gte(uvVersion, '0.6.11'); // --no-annotate only supported from 0.6.11
+
     const exportArgs = [
       'export',
       '--format',
       'requirements-txt',
       '--no-hashes',
       '--no-header',
+      ...(noAnnotateSupported ? ['--no-annotate'] : []),
       '--frozen',
       '--no-emit-project',
       '--all-extras',

@@ -56,6 +56,11 @@ export function runUv(args: string[], options: RunUvOptions = {}): void {
   }
 }
 
+export function getUvVersion(): string {
+  const result = spawn.sync(UV_EXECUTABLE, ['--version']);
+  return result.stdout.toString().trim().split(' ')[1];
+}
+
 export function getUvLockfile(
   lockfilePath: string,
   tree?: Tree,
