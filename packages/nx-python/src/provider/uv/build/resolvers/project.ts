@@ -53,12 +53,12 @@ export class ProjectDependencyResolver {
     const tab = getLoggingTab(level);
 
     for (const dependency of pyproject.project.dependencies) {
-      if (pyproject.tool?.uv?.sources[dependency]) {
+      if (pyproject.tool?.uv?.sources?.[dependency]) {
         const dependencyPath = this.getDependencyPath(
           workspaceRoot,
           dependency,
           projectRoot,
-          pyproject.tool?.uv?.sources[dependency].path,
+          pyproject.tool.uv.sources[dependency].path,
         );
         if (!dependencyPath) {
           continue;
