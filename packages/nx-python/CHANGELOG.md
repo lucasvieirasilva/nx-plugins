@@ -1,3 +1,9 @@
+## [20.12.5](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.12.4...nx-python-v20.12.5) (2025-04-12)
+
+### Bug Fixes
+
+- null coalescence in `resolveDependencies` of project build resolver ([#297](https://github.com/lucasvieirasilva/nx-plugins/issues/297)) ([58d5d72](https://github.com/lucasvieirasilva/nx-plugins/commit/58d5d725e04c45075ae1b4f912a38e0d32711bc5))
+
 ## [20.12.4](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.12.3...nx-python-v20.12.4) (2025-04-02)
 
 ### Bug Fixes
