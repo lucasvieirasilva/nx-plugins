@@ -473,11 +473,16 @@ export class UVProvider implements IProvider {
     context?: ExecutorContext,
   ): Promise<void>;
 
-  public async lock(projectRoot?: string, update?: boolean): Promise<void>;
+  public async lock(
+    projectRoot?: string,
+    update?: boolean,
+    args?: string[] | string,
+  ): Promise<void>;
 
   public async lock(
     optionsOrprojectRoot?: LockExecutorSchema | string,
     contextOrUpdate?: ExecutorContext | boolean,
+    args?: string[] | string,
   ): Promise<void> {
     await this.checkPrerequisites();
 
@@ -535,8 +540,13 @@ export class UVProvider implements IProvider {
         updateOption,
       );
 
+      const lockArgs = lockCommand.split(' ').slice(1);
+      if (args) {
+        lockArgs.push(...(Array.isArray(args) ? args : args.split(' ')));
+      }
+
       runUv(
-        lockCommand.split(' ').slice(1),
+        lockArgs,
         optionsOrprojectRoot ? { cwd: optionsOrprojectRoot } : undefined,
       );
     } else {

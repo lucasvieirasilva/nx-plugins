@@ -34,7 +34,7 @@ import {
 import { interpolate } from 'nx/src/tasks-runner/utils';
 import ora from 'ora';
 import { ReleaseType, gt, inc, prerelease } from 'semver';
-import { ReleaseVersionGeneratorSchema } from './schema';
+import { PythonReleaseVersionGeneratorSchema } from './schema';
 import {
   LocalPackageDependency,
   resolveLocalPackageDependencies,
@@ -46,7 +46,7 @@ import { PluginOptions } from '../../types';
 
 export async function releaseVersionGenerator(
   tree: Tree,
-  options: ReleaseVersionGeneratorSchema,
+  options: PythonReleaseVersionGeneratorSchema,
 ): Promise<ReleaseVersionGeneratorResult> {
   let logger: ProjectLogger | undefined;
   const nxJson = readJson<NxJsonConfiguration>(tree, 'nx.json');
@@ -748,7 +748,7 @@ To fix this you will either need to add a pyproject.toml file at that location, 
             const prefixMatch = currentDependencyVersion.match(/^[~^]/);
             if (prefixMatch) {
               versionPrefix =
-                prefixMatch[0] as ReleaseVersionGeneratorSchema['versionPrefix'];
+                prefixMatch[0] as PythonReleaseVersionGeneratorSchema['versionPrefix'];
             } else {
               versionPrefix = '';
             }
@@ -893,9 +893,12 @@ To fix this you will either need to add a pyproject.toml file at that location, 
               .filter((f) => !!f),
           );
         }
+        const lockArgs = opts.generatorOptions
+          ?.lockArgs as PythonReleaseVersionGeneratorSchema['lockArgs'];
+
         if (!opts.dryRun && !opts.generatorOptions?.skipLockFileUpdate) {
           for (const lockDir of updatedProjects) {
-            await provider.lock(lockDir);
+            await provider.lock(lockDir, false, lockArgs);
           }
 
           if (tree.exists('pyproject.toml')) {
@@ -905,7 +908,7 @@ To fix this you will either need to add a pyproject.toml file at that location, 
               changedFiles.push('uv.lock');
             }
 
-            await provider.lock(tree.root);
+            await provider.lock(tree.root, false, lockArgs);
           }
         }
 

@@ -84,7 +84,11 @@ export interface IProvider {
 
   lock(options?: LockExecutorSchema, context?: ExecutorContext): Promise<void>;
 
-  lock(projectRoot?: string, update?: boolean): Promise<void>;
+  lock(
+    projectRoot?: string,
+    update?: boolean,
+    args?: string[] | string,
+  ): Promise<void>;
 
   getLockCommand(projectRoot?: string, update?: boolean): Promise<string>;
 
