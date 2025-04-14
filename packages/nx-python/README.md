@@ -721,3 +721,26 @@ If you are already using the `@nxlv/python` plugin and want to enable the releas
 ```bash
 nx generate @nxlv/python:enable-releases
 ```
+
+##### Release Lock arguments
+
+The `@nxlv/python:release-version` generator has a `lockArgs` option that allows you to pass additional arguments to the `lock` command.
+
+To use it, you need to update the `nx.json` file to add the `lockArgs` option in the `release.version.generatorOptions` object.
+
+Example:
+
+```json
+{
+  ...
+  "release": {
+    ...
+    "version": {
+      "generatorOptions": {
+        ...
+        "lockArgs": "--index-strategy unsafe-best-match"
+      }
+    }
+  }
+}
+```

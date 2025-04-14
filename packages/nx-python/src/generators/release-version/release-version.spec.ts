@@ -29,7 +29,7 @@ import { readPyprojectToml } from '../../provider/utils';
 import { PoetryPyprojectToml } from '../../provider/poetry/types';
 import { UVPyprojectToml } from '../../provider/uv/types';
 import { PoetryProvider } from '../../provider/poetry';
-import { ReleaseVersionGeneratorSchema } from './schema';
+import { PythonReleaseVersionGeneratorSchema } from './schema';
 
 process.env.NX_DAEMON = 'false';
 
@@ -131,7 +131,7 @@ describe('release-version', () => {
     });
 
     it('should not update the lock file if skipLockFileUpdate is true', async () => {
-      const generatorOptions: ReleaseVersionGeneratorSchema = {
+      const generatorOptions: PythonReleaseVersionGeneratorSchema = {
         projects: Object.values(projectGraph.nodes), // version all projects
         projectGraph,
         specifier: 'major',
