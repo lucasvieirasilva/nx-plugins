@@ -1,3 +1,9 @@
+# [20.13.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.12.5...nx-python-v20.13.0) (2025-04-14)
+
+### Features
+
+- **nx-python:** add lock args option to release-version generator ([#298](https://github.com/lucasvieirasilva/nx-plugins/issues/298)) ([f5d7a31](https://github.com/lucasvieirasilva/nx-plugins/commit/f5d7a31fcfc89cb82b27e463f383f978272a686f))
+
 ## [20.12.5](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.12.4...nx-python-v20.12.5) (2025-04-12)
 
 ### Bug Fixes
