@@ -1,3 +1,9 @@
+## [20.13.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.13.0...nx-python-v20.13.1) (2025-04-15)
+
+### Bug Fixes
+
+- **nx-python:** handle fix with boolean argument in ruff check ([#300](https://github.com/lucasvieirasilva/nx-plugins/issues/300)) ([dd3d14c](https://github.com/lucasvieirasilva/nx-plugins/commit/dd3d14c6b18be6818a8497b12cf1204571c26533))
+
 # [20.13.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.12.5...nx-python-v20.13.0) (2025-04-14)
 
 ### Features
