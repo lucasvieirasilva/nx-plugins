@@ -345,6 +345,108 @@ describe('Ruff Check Executor', () => {
       expect(output.success).toBe(true);
     });
 
+    it('should execute ruff check linting with unparsed args', async () => {
+      vi.mocked(spawn.sync).mockReturnValueOnce({
+        status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
+      });
+
+      const output = await executor(
+        {
+          lintFilePatterns: ['app'],
+          fix: true,
+          __unparsed__: ['--fix', 'True'],
+        },
+        {
+          cwd: '',
+          root: '.',
+          isVerbose: false,
+          projectName: 'app',
+          projectsConfigurations: {
+            version: 2,
+            projects: {
+              app: {
+                root: 'apps/app',
+                targets: {},
+              },
+            },
+          },
+          nxJsonConfiguration: {},
+          projectGraph: {
+            dependencies: {},
+            nodes: {},
+          },
+        },
+      );
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledTimes(1);
+      expect(spawn.sync).toHaveBeenCalledWith(
+        'uv',
+        ['run', 'ruff', 'check', 'app', '--fix'],
+        {
+          cwd: 'apps/app',
+          shell: true,
+          stdio: 'inherit',
+        },
+      );
+      expect(output.success).toBe(true);
+    });
+
+    it('should execute ruff check linting with unparsed args (false)', async () => {
+      vi.mocked(spawn.sync).mockReturnValueOnce({
+        status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
+      });
+
+      const output = await executor(
+        {
+          lintFilePatterns: ['app'],
+          fix: true,
+          __unparsed__: ['--fix', 'false'],
+        },
+        {
+          cwd: '',
+          root: '.',
+          isVerbose: false,
+          projectName: 'app',
+          projectsConfigurations: {
+            version: 2,
+            projects: {
+              app: {
+                root: 'apps/app',
+                targets: {},
+              },
+            },
+          },
+          nxJsonConfiguration: {},
+          projectGraph: {
+            dependencies: {},
+            nodes: {},
+          },
+        },
+      );
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledTimes(1);
+      expect(spawn.sync).toHaveBeenCalledWith(
+        'uv',
+        ['run', 'ruff', 'check', 'app'],
+        {
+          cwd: 'apps/app',
+          shell: true,
+          stdio: 'inherit',
+        },
+      );
+      expect(output.success).toBe(true);
+    });
+
     it('should fail to execute ruff check linting ', async () => {
       vi.mocked(spawn.sync).mockReturnValueOnce({
         status: 1,
