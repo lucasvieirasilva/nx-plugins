@@ -20,6 +20,17 @@ export default async function executor(
     const projectConfig =
       context.projectsConfigurations.projects[context.projectName];
 
+    const fixIndex = options.__unparsed__.findIndex(
+      (item, index, array) =>
+        item === '--fix' &&
+        ['true', 'false'].includes(array[index + 1]?.toLowerCase()),
+    );
+
+    if (fixIndex !== -1) {
+      const deletedArgs = options.__unparsed__.splice(fixIndex, 2);
+      options.fix = deletedArgs[1]?.toLowerCase() === 'true';
+    }
+
     const commandArgs = ['ruff', 'check']
       .concat(options.lintFilePatterns)
       .concat(options.__unparsed__);
