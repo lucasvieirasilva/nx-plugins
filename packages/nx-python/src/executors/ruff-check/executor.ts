@@ -29,6 +29,9 @@ export default async function executor(
       if (nextArg === 'true' || nextArg === 'false') {
         const deletedArgs = options.__unparsed__.splice(fixIndex, 2);
         options.fix = deletedArgs[1]?.toLowerCase() === 'true';
+      } else {
+        options.__unparsed__.splice(fixIndex, 1);
+        options.fix = true;
       }
     }
 
