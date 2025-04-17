@@ -1,3 +1,9 @@
+## [20.13.2](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.13.1...nx-python-v20.13.2) (2025-04-17)
+
+### Bug Fixes
+
+- **nx-python:** improve handling of --fix argument in ruff check executor ([46ee321](https://github.com/lucasvieirasilva/nx-plugins/commit/46ee321bf8310480716f9ec667ef20e75a3e84ec))
+
 ## [20.13.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.13.0...nx-python-v20.13.1) (2025-04-15)
 
 ### Bug Fixes
