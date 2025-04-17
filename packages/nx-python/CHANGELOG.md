@@ -1,3 +1,9 @@
+## [20.13.3](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.13.2...nx-python-v20.13.3) (2025-04-17)
+
+### Bug Fixes
+
+- remove --fix from unparsed args when found ([043f7a0](https://github.com/lucasvieirasilva/nx-plugins/commit/043f7a07795b167226e5368ca840ab761ee6f835))
+
 ## [20.13.2](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.13.1...nx-python-v20.13.2) (2025-04-17)
 
 ### Bug Fixes
