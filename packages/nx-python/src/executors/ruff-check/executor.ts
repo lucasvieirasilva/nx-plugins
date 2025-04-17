@@ -21,14 +21,15 @@ export default async function executor(
       context.projectsConfigurations.projects[context.projectName];
 
     const fixIndex = options.__unparsed__.findIndex(
-      (item, index, array) =>
-        item === '--fix' &&
-        ['true', 'false'].includes(array[index + 1]?.toLowerCase()),
+      (item) => item.trim() === '--fix',
     );
 
     if (fixIndex !== -1) {
-      const deletedArgs = options.__unparsed__.splice(fixIndex, 2);
-      options.fix = deletedArgs[1]?.toLowerCase() === 'true';
+      const nextArg = options.__unparsed__[fixIndex + 1]?.toLowerCase()?.trim();
+      if (nextArg === 'true' || nextArg === 'false') {
+        const deletedArgs = options.__unparsed__.splice(fixIndex, 2);
+        options.fix = deletedArgs[1]?.toLowerCase() === 'true';
+      }
     }
 
     const commandArgs = ['ruff', 'check']
