@@ -49,6 +49,11 @@
     "customSourceUrl": {
       "type": "string",
       "description": "URL for the custom source"
+    },
+    "format": {
+      "type": "string",
+      "description": "Format for the build",
+      "enum": ["sdist", "wheel"]
     }
   },
   "required": ["outputPath"]

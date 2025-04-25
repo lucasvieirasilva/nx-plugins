@@ -351,14 +351,15 @@ The `@nxlv/python:build` command handles the `sdist` and `wheel` build generatio
 
 ##### Options
 
-| Option                      |   Type    | Description                              | Required | Default                      |
-| --------------------------- | :-------: | ---------------------------------------- | -------- | ---------------------------- |
-| `--silent`                  | `boolean` | Hide output text                         | `false`  | `false`                      |
-| `--outputPath`              | `string`  | Output path for the python tar/whl files | `true`   |                              |
-| `--keepBuildFolder`         | `boolean` | Keep build folder                        | `false`  | `false`                      |
-| `--lockedVersions`          | `boolean` | Build with locked versions               | `false`  | `true`                       |
-| `--bundleLocalDependencies` | `boolean` | Bundle local dependencies                | `false`  | `true`                       |
-| `--ignorePaths`             |  `array`  | Ignore folder/files on build process     | `false`  | `[".venv", ".tox", "tests"]` |
+| Option                      |   Type    | Description                                      | Required | Default                      |
+| --------------------------- | :-------: | ------------------------------------------------ | -------- | ---------------------------- |
+| `--silent`                  | `boolean` | Hide output text                                 | `false`  | `false`                      |
+| `--outputPath`              | `string`  | Output path for the python tar/whl files         | `true`   |                              |
+| `--keepBuildFolder`         | `boolean` | Keep build folder                                | `false`  | `false`                      |
+| `--lockedVersions`          | `boolean` | Build with locked versions                       | `false`  | `true`                       |
+| `--bundleLocalDependencies` | `boolean` | Bundle local dependencies                        | `false`  | `true`                       |
+| `--ignorePaths`             |  `array`  | Ignore folder/files on build process             | `false`  | `[".venv", ".tox", "tests"]` |
+| `--format`                  | `string`  | Build format (allowed values `sdist` or `wheel`) | `false`  | `wheel`                      |
 
 ##### Locked Versions Build
 
