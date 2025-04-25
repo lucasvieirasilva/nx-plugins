@@ -1,3 +1,9 @@
+# [20.14.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.13.3...nx-python-v20.14.0) (2025-04-25)
+
+### Features
+
+- **nx-python:** add support for build format options in Python executor ([#302](https://github.com/lucasvieirasilva/nx-plugins/issues/302)) ([d9a8c9a](https://github.com/lucasvieirasilva/nx-plugins/commit/d9a8c9aab663d53c349f243b1963ae4bc1ba1ca4))
+
 ## [20.13.3](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.13.2...nx-python-v20.13.3) (2025-04-17)
 
 ### Bug Fixes
