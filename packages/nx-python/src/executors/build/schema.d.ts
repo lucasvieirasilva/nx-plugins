@@ -9,6 +9,7 @@ export interface BuildExecutorSchema {
   customSourceName?: string;
   customSourceUrl?: string;
   publish?: boolean;
+  format?: 'sdist' | 'wheel';
 }
 
 export interface BuildExecutorOutput {

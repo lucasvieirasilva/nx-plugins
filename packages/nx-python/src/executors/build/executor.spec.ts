@@ -2311,6 +2311,202 @@ describe('Build Executor', () => {
         expect(output.success).toBe(true);
       });
 
+      it('should build python project with wheel format', async () => {
+        vol.fromJSON({
+          'apps/app/.venv/pyvenv.cfg': 'fake',
+          'apps/app/app/index.py': 'print("Hello from app")',
+          'apps/app/poetry.lock': dedent`
+          [[package]]
+          name = "click"
+          version = "7.1.2"
+          description = "Composable command line interface toolkit"
+          category = "main"
+          optional = false
+          python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+          `,
+
+          'apps/app/pyproject.toml': dedent`
+          [tool.poetry]
+          name = "app"
+          version = "1.0.0"
+            [[tool.poetry.packages]]
+            include = "app"
+
+            [tool.poetry.dependencies]
+            python = "^3.8"
+            click = "7.1.2"
+            
+            [tool.poetry.group.dev.dependencies]
+            pytest = "6.2.4"
+          `,
+        });
+
+        vi.mocked(spawn.sync).mockImplementation((_, args, opts) => {
+          if (args[0] == 'build') {
+            spawnBuildMockImpl(opts);
+          } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
+            writeFileSync(
+              join(buildPath, 'requirements.txt'),
+              dedent`
+              click==7.1.2
+              `,
+            );
+          }
+          return {
+            status: 0,
+            output: [''],
+            pid: 0,
+            signal: null,
+            stderr: null,
+            stdout: null,
+          };
+        });
+
+        const options: BuildExecutorSchema = {
+          ignorePaths: ['.venv', '.tox', 'tests/'],
+          silent: false,
+          outputPath: 'dist/apps/app',
+          keepBuildFolder: false,
+          devDependencies: false,
+          lockedVersions: true,
+          bundleLocalDependencies: true,
+          format: 'wheel',
+        };
+
+        const output = await executor(options, {
+          cwd: '',
+          root: '.',
+          isVerbose: false,
+          projectName: 'app',
+          projectsConfigurations: {
+            version: 2,
+            projects: {
+              app: {
+                root: 'apps/app',
+                targets: {},
+              },
+            },
+          },
+          nxJsonConfiguration: {},
+          projectGraph: {
+            dependencies: {},
+            nodes: {},
+          },
+        });
+
+        expect(checkPoetryExecutableMock).toHaveBeenCalled();
+        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(spawn.sync).toHaveBeenCalledWith(
+          'poetry',
+          ['build', '--format', 'wheel'],
+          {
+            cwd: buildPath,
+            shell: false,
+            stdio: 'inherit',
+          },
+        );
+
+        expect(output.success).toBe(true);
+      });
+
+      it('should build python project with sdist format', async () => {
+        vol.fromJSON({
+          'apps/app/.venv/pyvenv.cfg': 'fake',
+          'apps/app/app/index.py': 'print("Hello from app")',
+          'apps/app/poetry.lock': dedent`
+          [[package]]
+          name = "click"
+          version = "7.1.2"
+          description = "Composable command line interface toolkit"
+          category = "main"
+          optional = false
+          python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+          `,
+
+          'apps/app/pyproject.toml': dedent`
+          [tool.poetry]
+          name = "app"
+          version = "1.0.0"
+            [[tool.poetry.packages]]
+            include = "app"
+
+            [tool.poetry.dependencies]
+            python = "^3.8"
+            click = "7.1.2"
+            
+            [tool.poetry.group.dev.dependencies]
+            pytest = "6.2.4"
+          `,
+        });
+
+        vi.mocked(spawn.sync).mockImplementation((_, args, opts) => {
+          if (args[0] == 'build') {
+            spawnBuildMockImpl(opts);
+          } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
+            writeFileSync(
+              join(buildPath, 'requirements.txt'),
+              dedent`
+              click==7.1.2
+              `,
+            );
+          }
+          return {
+            status: 0,
+            output: [''],
+            pid: 0,
+            signal: null,
+            stderr: null,
+            stdout: null,
+          };
+        });
+
+        const options: BuildExecutorSchema = {
+          ignorePaths: ['.venv', '.tox', 'tests/'],
+          silent: false,
+          outputPath: 'dist/apps/app',
+          keepBuildFolder: false,
+          devDependencies: false,
+          lockedVersions: true,
+          bundleLocalDependencies: true,
+          format: 'sdist',
+        };
+
+        const output = await executor(options, {
+          cwd: '',
+          root: '.',
+          isVerbose: false,
+          projectName: 'app',
+          projectsConfigurations: {
+            version: 2,
+            projects: {
+              app: {
+                root: 'apps/app',
+                targets: {},
+              },
+            },
+          },
+          nxJsonConfiguration: {},
+          projectGraph: {
+            dependencies: {},
+            nodes: {},
+          },
+        });
+
+        expect(checkPoetryExecutableMock).toHaveBeenCalled();
+        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(spawn.sync).toHaveBeenCalledWith(
+          'poetry',
+          ['build', '--format', 'sdist'],
+          {
+            cwd: buildPath,
+            shell: false,
+            stdio: 'inherit',
+          },
+        );
+
+        expect(output.success).toBe(true);
+      });
+
       it('should throw an exception when runs build', async () => {
         vol.fromJSON({
           'apps/app/.venv/pyvenv.cfg': 'fake',
@@ -4330,6 +4526,264 @@ describe('Build Executor', () => {
             'django==5.1.4',
           ]);
           expect(projectTomlData['dependency-groups']).toStrictEqual({});
+
+          expect(output.success).toBe(true);
+        });
+
+        it('should build python project with wheel format', async () => {
+          vol.fromJSON({
+            'apps/app/app1/index.py': 'print("Hello from app")',
+
+            'apps/app/pyproject.toml': dedent`
+            [project]
+            name = "app1"
+            version = "0.1.0"
+            readme = "README.md"
+            requires-python = ">=3.12"
+            dependencies = [
+                "django>=5.1.4"
+            ]
+
+            [tool.hatch.build.targets.wheel]
+            packages = ["app1"]
+
+            [dependency-groups]
+            dev = [
+                "ruff>=0.8.2",
+            ]
+            `,
+            'apps/app/uv.lock': '',
+          });
+
+          vi.mocked(spawn.sync)
+            .mockReturnValueOnce({
+              status: 0,
+              output: [''],
+              pid: 0,
+              signal: null,
+              stderr: null,
+              stdout: Buffer.from(dedent`
+              -e 0.6.11
+              `),
+            })
+            .mockReturnValueOnce({
+              status: 0,
+              output: [''],
+              pid: 0,
+              signal: null,
+              stderr: null,
+              stdout: Buffer.from(dedent`
+              django==5.1.4
+              ruff>=0.8.2
+              `),
+            })
+            .mockImplementationOnce((_, args, opts) => {
+              spawnBuildMockImpl(opts);
+              return {
+                status: 0,
+                output: [''],
+                pid: 0,
+                signal: null,
+                stderr: null,
+                stdout: null,
+              };
+            });
+
+          const options: BuildExecutorSchema = {
+            ignorePaths: ['.venv', '.tox', 'tests/'],
+            silent: false,
+            outputPath: 'dist/apps/app',
+            keepBuildFolder: false,
+            devDependencies: true,
+            lockedVersions: true,
+            bundleLocalDependencies: true,
+            format: 'wheel',
+          };
+
+          const output = await executor(options, {
+            cwd: '',
+            root: '.',
+            isVerbose: false,
+            projectName: 'app',
+            projectsConfigurations: {
+              version: 2,
+              projects: {
+                app: {
+                  root: 'apps/app',
+                  targets: {},
+                },
+              },
+            },
+            nxJsonConfiguration: {},
+            projectGraph: {
+              dependencies: {},
+              nodes: {},
+            },
+          });
+
+          expect(checkPrerequisites).toHaveBeenCalled();
+          expect(spawn.sync).toHaveBeenCalledTimes(3);
+          expect(spawn.sync).toHaveBeenNthCalledWith(
+            2,
+            'uv',
+            [
+              'export',
+              '--format',
+              'requirements-txt',
+              '--no-hashes',
+              '--no-header',
+              '--no-annotate',
+              '--frozen',
+              '--no-emit-project',
+              '--all-extras',
+              '--project',
+              'apps/app',
+            ],
+            {
+              cwd: '.',
+              shell: true,
+              stdio: 'pipe',
+            },
+          );
+          expect(spawn.sync).toHaveBeenNthCalledWith(
+            3,
+            'uv',
+            ['build', '--wheel'],
+            {
+              cwd: buildPath,
+              shell: false,
+              stdio: 'inherit',
+            },
+          );
+
+          expect(output.success).toBe(true);
+        });
+
+        it('should build python project with sdist format', async () => {
+          vol.fromJSON({
+            'apps/app/app1/index.py': 'print("Hello from app")',
+
+            'apps/app/pyproject.toml': dedent`
+            [project]
+            name = "app1"
+            version = "0.1.0"
+            readme = "README.md"
+            requires-python = ">=3.12"
+            dependencies = [
+                "django>=5.1.4"
+            ]
+
+            [tool.hatch.build.targets.wheel]
+            packages = ["app1"]
+
+            [dependency-groups]
+            dev = [
+                "ruff>=0.8.2",
+            ]
+            `,
+            'apps/app/uv.lock': '',
+          });
+
+          vi.mocked(spawn.sync)
+            .mockReturnValueOnce({
+              status: 0,
+              output: [''],
+              pid: 0,
+              signal: null,
+              stderr: null,
+              stdout: Buffer.from(dedent`
+              -e 0.6.11
+              `),
+            })
+            .mockReturnValueOnce({
+              status: 0,
+              output: [''],
+              pid: 0,
+              signal: null,
+              stderr: null,
+              stdout: Buffer.from(dedent`
+              django==5.1.4
+              ruff>=0.8.2
+              `),
+            })
+            .mockImplementationOnce((_, args, opts) => {
+              spawnBuildMockImpl(opts);
+              return {
+                status: 0,
+                output: [''],
+                pid: 0,
+                signal: null,
+                stderr: null,
+                stdout: null,
+              };
+            });
+
+          const options: BuildExecutorSchema = {
+            ignorePaths: ['.venv', '.tox', 'tests/'],
+            silent: false,
+            outputPath: 'dist/apps/app',
+            keepBuildFolder: false,
+            devDependencies: true,
+            lockedVersions: true,
+            bundleLocalDependencies: true,
+            format: 'sdist',
+          };
+
+          const output = await executor(options, {
+            cwd: '',
+            root: '.',
+            isVerbose: false,
+            projectName: 'app',
+            projectsConfigurations: {
+              version: 2,
+              projects: {
+                app: {
+                  root: 'apps/app',
+                  targets: {},
+                },
+              },
+            },
+            nxJsonConfiguration: {},
+            projectGraph: {
+              dependencies: {},
+              nodes: {},
+            },
+          });
+
+          expect(checkPrerequisites).toHaveBeenCalled();
+          expect(spawn.sync).toHaveBeenCalledTimes(3);
+          expect(spawn.sync).toHaveBeenNthCalledWith(
+            2,
+            'uv',
+            [
+              'export',
+              '--format',
+              'requirements-txt',
+              '--no-hashes',
+              '--no-header',
+              '--no-annotate',
+              '--frozen',
+              '--no-emit-project',
+              '--all-extras',
+              '--project',
+              'apps/app',
+            ],
+            {
+              cwd: '.',
+              shell: true,
+              stdio: 'pipe',
+            },
+          );
+          expect(spawn.sync).toHaveBeenNthCalledWith(
+            3,
+            'uv',
+            ['build', '--sdist'],
+            {
+              cwd: buildPath,
+              shell: false,
+              stdio: 'inherit',
+            },
+          );
 
           expect(output.success).toBe(true);
         });

@@ -739,6 +739,10 @@ export class PoetryProvider implements IProvider {
 
     this.logger.info(chalk`  Generating sdist and wheel artifacts`);
     const buildArgs = ['build'];
+    if (options.format) {
+      buildArgs.push('--format', options.format);
+    }
+
     runPoetry(buildArgs, { cwd: buildFolderPath });
 
     removeSync(options.outputPath);
