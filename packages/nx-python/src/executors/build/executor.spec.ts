@@ -6612,6 +6612,159 @@ describe('Build Executor', () => {
             },
           });
         });
+
+        it('should build the project without locked versions and bundle the local dependencies (duplicate local packages)', async () => {
+          vol.fromJSON({
+            'apps/app/app/index.py': 'print("Hello from app")',
+            'apps/app/pyproject.toml': dedent`
+            [project]
+            name = "app"
+            version = "0.1.0"
+            readme = "README.md"
+            requires-python = ">=3.12"
+            dependencies = [
+                "django>=5.1.4",
+                "dep1",
+                "dep2",
+            ]
+
+            [tool.hatch.build.targets.wheel]
+            packages = ["app"]
+
+            [dependency-groups]
+            dev = [
+                "ruff>=0.8.2",
+            ]
+
+            [tool.uv.sources]
+            dep1 = { path = "../../libs/dep1" }
+            dep2 = { path = "../../libs/dep2" }
+            `,
+
+            'libs/dep1/dep1/index.py': 'print("Hello from dep1")',
+            'libs/dep1/pyproject.toml': dedent`
+            [project]
+            name = "dep1"
+            version = "1.0.0"
+            readme = "README.md"
+            requires-python = ">=3.12"
+            dependencies = [
+              "numpy>=1.21.0",
+              "dep2"
+            ]
+
+            [tool.hatch.build.targets.wheel]
+            packages = ["dep1"]
+
+            [tool.uv.sources]
+            dep2 = { path = "../dep2" }
+            `,
+
+            'libs/dep2/dep2/index.py': 'print("Hello from dep2")',
+            'libs/dep2/pyproject.toml': dedent`
+            [project]
+            name = "dep2"
+            version = "1.0.0"
+            readme = "README.md"
+            requires-python = ">=3.12"
+            dependencies = [
+              "requests>=2.32.3"
+            ]
+
+            [tool.hatch.build.targets.wheel]
+            packages = ["dep2"]
+            `,
+          });
+
+          vi.mocked(spawn.sync).mockImplementation((_, args, opts) => {
+            spawnBuildMockImpl(opts);
+            return {
+              status: 0,
+              output: [''],
+              pid: 0,
+              signal: null,
+              stderr: null,
+              stdout: null,
+            };
+          });
+
+          const options: BuildExecutorSchema = {
+            ignorePaths: ['.venv', '.tox', 'tests/'],
+            silent: false,
+            outputPath: 'dist/apps/app',
+            keepBuildFolder: true,
+            devDependencies: false,
+            lockedVersions: false,
+            bundleLocalDependencies: false,
+          };
+
+          const output = await executor(options, {
+            cwd: '',
+            root: '.',
+            isVerbose: false,
+            projectName: 'app',
+            projectsConfigurations: {
+              version: 2,
+              projects: {
+                app: {
+                  root: 'apps/app',
+                  targets: {},
+                },
+                dep1: {
+                  root: 'libs/dep1',
+                  targets: {
+                    build: {
+                      options: {
+                        publish: false,
+                      },
+                    },
+                  },
+                },
+                dep2: {
+                  root: 'libs/dep2',
+                  targets: {
+                    build: {
+                      options: { publish: false },
+                    },
+                  },
+                },
+              },
+            },
+            nxJsonConfiguration: {},
+            projectGraph: {
+              dependencies: {},
+              nodes: {},
+            },
+          });
+
+          expect(checkPrerequisites).toHaveBeenCalled();
+          expect(output.success).toBe(true);
+          expect(existsSync(buildPath)).toBeTruthy();
+          expect(existsSync(`${buildPath}/app`)).toBeTruthy();
+          expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
+          expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
+          expect(spawn.sync).toHaveBeenCalledWith('uv', ['build'], {
+            cwd: buildPath,
+            shell: false,
+            stdio: 'inherit',
+          });
+
+          const projectTomlData = getPyprojectData<UVPyprojectToml>(
+            `${buildPath}/pyproject.toml`,
+          );
+
+          expect(
+            projectTomlData.tool.hatch.build.targets.wheel.packages,
+          ).toStrictEqual(['app', 'dep1', 'dep2']);
+
+          expect(projectTomlData.project.dependencies).toStrictEqual([
+            'django>=5.1.4',
+            'numpy>=1.21.0',
+            'requests>=2.32.3',
+          ]);
+          expect(projectTomlData['dependency-groups']).toStrictEqual({});
+          expect(projectTomlData.tool.uv.sources).toStrictEqual({});
+        });
       });
     });
   });
