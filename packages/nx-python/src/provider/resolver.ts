@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { IProvider } from './base';
+import { BaseProvider } from './base';
 import { UVProvider } from './uv';
 import { PoetryProvider, PoetryPyprojectToml } from './poetry';
 import { Logger } from '../executors/utils/logger';
@@ -15,7 +15,7 @@ export const getProvider = async (
   tree?: Tree,
   context?: ExecutorContext,
   options?: PluginOptions,
-): Promise<IProvider> => {
+): Promise<BaseProvider> => {
   const loggerInstance = logger ?? new Logger();
 
   if (options?.packageManager) {

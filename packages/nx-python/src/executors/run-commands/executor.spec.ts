@@ -1,12 +1,13 @@
-import { vi } from 'vitest';
+import { MockInstance, vi } from 'vitest';
 import { vol } from 'memfs';
 import '../../utils/mocks/fs.mock';
 vi.mock('nx/src/executors/run-commands/run-commands.impl');
-vi.mock('../../provider/poetry/utils');
 
 import executor from './executor';
 import { ExecutorContext } from '@nx/devkit';
 import dedent from 'string-dedent';
+import { PoetryProvider } from '../../provider/poetry/provider';
+import { UVProvider } from '../../provider/uv/provider';
 
 describe('run commands executor', () => {
   const originalEnv = process.env;
@@ -41,6 +42,13 @@ describe('run commands executor', () => {
   });
 
   describe('poetry', () => {
+    let activateVenvMock: MockInstance;
+    beforeEach(() => {
+      activateVenvMock = vi
+        .spyOn(PoetryProvider.prototype, 'activateVenv')
+        .mockResolvedValue(undefined);
+    });
+
     it('should activate the venv and call the base executor', async () => {
       const options = {
         command: 'test',
@@ -48,9 +56,7 @@ describe('run commands executor', () => {
       };
       await executor(options, context);
 
-      expect(
-        (await import('../../provider/poetry/utils')).activateVenv,
-      ).toHaveBeenCalledWith(context.root);
+      expect(activateVenvMock).toHaveBeenCalledWith(context.root, context);
       expect(
         (await import('nx/src/executors/run-commands/run-commands.impl'))
           .default,
@@ -59,6 +65,13 @@ describe('run commands executor', () => {
   });
 
   describe('uv', () => {
+    let activateVenvMock: MockInstance;
+    beforeEach(() => {
+      activateVenvMock = vi
+        .spyOn(UVProvider.prototype, 'activateVenv')
+        .mockResolvedValue(undefined);
+    });
+
     describe('workspace', () => {
       beforeEach(() => {
         vol.fromJSON({
@@ -73,12 +86,11 @@ describe('run commands executor', () => {
         };
         await executor(options, context);
 
+        expect(activateVenvMock).toHaveBeenCalledWith(context.root, context);
         expect(
           (await import('nx/src/executors/run-commands/run-commands.impl'))
             .default,
         ).toHaveBeenCalledWith(options, context);
-
-        expect(process.env.PATH).toContain(`${process.cwd()}/.venv/bin`);
       });
     });
 
@@ -107,10 +119,6 @@ describe('run commands executor', () => {
           (await import('nx/src/executors/run-commands/run-commands.impl'))
             .default,
         ).toHaveBeenCalledWith(options, context);
-
-        expect(process.env.PATH).toContain(
-          `${process.cwd()}/apps/app/.venv/bin`,
-        );
       });
     });
   });

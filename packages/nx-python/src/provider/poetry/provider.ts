@@ -9,7 +9,7 @@ import {
 import {
   Dependency,
   DependencyProjectMetadata,
-  IProvider,
+  BaseProvider,
   ProjectMetadata,
 } from '../base';
 import fs from 'fs';
@@ -17,7 +17,6 @@ import path, { join } from 'path';
 import { PoetryPyprojectToml, PoetryPyprojectTomlDependencies } from './types';
 import { AddExecutorSchema } from '../../executors/add/schema';
 import {
-  activateVenv,
   addLocalProjectToPoetryProject,
   checkPoetryExecutable,
   getAllDependenciesFromPyprojectToml,
@@ -66,12 +65,14 @@ import semver from 'semver';
 import { LockExecutorSchema } from '../../executors/lock/schema';
 import { SyncExecutorSchema } from '../../executors/sync/schema';
 
-export class PoetryProvider implements IProvider {
-  constructor(
-    protected workspaceRoot: string,
-    protected logger: Logger,
-    protected tree?: Tree,
-  ) {}
+export class PoetryProvider extends BaseProvider {
+  constructor(workspaceRoot: string, logger: Logger, tree?: Tree) {
+    const isWorkspace = tree
+      ? tree.exists(joinPathFragments(workspaceRoot, 'pyproject.toml'))
+      : fs.existsSync(joinPathFragments(workspaceRoot, 'pyproject.toml'));
+
+    super(workspaceRoot, logger, isWorkspace, tree);
+  }
 
   public async checkPrerequisites(): Promise<void> {
     await checkPoetryExecutable();
@@ -224,7 +225,7 @@ export class PoetryProvider implements IProvider {
     options: AddExecutorSchema,
     context: ExecutorContext,
   ): Promise<void> {
-    activateVenv(context.root);
+    await this.activateVenv(context.root, context);
     await checkPoetryExecutable();
     const projectConfig =
       context.projectsConfigurations.projects[context.projectName];
@@ -268,7 +269,7 @@ export class PoetryProvider implements IProvider {
     options: UpdateExecutorSchema,
     context: ExecutorContext,
   ): Promise<void> {
-    activateVenv(context.root);
+    await this.activateVenv(context.root, context);
     await checkPoetryExecutable();
     const projectConfig =
       context.projectsConfigurations.projects[context.projectName];
@@ -317,7 +318,7 @@ export class PoetryProvider implements IProvider {
     options: RemoveExecutorSchema,
     context: ExecutorContext,
   ): Promise<void> {
-    activateVenv(context.root);
+    await this.activateVenv(context.root, context);
     await checkPoetryExecutable();
     const rootPyprojectToml = fs.existsSync('pyproject.toml');
     const projectConfig =
@@ -362,7 +363,7 @@ export class PoetryProvider implements IProvider {
     let buildFolderPath = '';
 
     try {
-      activateVenv(context.root);
+      await this.activateVenv(context.root, context);
       await checkPoetryExecutable();
 
       for await (const output of await runExecutor<BuildExecutorOutput>(
@@ -634,7 +635,7 @@ export class PoetryProvider implements IProvider {
     options: BuildExecutorSchema,
     context: ExecutorContext,
   ): Promise<string> {
-    activateVenv(context.root);
+    await this.activateVenv(context.root, context);
     await checkPoetryExecutable();
     if (
       options.lockedVersions === true &&
@@ -770,15 +771,12 @@ export class PoetryProvider implements IProvider {
       log?: boolean;
       error?: boolean;
     } & SpawnSyncOptions,
+    context?: ExecutorContext,
   ): Promise<void> {
-    activateVenv(workspaceRoot);
+    await this.activateVenv(workspaceRoot, context);
     await checkPoetryExecutable();
 
     runPoetry(['run', ...args], options);
-  }
-
-  public activateVenv(workspaceRoot: string): void {
-    activateVenv(workspaceRoot);
   }
 
   private async updateLocalProject(

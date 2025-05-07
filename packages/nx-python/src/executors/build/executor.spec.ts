@@ -16,7 +16,7 @@ import dedent from 'string-dedent';
 import spawn from 'cross-spawn';
 import { SpawnSyncOptions } from 'child_process';
 import { ExecutorContext } from '@nx/devkit';
-import { PoetryPyprojectToml } from '../../provider/poetry';
+import { PoetryProvider, PoetryPyprojectToml } from '../../provider/poetry';
 import { UVProvider } from '../../provider/uv';
 import { getPyprojectData } from '../../provider/utils';
 import { UVPyprojectToml } from '../../provider/uv/types';
@@ -59,8 +59,8 @@ describe('Build Executor', () => {
         .mockResolvedValue(undefined);
 
       activateVenvMock = vi
-        .spyOn(poetryUtils, 'activateVenv')
-        .mockReturnValue(undefined);
+        .spyOn(PoetryProvider.prototype, 'activateVenv')
+        .mockResolvedValue(undefined);
     });
 
     it('should return success false when the poetry is not installed', async () => {
@@ -101,7 +101,7 @@ describe('Build Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).not.toHaveBeenCalled();
       expect(output.success).toBe(false);
     });
@@ -142,7 +142,7 @@ describe('Build Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).not.toHaveBeenCalled();
       expect(output.success).toBe(false);
     });
@@ -221,7 +221,7 @@ describe('Build Executor', () => {
           bundleLocalDependencies: true,
         };
 
-        const output = await executor(options, {
+        const context: ExecutorContext = {
           cwd: '',
           root: '.',
           isVerbose: false,
@@ -240,10 +240,12 @@ describe('Build Executor', () => {
             dependencies: {},
             nodes: {},
           },
-        });
+        };
+
+        const output = await executor(options, context);
 
         expect(checkPoetryExecutableMock).toHaveBeenCalled();
-        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(activateVenvMock).toHaveBeenCalledWith('.', context);
         expect(existsSync(buildPath)).toBeTruthy();
         expect(existsSync(`${buildPath}/app`)).toBeTruthy();
         expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
@@ -432,7 +434,7 @@ describe('Build Executor', () => {
           bundleLocalDependencies: true,
         };
 
-        const output = await executor(options, {
+        const context: ExecutorContext = {
           cwd: '',
           root: '.',
           isVerbose: false,
@@ -459,10 +461,12 @@ describe('Build Executor', () => {
             dependencies: {},
             nodes: {},
           },
-        });
+        };
+
+        const output = await executor(options, context);
 
         expect(checkPoetryExecutableMock).toHaveBeenCalled();
-        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(activateVenvMock).toHaveBeenCalledWith('.', context);
         expect(existsSync(buildPath)).toBeTruthy();
         expect(existsSync(`${buildPath}/app`)).toBeTruthy();
         expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
@@ -622,7 +626,7 @@ describe('Build Executor', () => {
           bundleLocalDependencies: true,
         };
 
-        const output = await executor(options, {
+        const context: ExecutorContext = {
           cwd: '',
           root: '.',
           isVerbose: false,
@@ -649,10 +653,12 @@ describe('Build Executor', () => {
             dependencies: {},
             nodes: {},
           },
-        });
+        };
+
+        const output = await executor(options, context);
 
         expect(checkPoetryExecutableMock).toHaveBeenCalled();
-        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(activateVenvMock).toHaveBeenCalledWith('.', context);
         expect(existsSync(buildPath)).toBeTruthy();
         expect(existsSync(`${buildPath}/app`)).toBeTruthy();
         expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
@@ -814,7 +820,7 @@ describe('Build Executor', () => {
           bundleLocalDependencies: true,
         };
 
-        const output = await executor(options, {
+        const context: ExecutorContext = {
           cwd: '',
           root: '.',
           isVerbose: false,
@@ -841,10 +847,12 @@ describe('Build Executor', () => {
             dependencies: {},
             nodes: {},
           },
-        });
+        };
+
+        const output = await executor(options, context);
 
         expect(checkPoetryExecutableMock).toHaveBeenCalled();
-        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(activateVenvMock).toHaveBeenCalledWith('.', context);
         expect(existsSync(buildPath)).toBeTruthy();
         expect(existsSync(`${buildPath}/app`)).toBeTruthy();
         expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
@@ -1102,7 +1110,7 @@ describe('Build Executor', () => {
           bundleLocalDependencies: true,
         };
 
-        const output = await executor(options, {
+        const context: ExecutorContext = {
           cwd: '',
           root: '.',
           isVerbose: false,
@@ -1121,10 +1129,12 @@ describe('Build Executor', () => {
             dependencies: {},
             nodes: {},
           },
-        });
+        };
+
+        const output = await executor(options, context);
 
         expect(checkPoetryExecutableMock).toHaveBeenCalled();
-        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(activateVenvMock).toHaveBeenCalledWith('.', context);
         expect(existsSync(buildPath)).toBeTruthy();
         expect(existsSync(`${buildPath}/app`)).toBeTruthy();
         expect(spawn.sync).toHaveBeenCalledWith('poetry', ['build'], {
@@ -1225,7 +1235,7 @@ describe('Build Executor', () => {
           bundleLocalDependencies: true,
         };
 
-        const output = await executor(options, {
+        const context: ExecutorContext = {
           cwd: '',
           root: '.',
           isVerbose: false,
@@ -1244,10 +1254,12 @@ describe('Build Executor', () => {
             dependencies: {},
             nodes: {},
           },
-        });
+        };
+
+        const output = await executor(options, context);
 
         expect(checkPoetryExecutableMock).toHaveBeenCalled();
-        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(activateVenvMock).toHaveBeenCalledWith('.', context);
         expect(existsSync(buildPath)).toBeTruthy();
         expect(existsSync(`${buildPath}/app`)).toBeTruthy();
         expect(spawn.sync).toHaveBeenCalledWith('poetry', ['build'], {
@@ -1346,7 +1358,7 @@ describe('Build Executor', () => {
           bundleLocalDependencies: true,
         };
 
-        const output = await executor(options, {
+        const context: ExecutorContext = {
           cwd: '',
           root: '.',
           isVerbose: false,
@@ -1365,11 +1377,13 @@ describe('Build Executor', () => {
             dependencies: {},
             nodes: {},
           },
-        });
+        };
+
+        const output = await executor(options, context);
 
         expect(output.success).toBe(true);
         expect(checkPoetryExecutableMock).toHaveBeenCalled();
-        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(activateVenvMock).toHaveBeenCalledWith('.', context);
         expect(existsSync(buildPath)).toBeTruthy();
         expect(existsSync(`${buildPath}/app`)).toBeTruthy();
         expect(spawn.sync).toHaveBeenCalledWith('poetry', ['build'], {
@@ -1458,7 +1472,7 @@ describe('Build Executor', () => {
           bundleLocalDependencies: true,
         };
 
-        const output = await executor(options, {
+        const context: ExecutorContext = {
           cwd: '',
           root: '.',
           isVerbose: false,
@@ -1477,10 +1491,12 @@ describe('Build Executor', () => {
             dependencies: {},
             nodes: {},
           },
-        });
+        };
+
+        const output = await executor(options, context);
 
         expect(checkPoetryExecutableMock).toHaveBeenCalled();
-        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(activateVenvMock).toHaveBeenCalledWith('.', context);
         expect(output.success).toBe(false);
       });
 
@@ -1603,7 +1619,7 @@ describe('Build Executor', () => {
           bundleLocalDependencies: true,
         };
 
-        const output = await executor(options, {
+        const context: ExecutorContext = {
           cwd: '',
           root: '.',
           isVerbose: false,
@@ -1630,10 +1646,12 @@ describe('Build Executor', () => {
             dependencies: {},
             nodes: {},
           },
-        });
+        };
+
+        const output = await executor(options, context);
 
         expect(checkPoetryExecutableMock).toHaveBeenCalled();
-        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(activateVenvMock).toHaveBeenCalledWith('.', context);
         expect(existsSync(buildPath)).toBeTruthy();
         expect(existsSync(`${buildPath}/app`)).toBeTruthy();
         expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
@@ -1760,7 +1778,7 @@ describe('Build Executor', () => {
           bundleLocalDependencies: true,
         };
 
-        const output = await executor(options, {
+        const context: ExecutorContext = {
           cwd: '',
           root: '.',
           isVerbose: false,
@@ -1783,10 +1801,12 @@ describe('Build Executor', () => {
             dependencies: {},
             nodes: {},
           },
-        });
+        };
+
+        const output = await executor(options, context);
 
         expect(checkPoetryExecutableMock).toHaveBeenCalled();
-        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(activateVenvMock).toHaveBeenCalledWith('.', context);
         expect(existsSync(buildPath)).toBeTruthy();
         expect(existsSync(`${buildPath}/app`)).toBeTruthy();
         expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
@@ -1932,7 +1952,7 @@ describe('Build Executor', () => {
           bundleLocalDependencies: true,
         };
 
-        const output = await executor(options, {
+        const context: ExecutorContext = {
           cwd: '',
           root: '.',
           isVerbose: false,
@@ -1955,10 +1975,12 @@ describe('Build Executor', () => {
             dependencies: {},
             nodes: {},
           },
-        });
+        };
+
+        const output = await executor(options, context);
 
         expect(checkPoetryExecutableMock).toHaveBeenCalled();
-        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(activateVenvMock).toHaveBeenCalledWith('.', context);
         expect(output.success).toBe(true);
         expect(existsSync(buildPath)).toBeTruthy();
         expect(existsSync(`${buildPath}/app`)).toBeTruthy();
@@ -2092,7 +2114,7 @@ describe('Build Executor', () => {
           bundleLocalDependencies: true,
         };
 
-        const output = await executor(options, {
+        const context: ExecutorContext = {
           cwd: '',
           root: '.',
           isVerbose: false,
@@ -2111,10 +2133,12 @@ describe('Build Executor', () => {
             dependencies: {},
             nodes: {},
           },
-        });
+        };
+
+        const output = await executor(options, context);
 
         expect(checkPoetryExecutableMock).toHaveBeenCalled();
-        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(activateVenvMock).toHaveBeenCalledWith('.', context);
         expect(existsSync(buildPath)).toBeTruthy();
         expect(existsSync(`${buildPath}/app`)).toBeTruthy();
         expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
@@ -2199,7 +2223,7 @@ describe('Build Executor', () => {
           bundleLocalDependencies: true,
         };
 
-        const output = await executor(options, {
+        const context: ExecutorContext = {
           cwd: '',
           root: '.',
           isVerbose: false,
@@ -2218,9 +2242,12 @@ describe('Build Executor', () => {
             dependencies: {},
             nodes: {},
           },
-        });
+        };
+
+        const output = await executor(options, context);
+
         expect(checkPoetryExecutableMock).toHaveBeenCalled();
-        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(activateVenvMock).toHaveBeenCalledWith('.', context);
         expect(output.success).toBe(false);
       });
 
@@ -2279,7 +2306,7 @@ describe('Build Executor', () => {
           bundleLocalDependencies: true,
         };
 
-        const output = await executor(options, {
+        const context: ExecutorContext = {
           cwd: '',
           root: '.',
           isVerbose: false,
@@ -2298,10 +2325,12 @@ describe('Build Executor', () => {
             dependencies: {},
             nodes: {},
           },
-        });
+        };
+
+        const output = await executor(options, context);
 
         expect(checkPoetryExecutableMock).toHaveBeenCalled();
-        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(activateVenvMock).toHaveBeenCalledWith('.', context);
         expect(existsSync(buildPath)).not.toBeTruthy();
         expect(spawn.sync).toHaveBeenCalledWith('poetry', ['build'], {
           cwd: buildPath,
@@ -2373,7 +2402,7 @@ describe('Build Executor', () => {
           format: 'wheel',
         };
 
-        const output = await executor(options, {
+        const context: ExecutorContext = {
           cwd: '',
           root: '.',
           isVerbose: false,
@@ -2392,10 +2421,12 @@ describe('Build Executor', () => {
             dependencies: {},
             nodes: {},
           },
-        });
+        };
+
+        const output = await executor(options, context);
 
         expect(checkPoetryExecutableMock).toHaveBeenCalled();
-        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(activateVenvMock).toHaveBeenCalledWith('.', context);
         expect(spawn.sync).toHaveBeenCalledWith(
           'poetry',
           ['build', '--format', 'wheel'],
@@ -2471,7 +2502,7 @@ describe('Build Executor', () => {
           format: 'sdist',
         };
 
-        const output = await executor(options, {
+        const context: ExecutorContext = {
           cwd: '',
           root: '.',
           isVerbose: false,
@@ -2490,10 +2521,12 @@ describe('Build Executor', () => {
             dependencies: {},
             nodes: {},
           },
-        });
+        };
+
+        const output = await executor(options, context);
 
         expect(checkPoetryExecutableMock).toHaveBeenCalled();
-        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(activateVenvMock).toHaveBeenCalledWith('.', context);
         expect(spawn.sync).toHaveBeenCalledWith(
           'poetry',
           ['build', '--format', 'sdist'],
@@ -2551,7 +2584,7 @@ describe('Build Executor', () => {
           bundleLocalDependencies: true,
         };
 
-        const output = await executor(options, {
+        const context: ExecutorContext = {
           cwd: '',
           root: '.',
           isVerbose: false,
@@ -2570,10 +2603,12 @@ describe('Build Executor', () => {
             dependencies: {},
             nodes: {},
           },
-        });
+        };
+
+        const output = await executor(options, context);
 
         expect(checkPoetryExecutableMock).toHaveBeenCalled();
-        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(activateVenvMock).toHaveBeenCalledWith('.', context);
         expect(output.success).toBe(false);
       });
     });
@@ -2639,7 +2674,7 @@ describe('Build Executor', () => {
           bundleLocalDependencies: false,
         };
 
-        const output = await executor(options, {
+        const context: ExecutorContext = {
           cwd: '',
           root: '.',
           isVerbose: false,
@@ -2658,10 +2693,12 @@ describe('Build Executor', () => {
             dependencies: {},
             nodes: {},
           },
-        });
+        };
+
+        const output = await executor(options, context);
 
         expect(checkPoetryExecutableMock).toHaveBeenCalled();
-        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(activateVenvMock).toHaveBeenCalledWith('.', context);
         expect(output.success).toBe(false);
         expect(existsSync(buildPath)).toBeTruthy();
       });
@@ -2726,7 +2763,7 @@ describe('Build Executor', () => {
           bundleLocalDependencies: false,
         };
 
-        const output = await executor(options, {
+        const context: ExecutorContext = {
           cwd: '',
           root: '.',
           isVerbose: false,
@@ -2748,10 +2785,12 @@ describe('Build Executor', () => {
             dependencies: {},
             nodes: {},
           },
-        });
+        };
+
+        const output = await executor(options, context);
 
         expect(checkPoetryExecutableMock).toHaveBeenCalled();
-        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(activateVenvMock).toHaveBeenCalledWith('.', context);
         expect(output.success).toBe(true);
         expect(existsSync(buildPath)).toBeTruthy();
         expect(existsSync(`${buildPath}/app`)).toBeTruthy();
@@ -2843,7 +2882,7 @@ describe('Build Executor', () => {
           bundleLocalDependencies: false,
         };
 
-        const output = await executor(options, {
+        const context: ExecutorContext = {
           cwd: '',
           root: '.',
           isVerbose: false,
@@ -2872,10 +2911,12 @@ describe('Build Executor', () => {
             dependencies: {},
             nodes: {},
           },
-        });
+        };
+
+        const output = await executor(options, context);
 
         expect(checkPoetryExecutableMock).toHaveBeenCalled();
-        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(activateVenvMock).toHaveBeenCalledWith('.', context);
         expect(output.success).toBe(true);
         expect(existsSync(buildPath)).toBeTruthy();
         expect(existsSync(`${buildPath}/app`)).toBeTruthy();
@@ -2986,7 +3027,7 @@ describe('Build Executor', () => {
           bundleLocalDependencies: false,
         };
 
-        const output = await executor(options, {
+        const context: ExecutorContext = {
           cwd: '',
           root: '.',
           isVerbose: false,
@@ -3025,10 +3066,12 @@ describe('Build Executor', () => {
             dependencies: {},
             nodes: {},
           },
-        });
+        };
+
+        const output = await executor(options, context);
 
         expect(checkPoetryExecutableMock).toHaveBeenCalled();
-        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(activateVenvMock).toHaveBeenCalledWith('.', context);
         expect(output.success).toBe(true);
         expect(existsSync(buildPath)).toBeTruthy();
         expect(existsSync(`${buildPath}/app`)).toBeTruthy();
@@ -3141,7 +3184,7 @@ describe('Build Executor', () => {
           bundleLocalDependencies: false,
         };
 
-        const output = await executor(options, {
+        const context: ExecutorContext = {
           cwd: '',
           root: '.',
           isVerbose: false,
@@ -3182,10 +3225,12 @@ describe('Build Executor', () => {
             dependencies: {},
             nodes: {},
           },
-        });
+        };
+
+        const output = await executor(options, context);
 
         expect(checkPoetryExecutableMock).toHaveBeenCalled();
-        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(activateVenvMock).toHaveBeenCalledWith('.', context);
         expect(output.success).toBe(true);
         expect(existsSync(buildPath)).toBeTruthy();
         expect(existsSync(`${buildPath}/app`)).toBeTruthy();
@@ -3360,7 +3405,7 @@ describe('Build Executor', () => {
           bundleLocalDependencies: false,
         };
 
-        const output = await executor(options, {
+        const context: ExecutorContext = {
           cwd: '',
           root: '.',
           isVerbose: false,
@@ -3439,10 +3484,12 @@ describe('Build Executor', () => {
             dependencies: {},
             nodes: {},
           },
-        });
+        };
+
+        const output = await executor(options, context);
 
         expect(checkPoetryExecutableMock).toHaveBeenCalled();
-        expect(activateVenvMock).toHaveBeenCalledWith('.');
+        expect(activateVenvMock).toHaveBeenCalledWith('.', context);
         expect(output.success).toBe(true);
         expect(existsSync(buildPath)).toBeTruthy();
         expect(existsSync(`${buildPath}/app`)).toBeTruthy();

@@ -8,6 +8,7 @@ import executor from './executor';
 import spawn from 'cross-spawn';
 import { ExecutorContext } from '@nx/devkit';
 import { UVProvider } from '../../provider/uv';
+import { PoetryProvider } from '../../provider/poetry/provider';
 
 describe('Ruff Format Executor', () => {
   beforeAll(() => {
@@ -29,8 +30,8 @@ describe('Ruff Format Executor', () => {
         .mockResolvedValue(undefined);
 
       activateVenvMock = vi
-        .spyOn(poetryUtils, 'activateVenv')
-        .mockReturnValue(undefined);
+        .spyOn(PoetryProvider.prototype, 'activateVenv')
+        .mockResolvedValue(undefined);
 
       vi.mocked(spawn.sync).mockReturnValue({
         status: 0,
@@ -77,7 +78,7 @@ describe('Ruff Format Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).not.toHaveBeenCalled();
       expect(output.success).toBe(false);
     });
@@ -92,35 +93,37 @@ describe('Ruff Format Executor', () => {
         stdout: null,
       });
 
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
       const output = await executor(
         {
           filePatterns: ['app'],
           check: false,
           __unparsed__: [],
         },
-        {
-          cwd: '',
-          root: '.',
-          isVerbose: false,
-          projectName: 'app',
-          projectsConfigurations: {
-            version: 2,
-            projects: {
-              app: {
-                root: 'apps/app',
-                targets: {},
-              },
-            },
-          },
-          nxJsonConfiguration: {},
-          projectGraph: {
-            dependencies: {},
-            nodes: {},
-          },
-        },
+        context,
       );
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).toHaveBeenCalledTimes(1);
       expect(spawn.sync).toHaveBeenCalledWith(
         'poetry',
@@ -144,35 +147,37 @@ describe('Ruff Format Executor', () => {
         stdout: null,
       });
 
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
       const output = await executor(
         {
           filePatterns: ['app'],
           check: true,
           __unparsed__: [],
         },
-        {
-          cwd: '',
-          root: '.',
-          isVerbose: false,
-          projectName: 'app',
-          projectsConfigurations: {
-            version: 2,
-            projects: {
-              app: {
-                root: 'apps/app',
-                targets: {},
-              },
-            },
-          },
-          nxJsonConfiguration: {},
-          projectGraph: {
-            dependencies: {},
-            nodes: {},
-          },
-        },
+        context,
       );
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).toHaveBeenCalledTimes(1);
       expect(spawn.sync).toHaveBeenCalledWith(
         'poetry',
@@ -196,35 +201,37 @@ describe('Ruff Format Executor', () => {
         stdout: null,
       });
 
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
       const output = await executor(
         {
           filePatterns: ['app'],
           check: false,
           __unparsed__: [],
         },
-        {
-          cwd: '',
-          root: '.',
-          isVerbose: false,
-          projectName: 'app',
-          projectsConfigurations: {
-            version: 2,
-            projects: {
-              app: {
-                root: 'apps/app',
-                targets: {},
-              },
-            },
-          },
-          nxJsonConfiguration: {},
-          projectGraph: {
-            dependencies: {},
-            nodes: {},
-          },
-        },
+        context,
       );
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).toHaveBeenCalledTimes(1);
       expect(spawn.sync).toHaveBeenCalledWith(
         'poetry',
@@ -241,10 +248,15 @@ describe('Ruff Format Executor', () => {
 
   describe('uv', () => {
     let checkPrerequisites: MockInstance;
+    let activateVenvMock: MockInstance;
 
     beforeEach(() => {
       checkPrerequisites = vi
         .spyOn(UVProvider.prototype, 'checkPrerequisites')
+        .mockResolvedValue(undefined);
+
+      activateVenvMock = vi
+        .spyOn(UVProvider.prototype, 'activateVenv')
         .mockResolvedValue(undefined);
 
       vi.mocked(spawn.sync).mockReturnValue({
@@ -296,6 +308,7 @@ describe('Ruff Format Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPrerequisites).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).not.toHaveBeenCalled();
       expect(output.success).toBe(false);
     });
@@ -310,34 +323,37 @@ describe('Ruff Format Executor', () => {
         stdout: null,
       });
 
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
       const output = await executor(
         {
           filePatterns: ['app'],
           check: false,
           __unparsed__: [],
         },
-        {
-          cwd: '',
-          root: '.',
-          isVerbose: false,
-          projectName: 'app',
-          projectsConfigurations: {
-            version: 2,
-            projects: {
-              app: {
-                root: 'apps/app',
-                targets: {},
-              },
-            },
-          },
-          nxJsonConfiguration: {},
-          projectGraph: {
-            dependencies: {},
-            nodes: {},
-          },
-        },
+        context,
       );
       expect(checkPrerequisites).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).toHaveBeenCalledTimes(1);
       expect(spawn.sync).toHaveBeenCalledWith(
         'uv',
@@ -361,34 +377,37 @@ describe('Ruff Format Executor', () => {
         stdout: null,
       });
 
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
       const output = await executor(
         {
           filePatterns: ['app'],
           check: true,
           __unparsed__: [],
         },
-        {
-          cwd: '',
-          root: '.',
-          isVerbose: false,
-          projectName: 'app',
-          projectsConfigurations: {
-            version: 2,
-            projects: {
-              app: {
-                root: 'apps/app',
-                targets: {},
-              },
-            },
-          },
-          nxJsonConfiguration: {},
-          projectGraph: {
-            dependencies: {},
-            nodes: {},
-          },
-        },
+        context,
       );
       expect(checkPrerequisites).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).toHaveBeenCalledTimes(1);
       expect(spawn.sync).toHaveBeenCalledWith(
         'uv',
@@ -412,34 +431,37 @@ describe('Ruff Format Executor', () => {
         stdout: null,
       });
 
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
       const output = await executor(
         {
           filePatterns: ['app'],
           check: false,
           __unparsed__: [],
         },
-        {
-          cwd: '',
-          root: '.',
-          isVerbose: false,
-          projectName: 'app',
-          projectsConfigurations: {
-            version: 2,
-            projects: {
-              app: {
-                root: 'apps/app',
-                targets: {},
-              },
-            },
-          },
-          nxJsonConfiguration: {},
-          projectGraph: {
-            dependencies: {},
-            nodes: {},
-          },
-        },
+        context,
       );
       expect(checkPrerequisites).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).toHaveBeenCalledTimes(1);
       expect(spawn.sync).toHaveBeenCalledWith(
         'uv',

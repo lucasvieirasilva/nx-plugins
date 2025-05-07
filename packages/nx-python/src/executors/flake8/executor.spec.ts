@@ -12,6 +12,7 @@ import { mkdirsSync, writeFileSync } from 'fs-extra';
 import spawn from 'cross-spawn';
 import { ExecutorContext } from '@nx/devkit';
 import { UVProvider } from '../../provider/uv';
+import { PoetryProvider } from '../../provider/poetry/provider';
 
 describe('Flake8 Executor', () => {
   let tmppath = null;
@@ -36,8 +37,8 @@ describe('Flake8 Executor', () => {
         .mockResolvedValue(undefined);
 
       activateVenvMock = vi
-        .spyOn(poetryUtils, 'activateVenv')
-        .mockReturnValue(undefined);
+        .spyOn(PoetryProvider.prototype, 'activateVenv')
+        .mockResolvedValue(undefined);
 
       vi.mocked(spawn.sync).mockReturnValue({
         status: 0,
@@ -84,7 +85,7 @@ describe('Flake8 Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).not.toHaveBeenCalled();
       expect(output.success).toBe(false);
     });
@@ -103,34 +104,36 @@ describe('Flake8 Executor', () => {
         };
       });
 
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
       const output = await executor(
         {
           outputFile,
           silent: false,
         },
-        {
-          cwd: '',
-          root: '.',
-          isVerbose: false,
-          projectName: 'app',
-          projectsConfigurations: {
-            version: 2,
-            projects: {
-              app: {
-                root: 'apps/app',
-                targets: {},
-              },
-            },
-          },
-          nxJsonConfiguration: {},
-          projectGraph: {
-            dependencies: {},
-            nodes: {},
-          },
-        },
+        context,
       );
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).toHaveBeenCalledTimes(1);
       expect(output.success).toBe(true);
     });
@@ -151,34 +154,36 @@ describe('Flake8 Executor', () => {
         };
       });
 
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
       const output = await executor(
         {
           outputFile,
           silent: false,
         },
-        {
-          cwd: '',
-          root: '.',
-          isVerbose: false,
-          projectName: 'app',
-          projectsConfigurations: {
-            version: 2,
-            projects: {
-              app: {
-                root: 'apps/app',
-                targets: {},
-              },
-            },
-          },
-          nxJsonConfiguration: {},
-          projectGraph: {
-            dependencies: {},
-            nodes: {},
-          },
-        },
+        context,
       );
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).toHaveBeenCalledTimes(1);
       expect(output.success).toBe(true);
     });
@@ -188,34 +193,36 @@ describe('Flake8 Executor', () => {
         throw new Error('Some error');
       });
 
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
       const output = await executor(
         {
           outputFile: join(tmppath, 'reports/apps/app/pylint.txt'),
           silent: false,
         },
-        {
-          cwd: '',
-          root: '.',
-          isVerbose: false,
-          projectName: 'app',
-          projectsConfigurations: {
-            version: 2,
-            projects: {
-              app: {
-                root: 'apps/app',
-                targets: {},
-              },
-            },
-          },
-          nxJsonConfiguration: {},
-          projectGraph: {
-            dependencies: {},
-            nodes: {},
-          },
-        },
+        context,
       );
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).toHaveBeenCalledTimes(1);
       expect(output.success).toBe(false);
     });
@@ -235,34 +242,36 @@ describe('Flake8 Executor', () => {
         };
       });
 
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
       const output = await executor(
         {
           outputFile,
           silent: false,
         },
-        {
-          cwd: '',
-          root: '.',
-          isVerbose: false,
-          projectName: 'app',
-          projectsConfigurations: {
-            version: 2,
-            projects: {
-              app: {
-                root: 'apps/app',
-                targets: {},
-              },
-            },
-          },
-          nxJsonConfiguration: {},
-          projectGraph: {
-            dependencies: {},
-            nodes: {},
-          },
-        },
+        context,
       );
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).toHaveBeenCalledTimes(1);
       expect(output.success).toBe(false);
     });
@@ -270,12 +279,17 @@ describe('Flake8 Executor', () => {
 
   describe('uv', () => {
     let checkPrerequisites: MockInstance;
+    let activateVenvMock: MockInstance;
 
     beforeEach(() => {
       tmppath = join(tmpdir(), 'nx-python', 'flake8', uuid());
 
       checkPrerequisites = vi
         .spyOn(UVProvider.prototype, 'checkPrerequisites')
+        .mockResolvedValue(undefined);
+
+      activateVenvMock = vi
+        .spyOn(UVProvider.prototype, 'activateVenv')
         .mockResolvedValue(undefined);
 
       vi.mocked(spawn.sync).mockReturnValue({
@@ -326,6 +340,7 @@ describe('Flake8 Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPrerequisites).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).not.toHaveBeenCalled();
       expect(output.success).toBe(false);
     });
@@ -344,33 +359,36 @@ describe('Flake8 Executor', () => {
         };
       });
 
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
       const output = await executor(
         {
           outputFile,
           silent: false,
         },
-        {
-          cwd: '',
-          root: '.',
-          isVerbose: false,
-          projectName: 'app',
-          projectsConfigurations: {
-            version: 2,
-            projects: {
-              app: {
-                root: 'apps/app',
-                targets: {},
-              },
-            },
-          },
-          nxJsonConfiguration: {},
-          projectGraph: {
-            dependencies: {},
-            nodes: {},
-          },
-        },
+        context,
       );
       expect(checkPrerequisites).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).toHaveBeenCalledTimes(1);
       expect(spawn.sync).toHaveBeenCalledWith(
         'uv',
@@ -401,33 +419,36 @@ describe('Flake8 Executor', () => {
         };
       });
 
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
       const output = await executor(
         {
           outputFile,
           silent: false,
         },
-        {
-          cwd: '',
-          root: '.',
-          isVerbose: false,
-          projectName: 'app',
-          projectsConfigurations: {
-            version: 2,
-            projects: {
-              app: {
-                root: 'apps/app',
-                targets: {},
-              },
-            },
-          },
-          nxJsonConfiguration: {},
-          projectGraph: {
-            dependencies: {},
-            nodes: {},
-          },
-        },
+        context,
       );
       expect(checkPrerequisites).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).toHaveBeenCalledTimes(1);
       expect(spawn.sync).toHaveBeenCalledWith(
         'uv',
@@ -446,34 +467,37 @@ describe('Flake8 Executor', () => {
         throw new Error('Some error');
       });
 
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
       const outputFile = join(tmppath, 'reports/apps/app/pylint.txt');
       const output = await executor(
         {
           outputFile,
           silent: false,
         },
-        {
-          cwd: '',
-          root: '.',
-          isVerbose: false,
-          projectName: 'app',
-          projectsConfigurations: {
-            version: 2,
-            projects: {
-              app: {
-                root: 'apps/app',
-                targets: {},
-              },
-            },
-          },
-          nxJsonConfiguration: {},
-          projectGraph: {
-            dependencies: {},
-            nodes: {},
-          },
-        },
+        context,
       );
       expect(checkPrerequisites).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).toHaveBeenCalledTimes(1);
       expect(spawn.sync).toHaveBeenCalledWith(
         'uv',

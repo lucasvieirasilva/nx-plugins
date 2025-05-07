@@ -9,6 +9,7 @@ import dedent from 'string-dedent';
 import spawn from 'cross-spawn';
 import { ExecutorContext } from '@nx/devkit';
 import { UVProvider } from '../../provider/uv';
+import { PoetryProvider } from '../../provider/poetry/provider';
 
 describe('Delete Executor', () => {
   afterEach(() => {
@@ -33,8 +34,8 @@ describe('Delete Executor', () => {
         .spyOn(poetryUtils, 'getPoetryVersion')
         .mockResolvedValue('1.5.0');
       activateVenvMock = vi
-        .spyOn(poetryUtils, 'activateVenv')
-        .mockReturnValue(undefined);
+        .spyOn(PoetryProvider.prototype, 'activateVenv')
+        .mockResolvedValue(undefined);
       vi.mocked(spawn.sync).mockReturnValue({
         status: 0,
         output: [''],
@@ -79,7 +80,7 @@ describe('Delete Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).not.toHaveBeenCalled();
       expect(output.success).toBe(false);
     });
@@ -180,7 +181,7 @@ describe('Delete Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).toHaveBeenCalledTimes(5);
       expect(spawn.sync).toHaveBeenNthCalledWith(
         1,
@@ -332,7 +333,7 @@ describe('Delete Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).toHaveBeenCalledTimes(5);
       expect(spawn.sync).toHaveBeenNthCalledWith(
         1,
@@ -469,7 +470,7 @@ describe('Delete Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).toHaveBeenCalledTimes(7);
       expect(spawn.sync).toHaveBeenNthCalledWith(
         1,
@@ -587,7 +588,7 @@ describe('Delete Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).toHaveBeenCalledTimes(1);
       expect(spawn.sync).toHaveBeenNthCalledWith(
         1,
@@ -648,7 +649,7 @@ describe('Delete Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).toHaveBeenCalledTimes(1);
       expect(spawn.sync).toHaveBeenNthCalledWith(
         1,
@@ -715,7 +716,7 @@ describe('Delete Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).toHaveBeenNthCalledWith(
         1,
         'poetry',
@@ -801,7 +802,7 @@ describe('Delete Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).toHaveBeenNthCalledWith(
         1,
         'poetry',

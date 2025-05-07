@@ -14,6 +14,6 @@ export default async function executor(
     undefined,
     context,
   );
-  provider.activateVenv(context.root, context);
+  await provider.activateVenv(context.root, context);
   return baseExecutor(options, context);
 }

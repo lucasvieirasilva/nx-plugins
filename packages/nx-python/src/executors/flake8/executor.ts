@@ -41,11 +41,16 @@ export default async function executor(
       undefined,
       context,
     );
-    await provider.run(lintingArgs, workspaceRoot, {
-      cwd,
-      log: false,
-      error: false,
-    });
+    await provider.run(
+      lintingArgs,
+      workspaceRoot,
+      {
+        cwd,
+        log: false,
+        error: false,
+      },
+      context,
+    );
 
     const output = readFileSync(absPath, 'utf8');
     const lines = output.split('\n').length;

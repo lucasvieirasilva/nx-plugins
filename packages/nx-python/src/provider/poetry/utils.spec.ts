@@ -11,9 +11,7 @@ vi.mock('command-exists', () => {
 });
 
 import * as poetryUtils from './utils';
-import dedent from 'string-dedent';
 import chalk from 'chalk';
-import path from 'path';
 import spawn from 'cross-spawn';
 import commandExists from 'command-exists';
 
@@ -253,76 +251,6 @@ describe('Poetry Utils', () => {
       });
 
       await expect(poetryUtils.getPoetryVersion()).rejects.toThrowError();
-    });
-  });
-
-  describe('Activate Venv', () => {
-    const originalEnv = process.env;
-
-    beforeEach(() => {
-      process.env = { ...originalEnv };
-    });
-
-    it('should not activate venv when it is already activated', () => {
-      process.env.VIRTUAL_ENV = 'venv';
-
-      poetryUtils.activateVenv('.');
-
-      expect(process.env).toStrictEqual({
-        ...originalEnv,
-        VIRTUAL_ENV: 'venv',
-      });
-    });
-
-    it('should not activate venv when the root pyproject.toml does not exists', () => {
-      delete process.env.VIRTUAL_ENV;
-
-      poetryUtils.activateVenv('.');
-
-      expect(process.env).toEqual(originalEnv);
-    });
-
-    it('should not activate venv when the root pyproject.toml exists and the autoActivate property is not defined', () => {
-      delete process.env.VIRTUAL_ENV;
-
-      vol.fromJSON({
-        'pyproject.toml': dedent`
-        [tool.poetry]
-        name = "app"
-        version = "1.0.0"
-          [tool.poetry.dependencies]
-          python = "^3.8"
-        `,
-      });
-
-      poetryUtils.activateVenv('.');
-
-      expect(process.env).toEqual(originalEnv);
-    });
-
-    it('should activate venv when the root pyproject.toml exists and the autoActivate property is defined', () => {
-      delete process.env.VIRTUAL_ENV;
-
-      vol.fromJSON({
-        'pyproject.toml': dedent`
-        [tool.nx]
-        autoActivate = true
-
-        [tool.poetry]
-        name = "app"
-        version = "1.0.0"
-          [tool.poetry.dependencies]
-          python = "^3.8"
-        `,
-      });
-
-      poetryUtils.activateVenv('.');
-
-      expect(process.env).toEqual({
-        ...originalEnv,
-        VIRTUAL_ENV: path.resolve('.venv'),
-        PATH: `${path.resolve('.venv')}/bin:${originalEnv.PATH}`,
-      });
     });
   });
 });

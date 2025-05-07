@@ -22,7 +22,7 @@ import {
   BasePythonProjectGeneratorSchema,
 } from '../types';
 import { UVProvider } from '../../provider/uv';
-import { IProvider } from '../../provider/base';
+import { BaseProvider } from '../../provider/base';
 import { sortPreservingInsert, sortPreservingSet } from '../../utils/toml';
 
 interface NormalizedSchema extends BaseNormalizedSchema {
@@ -228,7 +228,7 @@ function addTestDependencies(
   };
 }
 
-async function updateRootUvLock(tree: Tree, provider: IProvider) {
+async function updateRootUvLock(tree: Tree, provider: BaseProvider) {
   if (tree.exists('pyproject.toml')) {
     console.log(chalk`  Updating root {bgBlue uv.lock}...`);
     await provider.install();
