@@ -2,7 +2,7 @@ import { ExecutorContext, ProjectConfiguration } from '@nx/devkit';
 import chalk from 'chalk';
 import spawn from 'cross-spawn';
 import path from 'path';
-import toml, { parse } from '@iarna/toml';
+import toml from '@iarna/toml';
 import fs from 'fs';
 import commandExists from 'command-exists';
 import {
@@ -150,28 +150,6 @@ export function runPoetry(
     throw new Error(
       chalk`{bold ${commandStr}} command failed with exit code {bold ${result.status}}`,
     );
-  }
-}
-
-export function activateVenv(workspaceRoot: string) {
-  if (!process.env.VIRTUAL_ENV) {
-    const rootPyproject = path.join(workspaceRoot, 'pyproject.toml');
-
-    if (fs.existsSync(rootPyproject)) {
-      const rootConfig = parse(
-        fs.readFileSync(rootPyproject, 'utf-8'),
-      ) as PoetryPyprojectToml;
-      const autoActivate = rootConfig.tool.nx?.autoActivate ?? false;
-      if (autoActivate) {
-        console.log(
-          chalk`\n{bold shared virtual environment detected and not activated, activating...}\n\n`,
-        );
-        const virtualEnv = path.resolve(workspaceRoot, '.venv');
-        process.env.VIRTUAL_ENV = virtualEnv;
-        process.env.PATH = `${virtualEnv}/bin:${process.env.PATH}`;
-        delete process.env.PYTHONHOME;
-      }
-    }
   }
 }
 

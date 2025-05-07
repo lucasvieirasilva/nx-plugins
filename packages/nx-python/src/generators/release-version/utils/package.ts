@@ -1,5 +1,5 @@
 import { joinPathFragments } from '@nx/devkit';
-import { IProvider } from '../../../provider/base';
+import { BaseProvider } from '../../../provider/base';
 
 export class Package {
   name: string;
@@ -7,7 +7,7 @@ export class Package {
   location: string;
 
   constructor(
-    private readonly provider: IProvider,
+    private readonly provider: BaseProvider,
     workspaceRoot: string,
     private workspaceRelativeLocation: string,
   ) {

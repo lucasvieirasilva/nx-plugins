@@ -49,12 +49,17 @@ export default async function executor(
       undefined,
       context,
     );
-    await provider.run(commandArgs, workspaceRoot, {
-      cwd: projectConfig.root,
-      log: false,
-      error: true,
-      shell: true,
-    });
+    await provider.run(
+      commandArgs,
+      workspaceRoot,
+      {
+        cwd: projectConfig.root,
+        log: false,
+        error: true,
+        shell: true,
+      },
+      context,
+    );
 
     return {
       success: true,

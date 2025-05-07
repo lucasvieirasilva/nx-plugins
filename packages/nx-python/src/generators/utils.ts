@@ -17,7 +17,7 @@ import _ from 'lodash';
 import path from 'path';
 import { parse } from '@iarna/toml';
 import { DEV_DEPENDENCIES_VERSION_MAP } from './consts';
-import { IProvider } from '../provider/base';
+import { BaseProvider } from '../provider/base';
 
 export function getPyTestAddopts(
   options: PytestGeneratorSchema,
@@ -212,7 +212,7 @@ export function addFiles(
 
 export async function getDefaultPythonProjectTargets(
   options: BaseNormalizedSchema,
-  provider: IProvider,
+  provider: BaseProvider,
 ): Promise<ProjectConfiguration['targets']> {
   const targets: ProjectConfiguration['targets'] = {
     lock: {

@@ -6,7 +6,7 @@ import {
 } from '@nx/devkit';
 import { satisfies } from 'semver';
 import { Package } from './package';
-import { IProvider } from '../../../provider/base';
+import { BaseProvider } from '../../../provider/base';
 
 export interface LocalPackageDependency extends ProjectGraphDependency {
   /**
@@ -24,7 +24,7 @@ export function resolveLocalPackageDependencies(
   projectGraph: ProjectGraph,
   filteredProjects: ProjectGraphProjectNode[],
   projectNameToPackageRootMap: Map<string, string>,
-  provider: IProvider,
+  provider: BaseProvider,
   resolvePackageRoot: (projectNode: ProjectGraphProjectNode) => string,
   includeAll = false,
 ): Record<string, LocalPackageDependency[]> {

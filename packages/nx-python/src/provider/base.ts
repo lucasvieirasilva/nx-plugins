@@ -1,4 +1,4 @@
-import { ExecutorContext, ProjectConfiguration } from '@nx/devkit';
+import { ExecutorContext, ProjectConfiguration, Tree } from '@nx/devkit';
 import { AddExecutorSchema } from '../executors/add/schema';
 import { SpawnSyncOptions } from 'child_process';
 import { UpdateExecutorSchema } from '../executors/update/schema';
@@ -8,6 +8,10 @@ import { InstallExecutorSchema } from '../executors/install/schema';
 import { BuildExecutorSchema } from '../executors/build/schema';
 import { LockExecutorSchema } from '../executors/lock/schema';
 import { SyncExecutorSchema } from '../executors/sync/schema';
+import { Logger } from '../executors/utils/logger';
+import path from 'path';
+import fs from 'fs';
+import chalk from 'chalk';
 
 export type Dependency = {
   name: string;
@@ -34,81 +38,126 @@ export type DependencyProjectMetadata = ProjectMetadata & {
   group?: string;
 };
 
-export interface IProvider {
-  checkPrerequisites(): Promise<void>;
+export abstract class BaseProvider {
+  constructor(
+    protected readonly workspaceRoot: string,
+    protected readonly logger: Logger,
+    protected readonly isWorkspace: boolean,
+    protected readonly tree?: Tree,
+  ) {}
 
-  getMetadata(projectRoot: string): ProjectMetadata;
+  abstract checkPrerequisites(): Promise<void>;
 
-  getDependencyMetadata(
+  abstract getMetadata(projectRoot: string): ProjectMetadata;
+
+  abstract getDependencyMetadata(
     projectRoot: string,
     dependencyName: string,
   ): DependencyProjectMetadata | null;
 
-  updateVersion(projectRoot: string, newVersion: string): void;
+  abstract updateVersion(projectRoot: string, newVersion: string): void;
 
-  getDependencies(
+  abstract getDependencies(
     projectName: string,
     projects: Record<string, ProjectConfiguration>,
     cwd: string,
   ): Dependency[];
 
-  getDependents(
+  abstract getDependents(
     projectName: string,
     projects: Record<string, ProjectConfiguration>,
     cwd: string,
   ): string[];
 
-  add(options: AddExecutorSchema, context: ExecutorContext): Promise<void>;
+  abstract add(
+    options: AddExecutorSchema,
+    context: ExecutorContext,
+  ): Promise<void>;
 
-  update(
+  abstract update(
     options: UpdateExecutorSchema,
     context: ExecutorContext,
   ): Promise<void>;
 
-  remove(
+  abstract remove(
     options: RemoveExecutorSchema,
     context: ExecutorContext,
   ): Promise<void>;
 
-  publish(
+  abstract publish(
     options: PublishExecutorSchema,
     context: ExecutorContext,
   ): Promise<void>;
 
-  install(
+  abstract install(
     options?: InstallExecutorSchema,
     context?: ExecutorContext,
   ): Promise<void>;
 
-  install(cwd?: string): Promise<void>;
+  abstract install(cwd?: string): Promise<void>;
 
-  lock(options?: LockExecutorSchema, context?: ExecutorContext): Promise<void>;
+  abstract lock(
+    options?: LockExecutorSchema,
+    context?: ExecutorContext,
+  ): Promise<void>;
 
-  lock(
+  abstract lock(
     projectRoot?: string,
     update?: boolean,
     args?: string[] | string,
   ): Promise<void>;
 
-  getLockCommand(projectRoot?: string, update?: boolean): Promise<string>;
+  abstract getLockCommand(
+    projectRoot?: string,
+    update?: boolean,
+  ): Promise<string>;
 
-  sync(options?: SyncExecutorSchema, context?: ExecutorContext): Promise<void>;
+  abstract sync(
+    options?: SyncExecutorSchema,
+    context?: ExecutorContext,
+  ): Promise<void>;
 
-  build(
+  abstract build(
     options: BuildExecutorSchema,
     context: ExecutorContext,
   ): Promise<string>;
 
-  getRunCommand(args: string[]): Promise<string>;
+  abstract getRunCommand(args: string[]): Promise<string>;
 
-  run(
+  abstract run(
     args: string[],
     workspaceRoot: string,
     options: {
       log?: boolean;
       error?: boolean;
     } & SpawnSyncOptions,
+    context?: ExecutorContext,
   ): Promise<void>;
 
-  activateVenv(workspaceRoot: string, context?: ExecutorContext): void;
+  public async activateVenv(
+    workspaceRoot: string,
+    context?: ExecutorContext,
+  ): Promise<void> {
+    if (!process.env.VIRTUAL_ENV) {
+      if (!this.isWorkspace && !context) {
+        throw new Error('context is required when not in a workspace');
+      }
+
+      const projectRoot =
+        context?.projectsConfigurations?.projects[context?.projectName]?.root;
+      const baseDir = this.isWorkspace ? workspaceRoot : projectRoot;
+
+      const virtualEnv = path.resolve(baseDir, '.venv');
+      if (!fs.existsSync(virtualEnv)) {
+        this.logger.info(
+          chalk`\n  {bold Creating virtual environment in {bgBlue  ${baseDir} }...}\n`,
+        );
+        await this.install(baseDir);
+      }
+
+      process.env.VIRTUAL_ENV = virtualEnv;
+      process.env.PATH = `${virtualEnv}/bin:${process.env.PATH}`;
+      delete process.env.PYTHONHOME;
+    }
+  }
 }

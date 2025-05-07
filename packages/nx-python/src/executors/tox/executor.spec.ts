@@ -10,6 +10,7 @@ import chalk from 'chalk';
 import spawn from 'cross-spawn';
 import { ExecutorContext } from '@nx/devkit';
 import { UVProvider } from '../../provider/uv';
+import { PoetryProvider } from '../../provider/poetry/provider';
 
 const options: ToxExecutorSchema = {
   silent: false,
@@ -61,8 +62,8 @@ describe('Tox Executor', () => {
         .spyOn(poetryUtils, 'checkPoetryExecutable')
         .mockResolvedValue(undefined);
       activateVenvMock = vi
-        .spyOn(poetryUtils, 'activateVenv')
-        .mockReturnValue(undefined);
+        .spyOn(PoetryProvider.prototype, 'activateVenv')
+        .mockResolvedValue(undefined);
 
       vi.mocked(spawn.sync).mockReturnValue({
         status: 0,
@@ -120,7 +121,7 @@ describe('Tox Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(buildExecutorMock).toBeCalledWith(
         {
           silent: options.silent,
@@ -163,7 +164,7 @@ describe('Tox Executor', () => {
       );
 
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(buildExecutorMock).toBeCalledWith(
         {
           silent: options.silent,

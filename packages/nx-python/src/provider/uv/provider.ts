@@ -8,7 +8,7 @@ import {
 import {
   Dependency,
   DependencyProjectMetadata,
-  IProvider,
+  BaseProvider,
   ProjectMetadata,
 } from '../base';
 import { AddExecutorSchema } from '../../executors/add/schema';
@@ -50,19 +50,16 @@ import {
 import { LockExecutorSchema } from '../../executors/lock/schema';
 import { SyncExecutorSchema } from '../../executors/sync/schema';
 
-export class UVProvider implements IProvider {
+export class UVProvider extends BaseProvider {
   protected _rootLockfile: UVLockfile;
-  protected isWorkspace = false;
 
-  constructor(
-    protected readonly workspaceRoot: string,
-    protected readonly logger: Logger,
-    protected readonly tree?: Tree,
-  ) {
+  constructor(workspaceRoot: string, logger: Logger, tree?: Tree) {
     const uvLockPath = joinPathFragments(workspaceRoot, 'uv.lock');
-    this.isWorkspace = tree
+    const isWorkspace = tree
       ? tree.exists(uvLockPath)
       : fs.existsSync(uvLockPath);
+
+    super(workspaceRoot, logger, isWorkspace, tree);
   }
 
   private get rootLockfile(): UVLockfile {
@@ -675,30 +672,14 @@ export class UVProvider implements IProvider {
       log?: boolean;
       error?: boolean;
     } & SpawnSyncOptions,
+    context?: ExecutorContext,
   ): Promise<void> {
+    await this.activateVenv(workspaceRoot, context);
     await this.checkPrerequisites();
 
     runUv(['run', ...args], {
       ...options,
     });
-  }
-
-  public activateVenv(workspaceRoot: string, context?: ExecutorContext): void {
-    if (!process.env.VIRTUAL_ENV) {
-      if (!this.isWorkspace && !context) {
-        throw new Error('context is required when not in a workspace');
-      }
-
-      const virtualEnv = path.resolve(
-        this.isWorkspace
-          ? workspaceRoot
-          : context.projectsConfigurations.projects[context.projectName].root,
-        '.venv',
-      );
-      process.env.VIRTUAL_ENV = virtualEnv;
-      process.env.PATH = `${virtualEnv}/bin:${process.env.PATH}`;
-      delete process.env.PYTHONHOME;
-    }
   }
 
   private sources(

@@ -7,6 +7,7 @@ import * as poetryUtils from '../../provider/poetry/utils';
 import executor from './executor';
 import spawn from 'cross-spawn';
 import { ExecutorContext } from '@nx/devkit';
+import { PoetryProvider } from '../../provider/poetry/provider';
 
 describe('Serverless Framework Package Executor', () => {
   let activateVenvMock: MockInstance;
@@ -44,8 +45,8 @@ describe('Serverless Framework Package Executor', () => {
   describe('poetry', () => {
     beforeEach(() => {
       activateVenvMock = vi
-        .spyOn(poetryUtils, 'activateVenv')
-        .mockReturnValue(undefined);
+        .spyOn(PoetryProvider.prototype, 'activateVenv')
+        .mockResolvedValue(undefined);
       vi.spyOn(process, 'chdir').mockReturnValue(undefined);
 
       vi.spyOn(poetryUtils, 'checkPoetryExecutable').mockReturnValue(undefined);
@@ -58,7 +59,7 @@ describe('Serverless Framework Package Executor', () => {
         },
         context,
       );
-      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).not.toHaveBeenCalled();
       expect(output.success).toBe(false);
     });
@@ -74,7 +75,7 @@ describe('Serverless Framework Package Executor', () => {
         },
         context,
       );
-      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).not.toHaveBeenCalled();
       expect(output.success).toBe(false);
     });
@@ -98,7 +99,7 @@ describe('Serverless Framework Package Executor', () => {
         },
         context,
       );
-      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).toHaveBeenCalledWith(
         'npx',
         ['sls', 'package', '--stage', 'dev'],
@@ -130,7 +131,7 @@ describe('Serverless Framework Package Executor', () => {
         },
         context,
       );
-      expect(activateVenvMock).toHaveBeenCalledWith('.');
+      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
       expect(spawn.sync).toHaveBeenCalledWith(
         'npx',
         ['sls', 'package', '--stage', 'dev'],

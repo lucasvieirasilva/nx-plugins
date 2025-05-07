@@ -13,7 +13,7 @@ import chalk from 'chalk';
 import { PoetryPyprojectToml } from '../../provider/poetry';
 import { UVPyprojectToml } from '../../provider/uv/types';
 import { getProvider } from '../../provider';
-import { IProvider } from '../../provider/base';
+import { BaseProvider } from '../../provider/base';
 
 async function addFiles(host: Tree, options: Schema) {
   const packageJson = await readJsonFile('package.json');
@@ -55,7 +55,7 @@ type LockUpdateTask = () => Promise<void>;
 function updatePoetryPyprojectRoot(
   host: Tree,
   options: Schema,
-  provider: IProvider,
+  provider: BaseProvider,
 ): LockUpdateTask[] {
   const postGeneratorTasks = [];
 
@@ -103,7 +103,7 @@ function movePoetryDevDependencies(
   host: Tree,
   pyprojectTomlPath: string,
   projectConfig: ProjectConfiguration,
-  provider: IProvider,
+  provider: BaseProvider,
 ) {
   const devDependencies =
     pyprojectToml.tool.poetry.group?.dev?.dependencies || {};

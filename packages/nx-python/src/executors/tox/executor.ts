@@ -69,9 +69,14 @@ export default async function executor(
       options.args ? options.args.split(' ') : [],
     );
 
-    await provider.run(toxArgs, workspaceRoot, {
-      cwd: projectConfig.root,
-    });
+    await provider.run(
+      toxArgs,
+      workspaceRoot,
+      {
+        cwd: projectConfig.root,
+      },
+      context,
+    );
 
     return {
       success: true,

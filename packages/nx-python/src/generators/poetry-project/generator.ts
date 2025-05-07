@@ -25,7 +25,7 @@ import {
   getPyprojectTomlByProjectName,
 } from '../utils';
 import { DEV_DEPENDENCIES_VERSION_MAP } from '../consts';
-import { IProvider } from '../../provider/base';
+import { BaseProvider } from '../../provider/base';
 import { sortPreservingSet } from '../../utils/toml';
 
 interface NormalizedSchema extends BaseNormalizedSchema {
@@ -195,7 +195,7 @@ function addTestDependencies(
   };
 }
 
-async function updateRootPoetryLock(tree: Tree, provider: IProvider) {
+async function updateRootPoetryLock(tree: Tree, provider: BaseProvider) {
   if (tree.exists('./pyproject.toml')) {
     console.log(chalk`  Updating root {bgBlue poetry.lock}...`);
     await provider.lock();

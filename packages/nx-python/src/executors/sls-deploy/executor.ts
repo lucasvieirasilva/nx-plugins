@@ -21,7 +21,7 @@ export default async function executor(
     undefined,
     context,
   );
-  provider.activateVenv(workspaceRoot);
+  await provider.activateVenv(workspaceRoot, context);
 
   const projectConfig =
     context.projectsConfigurations.projects[context.projectName];
