@@ -1,3 +1,9 @@
+# [20.15.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.14.0...nx-python-v20.15.0) (2025-05-07)
+
+### Features
+
+- **nx-python:** update activate venv to install when folder is not found ([#306](https://github.com/lucasvieirasilva/nx-plugins/issues/306)) ([df160ec](https://github.com/lucasvieirasilva/nx-plugins/commit/df160ec9ea21eea747a89c4c9cd6db803f1dd83c))
+
 # [20.14.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.13.3...nx-python-v20.14.0) (2025-04-25)
 
 ### Features
