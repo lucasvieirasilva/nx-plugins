@@ -1,3 +1,9 @@
+## [20.15.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.15.0...nx-python-v20.15.1) (2025-05-07)
+
+### Bug Fixes
+
+- **nx-python:** check if hatch package exists before include ([#307](https://github.com/lucasvieirasilva/nx-plugins/issues/307)) ([5572feb](https://github.com/lucasvieirasilva/nx-plugins/commit/5572feb965d2bd7db66e7dd8e99732365125a3b7))
+
 # [20.15.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.14.0...nx-python-v20.15.0) (2025-05-07)
 
 ### Features
