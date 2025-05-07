@@ -9,18 +9,22 @@ export function includeDependencyPackage(
   buildTomlData: UVPyprojectToml,
   workspaceRoot: string,
 ) {
+  buildTomlData.tool ??= {};
+  buildTomlData.tool.hatch ??= {};
+  buildTomlData.tool.hatch.build ??= {};
+  buildTomlData.tool.hatch.build.targets ??= {};
+  buildTomlData.tool.hatch.build.targets.wheel ??= {
+    packages: [],
+  };
+
+  const packages = buildTomlData.tool.hatch.build.targets.wheel.packages;
   for (const pkg of projectData.tool?.hatch?.build?.targets?.wheel?.packages ??
     []) {
     const pkgFolder = join(workspaceRoot, projectRoot, pkg);
     copySync(pkgFolder, join(buildFolderPath, pkg));
 
-    buildTomlData.tool ??= {};
-    buildTomlData.tool.hatch ??= {};
-    buildTomlData.tool.hatch.build ??= {};
-    buildTomlData.tool.hatch.build.targets ??= {};
-    buildTomlData.tool.hatch.build.targets.wheel ??= {
-      packages: [],
-    };
-    buildTomlData.tool.hatch.build.targets.wheel.packages.push(pkg);
+    if (!packages.includes(pkg)) {
+      packages.push(pkg);
+    }
   }
 }
