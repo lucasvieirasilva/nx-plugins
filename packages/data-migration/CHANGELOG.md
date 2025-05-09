@@ -1,3 +1,14 @@
+# [7.0.0](https://github.com/lucasvieirasilva/nx-plugins/compare/data-migration-v6.0.0...data-migration-v7.0.0) (2025-05-09)
+
+### Features
+
+- **nx-plugin:** add support for nx 21 ([#308](https://github.com/lucasvieirasilva/nx-plugins/issues/308)) ([e76fc8c](https://github.com/lucasvieirasilva/nx-plugins/commit/e76fc8c8a7671fb50567bd479a86bcce9e875bde)), closes [#304](https://github.com/lucasvieirasilva/nx-plugins/issues/304)
+
+### BREAKING CHANGES
+
+- **nx-plugin:** To use this version of the @nxlv/python plugin, you must migrate your nx workspace
+  to 21.x
+
 # [6.0.0](https://github.com/lucasvieirasilva/nx-plugins/compare/data-migration-v5.0.0...data-migration-v6.0.0) (2024-11-20)
 
 ### Features
