@@ -210,6 +210,27 @@ export function addFiles(
   }
 }
 
+export async function updateNxReleaseConfig(
+  options: Pick<BaseNormalizedSchema, 'useNxReleaseLegacyVersioning'>,
+  projectConfiguration: ProjectConfiguration,
+) {
+  if (options.useNxReleaseLegacyVersioning) {
+    projectConfiguration.release = {
+      version: {
+        generator: '@nxlv/python:release-version',
+      },
+    };
+  } else {
+    projectConfiguration.release = {
+      version: {
+        versionActions: '@nxlv/python/src/release/version-actions',
+      },
+    };
+  }
+
+  return projectConfiguration;
+}
+
 export async function getDefaultPythonProjectTargets(
   options: BaseNormalizedSchema,
   provider: BaseProvider,

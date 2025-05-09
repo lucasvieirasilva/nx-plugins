@@ -54,18 +54,19 @@ export class UVProvider extends BaseProvider {
   protected _rootLockfile: UVLockfile;
 
   constructor(workspaceRoot: string, logger: Logger, tree?: Tree) {
-    const uvLockPath = joinPathFragments(workspaceRoot, 'uv.lock');
+    const lockFileName = 'uv.lock';
+    const uvLockPath = joinPathFragments(workspaceRoot, lockFileName);
     const isWorkspace = tree
       ? tree.exists(uvLockPath)
       : fs.existsSync(uvLockPath);
 
-    super(workspaceRoot, logger, isWorkspace, tree);
+    super(workspaceRoot, logger, isWorkspace, lockFileName, tree);
   }
 
   private get rootLockfile(): UVLockfile {
     if (!this._rootLockfile) {
       this._rootLockfile = getUvLockfile(
-        joinPathFragments(this.workspaceRoot, 'uv.lock'),
+        joinPathFragments(this.workspaceRoot, this.lockFileName),
         this.tree,
       );
     }
@@ -770,7 +771,15 @@ export class UVProvider extends BaseProvider {
       return;
     }
 
-    deps.push({ name: depProjectName, category });
+    const pyprojectToml = getPyprojectData<UVPyprojectToml>(
+      joinPathFragments(projects[depProjectName].root, 'pyproject.toml'),
+    );
+
+    deps.push({
+      name: depProjectName,
+      category,
+      version: pyprojectToml.project?.version,
+    });
   }
 
   private appendIndividualDependencyToDeps(
@@ -799,7 +808,15 @@ export class UVProvider extends BaseProvider {
       return;
     }
 
-    deps.push({ name: depProjectName, category });
+    const pyprojectToml = getPyprojectData<UVPyprojectToml>(
+      joinPathFragments(projects[depProjectName].root, 'pyproject.toml'),
+    );
+
+    deps.push({
+      name: depProjectName,
+      category,
+      version: pyprojectToml.project?.version,
+    });
   }
 
   private getProjectRoot(context: ExecutorContext) {

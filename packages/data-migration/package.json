@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "tslib": "^2.3.0",
-    "@nx/devkit": "^20.0.0",
+    "@nx/devkit": "^21.0.0",
     "glob": "^10.2.6",
     "@aws-sdk/client-dynamodb": "^3.525.0",
     "@aws-sdk/client-dynamodb-streams": "^3.525.0",

@@ -31,6 +31,7 @@ describe('application generator', () => {
     codeCoverageHtmlReport: false,
     codeCoverageXmlReport: false,
     projectNameAndRootFormat: 'derived',
+    useNxReleaseLegacyVersioning: true,
   };
 
   beforeEach(() => {
@@ -113,6 +114,33 @@ describe('application generator', () => {
 
   it('should run successfully with minimal options', async () => {
     const callbackTask = await generator(appTree, options);
+    await callbackTask();
+    const config = readProjectConfiguration(appTree, 'test');
+    expect(config).toMatchSnapshot();
+
+    const projectDirectory = 'apps/test';
+    const moduleName = 'test';
+
+    assertGeneratedFilesBase(appTree, projectDirectory, moduleName);
+
+    expect(appTree.exists(`${projectDirectory}/.flake8`)).toBeFalsy();
+    expect(
+      appTree.exists(`${projectDirectory}/tests/test_hello.py`),
+    ).toBeFalsy();
+
+    expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
+
+    expect(spawn.sync).toHaveBeenCalledTimes(1);
+    expect(spawn.sync).toHaveBeenNthCalledWith(1, 'python', ['--version'], {
+      stdio: 'pipe',
+    });
+  });
+
+  it('should run successfully with minimal options (new release versioning)', async () => {
+    const callbackTask = await generator(appTree, {
+      ...options,
+      useNxReleaseLegacyVersioning: false,
+    });
     await callbackTask();
     const config = readProjectConfiguration(appTree, 'test');
     expect(config).toMatchSnapshot();

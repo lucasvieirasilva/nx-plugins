@@ -38,6 +38,37 @@ describe('nx-python enable-releases', () => {
     });
   });
 
+  it('should add release version generator (legacy versioning)', async () => {
+    await projectGenerator(appTree, {
+      name: 'proj1',
+      projectType: 'application',
+      pyprojectPythonDependency: '',
+      pyenvPythonVersion: '',
+      publishable: false,
+      buildLockedVersions: false,
+      buildBundleLocalDependencies: false,
+      linter: 'none',
+      unitTestRunner: 'none',
+      rootPyprojectDependencyGroup: 'main',
+      unitTestHtmlReport: false,
+      unitTestJUnitReport: false,
+      codeCoverage: false,
+      codeCoverageHtmlReport: false,
+      codeCoverageXmlReport: false,
+      projectNameAndRootFormat: 'derived',
+    });
+
+    await generator(appTree, {
+      useNxReleaseLegacyVersioning: true,
+    });
+
+    expect(readJson(appTree, 'proj1/project.json').release).toEqual({
+      version: {
+        generator: '@nxlv/python:release-version',
+      },
+    });
+  });
+
   it('should add release version generator', async () => {
     await projectGenerator(appTree, {
       name: 'proj1',
@@ -58,11 +89,13 @@ describe('nx-python enable-releases', () => {
       projectNameAndRootFormat: 'derived',
     });
 
-    await generator(appTree);
+    await generator(appTree, {
+      useNxReleaseLegacyVersioning: false,
+    });
 
     expect(readJson(appTree, 'proj1/project.json').release).toEqual({
       version: {
-        generator: '@nxlv/python:release-version',
+        versionActions: '@nxlv/python/src/release/version-actions',
       },
     });
   });

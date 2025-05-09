@@ -16,9 +16,11 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('dynamoose', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('dynamoose')>();
+  const actual = await importOriginal<{
+    default: typeof import('dynamoose');
+  }>();
   return {
-    ...actual,
+    ...actual.default,
     model: vi.fn(() => ({ ...mocks })),
     Table: {
       defaults: mocks.defaults,
