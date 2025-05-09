@@ -3,6 +3,12 @@
   "$id": "NxEnableReleases",
   "title": "Enable Releases for Python projects",
   "type": "object",
-  "properties": {},
+  "properties": {
+    "useNxReleaseLegacyVersioning": {
+      "type": "boolean",
+      "description": "Use legacy versioning for nx-release",
+      "default": true
+    }
+  },
   "required": []
 }

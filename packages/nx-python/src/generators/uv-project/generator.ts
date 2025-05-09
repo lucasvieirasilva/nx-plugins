@@ -16,6 +16,7 @@ import {
   normalizeOptions as baseNormalizeOptions,
   getDefaultPythonProjectTargets,
   getPyprojectTomlByProjectName,
+  updateNxReleaseConfig,
 } from '../utils';
 import {
   BaseNormalizedSchema,
@@ -275,11 +276,7 @@ export default async function (
     };
   }
 
-  projectConfiguration.release = {
-    version: {
-      generator: '@nxlv/python:release-version',
-    },
-  };
+  updateNxReleaseConfig(normalizedOptions, projectConfiguration);
 
   addProjectConfiguration(
     tree,

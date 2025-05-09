@@ -100,6 +100,7 @@ describe('release-version', () => {
             "dependentProjects": [
               {
                 "dependencyCollection": "dependencies",
+                "groupKey": undefined,
                 "rawVersionSpec": "0.0.1",
                 "source": "project-with-dependency-on-my-pkg",
                 "target": "my-lib",
@@ -107,6 +108,7 @@ describe('release-version', () => {
               },
               {
                 "dependencyCollection": "devDependencies",
+                "groupKey": undefined,
                 "rawVersionSpec": "0.0.1",
                 "source": "project-with-devDependency-on-my-pkg",
                 "target": "my-lib",
@@ -684,6 +686,7 @@ To fix this you will either need to add a pyproject.toml file at that location, 
               currentVersionResolver: 'disk',
               specifierSource: 'prompt',
               releaseGroup: createReleaseGroup('independent'),
+              updateDependents: 'never',
             });
 
             expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
@@ -1911,6 +1914,7 @@ Valid values are: "auto", "", "~", "^", "="`,
                 "dependentProjects": [
                   {
                     "dependencyCollection": "dependencies",
+                    "groupKey": undefined,
                     "rawVersionSpec": "0.0.1",
                     "source": "project-with-dependency-on-my-lib",
                     "target": "my-lib",
@@ -2194,6 +2198,7 @@ Valid values are: "auto", "", "~", "^", "="`,
                 "dependentProjects": [
                   {
                     "dependencyCollection": "dependencies",
+                    "groupKey": undefined,
                     "rawVersionSpec": "1.0.0",
                     "source": "package-b",
                     "target": "package-a",
@@ -2207,6 +2212,7 @@ Valid values are: "auto", "", "~", "^", "="`,
                 "dependentProjects": [
                   {
                     "dependencyCollection": "dependencies",
+                    "groupKey": undefined,
                     "rawVersionSpec": "1.0.0",
                     "source": "package-a",
                     "target": "package-b",
@@ -2314,6 +2320,7 @@ Valid values are: "auto", "", "~", "^", "="`,
                 "dependentProjects": [
                   {
                     "dependencyCollection": "dependencies",
+                    "groupKey": undefined,
                     "rawVersionSpec": "1.0.0",
                     "source": "package-b",
                     "target": "package-a",
@@ -2437,6 +2444,7 @@ Valid values are: "auto", "", "~", "^", "="`,
                 "dependentProjects": [
                   {
                     "dependencyCollection": "dependencies",
+                    "groupKey": undefined,
                     "rawVersionSpec": "1.0.0",
                     "source": "package-b",
                     "target": "package-a",
@@ -2450,6 +2458,7 @@ Valid values are: "auto", "", "~", "^", "="`,
                 "dependentProjects": [
                   {
                     "dependencyCollection": "dependencies",
+                    "groupKey": undefined,
                     "rawVersionSpec": "1.0.0",
                     "source": "package-a",
                     "target": "package-b",
@@ -2567,6 +2576,7 @@ Valid values are: "auto", "", "~", "^", "="`,
             "dependentProjects": [
               {
                 "dependencyCollection": "dependencies",
+                "groupKey": undefined,
                 "rawVersionSpec": "0.0.1",
                 "source": "project-with-dependency-on-my-pkg",
                 "target": "my-lib",
@@ -2574,6 +2584,7 @@ Valid values are: "auto", "", "~", "^", "="`,
               },
               {
                 "dependencyCollection": "devDependencies",
+                "groupKey": undefined,
                 "rawVersionSpec": "0.0.1",
                 "source": "project-with-devDependency-on-my-pkg",
                 "target": "my-lib",
@@ -3118,6 +3129,7 @@ To fix this you will either need to add a pyproject.toml file at that location, 
               currentVersionResolver: 'disk',
               specifierSource: 'prompt',
               releaseGroup: createReleaseGroup('independent'),
+              updateDependents: 'never',
             });
 
             expect(readPyprojectToml(tree, 'libs/my-lib/pyproject.toml'))
@@ -4453,6 +4465,7 @@ Valid values are: "auto", "", "~", "^", "="`,
                 "dependentProjects": [
                   {
                     "dependencyCollection": "dependencies",
+                    "groupKey": undefined,
                     "rawVersionSpec": "0.0.1",
                     "source": "project-with-dependency-on-my-lib",
                     "target": "my-lib",
@@ -4769,6 +4782,7 @@ Valid values are: "auto", "", "~", "^", "="`,
                 "dependentProjects": [
                   {
                     "dependencyCollection": "dependencies",
+                    "groupKey": undefined,
                     "rawVersionSpec": "1.0.0",
                     "source": "package-b",
                     "target": "package-a",
@@ -4782,6 +4796,7 @@ Valid values are: "auto", "", "~", "^", "="`,
                 "dependentProjects": [
                   {
                     "dependencyCollection": "dependencies",
+                    "groupKey": undefined,
                     "rawVersionSpec": "1.0.0",
                     "source": "package-a",
                     "target": "package-b",
@@ -4905,6 +4920,7 @@ Valid values are: "auto", "", "~", "^", "="`,
                 "dependentProjects": [
                   {
                     "dependencyCollection": "dependencies",
+                    "groupKey": undefined,
                     "rawVersionSpec": "1.0.0",
                     "source": "package-b",
                     "target": "package-a",
@@ -5044,6 +5060,7 @@ Valid values are: "auto", "", "~", "^", "="`,
                 "dependentProjects": [
                   {
                     "dependencyCollection": "dependencies",
+                    "groupKey": undefined,
                     "rawVersionSpec": "1.0.0",
                     "source": "package-b",
                     "target": "package-a",
@@ -5057,6 +5074,7 @@ Valid values are: "auto", "", "~", "^", "="`,
                 "dependentProjects": [
                   {
                     "dependencyCollection": "dependencies",
+                    "groupKey": undefined,
                     "rawVersionSpec": "1.0.0",
                     "source": "package-a",
                     "target": "package-b",

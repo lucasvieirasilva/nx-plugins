@@ -32,6 +32,7 @@ describe('application generator', () => {
     codeCoverageHtmlReport: false,
     codeCoverageXmlReport: false,
     projectNameAndRootFormat: 'derived',
+    useNxReleaseLegacyVersioning: true,
   };
 
   beforeEach(() => {
@@ -467,6 +468,41 @@ describe('application generator', () => {
         'libs/shared/dev-lib',
         'shared_dev_lib',
       );
+    });
+
+    it('should run successfully minimal configuration (legacy versioning)', async () => {
+      await generator(appTree, options);
+      const config = readProjectConfiguration(appTree, 'test');
+      expect(config).toMatchSnapshot();
+
+      const projectDirectory = 'apps/test';
+      const moduleName = 'test';
+
+      assertGeneratedFilesBase(appTree, projectDirectory, moduleName);
+
+      expect(appTree.exists(`${projectDirectory}/.flake8`)).toBeFalsy();
+      expect(
+        appTree.exists(`${projectDirectory}/tests/test_hello.py`),
+      ).toBeFalsy();
+    });
+
+    it('should run successfully minimal configuration (new release versioning)', async () => {
+      await generator(appTree, {
+        ...options,
+        useNxReleaseLegacyVersioning: false,
+      });
+      const config = readProjectConfiguration(appTree, 'test');
+      expect(config).toMatchSnapshot();
+
+      const projectDirectory = 'apps/test';
+      const moduleName = 'test';
+
+      assertGeneratedFilesBase(appTree, projectDirectory, moduleName);
+
+      expect(appTree.exists(`${projectDirectory}/.flake8`)).toBeFalsy();
+      expect(
+        appTree.exists(`${projectDirectory}/tests/test_hello.py`),
+      ).toBeFalsy();
     });
   });
 

@@ -16,6 +16,7 @@ import chalk from 'chalk';
 export type Dependency = {
   name: string;
   category: string;
+  version: string;
 };
 
 export type PackageDependency = {
@@ -42,7 +43,8 @@ export abstract class BaseProvider {
   constructor(
     protected readonly workspaceRoot: string,
     protected readonly logger: Logger,
-    protected readonly isWorkspace: boolean,
+    public readonly isWorkspace: boolean,
+    public readonly lockFileName: string,
     protected readonly tree?: Tree,
   ) {}
 

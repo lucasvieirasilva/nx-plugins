@@ -21,9 +21,10 @@
     "cross-spawn": "^7.0.3",
     "command-exists": "^1.2.9",
     "lodash": "^4.17.21",
-    "@nx/devkit": "^20.0.0",
+    "@nx/devkit": "^21.0.0",
     "ora": "5.3.0",
-    "semver": "^7.5.3"
+    "semver": "^7.5.3",
+    "enquirer": "^2.3.6"
   },
   "nx-migrations": {
     "migrations": "./migrations.json"

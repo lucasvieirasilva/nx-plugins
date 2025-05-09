@@ -71,7 +71,7 @@ export class PoetryProvider extends BaseProvider {
       ? tree.exists(joinPathFragments(workspaceRoot, 'pyproject.toml'))
       : fs.existsSync(joinPathFragments(workspaceRoot, 'pyproject.toml'));
 
-    super(workspaceRoot, logger, isWorkspace, tree);
+    super(workspaceRoot, logger, isWorkspace, 'poetry.lock', tree);
   }
 
   public async checkPrerequisites(): Promise<void> {
@@ -956,7 +956,14 @@ export class PoetryProvider extends BaseProvider {
         );
 
         if (depProjectName) {
-          deps.push({ name: depProjectName, category });
+          const pyprojectToml = getPyprojectData<PoetryPyprojectToml>(
+            joinPathFragments(projects[depProjectName].root, 'pyproject.toml'),
+          );
+          deps.push({
+            name: depProjectName,
+            category,
+            version: pyprojectToml.tool?.poetry?.version,
+          });
         }
       }
     }

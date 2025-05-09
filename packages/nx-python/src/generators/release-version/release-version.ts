@@ -9,6 +9,7 @@ import {
   readJson,
 } from '@nx/devkit';
 import chalk from 'chalk';
+import { prompt } from 'enquirer';
 import { exec } from 'node:child_process';
 import { rm } from 'node:fs/promises';
 import { IMPLICIT_DEFAULT_RELEASE_GROUP } from 'nx/src/command-line/release/config/config';
@@ -30,7 +31,7 @@ import {
   VersionData,
   deriveNewSemverVersion,
   validReleaseVersionPrefixes,
-} from 'nx/src/command-line/release/version';
+} from 'nx/src/command-line/release/version-legacy';
 import { interpolate } from 'nx/src/tasks-runner/utils';
 import ora from 'ora';
 import { ReleaseType, gt, inc, prerelease } from 'semver';
@@ -43,6 +44,14 @@ import { sortProjectsTopologically } from './utils/sort-projects-topologically';
 import path, { dirname } from 'node:path';
 import { getProvider } from '../../provider';
 import { PluginOptions } from '../../types';
+
+function resolvePreIdSpecifier(currentSpecifier: string, preid?: string) {
+  if (!currentSpecifier.startsWith('pre') && preid) {
+    return `pre${currentSpecifier}`;
+  }
+
+  return currentSpecifier;
+}
 
 export async function releaseVersionGenerator(
   tree: Tree,
@@ -99,13 +108,16 @@ Valid values are: ${validReleaseVersionPrefixes
     }
 
     // Set default for updateDependents
-    const updateDependents = options.updateDependents ?? 'never';
-    const updateDependentsBump = 'patch';
+    const updateDependents = options.updateDependents ?? 'auto';
+    const updateDependentsBump = resolvePreIdSpecifier(
+      'patch',
+      options.preid,
+    ) as ReleaseType;
 
     // Sort the projects topologically if update dependents is enabled
-    // TODO: maybe move this sorting to the command level?
     const projects =
-      updateDependents === 'never'
+      updateDependents === 'never' ||
+      options.releaseGroup.projectsRelationship !== 'independent'
         ? options.projects
         : sortProjectsTopologically(options.projectGraph, options.projects);
     const projectToDependencyBumps = new Map<string, Set<unknown>>();
@@ -223,14 +235,29 @@ To fix this you will either need to add a pyproject.toml file at that location, 
               spinner.stop();
 
               if (options.fallbackCurrentVersionResolver === 'disk') {
-                logger.buffer(
-                  `📄 Unable to resolve the current version from pip registry. Falling back to the version on disk of ${currentVersionFromDisk}`,
-                );
-                currentVersion = currentVersionFromDisk;
-                currentVersionResolvedFromFallback = true;
+                if (
+                  !currentVersionFromDisk &&
+                  (options.specifierSource === 'conventional-commits' ||
+                    options.specifierSource === 'version-plans')
+                ) {
+                  currentVersion = await handleNoAvailableDiskFallback({
+                    logger,
+                    projectName,
+                    pyprojectTomlPath,
+                    specifierSource: options.specifierSource,
+                    currentVersionSourceMessage: `from the pip registry`,
+                    resolutionSuggestion: `you should publish an initial version to the registry`,
+                  });
+                } else {
+                  logger.buffer(
+                    `📄 Unable to resolve the current version from the pip registry. Falling back to the version on disk of ${currentVersionFromDisk}`,
+                  );
+                  currentVersion = currentVersionFromDisk;
+                  currentVersionResolvedFromFallback = true;
+                }
               } else {
                 throw new Error(
-                  `Unable to resolve the current version from pip registry. Please ensure that the package exists in the registry in order to use the "registry" currentVersionResolver. Alternatively, you can use the --first-release option or set "release.version.generatorOptions.fallbackCurrentVersionResolver" to "disk" in order to fallback to the version on disk when the registry lookup fails.`,
+                  `Unable to resolve the current version from the pip registry. Please ensure that the package exists in the registry in order to use the "registry" currentVersionResolver. Alternatively, you can use the --first-release option or set "release.version.generatorOptions.fallbackCurrentVersionResolver" to "disk" in order to fallback to the version on disk when the registry lookup fails.`,
                 );
               }
             }
@@ -251,7 +278,7 @@ To fix this you will either need to add a pyproject.toml file at that location, 
           currentVersion = currentVersionFromDisk;
           if (!currentVersion) {
             throw new Error(
-              `Unable to determine the current version for project "${project.name}" from ${pyprojectTomlPath}`,
+              `Unable to determine the current version for project "${project.name}" from ${pyprojectTomlPath}, please ensure that the "version" field is set within the file`,
             );
           }
           logger.buffer(
@@ -270,14 +297,30 @@ To fix this you will either need to add a pyproject.toml file at that location, 
               {
                 projectName: project.name,
               },
+              options.releaseGroup.releaseTagPatternCheckAllBranchesWhen,
             );
             if (!latestMatchingGitTag) {
               if (options.fallbackCurrentVersionResolver === 'disk') {
-                logger.buffer(
-                  `📄 Unable to resolve the current version from git tag using pattern "${releaseTagPattern}". Falling back to the version on disk of ${currentVersionFromDisk}`,
-                );
-                currentVersion = currentVersionFromDisk;
-                currentVersionResolvedFromFallback = true;
+                if (
+                  !currentVersionFromDisk &&
+                  (options.specifierSource === 'conventional-commits' ||
+                    options.specifierSource === 'version-plans')
+                ) {
+                  currentVersion = await handleNoAvailableDiskFallback({
+                    logger,
+                    projectName,
+                    pyprojectTomlPath,
+                    specifierSource: options.specifierSource,
+                    currentVersionSourceMessage: `from git tag using pattern "${releaseTagPattern}"`,
+                    resolutionSuggestion: `you should set an initial git tag on a relevant commit`,
+                  });
+                } else {
+                  logger.buffer(
+                    `📄 Unable to resolve the current version from git tag using pattern "${releaseTagPattern}". Falling back to the version on disk of ${currentVersionFromDisk}`,
+                  );
+                  currentVersion = currentVersionFromDisk;
+                  currentVersionResolvedFromFallback = true;
+                }
               } else {
                 throw new Error(
                   `No git tags matching pattern "${releaseTagPattern}" for project "${project.name}" were found. You will need to create an initial matching tag to use as a base for determining the next version. Alternatively, you can use the --first-release option or set "release.version.generatorOptions.fallbackCurrentVersionResolver" to "disk" in order to fallback to the version on disk when no matching git tags are found.`,
@@ -298,7 +341,7 @@ To fix this you will either need to add a pyproject.toml file at that location, 
               logger.buffer(
                 // In this code path we know that latestMatchingGitTag is defined, because we are not relying on the fallbackCurrentVersionResolver, so we can safely use the non-null assertion operator
                 `📄 Using the current version ${currentVersion} already resolved from git tag "${
-                  latestMatchingGitTag.tag
+                  latestMatchingGitTag?.tag
                 }".`,
               );
             }
@@ -375,6 +418,7 @@ To fix this you will either need to add a pyproject.toml file at that location, 
             if (!specifier) {
               if (
                 updateDependents !== 'never' &&
+                options.releaseGroup.projectsRelationship === 'independent' &&
                 projectToDependencyBumps.has(projectName)
               ) {
                 // No applicable changes to the project directly by the user, but one or more dependencies have been bumped and updateDependents is enabled
@@ -390,8 +434,6 @@ To fix this you will either need to add a pyproject.toml file at that location, 
               break;
             }
 
-            // TODO: reevaluate this prerelease logic/workflow for independent projects
-            //
             // Always assume that if the current version is a prerelease, then the next version should be a prerelease.
             // Users must manually graduate from a prerelease to a release by providing an explicit specifier.
             if (prerelease(currentVersion ?? '')) {
@@ -401,8 +443,13 @@ To fix this you will either need to add a pyproject.toml file at that location, 
               );
             } else {
               let extraText = '';
-              if (options.preid && !specifier.startsWith('pre')) {
-                specifier = `pre${specifier}`;
+              const prereleaseSpecifier = resolvePreIdSpecifier(
+                specifier,
+                options.preid,
+              );
+
+              if (prereleaseSpecifier !== specifier) {
+                specifier = prereleaseSpecifier;
                 extraText = `, combined with your given preid "${options.preid}"`;
               }
               logger.buffer(
@@ -499,6 +546,7 @@ To fix this you will either need to add a pyproject.toml file at that location, 
             if (!specifier) {
               if (
                 updateDependents !== 'never' &&
+                options.releaseGroup.projectsRelationship === 'independent' &&
                 projectToDependencyBumps.has(projectName)
               ) {
                 // No applicable changes to the project directly by the user, but one or more dependencies have been bumped and updateDependents is enabled
@@ -553,13 +601,16 @@ To fix this you will either need to add a pyproject.toml file at that location, 
         options.releaseGroup.projectsRelationship === 'independent',
       );
 
+      // list of projects that depend on the current package
       const allDependentProjects = Object.values(localPackageDependencies)
         .flat()
         .filter((localPackageDependency) => {
-          return localPackageDependency.target === project.name;
+          return localPackageDependency.target === projectName;
         });
 
-      const includeTransitiveDependents = updateDependents === 'auto';
+      const includeTransitiveDependents =
+        updateDependents !== 'never' &&
+        options.releaseGroup.projectsRelationship === 'independent';
       const transitiveLocalPackageDependents: LocalPackageDependency[] = [];
       if (includeTransitiveDependents) {
         for (const directDependent of allDependentProjects) {
@@ -578,10 +629,14 @@ To fix this you will either need to add a pyproject.toml file at that location, 
       const dependentProjectsOutsideCurrentBatch = [];
       // Track circular dependencies using value of project1:project2
       const circularDependencies = new Set<string>();
+      const projectsDependOnCurrentProject =
+        localPackageDependencies[projectName]?.map(
+          (localPackageDependencies) => localPackageDependencies.target,
+        ) ?? [];
 
       for (const dependentProject of allDependentProjects) {
         // Track circular dependencies (add both directions for easy look up)
-        if (dependentProject.target === projectName) {
+        if (projectsDependOnCurrentProject.includes(dependentProject.source)) {
           circularDependencies.add(
             `${dependentProject.source}:${dependentProject.target}`,
           );
@@ -614,7 +669,10 @@ To fix this you will either need to add a pyproject.toml file at that location, 
       }
 
       // If not always updating dependents (when they don't already appear in the batch itself), print a warning to the user about what is being skipped and how to change it
-      if (updateDependents === 'never') {
+      if (
+        updateDependents === 'never' ||
+        options.releaseGroup.projectsRelationship !== 'independent'
+      ) {
         if (dependentProjectsOutsideCurrentBatch.length > 0) {
           let logMsg = `⚠️  Warning, the following packages depend on "${project.name}"`;
           const reason =
@@ -632,7 +690,7 @@ To fix this you will either need to add a pyproject.toml file at that location, 
           logMsg += `\n${dependentProjectsOutsideCurrentBatch
             .map((dependentProject) => `${indent}- ${dependentProject.source}`)
             .join('\n')}`;
-          logMsg += `\n${indent}=> You can adjust this behavior by setting \`version.generatorOptions.updateDependents\` to "auto"`;
+          logMsg += `\n${indent}=> You can adjust this behavior by removing the usage of \`version.generatorOptions.updateDependents\` with "never"`;
           logger.buffer(logMsg);
         }
       }
@@ -647,11 +705,10 @@ To fix this you will either need to add a pyproject.toml file at that location, 
         currentVersion,
         newVersion: null, // will stay as null in the final result in the case that no changes are detected
         dependentProjects:
-          updateDependents === 'auto'
-            ? allDependentProjects.map(({ groupKey, ...rest }) => rest)
-            : dependentProjectsInCurrentBatch.map(
-                ({ groupKey, ...rest }) => rest,
-              ),
+          updateDependents === 'auto' &&
+          options.releaseGroup.projectsRelationship === 'independent'
+            ? allDependentProjects
+            : dependentProjectsInCurrentBatch,
       };
 
       if (!specifier) {
@@ -682,9 +739,16 @@ To fix this you will either need to add a pyproject.toml file at that location, 
 
       if (allDependentProjects.length > 0) {
         const totalProjectsToUpdate =
-          updateDependents === 'auto'
+          updateDependents === 'auto' &&
+          options.releaseGroup.projectsRelationship === 'independent'
             ? allDependentProjects.length +
-              transitiveLocalPackageDependents.length -
+              // Only count transitive dependents that aren't already direct dependents
+              transitiveLocalPackageDependents.filter(
+                (transitive) =>
+                  !allDependentProjects.some(
+                    (direct) => direct.source === transitive.source,
+                  ),
+              ).length -
               // There are two entries per circular dep
               circularDependencies.size / 2
             : dependentProjectsInCurrentBatch.length;
@@ -706,7 +770,7 @@ To fix this you will either need to add a pyproject.toml file at that location, 
       }: {
         dependentProject: LocalPackageDependency;
         dependencyPackageName: string;
-        forceVersionBump: 'major' | 'minor' | 'patch' | false;
+        forceVersionBump: ReleaseType | false;
       }) => {
         updatedProjects.push(
           projectNameToPackageRootMap.get(dependentProject.source),
@@ -802,7 +866,10 @@ To fix this you will either need to add a pyproject.toml file at that location, 
         });
       }
 
-      if (updateDependents === 'auto') {
+      if (
+        updateDependents === 'auto' &&
+        options.releaseGroup.projectsRelationship === 'independent'
+      ) {
         for (const dependentProject of dependentProjectsOutsideCurrentBatch) {
           if (
             options.specifierSource === 'version-plans' &&
@@ -828,6 +895,33 @@ To fix this you will either need to add a pyproject.toml file at that location, 
         }
       }
       for (const transitiveDependentProject of transitiveLocalPackageDependents) {
+        const isAlreadyDirectDependent = allDependentProjects.some(
+          (dep) => dep.source === transitiveDependentProject.source,
+        );
+        if (isAlreadyDirectDependent) {
+          // Don't continue directly in this scenario - we still need to update the dependency version
+          // but we don't want to bump the project's own version as it will end up being double patched
+          const dependencyProjectName = transitiveDependentProject.target;
+          const dependencyPackageRoot = projectNameToPackageRootMap.get(
+            dependencyProjectName,
+          );
+          if (!dependencyPackageRoot) {
+            throw new Error(
+              `The project "${dependencyProjectName}" does not have a packageRoot available. Please report this issue on https://github.com/nrwl/nx`,
+            );
+          }
+          const { name: dependencyPackageName } = provider.getMetadata(
+            dependencyPackageRoot,
+          );
+
+          updateDependentProjectAndAddToVersionData({
+            dependentProject: transitiveDependentProject,
+            dependencyPackageName,
+            forceVersionBump: false, // Never bump version for direct dependents
+          });
+          continue;
+        }
+
         // Check if the transitive dependent originates from a circular dependency
         const isFromCircularDependency = circularDependencies.has(
           `${transitiveDependentProject.source}:${transitiveDependentProject.target}`,
@@ -841,11 +935,13 @@ To fix this you will either need to add a pyproject.toml file at that location, 
             `The project "${dependencyProjectName}" does not have a packageRoot available. Please report this issue on https://github.com/nrwl/nx`,
           );
         }
-        const dependencyMetadata = provider.getMetadata(dependencyPackageRoot);
+        const { name: dependencyPackageName } = provider.getMetadata(
+          dependencyPackageRoot,
+        );
 
         updateDependentProjectAndAddToVersionData({
           dependentProject: transitiveDependentProject,
-          dependencyPackageName: dependencyMetadata.name,
+          dependencyPackageName,
           /**
            * For these additional dependents, we need to update their package.json version as well because we know they will not come later in the topologically sorted projects loop.
            * The one exception being if the dependent is part of a circular dependency, in which case we don't want to force a version bump as this would come in addition to the one
@@ -998,5 +1094,60 @@ class ProjectLogger {
     this.logs.forEach((msg) => {
       console.log(this.color.instance.bold(this.projectName) + ' ' + msg);
     });
+  }
+}
+
+/**
+ * Allow users to be unblocked when locally running releases for the very first time with certain combinations that require an initial
+ * version in order to function (e.g. a relative semver bump derived via conventional commits or version plans) by providing an interactive
+ * prompt to let them opt into using 0.0.0 as the implied current version.
+ */
+async function handleNoAvailableDiskFallback({
+  logger,
+  projectName,
+  pyprojectTomlPath,
+  specifierSource,
+  currentVersionSourceMessage,
+  resolutionSuggestion,
+}: {
+  logger: ProjectLogger;
+  projectName: string;
+  pyprojectTomlPath: string;
+  specifierSource: Exclude<
+    PythonReleaseVersionGeneratorSchema['specifierSource'],
+    'prompt'
+  >;
+  currentVersionSourceMessage: string;
+  resolutionSuggestion: string;
+}): Promise<string> {
+  const unresolvableCurrentVersionError = new Error(
+    `Unable to resolve the current version ${currentVersionSourceMessage} and there is no version on disk to fall back to. This is invalid with ${specifierSource} because the new version is determined by relatively bumping the current version. To resolve this, ${resolutionSuggestion}, or set an appropriate value for "version" in ${pyprojectTomlPath}`,
+  );
+  if (process.env.CI === 'true') {
+    // We can't prompt in CI, so error immediately
+    throw unresolvableCurrentVersionError;
+  }
+  try {
+    const reply = await prompt<{ useZero: boolean }>([
+      {
+        name: 'useZero',
+        message: `\n${chalk.yellow(
+          `Warning: Unable to resolve the current version for "${projectName}" ${currentVersionSourceMessage} and there is no version on disk to fall back to. This is invalid with ${specifierSource} because the new version is determined by relatively bumping the current version.\n\nTo resolve this, ${resolutionSuggestion}, or set an appropriate value for "version" in ${pyprojectTomlPath}`,
+        )}. \n\nAlternatively, would you like to continue now by using 0.0.0 as the current version?`,
+        type: 'confirm',
+        initial: false,
+      },
+    ]);
+    if (!reply.useZero) {
+      // Throw any error to skip the fallback to 0.0.0, may as well use the one we already have
+      throw unresolvableCurrentVersionError;
+    }
+    const currentVersion = '0.0.0';
+    logger.buffer(
+      `📄 Forcibly resolved the current version as "${currentVersion}" based on your response to the prompt above.`,
+    );
+    return currentVersion;
+  } catch {
+    throw unresolvableCurrentVersionError;
   }
 }

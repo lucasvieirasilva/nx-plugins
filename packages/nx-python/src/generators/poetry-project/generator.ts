@@ -23,6 +23,7 @@ import {
   normalizeOptions as baseNormalizeOptions,
   getDefaultPythonProjectTargets,
   getPyprojectTomlByProjectName,
+  updateNxReleaseConfig,
 } from '../utils';
 import { DEV_DEPENDENCIES_VERSION_MAP } from '../consts';
 import { BaseProvider } from '../../provider/base';
@@ -244,11 +245,7 @@ export default async function (
     };
   }
 
-  projectConfiguration.release = {
-    version: {
-      generator: '@nxlv/python:release-version',
-    },
-  };
+  updateNxReleaseConfig(normalizedOptions, projectConfiguration);
 
   addProjectConfiguration(
     tree,
