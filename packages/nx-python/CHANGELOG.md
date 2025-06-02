@@ -1,3 +1,9 @@
+## [21.0.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v21.0.0...nx-python-v21.0.1) (2025-06-02)
+
+### Bug Fixes
+
+- **nx-python:** check for the existence of project lock files before processing ([#310](https://github.com/lucasvieirasilva/nx-plugins/issues/310)) ([f46a2a0](https://github.com/lucasvieirasilva/nx-plugins/commit/f46a2a0d111236a05dc7ea69a92a332c8ef8d6c6))
+
 # [21.0.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.15.1...nx-python-v21.0.0) (2025-05-09)
 
 ### Features
