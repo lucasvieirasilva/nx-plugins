@@ -16,7 +16,7 @@ import { PluginOptions } from '../types';
 import { BaseProvider } from '../provider/base';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { existsSync } from 'node:fs';
+import { checkPathExists } from '../utils/path';
 
 let updatedProjects: string[] = [];
 
@@ -62,7 +62,8 @@ export const afterAllProjectsVersioned: AfterAllProjectsVersioned = async (
   const changedFiles: string[] = [];
   for (const project of updatedProjects) {
     const projectLockFile = path.join(project, provider.lockFileName);
-    if (existsSync(projectLockFile)) {
+
+    if (await checkPathExists(projectLockFile)) {
       changedFiles.push(projectLockFile);
 
       if (!opts.dryRun) {
