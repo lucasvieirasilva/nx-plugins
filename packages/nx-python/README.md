@@ -204,6 +204,9 @@ for Nx 20.x or higher, use the following pattern:
 
 **NOTE**: The default package manager is `poetry`, but it's automatically detected if the repository is configured to use `uv` workspaces since the `uv.lock` filw will be present in the root directory.
 
+## 💖 Support
+If you find this project useful, consider [buying me a coffee](https://buymeacoffee.com/lucasvieiradasilva) or sponsoring me via [GitHub Sponsors](https://github.com/sponsors/lucasvieirasilva)!
+
 ### Poetry
 
 #### Add a new Python Project
