@@ -1,3 +1,9 @@
+## [21.0.2](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v21.0.1...nx-python-v21.0.2) (2025-06-06)
+
+### Bug Fixes
+
+- update readme to fix format issues ([d607f1d](https://github.com/lucasvieirasilva/nx-plugins/commit/d607f1dbe7bd72c54181d6d53179c50a5b94bf60))
+
 ## [21.0.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v21.0.0...nx-python-v21.0.1) (2025-06-02)
 
 ### Bug Fixes
