@@ -28,7 +28,7 @@ export default async function executor(
     };
   } catch (error) {
     logger.info(
-      chalk`\n  {bgRed.bold  ERROR } {bold The publish command failed}\n`,
+      chalk`\n  {bgRed.bold  ERROR } {bold The publish command failed}:\n\n  {bold ${error.message}}\n`,
     );
 
     return {
