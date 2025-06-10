@@ -1,3 +1,9 @@
+## [21.0.3](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v21.0.2...nx-python-v21.0.3) (2025-06-10)
+
+### Bug Fixes
+
+- **nx-python:** enhance error logging in publish executor to include error message ([#312](https://github.com/lucasvieirasilva/nx-plugins/issues/312)) ([719c13d](https://github.com/lucasvieirasilva/nx-plugins/commit/719c13db0fd44683bf2bd0f030757b504fdc0dcd))
+
 ## [21.0.2](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v21.0.1...nx-python-v21.0.2) (2025-06-06)
 
 ### Bug Fixes
