@@ -1,3 +1,9 @@
+## [21.0.4](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v21.0.3...nx-python-v21.0.4) (2025-07-18)
+
+### Bug Fixes
+
+- handling of optional dependencies on poetry and uv ([#317](https://github.com/lucasvieirasilva/nx-plugins/issues/317)) ([de722e6](https://github.com/lucasvieirasilva/nx-plugins/commit/de722e620913525b45f0d1aa245d9a6fa6b8afdb))
+
 ## [21.0.3](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v21.0.2...nx-python-v21.0.3) (2025-06-10)
 
 ### Bug Fixes
