@@ -3,6 +3,9 @@ export type UVPyprojectToml = {
     name: string;
     version: string;
     dependencies: string[];
+    'optional-dependencies': {
+      [key: string]: string[];
+    };
   };
   'dependency-groups': {
     [key: string]: string[];

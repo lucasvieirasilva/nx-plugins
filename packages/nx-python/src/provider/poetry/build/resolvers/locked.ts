@@ -12,25 +12,84 @@ import { isWindows } from '../../../../executors/utils/os';
 import { PackageDependency } from '../../../base';
 import { getLoggingTab } from '../../../utils';
 import spawn from 'cross-spawn';
+import { BaseDependencyResolver } from './base';
+import { BuildExecutorSchema } from '../../../../executors/build/schema';
+import { ExecutorContext } from '@nx/devkit';
 
-export class LockedDependencyResolver {
-  constructor(private readonly logger: Logger) {}
+export class LockedDependencyResolver extends BaseDependencyResolver {
+  constructor(
+    logger: Logger,
+    options: BuildExecutorSchema,
+    context: ExecutorContext,
+  ) {
+    super(logger, options, context);
+  }
 
-  public resolve(
+  public apply(
     root: string,
     buildFolderPath: string,
     buildTomlData: PoetryPyprojectToml,
     devDependencies: boolean,
     workspaceRoot: string,
-  ): PackageDependency[] {
+  ): PoetryPyprojectToml {
     this.logger.info(chalk`  Resolving dependencies...`);
-    return this.resolveDependencies(
+
+    const deps = this.resolveDependencies(
       devDependencies,
       root,
       buildFolderPath,
       buildTomlData,
       workspaceRoot,
     );
+
+    const [format, pythonDependency] = buildTomlData.tool?.poetry?.dependencies
+      ?.python
+      ? ['implicit', buildTomlData.tool?.poetry?.dependencies?.python]
+      : ['main', buildTomlData.tool?.poetry?.group?.main?.dependencies?.python];
+
+    buildTomlData.tool.poetry.dependencies = {};
+    buildTomlData.tool.poetry.group = {
+      dev: {
+        dependencies: {},
+      },
+    };
+
+    if (pythonDependency) {
+      if (format === 'implicit') {
+        buildTomlData.tool.poetry.dependencies['python'] = pythonDependency;
+      } else {
+        buildTomlData.tool.poetry.group ??= {};
+        buildTomlData.tool.poetry.group.main ??= { dependencies: {} };
+        buildTomlData.tool.poetry.group.main.dependencies['python'] =
+          pythonDependency;
+      }
+    }
+
+    for (const dep of deps) {
+      const pyprojectDep =
+        dep.markers || dep.optional || dep.extras || dep.git || dep.source
+          ? {
+              version: dep.version,
+              markers: dep.markers,
+              optional: dep.optional,
+              extras: dep.extras,
+              git: dep.git,
+              rev: dep.rev,
+              source: dep.source,
+            }
+          : dep.version;
+
+      if (format === 'implicit') {
+        buildTomlData.tool.poetry.dependencies[dep.name] = pyprojectDep;
+      } else {
+        buildTomlData.tool.poetry.group ??= {};
+        buildTomlData.tool.poetry.group.main ??= { dependencies: {} };
+        buildTomlData.tool.poetry.group.main.dependencies[dep.name] =
+          pyprojectDep;
+      }
+    }
+
+    return buildTomlData;
   }
 
   private resolveDependencies(

@@ -8,63 +8,55 @@ import { createHash } from 'crypto';
 import { PoetryPyprojectToml, PoetryPyprojectTomlSource } from '../../types';
 import { BuildExecutorSchema } from '../../../../executors/build/schema';
 import { Logger } from '../../../../executors/utils/logger';
-import { PackageDependency } from '../../../base';
 import { getLoggingTab } from '../../../utils';
+import { BaseDependencyResolver } from './base';
 
-export class ProjectDependencyResolver {
+export class ProjectDependencyResolver extends BaseDependencyResolver {
   constructor(
-    private readonly logger: Logger,
-    private readonly options: BuildExecutorSchema,
-    private readonly context: ExecutorContext,
+    logger: Logger,
+    options: BuildExecutorSchema,
+    context: ExecutorContext,
   ) {
-    this.logger = logger;
-    this.options = options;
-    this.context = context;
+    super(logger, options, context);
   }
 
-  resolve(
+  apply(
     root: string,
     buildFolderPath: string,
     buildTomlData: PoetryPyprojectToml,
-  ): PackageDependency[] {
+  ): PoetryPyprojectToml {
     this.logger.info(chalk`  Resolving dependencies...`);
-    const pyprojectPath = join(root, 'pyproject.toml');
-    const pyproject = parse(
-      readFileSync(pyprojectPath).toString('utf-8'),
-    ) as PoetryPyprojectToml;
 
-    return this.resolveDependencies(
-      pyproject,
-      root,
-      buildFolderPath,
-      buildTomlData,
-    );
+    return this.updatePyproject(root, buildTomlData, buildFolderPath);
   }
 
-  private resolveDependencies(
-    pyproject: PoetryPyprojectToml,
+  private updatePyproject(
     root: string,
+    pyproject: PoetryPyprojectToml,
     buildFolderPath: string,
-    buildTomlData: PoetryPyprojectToml,
-    level = 1,
-  ) {
-    const tab = getLoggingTab(level);
-    const deps: PackageDependency[] = [];
+    loggedDependencies: string[] = [],
+  ): PoetryPyprojectToml {
+    const tab = getLoggingTab(1);
 
-    const dependencies = Object.entries(
-      pyproject.tool?.poetry?.dependencies ??
-        pyproject.tool?.poetry?.group?.main?.dependencies ??
-        {},
-    ).filter(([name]) => name != 'python');
+    const targetDependencies = this.getMainDependencyObject(pyproject);
 
-    for (const [name, data] of dependencies) {
-      const dep = {} as PackageDependency;
-      dep.name = name;
+    let hasMoreLevels = false;
+
+    for (const name in targetDependencies) {
+      if (name === 'python') {
+        continue;
+      }
+
+      const data = targetDependencies[name];
 
       if (typeof data === 'string') {
-        dep.version = data;
+        if (!loggedDependencies) {
+          this.logger.info(
+            chalk`${tab}• Adding {blue.bold ${name}@${data}} dependency`,
+          );
+          loggedDependencies.push(name);
+        }
       } else if (data.path) {
-        dep.extras = data.extras;
         const depPath = relative(process.cwd(), resolve(root, data.path));
         const depPyprojectPath = join(depPath, 'pyproject.toml');
         const depPyproject = parse(
@@ -81,45 +73,204 @@ export class ProjectDependencyResolver {
           publisable === false
         ) {
           const packageName = depPyproject.tool.poetry.name;
-          this.logger.info(
-            chalk`${tab}• Adding {blue.bold ${packageName}} local dependency`,
-          );
+          if (!loggedDependencies.includes(packageName)) {
+            this.logger.info(
+              chalk`${tab}• Adding {blue.bold ${packageName}} local dependency`,
+            );
+            loggedDependencies.push(packageName);
+          }
+
           includeDependencyPackage(
             depPyproject,
             depPath,
             buildFolderPath,
-            buildTomlData,
+            pyproject,
           );
-          this.resolveDependencies(
-            depPyproject,
-            depPath,
-            buildFolderPath,
-            buildTomlData,
-            level + 1,
-          ).forEach((subDep) => deps.push(subDep));
-          continue;
-        } else {
-          dep.version = depPyproject.tool.poetry.version;
 
-          dep.source = this.addSource(buildTomlData, targetOptions);
+          const depDependencies =
+            this.getPyProjectMainDependencies(depPyproject);
+
+          // Remove the local dependency from the target pyproject
+          delete targetDependencies[packageName];
+
+          const depExtras = depPyproject.tool?.poetry?.extras ?? {};
+          const targetExtras = pyproject.tool?.poetry?.extras ?? {};
+
+          // Merge the extras from the local sub dependency to the target pyproject
+          if (depPyproject?.tool?.poetry?.extras) {
+            for (const [extraName, extraData] of Object.entries(depExtras)) {
+              if (targetExtras[extraName]) {
+                targetExtras[extraName] = [
+                  ...new Set([...targetExtras[extraName], ...extraData]),
+                ];
+              } else {
+                targetExtras[extraName] = extraData;
+              }
+            }
+
+            pyproject.tool.poetry.extras = targetExtras;
+          }
+
+          for (const [depName, depData] of depDependencies) {
+            if (depName === 'python') {
+              continue;
+            }
+
+            if (typeof depData === 'object' && depData.path) {
+              hasMoreLevels = true;
+              targetDependencies[depName] = {
+                ...depData,
+                extras:
+                  // If the target dependency has extras, merge them with the sub dependency extras
+                  typeof targetDependencies[depName] === 'object' &&
+                  targetDependencies[depName]?.extras
+                    ? [
+                        ...new Set([
+                          ...(targetDependencies[depName]?.extras ?? []),
+                          ...(depData.extras ?? []),
+                        ]),
+                      ]
+                    : depData.extras,
+                path: relative(
+                  join(process.cwd(), root),
+                  resolve(depPath, depData.path),
+                ),
+              };
+            } else {
+              targetDependencies[depName] = depData;
+
+              if (!loggedDependencies.includes(depName)) {
+                this.logger.info(
+                  chalk`${tab}• Adding {blue.bold ${depName}@${typeof depData === 'string' ? depData : depData.version}} dependency`,
+                );
+                loggedDependencies.push(depName);
+              }
+            }
+
+            if (data.extras && !data.optional) {
+              for (const extraName of data.extras) {
+                const libsToSetToMain = depExtras[extraName] ?? [];
+                for (const lib of libsToSetToMain) {
+                  /**
+                   * Change optional to false when the dependency is optional
+                   * on the local sub dependency, but it is required by the
+                   * target dependency via an extra.
+                   *
+                   * Example:
+                   *
+                   * Target pyproject.toml:
+                   *
+                   * [[tool.poetry.packages]]
+                   * include = "app"
+                   *
+                   * [tool.poetry.dependencies]
+                   * python = ">=3.10,<3.11"
+                   * lib = { path = "libs/lib", extras = ["color"] }
+                   *
+                   * Sub dependency pyproject.toml:
+                   *
+                   * [[tool.poetry.packages]]
+                   * include = "lib"
+                   *
+                   * [tool.poetry.dependencies]
+                   * python = ">=3.10,<3.11"
+                   * colored = { version = "^2.3.0", optional = true }
+                   * python-json-logger = { version = "^2.0.4", optional = true }
+                   *
+                   * [tool.poetry.extras]
+                   * color = ["colored"]
+                   * json = ["python-json-logger"]
+                   *
+                   * This will result in the following pyproject.toml:
+                   *
+                   * [[tool.poetry.packages]]
+                   * include = "app"
+                   *
+                   * [[tool.poetry.packages]]
+                   * include = "lib"
+                   *
+                   * [tool.poetry.dependencies]
+                   * python = ">=3.10,<3.11"
+                   * colored = "^2.3.0"
+                   * python-json-logger = { version = "^2.0.4", optional = true }
+                   *
+                   * [tool.poetry.extras]
+                   * json = ["python-json-logger"]
+                   */
+                  if (
+                    targetDependencies[lib] &&
+                    typeof targetDependencies[lib] === 'object' &&
+                    targetDependencies[lib].optional
+                  ) {
+                    const dep = targetDependencies[lib];
+                    targetDependencies[lib] =
+                      dep.markers || dep.extras || dep.git || dep.source
+                        ? {
+                            ...dep,
+                            optional: undefined,
+                          }
+                        : dep.version;
+                  }
+                }
+              }
+            }
+          }
+        } else {
+          const source = this.addSource(pyproject, targetOptions);
+          if (source) {
+            targetDependencies[name] = {
+              version: depPyproject.tool.poetry.version,
+              source: source,
+            };
+          } else {
+            targetDependencies[name] = depPyproject.tool.poetry.version;
+          }
+
+          if (!loggedDependencies.includes(name)) {
+            this.logger.info(
+              chalk`${tab}• Adding {blue.bold ${name}@${depPyproject.tool.poetry.version}} local dependency`,
+            );
+            loggedDependencies.push(name);
+          }
         }
       } else {
-        dep.version = data.version;
-        dep.extras = data.extras;
-        dep.git = data.git;
-        dep.optional = data.optional;
-        dep.rev = data.rev;
-        dep.markers = data.markers;
-      }
-
-      if (deps.findIndex((d) => d.name === dep.name) === -1) {
-        this.logger.info(
-          chalk`${tab}• Adding {blue.bold ${dep.name}@${dep.version}} dependency`,
-        );
-        deps.push(dep);
+        if (!loggedDependencies.includes(name)) {
+          this.logger.info(
+            chalk`${tab}• Adding {blue.bold ${name}${data.version ? `@${data.version}` : data.git ? ` ${data.git}@${data.rev}` : ''}} dependency`,
+          );
+          loggedDependencies.push(name);
+        }
       }
     }
-    return deps;
+
+    // Remove extras that are not optional anymore
+    for (const [extraName, extraData] of Object.entries(
+      pyproject.tool?.poetry?.extras ?? {},
+    )) {
+      pyproject.tool.poetry.extras[extraName] = extraData.filter(
+        (d) =>
+          targetDependencies[d] &&
+          typeof targetDependencies[d] === 'object' &&
+          targetDependencies[d].optional,
+      );
+
+      if (!pyproject.tool.poetry.extras[extraName]?.length) {
+        delete pyproject.tool.poetry.extras[extraName];
+      }
+    }
+
+    // If there are more local dependencies to resolve, call this function again
+    // until there are no more local dependencies to resolve.
+    if (hasMoreLevels) {
+      this.updatePyproject(
+        root,
+        pyproject,
+        buildFolderPath,
+        loggedDependencies,
+      );
+    }
+
+    return pyproject;
   }
 
   private addSource(

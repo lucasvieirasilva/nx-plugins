@@ -16,13 +16,13 @@ export class LockedDependencyResolver {
     private readonly isWorkspace: boolean,
   ) {}
 
-  public resolve(
+  public apply(
     projectRoot: string,
     buildFolderPath: string,
     buildTomlData: UVPyprojectToml,
     devDependencies: boolean,
     workspaceRoot: string,
-  ): PackageDependency[] {
+  ): UVPyprojectToml {
     const result: PackageDependency[] = [];
     this.logger.info(chalk`  Resolving dependencies...`);
 
@@ -84,7 +84,28 @@ export class LockedDependencyResolver {
       });
     }
 
-    return result;
+    buildTomlData.project.dependencies = [];
+    buildTomlData['dependency-groups'] = {};
+
+    if (buildTomlData.tool?.uv?.sources) {
+      buildTomlData.tool.uv.sources = {};
+    }
+
+    for (const dep of result) {
+      if (dep.version) {
+        buildTomlData.project.dependencies.push(`${dep.name}==${dep.version}`);
+      } else {
+        buildTomlData.project.dependencies.push(dep.name);
+      }
+
+      if (dep.source) {
+        buildTomlData.tool.uv.sources[dep.name] = {
+          index: dep.source,
+        };
+      }
+    }
+
+    return buildTomlData;
   }
 
   private getProjectRequirementsTxt(

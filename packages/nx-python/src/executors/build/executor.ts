@@ -27,6 +27,7 @@ export default async function executor(
       success: true,
     };
   } catch (error) {
+    console.log(error);
     logger.info(chalk`\n  {bgRed.bold  ERROR } ${error.message}\n`);
     return {
       buildFolderPath: '',
