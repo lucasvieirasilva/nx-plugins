@@ -597,10 +597,12 @@ export class UVProvider extends BaseProvider {
     });
 
     const buildPyProjectToml = join(buildFolderPath, 'pyproject.toml');
-    const buildTomlData = getPyprojectData<UVPyprojectToml>(buildPyProjectToml);
+    let buildTomlData = getPyprojectData<UVPyprojectToml>(buildPyProjectToml);
 
-    const deps = options.lockedVersions
-      ? new LockedDependencyResolver(this.logger, this.isWorkspace).resolve(
+    buildTomlData['dependency-groups'] = {};
+
+    buildTomlData = options.lockedVersions
+      ? new LockedDependencyResolver(this.logger, this.isWorkspace).apply(
           projectRoot,
           buildFolderPath,
           buildTomlData,
@@ -612,28 +614,7 @@ export class UVProvider extends BaseProvider {
           options,
           context,
           this.isWorkspace,
-        ).resolve(projectRoot, buildFolderPath, buildTomlData, context.root);
-
-    buildTomlData.project.dependencies = [];
-    buildTomlData['dependency-groups'] = {};
-
-    if (buildTomlData.tool?.uv?.sources) {
-      buildTomlData.tool.uv.sources = {};
-    }
-
-    for (const dep of deps) {
-      if (dep.version) {
-        buildTomlData.project.dependencies.push(`${dep.name}==${dep.version}`);
-      } else {
-        buildTomlData.project.dependencies.push(dep.name);
-      }
-
-      if (dep.source) {
-        buildTomlData.tool.uv.sources[dep.name] = {
-          index: dep.source,
-        };
-      }
-    }
+        ).apply(projectRoot, buildFolderPath, buildTomlData, context.root);
 
     writeFileSync(buildPyProjectToml, toml.stringify(buildTomlData));
     const distFolder = join(buildFolderPath, 'dist');

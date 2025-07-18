@@ -668,70 +668,32 @@ export class PoetryProvider extends BaseProvider {
 
     const buildPyProjectToml = join(buildFolderPath, 'pyproject.toml');
 
-    const buildTomlData = parse(
+    let buildTomlData = parse(
       readFileSync(buildPyProjectToml).toString('utf-8'),
     ) as PoetryPyprojectToml;
 
-    const deps = options.lockedVersions
-      ? new LockedDependencyResolver(this.logger).resolve(
+    buildTomlData.tool.poetry.dependencies ??= {};
+
+    // Remove the dev group if it exists
+    if (buildTomlData.tool?.poetry?.group?.dev) {
+      buildTomlData.tool.poetry.group.dev = {
+        dependencies: {},
+      };
+    }
+
+    buildTomlData = options.lockedVersions
+      ? new LockedDependencyResolver(this.logger, options, context).apply(
           root,
           buildFolderPath,
           buildTomlData,
           options.devDependencies,
           context.root,
         )
-      : new ProjectDependencyResolver(this.logger, options, context).resolve(
+      : new ProjectDependencyResolver(this.logger, options, context).apply(
           root,
           buildFolderPath,
           buildTomlData,
         );
-
-    const [format, pythonDependency] = buildTomlData.tool?.poetry?.dependencies
-      ?.python
-      ? ['implicit', buildTomlData.tool?.poetry?.dependencies?.python]
-      : ['main', buildTomlData.tool?.poetry?.group?.main?.dependencies?.python];
-
-    buildTomlData.tool.poetry.dependencies = {};
-    buildTomlData.tool.poetry.group = {
-      dev: {
-        dependencies: {},
-      },
-    };
-
-    if (pythonDependency) {
-      if (format === 'implicit') {
-        buildTomlData.tool.poetry.dependencies['python'] = pythonDependency;
-      } else {
-        buildTomlData.tool.poetry.group ??= {};
-        buildTomlData.tool.poetry.group.main ??= { dependencies: {} };
-        buildTomlData.tool.poetry.group.main.dependencies['python'] =
-          pythonDependency;
-      }
-    }
-
-    for (const dep of deps) {
-      const pyprojectDep =
-        dep.markers || dep.optional || dep.extras || dep.git || dep.source
-          ? {
-              version: dep.version,
-              markers: dep.markers,
-              optional: dep.optional,
-              extras: dep.extras,
-              git: dep.git,
-              rev: dep.rev,
-              source: dep.source,
-            }
-          : dep.version;
-
-      if (format === 'implicit') {
-        buildTomlData.tool.poetry.dependencies[dep.name] = pyprojectDep;
-      } else {
-        buildTomlData.tool.poetry.group ??= {};
-        buildTomlData.tool.poetry.group.main ??= { dependencies: {} };
-        buildTomlData.tool.poetry.group.main.dependencies[dep.name] =
-          pyprojectDep;
-      }
-    }
 
     writeFileSync(buildPyProjectToml, stringify(buildTomlData));
     const distFolder = join(buildFolderPath, 'dist');
