@@ -1845,6 +1845,23 @@ describe('Build Executor', () => {
         vol.fromJSON({
           'apps/app/.venv/pyvenv.cfg': 'fake',
           'apps/app/app/index.py': 'print("Hello from app")',
+          'apps/app/pyproject.toml': dedent`
+          [tool.poetry]
+          name = "app"
+          version = "1.0.0"
+            [[tool.poetry.packages]]
+            include = "app"
+
+            [tool.poetry.dependencies]
+            python = "^3.8"
+            click = "7.1.2"
+            pendulum = { version = "2.1.2", optional = true }
+            dep1 = { path = "../../libs/dep1", optional = true }
+
+            [tool.poetry.extras]
+            extra1 = ["pendulum", "dep1"]
+          `,
+
           'apps/app/poetry.lock': dedent`
           [[package]]
           name = "click"
@@ -1886,6 +1903,166 @@ describe('Build Executor', () => {
           optional = true
           python-versions = ">=3.7"
           `,
+
+          'libs/dep1/dep1/index.py': 'print("Hello from dep1")',
+          'libs/dep1/pyproject.toml': dedent`
+          [tool.poetry]
+          name = "dep1"
+          version = "1.0.0"
+
+            [[tool.poetry.packages]]
+            include = "dep1"
+
+            [tool.poetry.dependencies]
+            python = "^3.8"
+            numpy = "1.21.0"
+          `,
+        });
+
+        vi.mocked(spawn.sync).mockImplementation((_, args, opts) => {
+          if (args[0] == 'build') {
+            spawnBuildMockImpl(opts);
+          } else if (args[0] == 'export' && opts.cwd === 'apps/app') {
+            writeFileSync(
+              join(buildPath, 'requirements.txt'),
+              dedent`
+              click==7.1.2
+              pendulum==2.1.2
+              dep1 @ file://${process.cwd()}/libs/dep1
+              numpy==1.21.0; python_version >= "3.8" and python_version < "4.0"
+            `,
+            );
+          }
+          return {
+            status: 0,
+            output: [''],
+            pid: 0,
+            signal: null,
+            stderr: null,
+            stdout: null,
+          };
+        });
+
+        const options: BuildExecutorSchema = {
+          ignorePaths: ['.venv', '.tox', 'tests/'],
+          silent: false,
+          outputPath: 'dist/apps/app',
+          keepBuildFolder: true,
+          devDependencies: false,
+          lockedVersions: true,
+          bundleLocalDependencies: true,
+        };
+
+        const context: ExecutorContext = {
+          cwd: '',
+          root: '.',
+          isVerbose: false,
+          projectName: 'app',
+          projectsConfigurations: {
+            version: 2,
+            projects: {
+              app: {
+                root: 'apps/app',
+                targets: {},
+              },
+              dep1: {
+                root: 'libs/dep1',
+                targets: {},
+              },
+            },
+          },
+          nxJsonConfiguration: {},
+          projectGraph: {
+            dependencies: {},
+            nodes: {},
+          },
+        };
+
+        const output = await executor(options, context);
+
+        expect(checkPoetryExecutableMock).toHaveBeenCalled();
+        expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+        expect(output.success).toBe(true);
+        expect(existsSync(buildPath)).toBeTruthy();
+        expect(existsSync(`${buildPath}/app`)).toBeTruthy();
+        expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
+        expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
+        expect(spawn.sync).toHaveBeenNthCalledWith(
+          1,
+          'poetry',
+          ['export', '--help'],
+          {
+            cwd: 'apps/app',
+            stdio: 'pipe',
+          },
+        );
+        expect(spawn.sync).toHaveBeenNthCalledWith(
+          2,
+          'poetry',
+          [
+            'export',
+            '--format',
+            'requirements.txt',
+            '--without-hashes',
+            '--without-urls',
+            '--output',
+            `${buildPath}/requirements.txt`,
+            '--extras',
+            'extra1',
+          ],
+          {
+            cwd: 'apps/app',
+            shell: false,
+            stdio: 'inherit',
+          },
+        );
+        expect(spawn.sync).toHaveBeenNthCalledWith(3, 'poetry', ['build'], {
+          cwd: buildPath,
+          shell: false,
+          stdio: 'inherit',
+        });
+
+        const projectTomlData = parse(
+          readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8'),
+        ) as PoetryPyprojectToml;
+
+        expect(projectTomlData.tool.poetry.packages).toStrictEqual([
+          {
+            include: 'app',
+          },
+          {
+            include: 'dep1',
+          },
+        ]);
+
+        expect(projectTomlData.tool.poetry.dependencies).toStrictEqual({
+          python: '^3.8',
+          click: '7.1.2',
+          numpy: {
+            version: '1.21.0',
+            optional: true,
+            markers: 'python_version >= "3.8" and python_version < "4.0"',
+          },
+          pendulum: {
+            optional: true,
+            version: '2.1.2',
+          },
+        });
+
+        expect(projectTomlData.tool.poetry.extras).toStrictEqual({
+          extra1: ['pendulum', 'numpy'],
+        });
+
+        expect(
+          projectTomlData.tool.poetry?.group?.dev?.dependencies ?? {},
+        ).toStrictEqual({});
+      });
+
+      it('should build python project with local dependencies and extras nested', async () => {
+        vol.fromJSON({
+          'apps/app/.venv/pyvenv.cfg': 'fake',
+          'apps/app/app/index.py': 'print("Hello from app")',
+
           'apps/app/pyproject.toml': dedent`
           [tool.poetry]
           name = "app"
@@ -1903,6 +2080,52 @@ describe('Build Executor', () => {
             extra1 = ["pendulum", "dep1"]
           `,
 
+          'apps/app/poetry.lock': dedent`
+          [[package]]
+          name = "click"
+          version = "7.1.2"
+          description = "Composable command line interface toolkit"
+          category = "main"
+          optional = false
+          python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+
+          [[package]]
+          name = "pendulum"
+          version = "2.1.2"
+          description = "Python datetimes made easy"
+          category = "main"
+          optional = true
+          python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+
+          [[package]]
+          name = "dep1"
+          version = "1.0.0"
+          description = "Dep1"
+          category = "main"
+          optional = true
+            python-versions = "^3.8"
+          develop = false
+
+          [package.dependencies]
+          numpy = "1.21.0"
+          coloredlogs = { version = "15.0.1", optional = true }
+
+          [package.extras]
+          color = ["coloredlogs (>=15.0.1,<16.0.0)"]
+
+          [package.source]
+          type = "directory"
+          url = "../../libs/dep1"
+
+          [[package]]
+          name = "numpy"
+          version = "1.21.0"
+          description = "NumPy is the fundamental package for array computing with Python."
+          category = "main"
+          optional = true
+          python-versions = ">=3.7"
+          `,
+
           'libs/dep1/dep1/index.py': 'print("Hello from dep1")',
           'libs/dep1/pyproject.toml': dedent`
           [tool.poetry]
@@ -1915,6 +2138,10 @@ describe('Build Executor', () => {
             [tool.poetry.dependencies]
             python = "^3.8"
             numpy = "1.21.0"
+            coloredlogs = { version = "15.0.1", optional = true }
+
+            [tool.poetry.extras]
+            color = ["coloredlogs"]
           `,
         });
 
@@ -4916,7 +5143,6 @@ describe('Build Executor', () => {
               '--no-header',
               '--frozen',
               '--no-emit-project',
-              '--all-extras',
               '--project',
               'apps/app',
               '--no-dev',
@@ -5078,7 +5304,6 @@ describe('Build Executor', () => {
               '--no-header',
               '--frozen',
               '--no-emit-project',
-              '--all-extras',
               '--project',
               'apps/app',
               '--no-dev',
@@ -5241,7 +5466,6 @@ describe('Build Executor', () => {
               '--no-header',
               '--frozen',
               '--no-emit-project',
-              '--all-extras',
               '--project',
               'apps/app',
             ],
@@ -5405,7 +5629,6 @@ describe('Build Executor', () => {
               '--no-annotate',
               '--frozen',
               '--no-emit-project',
-              '--all-extras',
               '--project',
               'apps/app',
             ],
@@ -5563,7 +5786,6 @@ describe('Build Executor', () => {
               '--no-header',
               '--frozen',
               '--no-emit-project',
-              '--all-extras',
               '--project',
               'apps/app',
               '--no-dev',
@@ -5700,7 +5922,6 @@ describe('Build Executor', () => {
               '--no-header',
               '--frozen',
               '--no-emit-project',
-              '--all-extras',
               '--project',
               'apps/app',
               '--no-dev',
@@ -5838,7 +6059,6 @@ describe('Build Executor', () => {
               '--no-annotate',
               '--frozen',
               '--no-emit-project',
-              '--all-extras',
               '--project',
               'apps/app',
             ],
@@ -5967,7 +6187,6 @@ describe('Build Executor', () => {
               '--no-annotate',
               '--frozen',
               '--no-emit-project',
-              '--all-extras',
               '--project',
               'apps/app',
             ],
@@ -5987,6 +6206,466 @@ describe('Build Executor', () => {
               stdio: 'inherit',
             },
           );
+
+          expect(output.success).toBe(true);
+        });
+
+        it('should build python project with local dependencies and extras', async () => {
+          vol.fromJSON({
+            'apps/app/app1/index.py': 'print("Hello from app")',
+
+            'apps/app/pyproject.toml': dedent`
+            [project]
+            name = "app1"
+            version = "0.1.0"
+            readme = "README.md"
+            requires-python = ">=3.12"
+            dependencies = [
+                "click==7.1.2",
+            ]
+
+            [project.optional-dependencies]
+            extra1 = [
+                "pendulum==2.1.2",
+                "dep1",
+            ]
+
+            [tool.hatch.build.targets.wheel]
+            packages = ["app1"]
+
+            [dependency-groups]
+            dev = [
+                "ruff>=0.8.2",
+            ]
+
+            [tool.uv.sources]
+            dep1 = { workspace = true }
+            `,
+
+            'libs/dep1/dep1/index.py': 'print("Hello from dep1")',
+            'libs/dep1/pyproject.toml': dedent`
+            [project]
+            name = "dep1"
+            version = "0.1.0"
+            readme = "README.md"
+            requires-python = ">=3.12"
+            dependencies = [
+              "numpy==1.21.0",
+            ]
+
+            [tool.hatch.build.targets.wheel]
+            packages = ["dep1"]
+            `,
+
+            'uv.lock': dedent`
+            [[package]]
+            name = "app1"
+            version = "0.1.0"
+            source = { editable = "apps/app" }
+            dependencies = [
+              { name = "click", version = "7.1.2" }
+            ]
+
+            [package.optional-dependencies]
+            extra1 = [
+                { name = "pendulum" },
+                { name = "dep1" },
+            ]
+
+            [[package]]
+            name = "dep1"
+            version = "0.1.0"
+            source = { editable = "libs/dep1" }
+            dependencies = [
+              { name = "numpy", version = "1.21.0" },
+            ]
+
+            [[package]]
+            name = "pendulum"
+            version = "2.1.2"
+            source = { registry = "https://pypi.org/simple" }
+            dependencies = [
+              { name = "pytz", version = "2023.3" },
+            ]
+
+            [[package]]
+            name = "click"
+            version = "7.1.2"
+            source = { registry = "https://pypi.org/simple" }
+            dependencies = []
+
+            [[package]]
+            name = "numpy"
+            version = "1.21.0"
+            source = { registry = "https://pypi.org/simple" }
+            dependencies = []
+
+            [[package]]
+            name = "pytz"
+            version = "2023.3"
+            source = { registry = "https://pypi.org/simple" }
+            dependencies = []
+            `,
+          });
+
+          vi.mocked(spawn.sync)
+            .mockReturnValueOnce({
+              status: 0,
+              output: [''],
+              pid: 0,
+              signal: null,
+              stderr: null,
+              stdout: Buffer.from(dedent`
+            -e 0.6.10
+            `),
+            })
+            .mockReturnValueOnce({
+              status: 0,
+              output: [''],
+              pid: 0,
+              signal: null,
+              stderr: null,
+              stdout: Buffer.from(dedent`
+            click==7.1.2
+            `),
+            })
+            .mockImplementationOnce((_, args, opts) => {
+              spawnBuildMockImpl(opts);
+              return {
+                status: 0,
+                output: [''],
+                pid: 0,
+                signal: null,
+                stderr: null,
+                stdout: null,
+              };
+            });
+
+          const options: BuildExecutorSchema = {
+            ignorePaths: ['.venv', '.tox', 'tests/'],
+            silent: false,
+            outputPath: 'dist/apps/app',
+            keepBuildFolder: true,
+            devDependencies: false,
+            lockedVersions: true,
+            bundleLocalDependencies: true,
+          };
+
+          const output = await executor(options, {
+            cwd: '',
+            root: '.',
+            isVerbose: false,
+            projectName: 'app',
+            projectsConfigurations: {
+              version: 2,
+              projects: {
+                app: {
+                  root: 'apps/app',
+                  targets: {},
+                },
+                dep1: {
+                  root: 'libs/dep1',
+                  targets: {},
+                },
+              },
+            },
+            nxJsonConfiguration: {},
+            projectGraph: {
+              dependencies: {},
+              nodes: {},
+            },
+          });
+
+          expect(checkPrerequisites).toHaveBeenCalled();
+          console.log('buildPath', buildPath);
+          expect(existsSync(buildPath)).toBeTruthy();
+          expect(existsSync(`${buildPath}/app1`)).toBeTruthy();
+          expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
+          expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
+          expect(spawn.sync).toHaveBeenCalledTimes(3);
+          expect(spawn.sync).toHaveBeenNthCalledWith(
+            2,
+            'uv',
+            [
+              'export',
+              '--format',
+              'requirements-txt',
+              '--no-hashes',
+              '--no-header',
+              '--frozen',
+              '--no-emit-project',
+              '--project',
+              'apps/app',
+              '--no-dev',
+            ],
+            {
+              cwd: '.',
+              shell: true,
+              stdio: 'pipe',
+            },
+          );
+          expect(spawn.sync).toHaveBeenNthCalledWith(3, 'uv', ['build'], {
+            cwd: buildPath,
+            shell: false,
+            stdio: 'inherit',
+          });
+
+          const projectTomlData = getPyprojectData<UVPyprojectToml>(
+            `${buildPath}/pyproject.toml`,
+          );
+
+          expect(
+            projectTomlData.tool.hatch.build.targets.wheel.packages,
+          ).toStrictEqual(['app1', 'dep1']);
+
+          expect(projectTomlData.project.dependencies).toStrictEqual([
+            'click==7.1.2',
+          ]);
+          expect(projectTomlData['dependency-groups']).toStrictEqual({});
+          expect(
+            projectTomlData.project['optional-dependencies'],
+          ).toStrictEqual({
+            extra1: ['pendulum==2.1.2', 'pytz==2023.3', 'numpy==1.21.0'],
+          });
+          expect(projectTomlData.tool.uv.sources).toStrictEqual({});
+
+          expect(output.success).toBe(true);
+        });
+
+        it('should build python project with local dependencies and extras nested', async () => {
+          vol.fromJSON({
+            'apps/app/app1/index.py': 'print("Hello from app")',
+
+            'apps/app/pyproject.toml': dedent`
+            [project]
+            name = "app1"
+            version = "0.1.0"
+            readme = "README.md"
+            requires-python = ">=3.12"
+            dependencies = [
+                "click==7.1.2",
+            ]
+
+            [project.optional-dependencies]
+            extra1 = [
+                "pendulum==2.1.2",
+                "dep1",
+            ]
+
+            [tool.hatch.build.targets.wheel]
+            packages = ["app1"]
+
+            [dependency-groups]
+            dev = [
+                "ruff>=0.8.2",
+            ]
+
+            [tool.uv.sources]
+            dep1 = { workspace = true }
+            `,
+
+            'libs/dep1/dep1/index.py': 'print("Hello from dep1")',
+            'libs/dep1/pyproject.toml': dedent`
+            [project]
+            name = "dep1"
+            version = "0.1.0"
+            readme = "README.md"
+            requires-python = ">=3.12"
+            dependencies = [
+              "numpy==1.21.0"
+            ]
+
+            [project.optional-dependencies]
+            color = [
+                "coloredlogs==15.0.1"
+            ]
+
+            [tool.hatch.build.targets.wheel]
+            packages = ["dep1"]
+            `,
+
+            'uv.lock': dedent`
+            [[package]]
+            name = "app1"
+            version = "0.1.0"
+            source = { editable = "apps/app" }
+            dependencies = [
+              { name = "click", version = "7.1.2" }
+            ]
+
+            [package.optional-dependencies]
+            extra1 = [
+                { name = "pendulum" },
+                { name = "dep1" },
+            ]
+
+            [[package]]
+            name = "dep1"
+            version = "0.1.0"
+            source = { editable = "libs/dep1" }
+            dependencies = [
+              { name = "numpy", version = "1.21.0" },
+            ]
+
+            [package.optional-dependencies]
+            color = [
+                { name = "coloredlogs", version = "15.0.1" },
+            ]
+
+            [[package]]
+            name = "pendulum"
+            version = "2.1.2"
+            source = { registry = "https://pypi.org/simple" }
+            dependencies = [
+              { name = "pytz", version = "2023.3" },
+            ]
+
+            [[package]]
+            name = "click"
+            version = "7.1.2"
+            source = { registry = "https://pypi.org/simple" }
+            dependencies = []
+
+            [[package]]
+            name = "numpy"
+            version = "1.21.0"
+            source = { registry = "https://pypi.org/simple" }
+            dependencies = []
+
+            [[package]]
+            name = "pytz"
+            version = "2023.3"
+            source = { registry = "https://pypi.org/simple" }
+            dependencies = []
+
+            [[package]]
+            name = "coloredlogs"
+            version = "15.0.1"
+            source = { registry = "https://pypi.org/simple" }
+            dependencies = []
+            `,
+          });
+
+          vi.mocked(spawn.sync)
+            .mockReturnValueOnce({
+              status: 0,
+              output: [''],
+              pid: 0,
+              signal: null,
+              stderr: null,
+              stdout: Buffer.from(dedent`
+            -e 0.6.10
+            `),
+            })
+            .mockReturnValueOnce({
+              status: 0,
+              output: [''],
+              pid: 0,
+              signal: null,
+              stderr: null,
+              stdout: Buffer.from(dedent`
+            click==7.1.2
+            `),
+            })
+            .mockImplementationOnce((_, args, opts) => {
+              spawnBuildMockImpl(opts);
+              return {
+                status: 0,
+                output: [''],
+                pid: 0,
+                signal: null,
+                stderr: null,
+                stdout: null,
+              };
+            });
+
+          const options: BuildExecutorSchema = {
+            ignorePaths: ['.venv', '.tox', 'tests/'],
+            silent: false,
+            outputPath: 'dist/apps/app',
+            keepBuildFolder: true,
+            devDependencies: false,
+            lockedVersions: true,
+            bundleLocalDependencies: true,
+          };
+
+          const output = await executor(options, {
+            cwd: '',
+            root: '.',
+            isVerbose: false,
+            projectName: 'app',
+            projectsConfigurations: {
+              version: 2,
+              projects: {
+                app: {
+                  root: 'apps/app',
+                  targets: {},
+                },
+                dep1: {
+                  root: 'libs/dep1',
+                  targets: {},
+                },
+              },
+            },
+            nxJsonConfiguration: {},
+            projectGraph: {
+              dependencies: {},
+              nodes: {},
+            },
+          });
+
+          expect(checkPrerequisites).toHaveBeenCalled();
+          console.log('buildPath', buildPath);
+          expect(existsSync(buildPath)).toBeTruthy();
+          expect(existsSync(`${buildPath}/app1`)).toBeTruthy();
+          expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
+          expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
+          expect(spawn.sync).toHaveBeenCalledTimes(3);
+          expect(spawn.sync).toHaveBeenNthCalledWith(
+            2,
+            'uv',
+            [
+              'export',
+              '--format',
+              'requirements-txt',
+              '--no-hashes',
+              '--no-header',
+              '--frozen',
+              '--no-emit-project',
+              '--project',
+              'apps/app',
+              '--no-dev',
+            ],
+            {
+              cwd: '.',
+              shell: true,
+              stdio: 'pipe',
+            },
+          );
+          expect(spawn.sync).toHaveBeenNthCalledWith(3, 'uv', ['build'], {
+            cwd: buildPath,
+            shell: false,
+            stdio: 'inherit',
+          });
+
+          const projectTomlData = getPyprojectData<UVPyprojectToml>(
+            `${buildPath}/pyproject.toml`,
+          );
+
+          expect(
+            projectTomlData.tool.hatch.build.targets.wheel.packages,
+          ).toStrictEqual(['app1', 'dep1']);
+
+          expect(projectTomlData.project.dependencies).toStrictEqual([
+            'click==7.1.2',
+          ]);
+          expect(projectTomlData['dependency-groups']).toStrictEqual({});
+          expect(
+            projectTomlData.project['optional-dependencies'],
+          ).toStrictEqual({
+            extra1: ['pendulum==2.1.2', 'pytz==2023.3', 'numpy==1.21.0'],
+          });
+          expect(projectTomlData.tool.uv.sources).toStrictEqual({});
 
           expect(output.success).toBe(true);
         });
@@ -6127,7 +6806,6 @@ describe('Build Executor', () => {
               '--no-header',
               '--frozen',
               '--no-emit-project',
-              '--all-extras',
               '--project',
               'apps/app',
               '--no-dev',
@@ -6156,6 +6834,516 @@ describe('Build Executor', () => {
             'django==5.1.4',
           ]);
           expect(projectTomlData['dependency-groups']).toStrictEqual({});
+
+          expect(output.success).toBe(true);
+        });
+
+        it('should build python project with local dependencies and extras', async () => {
+          vol.fromJSON({
+            'apps/app/app1/index.py': 'print("Hello from app")',
+
+            'apps/app/pyproject.toml': dedent`
+            [project]
+            name = "app1"
+            version = "0.1.0"
+            readme = "README.md"
+            requires-python = ">=3.12"
+            dependencies = [
+                "click==7.1.2",
+            ]
+
+            [project.optional-dependencies]
+            extra1 = [
+                "pendulum==2.1.2",
+                "dep1",
+            ]
+
+            [tool.hatch.build.targets.wheel]
+            packages = ["app1"]
+
+            [dependency-groups]
+            dev = [
+                "ruff>=0.8.2",
+            ]
+
+            [tool.uv.sources]
+            dep1 = { workspace = true }
+            `,
+
+            'apps/app/uv.lock': dedent`
+            [[package]]
+            name = "app1"
+            version = "0.1.0"
+            source = { editable = "apps/app" }
+            dependencies = [
+              { name = "click", version = "7.1.2" }
+            ]
+
+            [package.optional-dependencies]
+            extra1 = [
+                { name = "pendulum" },
+                { name = "dep1" },
+            ]
+
+            [[package]]
+            name = "dep1"
+            version = "0.1.0"
+            source = { editable = "../../libs/dep1" }
+            dependencies = [
+              { name = "numpy", version = "1.21.0" },
+            ]
+
+            [[package]]
+            name = "pendulum"
+            version = "2.1.2"
+            source = { registry = "https://pypi.org/simple" }
+            dependencies = [
+              { name = "pytz", version = "2023.3" },
+            ]
+
+            [[package]]
+            name = "click"
+            version = "7.1.2"
+            source = { registry = "https://pypi.org/simple" }
+            dependencies = []
+
+            [[package]]
+            name = "numpy"
+            version = "1.21.0"
+            source = { registry = "https://pypi.org/simple" }
+            dependencies = []
+
+            [[package]]
+            name = "pytz"
+            version = "2023.3"
+            source = { registry = "https://pypi.org/simple" }
+            dependencies = []
+            `,
+
+            'libs/dep1/dep1/index.py': 'print("Hello from dep1")',
+            'libs/dep1/pyproject.toml': dedent`
+            [project]
+            name = "dep1"
+            version = "0.1.0"
+            readme = "README.md"
+            requires-python = ">=3.12"
+            dependencies = [
+              "numpy==1.21.0",
+            ]
+
+            [tool.hatch.build.targets.wheel]
+            packages = ["dep1"]
+            `,
+
+            'libs/dep1/uv.lock': dedent`
+            [[package]]
+            name = "dep1"
+            version = "0.1.0"
+            source = { editable = "../../libs/dep1" }
+            dependencies = [
+              { name = "numpy", version = "1.21.0" },
+            ]
+
+            [[package]]
+            name = "numpy"
+            version = "1.21.0"
+            source = { registry = "https://pypi.org/simple" }
+            dependencies = []
+            `,
+          });
+
+          vi.mocked(spawn.sync)
+            .mockReturnValueOnce({
+              status: 0,
+              output: [''],
+              pid: 0,
+              signal: null,
+              stderr: null,
+              stdout: Buffer.from(dedent`
+            -e 0.6.10
+            `),
+            })
+            .mockReturnValueOnce({
+              status: 0,
+              output: [''],
+              pid: 0,
+              signal: null,
+              stderr: null,
+              stdout: Buffer.from(dedent`
+            click==7.1.2
+            `),
+            })
+            .mockImplementationOnce((_, args, opts) => {
+              spawnBuildMockImpl(opts);
+              return {
+                status: 0,
+                output: [''],
+                pid: 0,
+                signal: null,
+                stderr: null,
+                stdout: null,
+              };
+            });
+
+          const options: BuildExecutorSchema = {
+            ignorePaths: ['.venv', '.tox', 'tests/'],
+            silent: false,
+            outputPath: 'dist/apps/app',
+            keepBuildFolder: true,
+            devDependencies: false,
+            lockedVersions: true,
+            bundleLocalDependencies: true,
+          };
+
+          const output = await executor(options, {
+            cwd: '',
+            root: '.',
+            isVerbose: false,
+            projectName: 'app',
+            projectsConfigurations: {
+              version: 2,
+              projects: {
+                app: {
+                  root: 'apps/app',
+                  targets: {},
+                },
+                dep1: {
+                  root: 'libs/dep1',
+                  targets: {},
+                },
+              },
+            },
+            nxJsonConfiguration: {},
+            projectGraph: {
+              dependencies: {},
+              nodes: {},
+            },
+          });
+
+          expect(checkPrerequisites).toHaveBeenCalled();
+          console.log('buildPath', buildPath);
+          expect(existsSync(buildPath)).toBeTruthy();
+          expect(existsSync(`${buildPath}/app1`)).toBeTruthy();
+          expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
+          expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
+          expect(spawn.sync).toHaveBeenCalledTimes(3);
+          expect(spawn.sync).toHaveBeenNthCalledWith(
+            2,
+            'uv',
+            [
+              'export',
+              '--format',
+              'requirements-txt',
+              '--no-hashes',
+              '--no-header',
+              '--frozen',
+              '--no-emit-project',
+              '--project',
+              'apps/app',
+              '--no-dev',
+            ],
+            {
+              cwd: '.',
+              shell: true,
+              stdio: 'pipe',
+            },
+          );
+          expect(spawn.sync).toHaveBeenNthCalledWith(3, 'uv', ['build'], {
+            cwd: buildPath,
+            shell: false,
+            stdio: 'inherit',
+          });
+
+          const projectTomlData = getPyprojectData<UVPyprojectToml>(
+            `${buildPath}/pyproject.toml`,
+          );
+
+          expect(
+            projectTomlData.tool.hatch.build.targets.wheel.packages,
+          ).toStrictEqual(['app1', 'dep1']);
+
+          expect(projectTomlData.project.dependencies).toStrictEqual([
+            'click==7.1.2',
+          ]);
+          expect(projectTomlData['dependency-groups']).toStrictEqual({});
+          expect(
+            projectTomlData.project['optional-dependencies'],
+          ).toStrictEqual({
+            extra1: ['pendulum==2.1.2', 'pytz==2023.3', 'numpy==1.21.0'],
+          });
+          expect(projectTomlData.tool.uv.sources).toStrictEqual({});
+
+          expect(output.success).toBe(true);
+        });
+
+        it('should build python project with local dependencies and extras nested', async () => {
+          vol.fromJSON({
+            'apps/app/app1/index.py': 'print("Hello from app")',
+
+            'apps/app/pyproject.toml': dedent`
+            [project]
+            name = "app1"
+            version = "0.1.0"
+            readme = "README.md"
+            requires-python = ">=3.12"
+            dependencies = [
+                "click==7.1.2",
+            ]
+
+            [project.optional-dependencies]
+            extra1 = [
+                "pendulum==2.1.2",
+                "dep1",
+            ]
+
+            [tool.hatch.build.targets.wheel]
+            packages = ["app1"]
+
+            [dependency-groups]
+            dev = [
+                "ruff>=0.8.2",
+            ]
+
+            [tool.uv.sources]
+            dep1 = { workspace = true }
+            `,
+
+            'apps/app/uv.lock': dedent`
+            [[package]]
+            name = "app1"
+            version = "0.1.0"
+            source = { editable = "apps/app" }
+            dependencies = [
+              { name = "click", version = "7.1.2" }
+            ]
+
+            [package.optional-dependencies]
+            extra1 = [
+                { name = "pendulum" },
+                { name = "dep1" },
+            ]
+
+            [[package]]
+            name = "dep1"
+            version = "0.1.0"
+            source = { editable = "../../libs/dep1" }
+            dependencies = [
+              { name = "numpy", version = "1.21.0" },
+            ]
+
+            [package.optional-dependencies]
+            color = [
+                { name = "coloredlogs", version = "15.0.1" },
+            ]
+
+            [[package]]
+            name = "pendulum"
+            version = "2.1.2"
+            source = { registry = "https://pypi.org/simple" }
+            dependencies = [
+              { name = "pytz", version = "2023.3" },
+            ]
+
+            [[package]]
+            name = "click"
+            version = "7.1.2"
+            source = { registry = "https://pypi.org/simple" }
+            dependencies = []
+
+            [[package]]
+            name = "numpy"
+            version = "1.21.0"
+            source = { registry = "https://pypi.org/simple" }
+            dependencies = []
+
+            [[package]]
+            name = "pytz"
+            version = "2023.3"
+            source = { registry = "https://pypi.org/simple" }
+            dependencies = []
+
+            [[package]]
+            name = "coloredlogs"
+            version = "15.0.1"
+            source = { registry = "https://pypi.org/simple" }
+            dependencies = []
+            `,
+
+            'libs/dep1/dep1/index.py': 'print("Hello from dep1")',
+            'libs/dep1/pyproject.toml': dedent`
+            [project]
+            name = "dep1"
+            version = "0.1.0"
+            readme = "README.md"
+            requires-python = ">=3.12"
+            dependencies = [
+              "numpy==1.21.0"
+            ]
+
+            [project.optional-dependencies]
+            color = [
+                "coloredlogs==15.0.1"
+            ]
+
+            [tool.hatch.build.targets.wheel]
+            packages = ["dep1"]
+            `,
+
+            'libs/dep1/uv.lock': dedent`
+            [[package]]
+            name = "pendulum"
+            version = "2.1.2"
+            source = { registry = "https://pypi.org/simple" }
+            dependencies = [
+              { name = "pytz", version = "2023.3" },
+            ]
+
+            [[package]]
+            name = "click"
+            version = "7.1.2"
+            source = { registry = "https://pypi.org/simple" }
+            dependencies = []
+
+            [[package]]
+            name = "numpy"
+            version = "1.21.0"
+            source = { registry = "https://pypi.org/simple" }
+            dependencies = []
+
+            [[package]]
+            name = "pytz"
+            version = "2023.3"
+            source = { registry = "https://pypi.org/simple" }
+            dependencies = []
+
+            [[package]]
+            name = "coloredlogs"
+            version = "15.0.1"
+            source = { registry = "https://pypi.org/simple" }
+            dependencies = []
+            `,
+          });
+
+          vi.mocked(spawn.sync)
+            .mockReturnValueOnce({
+              status: 0,
+              output: [''],
+              pid: 0,
+              signal: null,
+              stderr: null,
+              stdout: Buffer.from(dedent`
+            -e 0.6.10
+            `),
+            })
+            .mockReturnValueOnce({
+              status: 0,
+              output: [''],
+              pid: 0,
+              signal: null,
+              stderr: null,
+              stdout: Buffer.from(dedent`
+            click==7.1.2
+            `),
+            })
+            .mockImplementationOnce((_, args, opts) => {
+              spawnBuildMockImpl(opts);
+              return {
+                status: 0,
+                output: [''],
+                pid: 0,
+                signal: null,
+                stderr: null,
+                stdout: null,
+              };
+            });
+
+          const options: BuildExecutorSchema = {
+            ignorePaths: ['.venv', '.tox', 'tests/'],
+            silent: false,
+            outputPath: 'dist/apps/app',
+            keepBuildFolder: true,
+            devDependencies: false,
+            lockedVersions: true,
+            bundleLocalDependencies: true,
+          };
+
+          const output = await executor(options, {
+            cwd: '',
+            root: '.',
+            isVerbose: false,
+            projectName: 'app',
+            projectsConfigurations: {
+              version: 2,
+              projects: {
+                app: {
+                  root: 'apps/app',
+                  targets: {},
+                },
+                dep1: {
+                  root: 'libs/dep1',
+                  targets: {},
+                },
+              },
+            },
+            nxJsonConfiguration: {},
+            projectGraph: {
+              dependencies: {},
+              nodes: {},
+            },
+          });
+
+          expect(checkPrerequisites).toHaveBeenCalled();
+          console.log('buildPath', buildPath);
+          expect(existsSync(buildPath)).toBeTruthy();
+          expect(existsSync(`${buildPath}/app1`)).toBeTruthy();
+          expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
+          expect(existsSync(`${buildPath}/dist/app.fake`)).toBeTruthy();
+          expect(spawn.sync).toHaveBeenCalledTimes(3);
+          expect(spawn.sync).toHaveBeenNthCalledWith(
+            2,
+            'uv',
+            [
+              'export',
+              '--format',
+              'requirements-txt',
+              '--no-hashes',
+              '--no-header',
+              '--frozen',
+              '--no-emit-project',
+              '--project',
+              'apps/app',
+              '--no-dev',
+            ],
+            {
+              cwd: '.',
+              shell: true,
+              stdio: 'pipe',
+            },
+          );
+          expect(spawn.sync).toHaveBeenNthCalledWith(3, 'uv', ['build'], {
+            cwd: buildPath,
+            shell: false,
+            stdio: 'inherit',
+          });
+
+          const projectTomlData = getPyprojectData<UVPyprojectToml>(
+            `${buildPath}/pyproject.toml`,
+          );
+
+          expect(
+            projectTomlData.tool.hatch.build.targets.wheel.packages,
+          ).toStrictEqual(['app1', 'dep1']);
+
+          expect(projectTomlData.project.dependencies).toStrictEqual([
+            'click==7.1.2',
+          ]);
+          expect(projectTomlData['dependency-groups']).toStrictEqual({});
+          expect(
+            projectTomlData.project['optional-dependencies'],
+          ).toStrictEqual({
+            extra1: ['pendulum==2.1.2', 'pytz==2023.3', 'numpy==1.21.0'],
+          });
+          expect(projectTomlData.tool.uv.sources).toStrictEqual({});
 
           expect(output.success).toBe(true);
         });

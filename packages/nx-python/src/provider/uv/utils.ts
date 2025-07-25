@@ -78,6 +78,10 @@ export function getUvLockfile(
       : readFileSync(lockfilePath, 'utf-8'),
   );
 
+  if (!data.package) {
+    return null;
+  }
+
   return {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     package: (data.package as any[]).reduce(

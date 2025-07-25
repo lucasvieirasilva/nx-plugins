@@ -1,14 +1,20 @@
 import path from 'path';
 import chalk from 'chalk';
 import { Logger } from '../../../../executors/utils/logger';
-import { UVPyprojectToml } from '../../types';
-import { getUvVersion, UV_EXECUTABLE } from '../../utils';
+import { UVLockfile, UVLockfilePackage, UVPyprojectToml } from '../../types';
+import { getUvLockfile, getUvVersion, UV_EXECUTABLE } from '../../utils';
 import spawn from 'cross-spawn';
-import { getPyprojectData } from '../../../utils';
+import { getLoggingTab, getPyprojectData } from '../../../utils';
 import { PackageDependency } from '../../../base';
-import { includeDependencyPackage } from './utils';
+import {
+  extractExtraFromDependencyName,
+  includeDependencyPackage,
+  normalizeDependencyName,
+} from './utils';
 import { existsSync } from 'fs';
 import semver from 'semver';
+
+const LOCK_FILE_NAME = 'uv.lock';
 
 export class LockedDependencyResolver {
   constructor(
@@ -23,6 +29,7 @@ export class LockedDependencyResolver {
     devDependencies: boolean,
     workspaceRoot: string,
   ): UVPyprojectToml {
+    const tab = getLoggingTab(1);
     const result: PackageDependency[] = [];
     this.logger.info(chalk`  Resolving dependencies...`);
 
@@ -92,16 +99,62 @@ export class LockedDependencyResolver {
     }
 
     for (const dep of result) {
-      if (dep.version) {
-        buildTomlData.project.dependencies.push(`${dep.name}==${dep.version}`);
-      } else {
-        buildTomlData.project.dependencies.push(dep.name);
+      buildTomlData.project.dependencies.push(dep.name);
+    }
+
+    if (
+      Object.keys(buildTomlData.project?.['optional-dependencies'] ?? {})
+        .length > 0
+    ) {
+      if (!this.lockFileExists(projectRoot, workspaceRoot)) {
+        throw new Error(chalk`{bold uv.lock file not found`);
       }
 
-      if (dep.source) {
-        buildTomlData.tool.uv.sources[dep.name] = {
-          index: dep.source,
-        };
+      const lockData = getUvLockfile(
+        this.isWorkspace
+          ? path.join(workspaceRoot, LOCK_FILE_NAME)
+          : path.join(projectRoot, LOCK_FILE_NAME),
+      );
+
+      if (!lockData) {
+        throw new Error(chalk`{bold failed to get uv.lock file}`);
+      }
+
+      for (const extra in buildTomlData.project['optional-dependencies']) {
+        const originalExtraDeps =
+          buildTomlData.project['optional-dependencies'][extra];
+
+        const lockedDeps = originalExtraDeps
+          .map<
+            [UVLockfilePackage, string[] | undefined]
+          >((dep) => [lockData?.package[normalizeDependencyName(dep)], extractExtraFromDependencyName(dep)])
+          .filter(([lockedPkgDep]) => lockedPkgDep);
+
+        const resolvedDeps = this.resolveExtrasLockedDependencyTree(
+          projectRoot,
+          lockData,
+          buildFolderPath,
+          buildTomlData,
+          workspaceRoot,
+          lockedDeps,
+          1,
+          [],
+          buildTomlData.project.dependencies.reduce(
+            (acc, dep) => {
+              acc[normalizeDependencyName(dep)] = true;
+              return acc;
+            },
+            {} as Record<string, boolean>,
+          ),
+        );
+
+        this.logger.info(
+          chalk`${tab}• Extra: {blue.bold ${extra}} - {blue.bold ${resolvedDeps.join(
+            ', ',
+          )}} Locked Dependencies`,
+        );
+
+        buildTomlData.project['optional-dependencies'][extra] = resolvedDeps;
       }
     }
 
@@ -125,7 +178,6 @@ export class LockedDependencyResolver {
       ...(noAnnotateSupported ? ['--no-annotate'] : []),
       '--frozen',
       '--no-emit-project',
-      '--all-extras',
       '--project',
       projectRoot,
     ];
@@ -166,9 +218,117 @@ export class LockedDependencyResolver {
 
   private lockFileExists(projectRoot: string, workspaceRoot: string): boolean {
     if (this.isWorkspace) {
-      return existsSync(path.join(workspaceRoot, 'uv.lock'));
+      return existsSync(path.join(workspaceRoot, LOCK_FILE_NAME));
     } else {
-      return existsSync(path.join(projectRoot, 'uv.lock'));
+      return existsSync(path.join(projectRoot, LOCK_FILE_NAME));
     }
+  }
+
+  private resolveExtrasLockedDependencyTree(
+    projectRoot: string,
+    lockData: UVLockfile,
+    buildFolderPath: string,
+    buildTomlData: UVPyprojectToml,
+    workspaceRoot: string,
+    deps: [UVLockfilePackage, string[] | undefined][],
+    level = 1,
+    resolvedDeps: string[] = [],
+    resolvedDepsMap: Record<string, boolean> = {},
+  ): string[] {
+    const tab = getLoggingTab(level);
+    for (const [dep, extras] of deps) {
+      this.logger.info(
+        chalk`${tab}• Resolving dependency: {blue.bold ${dep.name}}`,
+      );
+
+      if (dep.source.editable) {
+        const dependencyPath = this.isWorkspace
+          ? dep.source.editable
+          : path.relative(
+              process.cwd(),
+              path.resolve(projectRoot, dep.source.editable),
+            );
+
+        const dependencyPyprojectPath = path.join(
+          dependencyPath,
+          'pyproject.toml',
+        );
+
+        if (existsSync(dependencyPyprojectPath)) {
+          const projectData = getPyprojectData<UVPyprojectToml>(
+            dependencyPyprojectPath,
+          );
+
+          this.logger.info(
+            chalk`    • Adding {blue.bold ${projectData.project.name}} local dependency`,
+          );
+
+          includeDependencyPackage(
+            projectData,
+            dependencyPath,
+            buildFolderPath,
+            buildTomlData,
+            workspaceRoot,
+          );
+        }
+      }
+
+      if (!dep.source.editable && !resolvedDepsMap[dep.name]) {
+        resolvedDeps.push(`${dep.name}==${dep.version}`);
+        resolvedDepsMap[dep.name] = true;
+      }
+
+      dep.dependencies.forEach((dep) => {
+        if (
+          !resolvedDepsMap[dep.name] &&
+          lockData.package[dep.name] &&
+          !lockData.package[dep.name].source?.editable
+        ) {
+          resolvedDeps.push(
+            `${dep.name}==${lockData.package[dep.name].version}`,
+          );
+          resolvedDepsMap[dep.name] = true;
+        }
+      });
+
+      if (extras && extras.length > 0) {
+        for (const extra of extras) {
+          const pkgDeps = dep['optional-dependencies']?.[extra]
+            ?.map<
+              [UVLockfilePackage, string[] | undefined]
+            >((pkgDep) => [lockData.package[pkgDep.name], pkgDep.extra])
+            .filter(([lockedPkgDep]) => lockedPkgDep);
+
+          if (pkgDeps.length > 0) {
+            pkgDeps.forEach(([pkgDep]) => {
+              if (!resolvedDepsMap[pkgDep.name] && !pkgDep.source?.editable) {
+                resolvedDeps.push(`${pkgDep.name}==${pkgDep.version}`);
+                resolvedDepsMap[pkgDep.name] = true;
+              }
+            });
+
+            this.logger.info(
+              chalk`${tab}• Resolving extra: {blue.bold ${extra}} - {blue.bold ${pkgDeps
+                .map(([pkgDep]) => pkgDep.name)
+                .join(', ')}} Locked Dependencies`,
+            );
+          }
+
+          this.resolveExtrasLockedDependencyTree(
+            projectRoot,
+            lockData,
+            buildFolderPath,
+            buildTomlData,
+            workspaceRoot,
+            pkgDeps,
+            level,
+            resolvedDeps,
+            resolvedDepsMap,
+          );
+        }
+      }
+    }
+
+    return resolvedDeps;
   }
 }
