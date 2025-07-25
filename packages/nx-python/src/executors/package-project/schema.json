@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "title": "Package Project Executor",
+  "description": "",
+  "type": "object",
+  "properties": {
+    "outputPath": {
+      "type": "string",
+      "description": "Path to the output directory or file (if outputType is zip)"
+    },
+    "outputType": {
+      "type": "string",
+      "enum": ["folder", "zip"],
+      "description": "Type of output to create",
+      "default": "zip"
+    },
+    "includeFiles": {
+      "type": "array",
+      "description": "List of files to include in the package",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string"
+          },
+          "destination": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ignorePaths": {
+      "type": "array",
+      "description": "List of paths to ignore",
+      "items": {
+        "type": "string"
+      },
+      "default": [
+        ".venv",
+        ".tox",
+        ".ruff_cache",
+        "dist",
+        ".pytest_cache",
+        "tests",
+        "node_modules"
+      ]
+    }
+  },
+  "required": ["outputPath"]
+}
