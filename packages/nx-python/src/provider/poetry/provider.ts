@@ -64,6 +64,7 @@ import {
 import semver from 'semver';
 import { LockExecutorSchema } from '../../executors/lock/schema';
 import { SyncExecutorSchema } from '../../executors/sync/schema';
+import { minimatch } from 'minimatch';
 
 export class PoetryProvider extends BaseProvider {
   constructor(workspaceRoot: string, logger: Logger, tree?: Tree) {
@@ -219,6 +220,34 @@ export class PoetryProvider extends BaseProvider {
     }
 
     return deps;
+  }
+
+  public async writeProjectRequirementsTxt(
+    cwd: string,
+    extras?: string[],
+    outputPath?: string,
+  ): Promise<string> {
+    await this.lock(cwd);
+
+    const exportArgs = [
+      'export',
+      '--format',
+      'requirements.txt',
+      '--without-hashes',
+      '--without-urls',
+      '--output',
+      outputPath ?? 'requirements.txt',
+    ];
+
+    if (extras?.length) {
+      for (const extra of extras) {
+        exportArgs.push('--extras', extra);
+      }
+    }
+
+    runPoetry(exportArgs, { cwd, log: false });
+
+    return outputPath ?? 'requirements.txt';
   }
 
   public async add(
@@ -632,7 +661,10 @@ export class PoetryProvider extends BaseProvider {
   }
 
   public async build(
-    options: BuildExecutorSchema,
+    options: BuildExecutorSchema & {
+      skipBuild?: boolean;
+      buildFolder?: string;
+    },
     context: ExecutorContext,
   ): Promise<string> {
     await this.activateVenv(context.root, context);
@@ -653,13 +685,18 @@ export class PoetryProvider extends BaseProvider {
     const { root } =
       context.projectsConfigurations.projects[context.projectName];
 
-    const buildFolderPath = join(tmpdir(), 'nx-python', 'build', uuid());
+    const buildFolderPath =
+      options.buildFolder ?? join(tmpdir(), 'nx-python', 'build', uuid());
 
     mkdirSync(buildFolderPath, { recursive: true });
 
     this.logger.info(chalk`  Copying project files to a temporary folder`);
     readdirSync(root).forEach((file) => {
-      if (!options.ignorePaths.includes(file)) {
+      if (
+        !options.ignorePaths.some((pattern) =>
+          minimatch(file, pattern, { dot: true }),
+        )
+      ) {
         const source = join(root, file);
         const target = join(buildFolderPath, file);
         copySync(source, target);
@@ -700,20 +737,22 @@ export class PoetryProvider extends BaseProvider {
 
     removeSync(distFolder);
 
-    this.logger.info(chalk`  Generating sdist and wheel artifacts`);
-    const buildArgs = ['build'];
-    if (options.format) {
-      buildArgs.push('--format', options.format);
+    if (!options.skipBuild) {
+      this.logger.info(chalk`  Generating sdist and wheel artifacts`);
+      const buildArgs = ['build'];
+      if (options.format) {
+        buildArgs.push('--format', options.format);
+      }
+
+      runPoetry(buildArgs, { cwd: buildFolderPath });
+
+      removeSync(options.outputPath);
+      mkdirSync(options.outputPath, { recursive: true });
+      this.logger.info(
+        chalk`  Artifacts generated at {bold ${options.outputPath}} folder`,
+      );
+      copySync(distFolder, options.outputPath);
     }
-
-    runPoetry(buildArgs, { cwd: buildFolderPath });
-
-    removeSync(options.outputPath);
-    mkdirSync(options.outputPath, { recursive: true });
-    this.logger.info(
-      chalk`  Artifacts generated at {bold ${options.outputPath}} folder`,
-    );
-    copySync(distFolder, options.outputPath);
 
     if (!options.keepBuildFolder) {
       removeSync(buildFolderPath);
