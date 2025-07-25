@@ -278,7 +278,7 @@ export class LockedDependencyResolver {
         resolvedDepsMap[dep.name] = true;
       }
 
-      dep.dependencies.forEach((dep) => {
+      dep.dependencies?.forEach((dep) => {
         if (
           !resolvedDepsMap[dep.name] &&
           lockData.package[dep.name] &&

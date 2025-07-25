@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "title": "Package Dependencies Executor",
+  "description": "",
+  "type": "object",
+  "properties": {
+    "outputPath": {
+      "type": "string",
+      "description": "Path to the output directory or file (if outputType is zip)"
+    },
+    "outputSubdirectory": {
+      "type": "string",
+      "description": "Subdirectory to place the output in (e.g. 'python/', useful for AWS Lambda layers)"
+    },
+    "outputType": {
+      "type": "string",
+      "enum": ["folder", "zip"],
+      "description": "Type of output to create",
+      "default": "zip"
+    },
+    "platform": {
+      "type": "string",
+      "description": "Platform to build for",
+      "default": "manylinux2014_x86_64"
+    },
+    "pythonVersion": {
+      "type": "string",
+      "description": "Python version to build for",
+      "default": "3.13"
+    },
+    "abi": {
+      "type": "string",
+      "description": "ABI to build for",
+      "default": "cp313"
+    },
+    "distribution": {
+      "type": "string",
+      "enum": ["wheel", "sdist"],
+      "description": "Distribution to build for",
+      "default": "wheel"
+    },
+    "extras": {
+      "type": "array",
+      "description": "List of extras to include in the package",
+      "items": {
+        "type": "string"
+      }
+    },
+    "ignorePatterns": {
+      "type": "array",
+      "description": "List of patterns to exclude from the package",
+      "items": {
+        "type": "string"
+      }
+    },
+    "ignoreDependencies": {
+      "type": "array",
+      "description": "List of dependencies to ignore",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": ["outputPath"]
+}

@@ -25,6 +25,7 @@ import { InstallExecutorSchema } from '../../executors/install/schema';
 import {
   checkUvExecutable,
   getUvLockfile,
+  getUvVersion,
   runUv,
   RunUvOptions,
   UV_EXECUTABLE,
@@ -49,6 +50,8 @@ import {
 } from './build/resolvers';
 import { LockExecutorSchema } from '../../executors/lock/schema';
 import { SyncExecutorSchema } from '../../executors/sync/schema';
+import semver from 'semver';
+import { minimatch } from 'minimatch';
 
 export class UVProvider extends BaseProvider {
   protected _rootLockfile: UVLockfile;
@@ -265,6 +268,40 @@ export class UVProvider extends BaseProvider {
     }
 
     return result;
+  }
+
+  public async writeProjectRequirementsTxt(
+    cwd: string,
+    extras?: string[],
+    outputPath?: string,
+  ): Promise<string> {
+    await this.lock(cwd);
+
+    const uvVersion = getUvVersion();
+    const noAnnotateSupported = semver.gte(uvVersion, '0.6.11'); // --no-annotate only supported from 0.6.11
+    const exportArgs = [
+      'export',
+      '--format',
+      'requirements-txt',
+      '--no-hashes',
+      '--no-header',
+      ...(noAnnotateSupported ? ['--no-annotate'] : []),
+      '--frozen',
+      '--no-emit-project',
+      '--no-dev',
+      '--output-file',
+      outputPath ?? 'requirements.txt',
+    ];
+
+    if (extras?.length) {
+      for (const extra of extras) {
+        exportArgs.push('--extra', extra);
+      }
+    }
+
+    runUv(exportArgs, { cwd, log: false });
+
+    return outputPath ?? 'requirements.txt';
   }
 
   public async add(
@@ -564,7 +601,10 @@ export class UVProvider extends BaseProvider {
   }
 
   public async build(
-    options: BuildExecutorSchema,
+    options: BuildExecutorSchema & {
+      skipBuild?: boolean;
+      buildFolder?: string;
+    },
     context: ExecutorContext,
   ): Promise<string> {
     await this.checkPrerequisites();
@@ -583,13 +623,18 @@ export class UVProvider extends BaseProvider {
 
     const projectRoot = this.getProjectRoot(context);
 
-    const buildFolderPath = join(tmpdir(), 'nx-python', 'build', uuid());
+    const buildFolderPath =
+      options.buildFolder ?? join(tmpdir(), 'nx-python', 'build', uuid());
 
     mkdirSync(buildFolderPath, { recursive: true });
 
     this.logger.info(chalk`  Copying project files to a temporary folder`);
     readdirSync(projectRoot).forEach((file) => {
-      if (!options.ignorePaths.includes(file)) {
+      if (
+        !options.ignorePaths.some((pattern) =>
+          minimatch(file, pattern, { dot: true }),
+        )
+      ) {
         const source = join(projectRoot, file);
         const target = join(buildFolderPath, file);
         copySync(source, target);
@@ -621,20 +666,22 @@ export class UVProvider extends BaseProvider {
 
     removeSync(distFolder);
 
-    this.logger.info(chalk`  Generating sdist and wheel artifacts`);
-    const buildArgs = ['build'];
-    if (options.format) {
-      buildArgs.push(`--${options.format}`);
+    if (!options.skipBuild) {
+      this.logger.info(chalk`  Generating sdist and wheel artifacts`);
+      const buildArgs = ['build'];
+      if (options.format) {
+        buildArgs.push(`--${options.format}`);
+      }
+
+      runUv(buildArgs, { cwd: buildFolderPath });
+
+      removeSync(options.outputPath);
+      mkdirSync(options.outputPath, { recursive: true });
+      this.logger.info(
+        chalk`  Artifacts generated at {bold ${options.outputPath}} folder`,
+      );
+      copySync(distFolder, options.outputPath);
     }
-
-    runUv(buildArgs, { cwd: buildFolderPath });
-
-    removeSync(options.outputPath);
-    mkdirSync(options.outputPath, { recursive: true });
-    this.logger.info(
-      chalk`  Artifacts generated at {bold ${options.outputPath}} folder`,
-    );
-    copySync(distFolder, options.outputPath);
 
     if (!options.keepBuildFolder) {
       removeSync(buildFolderPath);

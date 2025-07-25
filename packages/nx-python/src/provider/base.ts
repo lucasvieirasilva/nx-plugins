@@ -71,6 +71,12 @@ export abstract class BaseProvider {
     cwd: string,
   ): string[];
 
+  abstract writeProjectRequirementsTxt(
+    cwd: string,
+    extras?: string[],
+    outputPath?: string,
+  ): Promise<string>;
+
   abstract add(
     options: AddExecutorSchema,
     context: ExecutorContext,
@@ -120,7 +126,10 @@ export abstract class BaseProvider {
   ): Promise<void>;
 
   abstract build(
-    options: BuildExecutorSchema,
+    options: BuildExecutorSchema & {
+      buildFolder?: string;
+      skipBuild?: boolean;
+    },
     context: ExecutorContext,
   ): Promise<string>;
 

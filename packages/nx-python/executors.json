@@ -75,6 +75,16 @@
       "implementation": "./src/executors/lock/executor",
       "schema": "./src/executors/lock/schema.json",
       "description": "Lock Dependencies Executor"
+    },
+    "package-dependencies": {
+      "implementation": "./src/executors/package-dependencies/executor",
+      "schema": "./src/executors/package-dependencies/schema.json",
+      "description": "Package the dependencies for a project"
+    },
+    "package-project": {
+      "implementation": "./src/executors/package-project/executor",
+      "schema": "./src/executors/package-project/schema.json",
+      "description": "Package the project for a project"
     }
   }
 }
