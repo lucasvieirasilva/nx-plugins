@@ -28,3 +28,49 @@ export function includeDependencyPackage(
     }
   }
 }
+
+/**
+ * Normalizes a dependency name by extracting the base package name.
+ *
+ * Removes version constraints, extras, and other specifications to get
+ * just the package name. For example:
+ * - "requests[security]>=2.25.0" -> "requests"
+ * - "numpy" -> "numpy"
+ *
+ * @param dependency - The dependency string to normalize
+ * @returns The normalized package name, or undefined if invalid
+ */
+export function normalizeDependencyName(
+  dependency: string,
+): string | undefined {
+  const match = /^[a-zA-Z0-9-_]+/.exec(dependency);
+  if (!match) {
+    return undefined;
+  }
+
+  return match[0];
+}
+
+/**
+ * Extracts extra specifications from a dependency name.
+ *
+ * Parses dependency strings like "package[extra1,extra2]" to extract
+ * the list of extras: ["extra1", "extra2"]
+ *
+ * @param depName - The dependency name that may contain extras
+ * @returns Array of extra names, empty if no extras found
+ */
+export function extractExtraFromDependencyName(
+  depName: string | undefined,
+): string[] {
+  if (!depName) {
+    return [];
+  }
+
+  return (
+    depName
+      .match(/\[(.*)\]/)?.[1]
+      ?.split(',')
+      ?.map((e) => e?.trim()) ?? []
+  );
+}

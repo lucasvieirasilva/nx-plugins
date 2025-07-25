@@ -73,6 +73,9 @@ export type UVLockfilePackage = {
   version: string;
   source: UVLockfilePackageLocalSource;
   dependencies: UVLockfilePackageDependency[];
+  'optional-dependencies': {
+    [key: string]: UVLockfilePackageDependency[];
+  };
   'dev-dependencies': {
     [key: string]: UVLockfilePackageDependency[];
   };

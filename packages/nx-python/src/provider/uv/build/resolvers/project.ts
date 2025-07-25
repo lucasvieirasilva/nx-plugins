@@ -5,7 +5,11 @@ import { UVLockfile, UVPyprojectToml, UVPyprojectTomlIndex } from '../../types';
 import { Logger } from '../../../../executors/utils/logger';
 import { getLoggingTab, getPyprojectData } from '../../../utils';
 import { getUvLockfile } from '../../utils';
-import { includeDependencyPackage } from './utils';
+import {
+  extractExtraFromDependencyName,
+  includeDependencyPackage,
+  normalizeDependencyName,
+} from './utils';
 import { BuildExecutorSchema } from '../../../../executors/build/schema';
 import { ExecutorContext } from '@nx/devkit';
 import { createHash } from 'crypto';
@@ -113,20 +117,20 @@ export class ProjectDependencyResolver {
     // Step 2: Process each dependency in the project
     for (const [group, dependencyName] of dependencies) {
       // Normalize the dependency name to get the base package name without version/extras
-      const normalizedName = this.normalizeDependencyName(dependencyName);
+      const normalizedName = normalizeDependencyName(dependencyName);
 
       // Find the actual dependency object from the appropriate group
       const dependency =
         group === '__main__'
           ? pyproject.project.dependencies.find(
-              (d) => this.normalizeDependencyName(d) === normalizedName,
+              (d) => normalizeDependencyName(d) === normalizedName,
             )
           : pyproject.project['optional-dependencies']?.[group]?.find(
-              (d) => this.normalizeDependencyName(d) === normalizedName,
+              (d) => normalizeDependencyName(d) === normalizedName,
             );
 
       // Extract any extras specified for this dependency (e.g., "requests[security]")
-      const extras = this.extractExtraFromDependencyName(dependency);
+      const extras = extractExtraFromDependencyName(dependency);
 
       if (!normalizedName) {
         continue;
@@ -218,11 +222,11 @@ export class ProjectDependencyResolver {
               if (targetExtras[extraName]) {
                 // If the extra already exists, merge the dependencies
                 for (const dep of extraData) {
-                  const normalizedDep = this.normalizeDependencyName(dep);
+                  const normalizedDep = normalizeDependencyName(dep);
                   if (
                     normalizedDep &&
                     !targetExtras[extraName].some(
-                      (d) => this.normalizeDependencyName(d) === normalizedDep,
+                      (d) => normalizeDependencyName(d) === normalizedDep,
                     )
                   ) {
                     targetExtras[extraName].push(dep);
@@ -240,8 +244,8 @@ export class ProjectDependencyResolver {
           // Step 5e: Process each dependency from the local dependency
           for (const [depGroup, depName] of depDependencies) {
             let depGroupToUse = depGroup;
-            const normalizedDep = this.normalizeDependencyName(depName);
-            const depExtras = this.extractExtraFromDependencyName(depName);
+            const normalizedDep = normalizeDependencyName(depName);
+            const depExtras = extractExtraFromDependencyName(depName);
 
             // Step 5f: Handle extras promotion - move optional dependencies to main
             if (extras.length && group === '__main__') {
@@ -293,8 +297,7 @@ export class ProjectDependencyResolver {
                  */
                 if (
                   libsToSetToMain.some(
-                    (lib) =>
-                      this.normalizeDependencyName(lib) === normalizedDep,
+                    (lib) => normalizeDependencyName(lib) === normalizedDep,
                   )
                 ) {
                   // Promote this dependency to main dependencies
@@ -311,8 +314,7 @@ export class ProjectDependencyResolver {
                       pyproject.project['optional-dependencies'][
                         extraName
                       ].filter(
-                        (d) =>
-                          this.normalizeDependencyName(d) !== normalizedDep,
+                        (d) => normalizeDependencyName(d) !== normalizedDep,
                       );
 
                     // If the optional dependencies group is empty, remove it
@@ -338,15 +340,15 @@ export class ProjectDependencyResolver {
               hasMoreLevels = true;
 
               // Merge extras from existing dependency with new extras
-              const existingDepExtras = this.extractExtraFromDependencyName(
+              const existingDepExtras = extractExtraFromDependencyName(
                 depGroupToUse === '__main__'
                   ? pyproject.project.dependencies.find(
-                      (d) => this.normalizeDependencyName(d) === normalizedDep,
+                      (d) => normalizeDependencyName(d) === normalizedDep,
                     )
                   : pyproject.project?.['optional-dependencies']?.[
                       depGroupToUse
                     ]?.find(
-                      (d) => this.normalizeDependencyName(d) === normalizedDep,
+                      (d) => normalizeDependencyName(d) === normalizedDep,
                     ),
               );
 
@@ -443,8 +445,8 @@ export class ProjectDependencyResolver {
       pyproject.project['optional-dependencies'][extraName] = extraData.filter(
         (optionalDep) =>
           !pyproject.project.dependencies
-            .map((dep) => this.normalizeDependencyName(dep))
-            .includes(this.normalizeDependencyName(optionalDep)),
+            .map((dep) => normalizeDependencyName(dep))
+            .includes(normalizeDependencyName(optionalDep)),
       );
 
       // Remove empty optional dependency groups
@@ -465,30 +467,6 @@ export class ProjectDependencyResolver {
     }
 
     return pyproject;
-  }
-
-  /**
-   * Extracts extra specifications from a dependency name.
-   *
-   * Parses dependency strings like "package[extra1,extra2]" to extract
-   * the list of extras: ["extra1", "extra2"]
-   *
-   * @param depName - The dependency name that may contain extras
-   * @returns Array of extra names, empty if no extras found
-   */
-  private extractExtraFromDependencyName(
-    depName: string | undefined,
-  ): string[] {
-    if (!depName) {
-      return [];
-    }
-
-    return (
-      depName
-        .match(/\[(.*)\]/)?.[1]
-        ?.split(',')
-        ?.map((e) => e?.trim()) ?? []
-    );
   }
 
   /**
@@ -535,10 +513,10 @@ export class ProjectDependencyResolver {
     force = false,
   ) {
     const index = this.addIndex(pyproject, targetOptions);
-    const normalizedName = this.normalizeDependencyName(dependency);
+    const normalizedName = normalizeDependencyName(dependency);
     if (group === '__main__') {
       const existingIndex = pyproject.project.dependencies.findIndex(
-        (dep) => this.normalizeDependencyName(dep) === normalizedName,
+        (dep) => normalizeDependencyName(dep) === normalizedName,
       );
 
       if (existingIndex !== -1 && !force) {
@@ -556,9 +534,7 @@ export class ProjectDependencyResolver {
 
       const existingIndex = pyproject.project['optional-dependencies'][
         group
-      ].findIndex(
-        (dep) => this.normalizeDependencyName(dep) === normalizedName,
-      );
+      ].findIndex((dep) => normalizeDependencyName(dep) === normalizedName);
 
       if (existingIndex !== -1 && !force) {
         return;
@@ -603,26 +579,6 @@ export class ProjectDependencyResolver {
         return acc;
       }, [] as string[][]),
     ];
-  }
-
-  /**
-   * Normalizes a dependency name by extracting the base package name.
-   *
-   * Removes version constraints, extras, and other specifications to get
-   * just the package name. For example:
-   * - "requests[security]>=2.25.0" -> "requests"
-   * - "numpy" -> "numpy"
-   *
-   * @param dependency - The dependency string to normalize
-   * @returns The normalized package name, or undefined if invalid
-   */
-  private normalizeDependencyName(dependency: string): string | undefined {
-    const match = /^[a-zA-Z0-9-_]+/.exec(dependency);
-    if (!match) {
-      return undefined;
-    }
-
-    return match[0];
   }
 
   /**
