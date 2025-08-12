@@ -1,3 +1,13 @@
+# [21.1.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v21.0.4...nx-python-v21.1.0) (2025-08-12)
+
+### Bug Fixes
+
+- handling locked extras for uv ([b9266b3](https://github.com/lucasvieirasilva/nx-plugins/commit/b9266b319b3f055785e9972c29a46096c66e6b57))
+
+### Features
+
+- add package project and dependencies executors ([eabc3c3](https://github.com/lucasvieirasilva/nx-plugins/commit/eabc3c3f611b2519c579a4a1749a97428b18f1db))
+
 ## [21.0.4](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v21.0.3...nx-python-v21.0.4) (2025-07-18)
 
 ### Bug Fixes
