@@ -286,6 +286,8 @@ describe('nx-python migrate-shared-venv generator', () => {
         codeCoverageHtmlReport: true,
         codeCoverageXmlReport: true,
         projectNameAndRootFormat: 'derived',
+        buildSystem: 'hatch',
+        srcDir: false,
       });
 
       const task = await generator(appTree, {
@@ -329,6 +331,8 @@ describe('nx-python migrate-shared-venv generator', () => {
         codeCoverageHtmlReport: false,
         codeCoverageXmlReport: false,
         projectNameAndRootFormat: 'derived',
+        buildSystem: 'hatch',
+        srcDir: false,
       });
 
       const task = await generator(appTree, {

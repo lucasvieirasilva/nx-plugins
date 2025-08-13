@@ -129,6 +129,17 @@
       "type": "boolean",
       "description": "Use legacy versioning for nx-release",
       "default": true
+    },
+    "buildSystem": {
+      "type": "string",
+      "description": "Build system to use",
+      "enum": ["hatch", "uv"],
+      "default": "hatch"
+    },
+    "srcDir": {
+      "type": "boolean",
+      "description": "Whether to generate the project in a src directory or the module in the project root",
+      "default": false
     }
   },
   "required": ["name", "projectType"]
