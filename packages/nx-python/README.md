@@ -351,6 +351,12 @@ nx generate @nxlv/python:uv-project myproject
 | `--codeCoverageXmlReport`        | `boolean` | Enable Code Coverage XML Reports                                                                                                                                                       | `false`  | `true`                                   |
 | `--codeCoverageThreshold`        | `number`  | Minimum Code Coverage Threshold                                                                                                                                                        | `false`  | N/A                                      |
 | `--projectNameAndRootFormat`     | `string`  | Whether to generate the project name and root directory as provided (`as-provided`) or generate them composing their values and taking the configured layout into account (`derived`). | `false`  | `as-provided`                            |
+| `--srcDir`                       | `boolean` | Whether to generate the module source files inside a `src` directory (uv recommended) **NOTE**: To keep backward compatibility with previous versions, the default value is `false`    | `false`  | `false`                                  |
+| `--buildSystem`                  | `string`  | Build system to use (`hatch` or `uv`)                                                                                                                                                  | `false`  | `hatch`                                  |
+
+### UV Packaged Application/Library
+
+Provide the `--srcDir` and `--buildSystem=uv` option to generate the module source files inside a `src` directory, this is the recommended approach for [packaged projects](https://docs.astral.sh/uv/concepts/projects/init/#packaged-applications).
 
 ### Shared Virtual Environment
 

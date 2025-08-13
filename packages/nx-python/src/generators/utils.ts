@@ -85,10 +85,10 @@ export function calculateProjectNameAndRoot(
   return { projectName, projectRoot };
 }
 
-export function normalizeOptions(
-  tree: Tree,
-  options: BasePythonProjectGeneratorSchema,
-): BaseNormalizedSchema {
+export function normalizeOptions<
+  T extends BasePythonProjectGeneratorSchema,
+  R extends BaseNormalizedSchema,
+>(tree: Tree, options: T): R {
   const { projectName, projectRoot } = calculateProjectNameAndRoot(
     options,
     tree,
@@ -98,7 +98,7 @@ export function normalizeOptions(
     ? options.tags.split(',').map((s) => s.trim())
     : [];
 
-  const newOptions = _.clone(options) as BaseNormalizedSchema;
+  const newOptions = _.clone(options) as T;
 
   if (!options.pyprojectPythonDependency) {
     newOptions.pyprojectPythonDependency = '>=3.9,<4';
@@ -146,7 +146,7 @@ export function normalizeOptions(
     projectName,
     projectRoot,
     parsedTags,
-  };
+  } as unknown as R;
 }
 
 export function getPyprojectTomlByProjectName<T>(
