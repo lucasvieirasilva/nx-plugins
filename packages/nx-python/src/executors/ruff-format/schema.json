@@ -16,6 +16,11 @@
       "description": "Only check if the files are formatted correctly, don't format them",
       "default": false
     },
+    "installDependenciesIfNotExists": {
+      "type": "boolean",
+      "description": "Run the package manager install command if the virtual environment is not activated (default: false)",
+      "default": false
+    },
     "__unparsed__": {
       "hidden": true,
       "type": "array",

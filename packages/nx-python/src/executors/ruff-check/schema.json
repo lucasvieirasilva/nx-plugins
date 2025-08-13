@@ -17,6 +17,11 @@
       "default": false,
       "x-priority": "important"
     },
+    "installDependenciesIfNotExists": {
+      "type": "boolean",
+      "description": "Run the package manager install command if the virtual environment is not activated (default: false)",
+      "default": false
+    },
     "__unparsed__": {
       "hidden": true,
       "type": "array",

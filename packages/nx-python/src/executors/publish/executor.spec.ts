@@ -122,7 +122,7 @@ describe('Publish Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(childProcessMocks.spawn).not.toHaveBeenCalled();
       expect(output.success).toBe(false);
     });
@@ -138,7 +138,7 @@ describe('Publish Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(childProcessMocks.spawn).not.toHaveBeenCalled();
       expect(output.success).toBe(false);
     });
@@ -155,7 +155,7 @@ describe('Publish Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(childProcessMocks.spawn).not.toHaveBeenCalled();
       expect(output.success).toBe(false);
     });
@@ -184,7 +184,7 @@ describe('Publish Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(childProcessMocks.spawn).toHaveBeenCalledWith('poetry publish', {
         cwd: 'tmp',
         env: { ...process.env, FORCE_COLOR: 'true' },
@@ -231,7 +231,7 @@ describe('Publish Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(childProcessMocks.spawn).toHaveBeenCalledWith(
         'poetry publish --repository aws',
         {
@@ -281,7 +281,7 @@ describe('Publish Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(childProcessMocks.spawn).toHaveBeenCalledWith(
         'poetry publish -vvv --dry-run',
         {
@@ -336,7 +336,7 @@ describe('Publish Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(childProcessMocks.spawn).toHaveBeenCalledWith('poetry publish', {
         cwd: 'tmp',
         env: { ...process.env, FORCE_COLOR: 'true' },
@@ -388,7 +388,7 @@ describe('Publish Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(childProcessMocks.spawn).toHaveBeenCalledWith('poetry publish', {
         cwd: 'tmp',
         env: { ...process.env, FORCE_COLOR: 'true' },

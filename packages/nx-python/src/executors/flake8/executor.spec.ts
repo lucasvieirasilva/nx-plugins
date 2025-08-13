@@ -85,7 +85,7 @@ describe('Flake8 Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(spawn.sync).not.toHaveBeenCalled();
       expect(output.success).toBe(false);
     });
@@ -133,7 +133,7 @@ describe('Flake8 Executor', () => {
         context,
       );
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(spawn.sync).toHaveBeenCalledTimes(1);
       expect(output.success).toBe(true);
     });
@@ -183,7 +183,7 @@ describe('Flake8 Executor', () => {
         context,
       );
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(spawn.sync).toHaveBeenCalledTimes(1);
       expect(output.success).toBe(true);
     });
@@ -222,7 +222,7 @@ describe('Flake8 Executor', () => {
         context,
       );
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(spawn.sync).toHaveBeenCalledTimes(1);
       expect(output.success).toBe(false);
     });
@@ -271,7 +271,7 @@ describe('Flake8 Executor', () => {
         context,
       );
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(spawn.sync).toHaveBeenCalledTimes(1);
       expect(output.success).toBe(false);
     });
@@ -340,7 +340,7 @@ describe('Flake8 Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPrerequisites).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(spawn.sync).not.toHaveBeenCalled();
       expect(output.success).toBe(false);
     });
@@ -388,7 +388,7 @@ describe('Flake8 Executor', () => {
         context,
       );
       expect(checkPrerequisites).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(spawn.sync).toHaveBeenCalledTimes(1);
       expect(spawn.sync).toHaveBeenCalledWith(
         'uv',
@@ -448,7 +448,7 @@ describe('Flake8 Executor', () => {
         context,
       );
       expect(checkPrerequisites).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(spawn.sync).toHaveBeenCalledTimes(1);
       expect(spawn.sync).toHaveBeenCalledWith(
         'uv',
@@ -497,7 +497,7 @@ describe('Flake8 Executor', () => {
         context,
       );
       expect(checkPrerequisites).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(spawn.sync).toHaveBeenCalledTimes(1);
       expect(spawn.sync).toHaveBeenCalledWith(
         'uv',

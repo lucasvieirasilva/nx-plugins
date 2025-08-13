@@ -21,7 +21,11 @@ export default async function executor(
     undefined,
     context,
   );
-  await provider.activateVenv(workspaceRoot, context);
+  await provider.activateVenv(
+    workspaceRoot,
+    options.installDependenciesIfNotExists ?? false,
+    context,
+  );
 
   const projectConfig =
     context.projectsConfigurations.projects[context.projectName];

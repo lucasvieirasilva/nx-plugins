@@ -60,7 +60,7 @@ describe('Activate Venv', () => {
         },
       },
     };
-    await provider.activateVenv('.', context);
+    await provider.activateVenv('.', true, context);
 
     expect(process.env).toStrictEqual({
       ...originalEnv,
@@ -68,5 +68,35 @@ describe('Activate Venv', () => {
       PATH: `${path.resolve('apps/app/.venv')}/bin:${originalEnv.PATH}`,
     });
     expect(installMock).toHaveBeenCalled();
+  });
+
+  it('should not install venv before activating it', async () => {
+    delete process.env.VIRTUAL_ENV;
+
+    const context: ExecutorContext = {
+      root: '.',
+      cwd: '.',
+      projectName: 'app',
+      isVerbose: false,
+      nxJsonConfiguration: {},
+      projectGraph: {
+        dependencies: {},
+        nodes: {},
+      },
+      projectsConfigurations: {
+        version: 1,
+        projects: {
+          app: {
+            root: 'apps/app',
+          },
+        },
+      },
+    };
+    await provider.activateVenv('.', false, context);
+
+    expect(process.env).toStrictEqual({
+      ...originalEnv,
+    });
+    expect(installMock).not.toHaveBeenCalled();
   });
 });
