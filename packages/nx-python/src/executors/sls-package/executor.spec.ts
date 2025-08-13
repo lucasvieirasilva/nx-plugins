@@ -59,7 +59,7 @@ describe('Serverless Framework Package Executor', () => {
         },
         context,
       );
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(spawn.sync).not.toHaveBeenCalled();
       expect(output.success).toBe(false);
     });
@@ -75,7 +75,7 @@ describe('Serverless Framework Package Executor', () => {
         },
         context,
       );
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(spawn.sync).not.toHaveBeenCalled();
       expect(output.success).toBe(false);
     });
@@ -99,7 +99,7 @@ describe('Serverless Framework Package Executor', () => {
         },
         context,
       );
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(spawn.sync).toHaveBeenCalledWith(
         'npx',
         ['sls', 'package', '--stage', 'dev'],
@@ -131,7 +131,7 @@ describe('Serverless Framework Package Executor', () => {
         },
         context,
       );
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(spawn.sync).toHaveBeenCalledWith(
         'npx',
         ['sls', 'package', '--stage', 'dev'],

@@ -12,6 +12,11 @@
     "args": {
       "type": "string",
       "description": "Tox custom args"
+    },
+    "installDependenciesIfNotExists": {
+      "type": "boolean",
+      "description": "Run the package manager install command if the virtual environment is not activated (default: false)",
+      "default": false
     }
   },
   "required": []

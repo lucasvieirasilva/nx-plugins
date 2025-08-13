@@ -701,9 +701,14 @@ export class UVProvider extends BaseProvider {
       log?: boolean;
       error?: boolean;
     } & SpawnSyncOptions,
+    installIfNotExists?: boolean,
     context?: ExecutorContext,
   ): Promise<void> {
-    await this.activateVenv(workspaceRoot, context);
+    await this.activateVenv(
+      workspaceRoot,
+      installIfNotExists ?? false,
+      context,
+    );
     await this.checkPrerequisites();
 
     runUv(['run', ...args], {

@@ -3,9 +3,14 @@ import baseExecutor, {
   RunCommandsOptions,
 } from 'nx/src/executors/run-commands/run-commands.impl';
 import { getProvider } from '../../provider';
+import { BaseExecutorSchema } from '../base-schema';
+
+export interface RunCommandsExecutorSchema
+  extends RunCommandsOptions,
+    BaseExecutorSchema {}
 
 export default async function executor(
-  options: RunCommandsOptions,
+  options: RunCommandsExecutorSchema,
   context: ExecutorContext,
 ) {
   const provider = await getProvider(
@@ -14,6 +19,10 @@ export default async function executor(
     undefined,
     context,
   );
-  await provider.activateVenv(context.root, context);
+  await provider.activateVenv(
+    context.root,
+    options.installDependenciesIfNotExists ?? false,
+    context,
+  );
   return baseExecutor(options, context);
 }

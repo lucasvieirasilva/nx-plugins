@@ -12,6 +12,11 @@
       "type": "boolean",
       "description": "Hide output text.",
       "default": false
+    },
+    "installDependenciesIfNotExists": {
+      "type": "boolean",
+      "description": "Run the package manager install command if the virtual environment is not activated (default: false)",
+      "default": false
     }
   },
   "required": ["outputFile"]

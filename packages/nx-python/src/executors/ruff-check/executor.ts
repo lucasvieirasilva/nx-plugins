@@ -58,6 +58,7 @@ export default async function executor(
         error: true,
         shell: true,
       },
+      options.installDependenciesIfNotExists,
       context,
     );
 
