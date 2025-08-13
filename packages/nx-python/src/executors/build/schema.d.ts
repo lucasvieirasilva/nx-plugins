@@ -1,4 +1,6 @@
-export interface BuildExecutorSchema {
+import { BaseExecutorSchema } from '../base-schema';
+
+export interface BuildExecutorSchema extends BaseExecutorSchema {
   silent: boolean;
   ignorePaths: string[];
   outputPath: string;

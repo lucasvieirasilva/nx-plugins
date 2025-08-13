@@ -75,6 +75,7 @@ export default async function executor(
       {
         cwd: projectConfig.root,
       },
+      options.installDependenciesIfNotExists,
       context,
     );
 

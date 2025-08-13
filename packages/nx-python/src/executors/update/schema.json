@@ -16,6 +16,11 @@
       "type": "boolean",
       "description": "Local dependency",
       "default": false
+    },
+    "installDependenciesIfNotExists": {
+      "type": "boolean",
+      "description": "Run the package manager install command if the virtual environment is not activated (default: false)",
+      "default": false
     }
   },
   "required": []

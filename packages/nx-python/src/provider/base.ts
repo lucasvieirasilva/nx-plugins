@@ -12,6 +12,7 @@ import { Logger } from '../executors/utils/logger';
 import path from 'path';
 import fs from 'fs';
 import chalk from 'chalk';
+import { parse } from '@iarna/toml';
 
 export type Dependency = {
   name: string;
@@ -131,33 +132,63 @@ export abstract class BaseProvider {
       log?: boolean;
       error?: boolean;
     } & SpawnSyncOptions,
+    installIfNotExists?: boolean,
     context?: ExecutorContext,
   ): Promise<void>;
 
   public async activateVenv(
     workspaceRoot: string,
+    installIfNotExists = false,
     context?: ExecutorContext,
   ): Promise<void> {
     if (!process.env.VIRTUAL_ENV) {
-      if (!this.isWorkspace && !context) {
-        throw new Error('context is required when not in a workspace');
+      if (this.isWorkspace) {
+        const rootPyproject = path.join(workspaceRoot, 'pyproject.toml');
+
+        if (fs.existsSync(rootPyproject)) {
+          const rootConfig = parse(fs.readFileSync(rootPyproject, 'utf-8')) as {
+            tool?: {
+              nx?: {
+                autoActivate?: boolean;
+              };
+            };
+          };
+          const autoActivate = rootConfig.tool.nx?.autoActivate ?? false;
+          if (autoActivate) {
+            console.log(
+              chalk`\n{bold shared virtual environment detected and not activated, activating...}\n\n`,
+            );
+            const virtualEnv = path.resolve(workspaceRoot, '.venv');
+            this.setVenvEnvironmentVariables(virtualEnv);
+          }
+        }
       }
 
-      const projectRoot =
-        context?.projectsConfigurations?.projects[context?.projectName]?.root;
-      const baseDir = this.isWorkspace ? workspaceRoot : projectRoot;
+      if (installIfNotExists) {
+        if (!this.isWorkspace && !context) {
+          throw new Error('context is required when not in a workspace');
+        }
 
-      const virtualEnv = path.resolve(baseDir, '.venv');
-      if (!fs.existsSync(virtualEnv)) {
-        this.logger.info(
-          chalk`\n  {bold Creating virtual environment in {bgBlue  ${baseDir} }...}\n`,
-        );
-        await this.install(baseDir);
+        const projectRoot =
+          context?.projectsConfigurations?.projects[context?.projectName]?.root;
+        const baseDir = this.isWorkspace ? workspaceRoot : projectRoot;
+
+        const virtualEnv = path.resolve(baseDir, '.venv');
+        if (!fs.existsSync(virtualEnv)) {
+          this.logger.info(
+            chalk`\n  {bold Creating virtual environment in {bgBlue  ${baseDir} }...}\n`,
+          );
+          await this.install(baseDir);
+        }
+
+        this.setVenvEnvironmentVariables(virtualEnv);
       }
-
-      process.env.VIRTUAL_ENV = virtualEnv;
-      process.env.PATH = `${virtualEnv}/bin:${process.env.PATH}`;
-      delete process.env.PYTHONHOME;
     }
+  }
+
+  private setVenvEnvironmentVariables(virtualEnvPath: string) {
+    process.env.VIRTUAL_ENV = virtualEnvPath;
+    process.env.PATH = `${virtualEnvPath}/bin:${process.env.PATH}`;
+    delete process.env.PYTHONHOME;
   }
 }

@@ -225,7 +225,11 @@ export class PoetryProvider extends BaseProvider {
     options: AddExecutorSchema,
     context: ExecutorContext,
   ): Promise<void> {
-    await this.activateVenv(context.root, context);
+    await this.activateVenv(
+      context.root,
+      options.installDependenciesIfNotExists ?? false,
+      context,
+    );
     await checkPoetryExecutable();
     const projectConfig =
       context.projectsConfigurations.projects[context.projectName];
@@ -269,7 +273,11 @@ export class PoetryProvider extends BaseProvider {
     options: UpdateExecutorSchema,
     context: ExecutorContext,
   ): Promise<void> {
-    await this.activateVenv(context.root, context);
+    await this.activateVenv(
+      context.root,
+      options.installDependenciesIfNotExists ?? false,
+      context,
+    );
     await checkPoetryExecutable();
     const projectConfig =
       context.projectsConfigurations.projects[context.projectName];
@@ -318,7 +326,11 @@ export class PoetryProvider extends BaseProvider {
     options: RemoveExecutorSchema,
     context: ExecutorContext,
   ): Promise<void> {
-    await this.activateVenv(context.root, context);
+    await this.activateVenv(
+      context.root,
+      options.installDependenciesIfNotExists ?? false,
+      context,
+    );
     await checkPoetryExecutable();
     const rootPyprojectToml = fs.existsSync('pyproject.toml');
     const projectConfig =
@@ -363,7 +375,11 @@ export class PoetryProvider extends BaseProvider {
     let buildFolderPath = '';
 
     try {
-      await this.activateVenv(context.root, context);
+      await this.activateVenv(
+        context.root,
+        options.installDependenciesIfNotExists ?? false,
+        context,
+      );
       await checkPoetryExecutable();
 
       for await (const output of await runExecutor<BuildExecutorOutput>(
@@ -635,7 +651,11 @@ export class PoetryProvider extends BaseProvider {
     options: BuildExecutorSchema,
     context: ExecutorContext,
   ): Promise<string> {
-    await this.activateVenv(context.root, context);
+    await this.activateVenv(
+      context.root,
+      options.installDependenciesIfNotExists ?? false,
+      context,
+    );
     await checkPoetryExecutable();
     if (
       options.lockedVersions === true &&
@@ -771,9 +791,14 @@ export class PoetryProvider extends BaseProvider {
       log?: boolean;
       error?: boolean;
     } & SpawnSyncOptions,
+    installIfNotExists?: boolean,
     context?: ExecutorContext,
   ): Promise<void> {
-    await this.activateVenv(workspaceRoot, context);
+    await this.activateVenv(
+      workspaceRoot,
+      installIfNotExists ?? false,
+      context,
+    );
     await checkPoetryExecutable();
 
     runPoetry(['run', ...args], options);

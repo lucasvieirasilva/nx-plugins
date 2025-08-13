@@ -49,6 +49,7 @@ export default async function executor(
         log: false,
         error: false,
       },
+      options.installDependenciesIfNotExists,
       context,
     );
 
