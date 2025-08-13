@@ -78,7 +78,7 @@ describe('Update Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(spawn.sync).not.toHaveBeenCalled();
       expect(output.success).toBe(false);
     });
@@ -126,7 +126,7 @@ describe('Update Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(spawn.sync).toHaveBeenCalledWith('poetry', ['update', 'numpy'], {
         cwd: 'apps/app',
         shell: false,
@@ -178,7 +178,7 @@ describe('Update Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(spawn.sync).not.toHaveBeenCalled();
       expect(output.success).toBe(false);
     });
@@ -230,7 +230,7 @@ describe('Update Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(spawn.sync).toHaveBeenCalledWith('poetry', ['update', 'numpy'], {
         cwd: 'apps/app',
         shell: false,
@@ -332,7 +332,7 @@ describe('Update Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(spawn.sync).toHaveBeenCalledTimes(7);
       expect(spawn.sync).toHaveBeenNthCalledWith(
         1,
@@ -501,7 +501,7 @@ describe('Update Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(spawn.sync).toHaveBeenCalledTimes(7);
       expect(spawn.sync).toHaveBeenNthCalledWith(
         1,
@@ -619,7 +619,7 @@ describe('Update Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(spawn.sync).toHaveBeenCalledTimes(2);
       expect(spawn.sync).toHaveBeenNthCalledWith(
         1,
@@ -702,7 +702,7 @@ describe('Update Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(spawn.sync).toHaveBeenCalledTimes(2);
       expect(spawn.sync).toHaveBeenNthCalledWith(
         1,
@@ -782,7 +782,7 @@ describe('Update Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(spawn.sync).toHaveBeenCalledWith(
         'poetry',
         ['update', 'numpy', '--group', 'dev'],
@@ -837,7 +837,7 @@ describe('Update Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(spawn.sync).toHaveBeenCalledWith('poetry', ['update'], {
         cwd: 'apps/app',
         shell: false,
@@ -898,7 +898,7 @@ describe('Update Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(spawn.sync).toHaveBeenNthCalledWith(
         1,
         'poetry',
@@ -1035,7 +1035,7 @@ describe('Update Executor', () => {
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
-      expect(activateVenvMock).toHaveBeenCalledWith('.', context);
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(spawn.sync).toHaveBeenCalledTimes(6);
       expect(spawn.sync).toHaveBeenNthCalledWith(
         1,

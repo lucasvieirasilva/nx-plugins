@@ -56,7 +56,11 @@ describe('run commands executor', () => {
       };
       await executor(options, context);
 
-      expect(activateVenvMock).toHaveBeenCalledWith(context.root, context);
+      expect(activateVenvMock).toHaveBeenCalledWith(
+        context.root,
+        false,
+        context,
+      );
       expect(
         (await import('nx/src/executors/run-commands/run-commands.impl'))
           .default,
@@ -86,7 +90,11 @@ describe('run commands executor', () => {
         };
         await executor(options, context);
 
-        expect(activateVenvMock).toHaveBeenCalledWith(context.root, context);
+        expect(activateVenvMock).toHaveBeenCalledWith(
+          context.root,
+          false,
+          context,
+        );
         expect(
           (await import('nx/src/executors/run-commands/run-commands.impl'))
             .default,
