@@ -1,3 +1,9 @@
+## [20.15.2](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.15.1...nx-python-v20.15.2) (2025-08-14)
+
+### Bug Fixes
+
+- **nx-python:** update activate venv to make install optional (default false) ([3d966a9](https://github.com/lucasvieirasilva/nx-plugins/commit/3d966a9d67f15c68c763283b4e476991ba1eee12))
+
 ## [20.15.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.15.0...nx-python-v20.15.1) (2025-05-07)
 
 ### Bug Fixes
