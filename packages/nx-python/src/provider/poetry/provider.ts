@@ -104,9 +104,11 @@ export class PoetryProvider extends BaseProvider {
     }
     projectData.tool.poetry.version = newVersion;
 
-    this.tree
-      ? writePyprojectToml(this.tree, pyprojectTomlPath, projectData)
-      : writeFileSync(pyprojectTomlPath, stringify(projectData));
+    if (this.tree) {
+      writePyprojectToml(this.tree, pyprojectTomlPath, projectData);
+    } else {
+      writeFileSync(pyprojectTomlPath, stringify(projectData));
+    }
   }
 
   public getDependencyMetadata(
