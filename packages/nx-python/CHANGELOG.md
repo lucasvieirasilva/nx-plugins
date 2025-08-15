@@ -1,3 +1,9 @@
+## [20.15.3](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.15.2...nx-python-v20.15.3) (2025-08-15)
+
+### Bug Fixes
+
+- prevent additional arguments to be passed to run-commands executor ([1645c7e](https://github.com/lucasvieirasilva/nx-plugins/commit/1645c7eca4106ae4134f0c4b6760550728b67385))
+
 ## [20.15.2](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v20.15.1...nx-python-v20.15.2) (2025-08-14)
 
 ### Bug Fixes
