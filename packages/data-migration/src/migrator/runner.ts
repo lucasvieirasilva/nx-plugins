@@ -68,7 +68,6 @@ export class MigratorRunner {
         }ms`,
       );
 
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const migrationType = require(
         require.resolve(path.join(this.cwd, distFile)),
       );

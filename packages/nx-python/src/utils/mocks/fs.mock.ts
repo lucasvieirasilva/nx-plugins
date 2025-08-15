@@ -52,7 +52,7 @@ vi.mock('fs-extra', async () => {
     mkdirsSync: (dir) => {
       try {
         memfs.fs.mkdirSync(dir, { recursive: true });
-      } catch (e) {
+      } catch {
         // ignore
       }
     },

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 import '../../__mocks__/dynamoose.mock';
 import { vi } from 'vitest';
 import { model } from 'dynamoose';

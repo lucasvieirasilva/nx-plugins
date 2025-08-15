@@ -50,7 +50,11 @@ export const spawnPromise = function (
         output: outputStr,
       };
 
-      code === 0 ? resolve(result) : reject(result);
+      if (code === 0) {
+        resolve(result);
+      } else {
+        reject(result);
+      }
     });
   });
 };

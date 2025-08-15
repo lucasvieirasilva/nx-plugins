@@ -1,5 +1,14 @@
 {
-  "name": "@@nxlv/nx-plugins/data-migration-example",
+  "name": "@nxlv/nx-plugins/data-migration-example",
   "version": "0.0.1",
-  "type": "commonjs"
+  "type": "commonjs",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.525.0",
+    "@aws-sdk/lib-dynamodb": "^3.525.0",
+    "@aws-sdk/util-dynamodb": "^3.525.0",
+    "@nxlv/data-migration": "7.0.0",
+    "@nxlv/util": "6.0.0",
+    "aws-lambda": "^1.0.7",
+    "tslib": "^2.3.0"
+  }
 }

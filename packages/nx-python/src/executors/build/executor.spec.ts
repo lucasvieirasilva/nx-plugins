@@ -8772,7 +8772,7 @@ describe('Build Executor', () => {
                 requires = ["hatchling"]
                 build-backend = "hatchling.build"
                 `,
-                
+
                 'apps/app/uv.lock': dedent`
                 [[package]]
                 name = "app1"
@@ -9090,7 +9090,7 @@ describe('Build Executor', () => {
                 requires = ["uv_build>=0.8.9,<0.9.0"]
                 build-backend = "uv_build"
                 `,
-                
+
                 'apps/app/uv.lock': dedent`
                 [[package]]
                 name = "app1"
@@ -9267,7 +9267,7 @@ describe('Build Executor', () => {
                 requires = ["uv_build>=0.8.9,<0.9.0"]
                 build-backend = "uv_build"
                 `,
-                
+
                 'apps/app/uv.lock': dedent`
                 [[package]]
                 name = "app1"
@@ -12036,7 +12036,7 @@ describe('Build Executor', () => {
               ).toStrictEqual(['src/app', 'src/dep1']);
 
               expect(projectTomlData.project.dependencies).toStrictEqual([
-                'django>=5.1.4'
+                'django>=5.1.4',
               ]);
               expect(projectTomlData['dependency-groups']).toStrictEqual({});
               expect(projectTomlData.tool.uv.sources).toStrictEqual({});
@@ -12186,7 +12186,7 @@ describe('Build Executor', () => {
               ).toStrictEqual(['src/app', 'src/dep1']);
 
               expect(projectTomlData.project.dependencies).toStrictEqual([
-                'django>=5.1.4'
+                'django>=5.1.4',
               ]);
               expect(projectTomlData['dependency-groups']).toStrictEqual({});
               expect(projectTomlData.tool.uv.sources).toStrictEqual({});
@@ -12338,10 +12338,10 @@ describe('Build Executor', () => {
 
               expect(
                 projectTomlData.tool?.uv?.['build-backend']?.['module-name'],
-              ).toStrictEqual(["app", "dep1"]);
+              ).toStrictEqual(['app', 'dep1']);
 
               expect(projectTomlData.project.dependencies).toStrictEqual([
-                'django>=5.1.4'
+                'django>=5.1.4',
               ]);
               expect(projectTomlData['dependency-groups']).toStrictEqual({});
               expect(projectTomlData.tool.uv.sources).toStrictEqual({});
@@ -12492,10 +12492,10 @@ describe('Build Executor', () => {
 
               expect(
                 projectTomlData.tool?.uv?.['build-backend']?.['module-name'],
-              ).toStrictEqual(["app", "dep1"]);
+              ).toStrictEqual(['app', 'dep1']);
 
               expect(projectTomlData.project.dependencies).toStrictEqual([
-                'django>=5.1.4'
+                'django>=5.1.4',
               ]);
               expect(projectTomlData['dependency-groups']).toStrictEqual({});
               expect(projectTomlData.tool.uv.sources).toStrictEqual({});
@@ -14639,7 +14639,7 @@ describe('Build Executor', () => {
               ).toStrictEqual(['src/app', 'src/dep1']);
 
               expect(projectTomlData.project.dependencies).toStrictEqual([
-                'django>=5.1.4'
+                'django>=5.1.4',
               ]);
               expect(projectTomlData['dependency-groups']).toStrictEqual({});
               expect(projectTomlData.tool.uv.sources).toStrictEqual({});
@@ -14759,7 +14759,7 @@ describe('Build Executor', () => {
               ).toStrictEqual(['src/app', 'src/dep1']);
 
               expect(projectTomlData.project.dependencies).toStrictEqual([
-                'django>=5.1.4'
+                'django>=5.1.4',
               ]);
               expect(projectTomlData['dependency-groups']).toStrictEqual({});
               expect(projectTomlData.tool.uv.sources).toStrictEqual({});
@@ -14881,10 +14881,10 @@ describe('Build Executor', () => {
 
               expect(
                 projectTomlData.tool?.uv?.['build-backend']?.['module-name'],
-              ).toStrictEqual(["app", "dep1"]);
+              ).toStrictEqual(['app', 'dep1']);
 
               expect(projectTomlData.project.dependencies).toStrictEqual([
-                'django>=5.1.4'
+                'django>=5.1.4',
               ]);
               expect(projectTomlData['dependency-groups']).toStrictEqual({});
               expect(projectTomlData.tool.uv.sources).toStrictEqual({});
@@ -15005,10 +15005,10 @@ describe('Build Executor', () => {
 
               expect(
                 projectTomlData.tool?.uv?.['build-backend']?.['module-name'],
-              ).toStrictEqual(["app", "dep1"]);
+              ).toStrictEqual(['app', 'dep1']);
 
               expect(projectTomlData.project.dependencies).toStrictEqual([
-                'django>=5.1.4'
+                'django>=5.1.4',
               ]);
               expect(projectTomlData['dependency-groups']).toStrictEqual({});
               expect(projectTomlData.tool.uv.sources).toStrictEqual({});

@@ -30,7 +30,8 @@ export function includeDependencyPackage(
     buildTomlData.tool ??= {};
     buildTomlData.tool.uv ??= {};
     buildTomlData.tool.uv['build-backend'] ??= {};
-    buildTomlData.tool.uv['build-backend']['module-name'] = getTargetModules(false);
+    buildTomlData.tool.uv['build-backend']['module-name'] =
+      getTargetModules(false);
   } else {
     throw new Error(
       `Unsupported build system: ${buildTomlData['build-system']['build-backend']}, expected hatchling.build or uv_build`,

@@ -17,7 +17,7 @@ export const POETRY_EXECUTABLE = 'poetry';
 export async function checkPoetryExecutable() {
   try {
     await commandExists(POETRY_EXECUTABLE);
-  } catch (e) {
+  } catch {
     throw new Error(
       'Poetry is not installed. Please install Poetry before running this command.',
     );

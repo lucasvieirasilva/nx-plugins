@@ -231,7 +231,7 @@ To fix this you will either need to add a pyproject.toml file at that location, 
               logger.buffer(
                 `📄 Resolved the current version as ${currentVersion} from pip registry`,
               );
-            } catch (e) {
+            } catch {
               spinner.stop();
 
               if (options.fallbackCurrentVersionResolver === 'disk') {
