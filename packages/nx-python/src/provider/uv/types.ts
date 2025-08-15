@@ -10,6 +10,10 @@ export type UVPyprojectToml = {
   'dependency-groups': {
     [key: string]: string[];
   };
+  'build-system'?: {
+    requires?: string[];
+    'build-backend'?: string;
+  };
   tool?: {
     hatch?: {
       build?: {
@@ -34,6 +38,10 @@ export type UVPyprojectToml = {
       index?: UVPyprojectTomlIndex[];
       workspace?: {
         members: string[];
+      };
+      'build-backend'?: {
+        'module-name'?: string[];
+        namespace?: boolean;
       };
     };
   };

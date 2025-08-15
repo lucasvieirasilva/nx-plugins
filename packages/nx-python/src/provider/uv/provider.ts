@@ -173,9 +173,11 @@ export class UVProvider extends BaseProvider {
     }
     projectData.project.version = newVersion;
 
-    this.tree
-      ? writePyprojectToml(this.tree, pyprojectTomlPath, projectData)
-      : writeFileSync(pyprojectTomlPath, toml.stringify(projectData));
+    if (this.tree) {
+      writePyprojectToml(this.tree, pyprojectTomlPath, projectData);
+    } else {
+      writeFileSync(pyprojectTomlPath, toml.stringify(projectData));
+    }
   }
 
   public getDependencies(

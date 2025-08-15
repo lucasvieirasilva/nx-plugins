@@ -1,6 +1,7 @@
 import {
   addProjectConfiguration,
   formatFiles,
+  generateFiles,
   ProjectConfiguration,
   readProjectConfiguration,
   Tree,
@@ -26,17 +27,28 @@ import { UVProvider } from '../../provider/uv';
 import { BaseProvider } from '../../provider/base';
 import { sortPreservingInsert, sortPreservingSet } from '../../utils/toml';
 
+export interface UVProjectGeneratorSchema
+  extends BasePythonProjectGeneratorSchema {
+  buildSystem: 'hatch' | 'uv';
+  srcDir: boolean;
+}
+
 interface NormalizedSchema extends BaseNormalizedSchema {
   devDependenciesProjectPath?: string;
   devDependenciesProjectPkgName?: string;
   individualPackage: boolean;
+  buildSystem: 'hatch' | 'uv';
+  srcDir: boolean;
 }
 
 function normalizeOptions(
   tree: Tree,
-  options: BasePythonProjectGeneratorSchema,
+  options: UVProjectGeneratorSchema,
 ): NormalizedSchema {
-  const newOptions = baseNormalizeOptions(tree, options);
+  const newOptions = baseNormalizeOptions<
+    UVProjectGeneratorSchema,
+    NormalizedSchema
+  >(tree, options);
 
   let devDependenciesProjectPkgName: string | undefined;
   let devDependenciesProjectPath: string | undefined;
@@ -237,10 +249,7 @@ async function updateRootUvLock(tree: Tree, provider: BaseProvider) {
   }
 }
 
-export default async function (
-  tree: Tree,
-  options: BasePythonProjectGeneratorSchema,
-) {
+export default async function (tree: Tree, options: UVProjectGeneratorSchema) {
   const provider = new UVProvider(tree.root, undefined, tree);
   await provider.checkPrerequisites();
 
@@ -258,6 +267,11 @@ export default async function (
       },
     },
   };
+
+  if (normalizedOptions.srcDir) {
+    targets['format'].options.filePatterns = [];
+    targets['lint'].options.lintFilePatterns = [];
+  }
 
   const projectConfiguration: ProjectConfiguration = {
     root: normalizedOptions.projectRoot,
@@ -285,6 +299,20 @@ export default async function (
   );
 
   addFiles(tree, normalizedOptions, __dirname);
+  generateFiles(
+    tree,
+    path.join(
+      __dirname,
+      'files',
+      normalizedOptions.srcDir ? 'src-dir' : 'standard',
+    ),
+    normalizedOptions.projectRoot,
+    {
+      ...normalizedOptions,
+      template: '',
+      dot: '.',
+    },
+  );
   updateDevDependenciesProject(tree, normalizedOptions);
   updateRootPyprojectToml(tree, normalizedOptions);
   await formatFiles(tree);

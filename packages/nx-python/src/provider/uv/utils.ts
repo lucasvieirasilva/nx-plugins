@@ -13,7 +13,7 @@ export const UV_EXECUTABLE = 'uv';
 export async function checkUvExecutable() {
   try {
     await commandExists(UV_EXECUTABLE);
-  } catch (e) {
+  } catch {
     throw new Error(
       'UV is not installed. Please install UV before running this command.',
     );

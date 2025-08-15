@@ -1,7 +1,11 @@
 <%if (codeCoverage) { -%>
 [tool.coverage.run]
 branch = true
+<%if (srcDir) { -%>
+source = [ "src" ]
+<% } else { -%>
 source = [ "<%= moduleName %>" ]
+<% } -%>
 
 [tool.coverage.report]
 exclude_lines = ['if TYPE_CHECKING:']
@@ -21,11 +25,13 @@ requires-python = "<%- pyprojectPythonDependency %>"
 readme = 'README.md'
 dependencies = []
 
+<%if (!srcDir) { -%>
 [tool.hatch.build.targets.wheel]
 packages = ["<%= moduleName %>"]
 
 [tool.hatch.metadata]
 allow-direct-references = true
+<% } -%>
 <%if (devDependenciesProject !== '' || individualPackage) { -%>
 
 [dependency-groups]
@@ -65,9 +71,15 @@ dev = [
 <% } -%>
 <% } -%>
 
+<%if (buildSystem === 'hatch') { -%>
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+<% } else if (buildSystem === 'uv') { -%>
+[build-system]
+requires = ["uv_build>=0.8.9,<0.9.0"]
+build-backend = "uv_build"
+<% } -%>
 <%if (linter === 'ruff') { -%>
 
 [tool.ruff]

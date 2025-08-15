@@ -4,18 +4,17 @@ import * as uvUtils from '../../provider/uv/utils';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import { Tree, readProjectConfiguration } from '@nx/devkit';
 
-import generator from './generator';
+import generator, { UVProjectGeneratorSchema } from './generator';
 import dedent from 'string-dedent';
 import { parse, stringify } from '@iarna/toml';
 import path from 'path';
 import spawn from 'cross-spawn';
 import { UVPyprojectToml } from '../../provider/uv/types';
-import { BasePythonProjectGeneratorSchema } from '../types';
 
 describe('application generator', () => {
   let checkUvExecutable: MockInstance;
   let appTree: Tree;
-  const options: BasePythonProjectGeneratorSchema = {
+  const options: UVProjectGeneratorSchema = {
     name: 'test',
     projectType: 'application',
     pyprojectPythonDependency: '',
@@ -32,6 +31,8 @@ describe('application generator', () => {
     codeCoverageXmlReport: false,
     projectNameAndRootFormat: 'derived',
     useNxReleaseLegacyVersioning: true,
+    buildSystem: 'hatch',
+    srcDir: false,
   };
 
   beforeEach(() => {
@@ -520,6 +521,28 @@ describe('application generator', () => {
         'shared_dev_lib',
       );
     });
+
+    it('should run successfully with ruff linter, pytest, uv build system and src directory', async () => {
+      await generator(appTree, {
+        ...options,
+        linter: 'ruff',
+        unitTestRunner: 'pytest',
+        codeCoverage: true,
+        codeCoverageHtmlReport: true,
+        codeCoverageXmlReport: true,
+        codeCoverageThreshold: 100,
+        unitTestJUnitReport: true,
+        unitTestHtmlReport: true,
+        buildSystem: 'uv',
+        srcDir: true,
+      });
+      const config = readProjectConfiguration(appTree, 'test');
+      expect(config).toMatchSnapshot();
+
+      assertGeneratedFilesBase(appTree, 'apps/test', 'test', true);
+      assertGeneratedFilesPyTest(appTree, 'apps/test');
+      expect(appTree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
+    });
   });
 
   describe('workspace', () => {
@@ -730,6 +753,7 @@ function assertGeneratedFilesBase(
   appTree: Tree,
   projectDirectory: string,
   moduleName: string,
+  srcDir = false,
 ) {
   expect(appTree.exists(`${projectDirectory}/README.md`)).toBeTruthy();
   expect(
@@ -741,13 +765,23 @@ function assertGeneratedFilesBase(
     appTree.read(`${projectDirectory}/pyproject.toml`, 'utf8'),
   ).toMatchSnapshot();
 
-  expect(
-    appTree.exists(`${projectDirectory}/${moduleName}/hello.py`),
-  ).toBeTruthy();
+  if (srcDir) {
+    expect(appTree.exists(`${projectDirectory}/src`)).toBeTruthy();
+    expect(
+      appTree.exists(`${projectDirectory}/src/${moduleName}`),
+    ).toBeTruthy();
+    expect(
+      appTree.read(`${projectDirectory}/src/${moduleName}/hello.py`, 'utf-8'),
+    ).toMatchSnapshot();
+  } else {
+    expect(
+      appTree.exists(`${projectDirectory}/${moduleName}/hello.py`),
+    ).toBeTruthy();
 
-  expect(
-    appTree.read(`${projectDirectory}/${moduleName}/hello.py`, 'utf-8'),
-  ).toMatchSnapshot();
+    expect(
+      appTree.read(`${projectDirectory}/${moduleName}/hello.py`, 'utf-8'),
+    ).toMatchSnapshot();
+  }
 
   expect(
     appTree.read(`${projectDirectory}/.python-version`, 'utf-8'),

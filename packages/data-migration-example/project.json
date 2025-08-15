@@ -4,10 +4,6 @@
   "sourceRoot": "packages/data-migration-example/src",
   "projectType": "library",
   "targets": {
-    "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"]
-    },
     "migrate": {
       "executor": "@nxlv/data-migration:migrate",
       "options": {
