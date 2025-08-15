@@ -1,3 +1,9 @@
+## [21.1.2](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v21.1.1...nx-python-v21.1.2) (2025-08-15)
+
+### Bug Fixes
+
+- prevent additional arguments to be passed to run-commands executor ([b1e0d3f](https://github.com/lucasvieirasilva/nx-plugins/commit/b1e0d3f1601f8337a8b9ea8d2e11d63214388d65))
+
 ## [21.1.1](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v21.1.0...nx-python-v21.1.1) (2025-08-14)
 
 ### Bug Fixes
