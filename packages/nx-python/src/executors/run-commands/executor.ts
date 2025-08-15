@@ -19,10 +19,11 @@ export default async function executor(
     undefined,
     context,
   );
+  const { installDependenciesIfNotExists, ...props } = options;
   await provider.activateVenv(
     context.root,
-    options.installDependenciesIfNotExists ?? false,
+    installDependenciesIfNotExists ?? false,
     context,
   );
-  return baseExecutor(options, context);
+  return baseExecutor(props, context);
 }
