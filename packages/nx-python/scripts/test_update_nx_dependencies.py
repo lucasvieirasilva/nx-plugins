@@ -403,6 +403,34 @@ class TestUpdateProjectJson:
         updated_data = parse_jsonc(project_json)
         assert updated_data["implicitDependencies"] == ["new-dep1", "new-dep2"]
 
+    def test_update_project_json_missing_implicit_dependencies(self, tmp_path):
+        """Test adding implicitDependencies when the field doesn't exist."""
+        project_dir = tmp_path / "project1"
+        project_dir.mkdir()
+
+        project_json = project_dir / "project.json"
+        # Project.json without implicitDependencies field
+        original_content = '''{
+  "name": "project1",
+  "projectType": "library",
+  "targets": {}
+}'''
+        project_json.write_text(original_content)
+
+        new_dependencies = ["new-dep1", "new-dep2"]
+        result = update_project_json(project_dir, new_dependencies)
+
+        assert result is True
+
+        # Verify the field was added
+        updated_content = project_json.read_text()
+        assert '"implicitDependencies":' in updated_content
+
+        # Verify data is correct
+        updated_data = parse_jsonc(project_json)
+        assert updated_data["implicitDependencies"] == ["new-dep1", "new-dep2"]
+        assert updated_data["name"] == "project1"  # Other fields preserved
+
     def test_update_project_json_invalid_json(self, tmp_path, capsys):
         """Test handling of invalid JSON in project.json."""
         project_dir = tmp_path / "project1"

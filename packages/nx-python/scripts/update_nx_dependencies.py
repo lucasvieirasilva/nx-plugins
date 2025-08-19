@@ -69,9 +69,13 @@ def parse_jsonc(file_path: Path) -> dict:
     with open(file_path, encoding='utf-8') as f:
         content = f.read()
 
-    # Strip comments and parse as JSON
-    json_content = strip_jsonc_comments(content)
-    return json.loads(json_content)
+    # First try to parse as regular JSON (most files don't have comments)
+    try:
+        return json.loads(content)
+    except json.JSONDecodeError:
+        # If that fails, try stripping comments and parsing as JSON
+        json_content = strip_jsonc_comments(content)
+        return json.loads(json_content)
 
 
 def write_jsonc(file_path: Path, data: dict, original_content: str) -> None:
@@ -110,6 +114,20 @@ def write_jsonc(file_path: Path, data: dict, original_content: str) -> None:
     replacement = rf'\g<1>{deps_content}'
 
     new_content = re.sub(pattern, replacement, original_content, flags=re.MULTILINE | re.DOTALL)
+
+    # If no replacement was made (implicitDependencies doesn't exist), add it
+    if new_content == original_content and new_deps:
+        # Find a good place to insert implicitDependencies (after name, before targets usually)
+        # Look for the end of the "name" field
+        name_pattern = r'("name"\s*:\s*"[^"]*"\s*,?)'
+        match = re.search(name_pattern, original_content)
+        if match:
+            insert_pos = match.end()
+            # Add implicitDependencies after the name field
+            indent = "  "  # Default indent
+            deps_json = json.dumps(new_deps, indent=2).replace("\n", "\n" + indent)
+            deps_insertion = f'\n{indent}"implicitDependencies": {deps_json},'
+            new_content = original_content[:insert_pos] + deps_insertion + original_content[insert_pos:]
 
     # Write the result back to the file
     with open(file_path, 'w', encoding='utf-8') as f:
