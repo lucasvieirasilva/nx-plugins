@@ -153,7 +153,7 @@ def extract_local_imports(file_path: Path, base_module: str) -> set[str]:
         matches = re.findall(pattern, content)
         imports.update(matches)
 
-    except (UnicodeDecodeError, PermissionError) as e:
+    except (UnicodeDecodeError, PermissionError, FileNotFoundError) as e:
         print(f'Warning: Could not read {file_path}: {e}')
 
     return imports
