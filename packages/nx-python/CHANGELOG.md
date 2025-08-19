@@ -1,3 +1,9 @@
+# [21.2.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v21.1.2...nx-python-v21.2.0) (2025-08-19)
+
+### Features
+
+- add support for uv src directory project-style ([c59fc82](https://github.com/lucasvieirasilva/nx-plugins/commit/c59fc82d7794a5881e71f2397c7f08b3b2729130))
+
 ## [21.1.2](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v21.1.1...nx-python-v21.1.2) (2025-08-15)
 
 ### Bug Fixes
