@@ -38,3 +38,12 @@ export function includeDependencyPackage(
     }
   }
 }
+
+/**
+ * Sanitizes the provided package name to match what Poetry lists in the lockfile (underscores -> dashes)
+ * @param packageName Package name to update
+ * @returns Updated package name
+ */
+export function sanitizePackageName(packageName: string) {
+  return packageName.replace(/_/g, '-');
+}
