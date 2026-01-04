@@ -4,7 +4,7 @@ import path, { join, relative } from 'path';
 import { PoetryLock, PoetryLockPackage } from './types';
 import chalk from 'chalk';
 import uri2path from 'file-uri-to-path';
-import { includeDependencyPackage } from './utils';
+import { includeDependencyPackage, sanitizePackageName } from './utils';
 import { Logger } from '../../../../executors/utils/logger';
 import { PoetryPyprojectToml } from '../../types';
 import { parseToml, POETRY_EXECUTABLE, runPoetry } from '../../utils';
@@ -102,7 +102,7 @@ export class LockedDependencyResolver extends BaseDependencyResolver {
     level = 1,
   ): PackageDependency[] {
     const tab = getLoggingTab(level);
-    const requerimentsTxt = this.getProjectRequirementsTxt(
+    const requirementsTxt = this.getProjectRequirementsTxt(
       devDependencies,
       buildTomlData,
       root,
@@ -113,8 +113,8 @@ export class LockedDependencyResolver extends BaseDependencyResolver {
       readFileSync(join(root, 'poetry.lock')).toString('utf-8'),
     ) as PoetryLock;
 
-    const requerimentsLines = requerimentsTxt.split('\n');
-    for (const line of requerimentsLines) {
+    const requirementLines = requirementsTxt.split('\n');
+    for (const line of requirementLines) {
       if (line.trim()) {
         const dep = {} as PackageDependency;
         const elements = line.split(';');
@@ -298,12 +298,14 @@ export class LockedDependencyResolver extends BaseDependencyResolver {
   }
 
   private getLockedPackage(lockData: PoetryLock, packageName: string) {
+    // Ensure the package is resolved to the expected name for Poetry.lock
+    const resolvedPkgName = sanitizePackageName(packageName).toLowerCase();
     const lockedPkg = lockData.package.find(
-      (pkg) => pkg.name.toLowerCase() === packageName.toLowerCase(),
+      (pkg) => pkg.name.toLowerCase() === resolvedPkgName,
     );
     if (!lockedPkg) {
       throw new Error(
-        chalk`Package {blue.bold ${packageName.toLowerCase()}} not found in poetry.lock`,
+        chalk`Package {blue.bold ${resolvedPkgName}} not found in poetry.lock`,
       );
     }
     return lockedPkg;
