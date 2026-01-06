@@ -31,13 +31,13 @@ jobs:
         if: env.NO_COVERAGE_RUN != 'true'
         run: |
           node ./tools/scripts/coverageMerger.js
-      
+
       - name: Coveralls
         if: env.NO_COVERAGE_RUN != 'true'
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Release
         if: ${{ success() && (github.event_name != 'pull_request' || github.event.action == 'closed' && github.event.pull_request.merged == true) }}
         env:
