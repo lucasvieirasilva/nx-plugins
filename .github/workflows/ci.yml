@@ -31,15 +31,20 @@ jobs:
         if: env.NO_COVERAGE_RUN != 'true'
         run: |
           node ./tools/scripts/coverageMerger.js
+      
       - name: Coveralls
         if: env.NO_COVERAGE_RUN != 'true'
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+      
       - name: Release
         if: ${{ success() && (github.event_name != 'pull_request' || github.event.action == 'closed' && github.event.pull_request.merged == true) }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HUSKY: '0'
         run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
           pnpm nx release --yes
