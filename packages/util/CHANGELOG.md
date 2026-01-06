@@ -1,3 +1,18 @@
+## 6.1.0 (2026-01-06)
+
+### 🚀 Features
+
+- add package project and dependencies executors ([eabc3c3](https://github.com/lucasvieirasilva/nx-plugins/commit/eabc3c3))
+
+### 🩹 Fixes
+
+- **nx-python:** update activate venv to make install optional (default false) ([6df63f7](https://github.com/lucasvieirasilva/nx-plugins/commit/6df63f7))
+- handling of optional dependencies on poetry and uv ([#317](https://github.com/lucasvieirasilva/nx-plugins/pull/317))
+
+### ❤️ Thank You
+
+- Lucas Vieira @lucasvieirasilva
+
 # [6.0.0](https://github.com/lucasvieirasilva/nx-plugins/compare/util-v5.0.0...util-v6.0.0) (2025-05-09)
 
 ### Features

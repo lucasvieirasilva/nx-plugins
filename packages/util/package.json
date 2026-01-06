@@ -1,7 +1,7 @@
 {
   "name": "@nxlv/util",
   "description": "Shared utilities for @nxlv packages",
-  "version": "6.0.0",
+  "version": "6.1.0",
   "main": "src/index.js",
   "private": false,
   "license": "MIT",

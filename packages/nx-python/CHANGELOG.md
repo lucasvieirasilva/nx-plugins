@@ -1,3 +1,13 @@
+## 21.2.1 (2026-01-06)
+
+### 🩹 Fixes
+
+- **nx-python:** sanitize package name for consistency ([7a14f18](https://github.com/lucasvieirasilva/nx-plugins/commit/7a14f18))
+
+### ❤️ Thank You
+
+- Raymond Hoagland @raymondhoagland
+
 # [21.2.0](https://github.com/lucasvieirasilva/nx-plugins/compare/nx-python-v21.1.2...nx-python-v21.2.0) (2025-08-19)
 
 ### Features
