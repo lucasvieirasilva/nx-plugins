@@ -8,10 +8,10 @@ runs:
       uses: pnpm/action-setup@v3
       with:
         version: 10
-    - name: Use Node.js 20.x
+    - name: Use Node.js 24.x
       uses: actions/setup-node@v3
       with:
-        node-version: 20
+        node-version: 24
         cache: 'pnpm'
         registry-url: 'https://registry.npmjs.org'
         scope: '@nxlv'
