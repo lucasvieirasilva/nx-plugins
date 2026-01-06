@@ -40,21 +40,6 @@
       "executor": "@nx/vite:test",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {}
-    },
-    "release": {
-      "executor": "nx:run-commands",
-      "outputs": [],
-      "options": {
-        "command": "pnpm semantic-release-plus --extends ./packages/data-migration/release.config.js",
-        "parallel": false
-      },
-      "dependsOn": [
-        "^build",
-        {
-          "target": "release",
-          "dependencies": true
-        }
-      ]
     }
   },
   "tags": []

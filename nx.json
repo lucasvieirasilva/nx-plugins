@@ -64,5 +64,27 @@
         "targetName": "lint"
       }
     }
-  ]
+  ],
+  "release": {
+    "projectsRelationship": "independent",
+    "git": {
+      "commitMessage": "chore: release [skip ci]"
+    },
+    "version": {
+      "conventionalCommits": true
+    },
+    "changelog": {
+      "projectChangelogs": {
+        "createRelease": "github",
+        "renderOptions": {
+          "authors": true,
+          "mapAuthorsToGitHubUsernames": true,
+          "commitReferences": true,
+          "versionTitleDate": true
+        }
+      }
+    },
+    "releaseTagPattern": "{projectName}-v{version}",
+    "projects": ["nx-python", "data-migration", "util"]
+  }
 }
