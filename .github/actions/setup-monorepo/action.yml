@@ -13,6 +13,7 @@ runs:
       with:
         node-version: 20
         cache: 'pnpm'
+        registry-url: 'https://registry.npmjs.org'
 
     - name: Install Node.js Dependencies
       shell: bash

@@ -1,0 +1,23 @@
+name: Manual Publish
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup-monorepo
+
+      - name: Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HUSKY: '0'
+        run: |
+          pnpm nx release publish
