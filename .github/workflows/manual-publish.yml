@@ -17,8 +17,5 @@ jobs:
       - uses: ./.github/actions/setup-monorepo
 
       - name: Publish
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          HUSKY: '0'
         run: |
           pnpm nx release publish
