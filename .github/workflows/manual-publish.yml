@@ -18,4 +18,5 @@ jobs:
 
       - name: Publish
         run: |
+          npm whoami
           pnpm nx release publish
