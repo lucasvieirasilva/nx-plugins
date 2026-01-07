@@ -1,3 +1,17 @@
+## 7.1.1 (2026-01-07)
+
+### 🩹 Fixes
+
+- update nx-release-publish to use dist folder ([53fea54](https://github.com/lucasvieirasilva/nx-plugins/commit/53fea54))
+
+### 🧱 Updated Dependencies
+
+- Updated util to 6.1.1
+
+### ❤️ Thank You
+
+- Lucas Vieira @lucasvieirasilva
+
 ## 7.1.0 (2026-01-06)
 
 ### 🚀 Features
