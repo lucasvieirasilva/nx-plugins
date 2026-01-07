@@ -1,3 +1,13 @@
+## 21.2.2 (2026-01-07)
+
+### 🩹 Fixes
+
+- honor dependency version range when internal bundling is disabled ([7937746](https://github.com/lucasvieirasilva/nx-plugins/commit/7937746))
+
+### ❤️ Thank You
+
+- Lucas Vieira @lucasvieirasilva
+
 ## 21.2.1 (2026-01-06)
 
 ### 🩹 Fixes
