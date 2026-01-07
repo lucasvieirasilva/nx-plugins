@@ -34,6 +34,11 @@
       "schema": "./src/generators/enable-releases/schema.json",
       "description": "Enable Releases for Python projects",
       "hidden": true
+    },
+    "pkg-sync": {
+      "factory": "./src/generators/pkg-sync/generator",
+      "schema": "./src/generators/pkg-sync/schema.json",
+      "description": "Package Sync Generator"
     }
   }
 }

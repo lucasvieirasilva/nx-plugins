@@ -15,7 +15,7 @@ export const getProvider = async (
   tree?: Tree,
   context?: ExecutorContext,
   options?: PluginOptions,
-): Promise<BaseProvider> => {
+): Promise<BaseProvider<UVPyprojectToml | PoetryPyprojectToml>> => {
   const loggerInstance = logger ?? new Logger();
 
   if (options?.packageManager) {

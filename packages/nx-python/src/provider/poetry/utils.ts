@@ -1,4 +1,4 @@
-import { ExecutorContext, ProjectConfiguration } from '@nx/devkit';
+import { ExecutorContext, ProjectConfiguration, Tree } from '@nx/devkit';
 import chalk from 'chalk';
 import spawn from 'cross-spawn';
 import path from 'path';
@@ -76,11 +76,12 @@ export function addLocalProjectToPoetryProject(
   dependencyPath: string,
   group?: string,
   extras?: string[],
+  tree?: Tree,
 ): string {
   const targetToml = getProjectTomlPath(targetConfig);
   const dependencyToml = getProjectTomlPath(dependencyConfig);
-  const targetTomlData = parseToml(targetToml);
-  const dependencyTomlData = parseToml(dependencyToml);
+  const targetTomlData = parseToml(targetToml, tree);
+  const dependencyTomlData = parseToml(dependencyToml, tree);
 
   const dependencyName = dependencyTomlData.tool.poetry.name;
   if (group) {
@@ -94,6 +95,7 @@ export function addLocalProjectToPoetryProject(
       ...(extras ? { extras } : {}),
     };
   } else {
+    targetTomlData.tool.poetry.dependencies ??= {};
     targetTomlData.tool.poetry.dependencies[dependencyName] = {
       path: dependencyPath,
       develop: true,
@@ -101,7 +103,11 @@ export function addLocalProjectToPoetryProject(
     };
   }
 
-  fs.writeFileSync(targetToml, toml.stringify(targetTomlData));
+  if (tree) {
+    tree.write(targetToml, toml.stringify(targetTomlData));
+  } else {
+    fs.writeFileSync(targetToml, toml.stringify(targetTomlData));
+  }
 
   return dependencyName;
 }
@@ -110,8 +116,10 @@ export function getProjectTomlPath(targetConfig: ProjectConfiguration) {
   return path.join(targetConfig.root, 'pyproject.toml');
 }
 
-export function parseToml(tomlFile: string) {
-  return toml.parse(fs.readFileSync(tomlFile, 'utf-8')) as PoetryPyprojectToml;
+export function parseToml(tomlFile: string, tree?: Tree) {
+  return toml.parse(
+    tree ? tree.read(tomlFile, 'utf-8') : fs.readFileSync(tomlFile, 'utf-8'),
+  ) as PoetryPyprojectToml;
 }
 
 export type RunPoetryOptions = {
@@ -152,21 +160,6 @@ export function runPoetry(
     );
   }
 }
-
-export const getProjectPackageName = (
-  context: ExecutorContext,
-  projectName: string,
-): string => {
-  const projectConfig = context.projectsConfigurations.projects[projectName];
-  const projectToml = getProjectTomlPath(projectConfig);
-  const {
-    tool: {
-      poetry: { name },
-    },
-  } = parseToml(projectToml);
-
-  return name;
-};
 
 /**
  * Parses all dependency names from a Pyproject.toml file

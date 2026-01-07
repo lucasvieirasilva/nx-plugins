@@ -11,6 +11,8 @@ import {
   DependencyProjectMetadata,
   BaseProvider,
   ProjectMetadata,
+  SyncGeneratorResult,
+  SyncGeneratorCallback,
 } from '../base';
 import fs from 'fs';
 import path, { join } from 'path';
@@ -21,7 +23,6 @@ import {
   checkPoetryExecutable,
   getAllDependenciesFromPyprojectToml,
   getPoetryVersion,
-  getProjectPackageName,
   getProjectTomlPath,
   parseToml,
   POETRY_EXECUTABLE,
@@ -57,7 +58,6 @@ import {
 } from './build/resolvers';
 import {
   getLocalDependencyConfig,
-  getPyprojectData,
   readPyprojectToml,
   writePyprojectToml,
 } from '../utils';
@@ -65,8 +65,9 @@ import semver from 'semver';
 import { LockExecutorSchema } from '../../executors/lock/schema';
 import { SyncExecutorSchema } from '../../executors/sync/schema';
 import { minimatch } from 'minimatch';
+import assert from 'node:assert';
 
-export class PoetryProvider extends BaseProvider {
+export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
   constructor(workspaceRoot: string, logger: Logger, tree?: Tree) {
     const isWorkspace = tree
       ? tree.exists(joinPathFragments(workspaceRoot, 'pyproject.toml'))
@@ -80,11 +81,7 @@ export class PoetryProvider extends BaseProvider {
   }
 
   public getMetadata(projectRoot: string): ProjectMetadata {
-    const pyprojectTomlPath = joinPathFragments(projectRoot, 'pyproject.toml');
-
-    const projectData = this.tree
-      ? readPyprojectToml<PoetryPyprojectToml>(this.tree, pyprojectTomlPath)
-      : getPyprojectData<PoetryPyprojectToml>(pyprojectTomlPath);
+    const projectData = this.getPyprojectToml(projectRoot);
 
     return {
       name: projectData?.tool?.poetry?.name,
@@ -92,12 +89,19 @@ export class PoetryProvider extends BaseProvider {
     };
   }
 
-  updateVersion(projectRoot: string, newVersion: string): void {
-    const pyprojectTomlPath = joinPathFragments(projectRoot, 'pyproject.toml');
+  public getModulesFolders(projectRoot: string): string[] {
+    const projectData = this.getPyprojectToml(projectRoot);
 
-    const projectData = this.tree
-      ? readPyprojectToml<PoetryPyprojectToml>(this.tree, pyprojectTomlPath)
-      : getPyprojectData<PoetryPyprojectToml>(pyprojectTomlPath);
+    return (
+      projectData?.tool?.poetry?.packages?.map((pkg) =>
+        join(projectRoot, pkg.include),
+      ) ?? []
+    );
+  }
+
+  public updateVersion(projectRoot: string, newVersion: string): void {
+    const pyprojectTomlPath = joinPathFragments(projectRoot, 'pyproject.toml');
+    const projectData = this.getPyprojectToml(projectRoot);
 
     if (!projectData.tool?.poetry) {
       throw new Error('Poetry section not found in pyproject.toml');
@@ -115,11 +119,7 @@ export class PoetryProvider extends BaseProvider {
     projectRoot: string,
     dependencyName: string,
   ): DependencyProjectMetadata | null {
-    const pyprojectTomlPath = joinPathFragments(projectRoot, 'pyproject.toml');
-
-    const projectData = this.tree
-      ? readPyprojectToml<PoetryPyprojectToml>(this.tree, pyprojectTomlPath)
-      : getPyprojectData<PoetryPyprojectToml>(pyprojectTomlPath);
+    const projectData = this.getPyprojectToml(projectRoot);
 
     const main = projectData?.tool?.poetry?.dependencies ?? {};
     if (typeof main[dependencyName] === 'object' && main[dependencyName].path) {
@@ -178,8 +178,8 @@ export class PoetryProvider extends BaseProvider {
 
     const deps: Dependency[] = [];
 
-    if (fs.existsSync(pyprojectToml)) {
-      const tomlData = getPyprojectData<PoetryPyprojectToml>(pyprojectToml);
+    if (this.fileExists(pyprojectToml)) {
+      const tomlData = this.getPyprojectToml(projectData.root);
 
       deps.push(
         ...this.resolveDependencies(
@@ -264,7 +264,7 @@ export class PoetryProvider extends BaseProvider {
     await checkPoetryExecutable();
     const projectConfig =
       context.projectsConfigurations.projects[context.projectName];
-    const rootPyprojectToml = fs.existsSync('pyproject.toml');
+    const rootPyprojectToml = this.fileExists('pyproject.toml');
 
     if (options.local) {
       this.logger.info(
@@ -275,6 +275,7 @@ export class PoetryProvider extends BaseProvider {
         options.name,
         projectConfig,
         rootPyprojectToml,
+        false,
         options.group,
         options.extras,
       );
@@ -300,6 +301,87 @@ export class PoetryProvider extends BaseProvider {
     );
   }
 
+  public async syncGenerator(
+    projectName: string,
+    missingDependencies: string[],
+    context: ExecutorContext,
+  ): Promise<SyncGeneratorResult> {
+    let outOfSyncMessage = '';
+    await checkPoetryExecutable();
+    assert(this.tree, 'Tree is required');
+
+    const callbacks: SyncGeneratorCallback[] = [
+      {
+        actions: ['activate-venv'],
+        description: 'Activating virtual environment',
+        callback: async () =>
+          await this.activateVenv(context.root, false, context),
+      },
+    ];
+    const projectConfig =
+      context.projectsConfigurations.projects[context.projectName];
+
+    const rootPyprojectTomlExists = this.tree.exists('pyproject.toml');
+
+    for (const dependency of missingDependencies) {
+      callbacks.push(
+        await this.updateLocalProject(
+          context,
+          dependency,
+          projectConfig,
+          rootPyprojectTomlExists,
+          true,
+          undefined,
+          undefined,
+          this.tree,
+        ),
+      );
+    }
+    if (this.isWorkspace) {
+      const rootPyprojectToml = readPyprojectToml<PoetryPyprojectToml>(
+        this.tree,
+        'pyproject.toml',
+      );
+      if (!rootPyprojectToml.tool?.poetry?.dependencies?.[projectName]) {
+        rootPyprojectToml.tool.poetry.dependencies ??= {};
+        rootPyprojectToml.tool.poetry.dependencies[projectName] = {
+          path: projectConfig.root,
+          develop: true,
+        };
+        writePyprojectToml(this.tree, 'pyproject.toml', rootPyprojectToml);
+        outOfSyncMessage += `Root pyproject.toml is out of sync. Missing dependency: ${projectName}\n`;
+
+        if (missingDependencies.length === 0) {
+          callbacks.push({
+            actions: ['lock-root'],
+            description: 'Locking/Installing root project',
+            callback: async () => {
+              await this.lock(context.root, false);
+              await this.install({
+                debug: false,
+                silent: false,
+                verbose: false,
+                args: '--no-root',
+              });
+            },
+          });
+        }
+      }
+    }
+
+    if (missingDependencies.length > 0) {
+      callbacks.push({
+        actions: [`update-dependency-tree-${context.projectName}`, 'lock-root'],
+        description: 'Updating dependency tree',
+        callback: async () => await this.updateDependencyTree(context),
+      });
+    }
+    return {
+      callbacks,
+      outOfSyncMessage,
+    };
+  }
+
   public async update(
     options: UpdateExecutorSchema,
     context: ExecutorContext,
@@ -312,7 +394,7 @@ export class PoetryProvider extends BaseProvider {
     await checkPoetryExecutable();
     const projectConfig =
       context.projectsConfigurations.projects[context.projectName];
-    const rootPyprojectToml = fs.existsSync('pyproject.toml');
+    const rootPyprojectToml = this.fileExists('pyproject.toml');
 
     if (options.local && options.name) {
       this.logger.info(
@@ -363,7 +445,7 @@ export class PoetryProvider extends BaseProvider {
       context,
     );
     await checkPoetryExecutable();
-    const rootPyprojectToml = fs.existsSync('pyproject.toml');
+    const rootPyprojectToml = this.fileExists('pyproject.toml');
     const projectConfig =
       context.projectsConfigurations.projects[context.projectName];
     this.logger.info(
@@ -812,9 +894,11 @@ export class PoetryProvider extends BaseProvider {
     dependencyName: string,
     projectConfig: ProjectConfiguration,
     updateLockOnly: boolean,
+    callback = false,
     group?: string,
     extras?: string[],
-  ) {
+    tree?: Tree,
+  ): Promise<SyncGeneratorCallback> {
     const dependencyConfig = getLocalDependencyConfig(context, dependencyName);
 
     const dependencyPath = path.relative(
@@ -828,13 +912,31 @@ export class PoetryProvider extends BaseProvider {
       dependencyPath,
       group,
       extras,
+      tree,
     );
-    await this.updateProject(projectConfig.root, updateLockOnly);
+    if (callback) {
+      return {
+        actions: [`update-project-${projectConfig.root}`],
+        description: `Updating project ${projectConfig.root}`,
+        callback: async () => {
+          await this.updateProject(projectConfig.root, updateLockOnly);
+        },
+      };
+    } else {
+      await this.updateProject(projectConfig.root, updateLockOnly);
+    }
   }
 
   private async updateDependencyTree(context: ExecutorContext) {
-    const rootPyprojectToml = fs.existsSync('pyproject.toml');
-    const pkgName = getProjectPackageName(context, context.projectName);
+    const rootPyprojectToml = this.fileExists('pyproject.toml');
+    const projectConfig =
+      context.projectsConfigurations.projects[context.projectName];
+
+    const {
+      tool: {
+        poetry: { name: pkgName },
+      },
+    } = this.getPyprojectToml(projectConfig.root);
 
     await this.updateDependents(
       context,
@@ -845,10 +947,7 @@ export class PoetryProvider extends BaseProvider {
     );
 
     if (rootPyprojectToml) {
-      const rootPyprojectToml = parse(
-        readFileSync('pyproject.toml', { encoding: 'utf-8' }),
-      ) as PoetryPyprojectToml;
-
+      const rootPyprojectToml = this.getPyprojectToml(context.root);
       const allRootDependencyNames = Object.keys(
         getAllDependenciesFromPyprojectToml(rootPyprojectToml),
       );
@@ -913,8 +1012,8 @@ export class PoetryProvider extends BaseProvider {
     const projectData = projects[project];
     const pyprojectToml = joinPathFragments(projectData.root, 'pyproject.toml');
 
-    if (fs.existsSync(pyprojectToml)) {
-      const tomlData = getPyprojectData<PoetryPyprojectToml>(pyprojectToml);
+    if (this.fileExists(pyprojectToml)) {
+      const tomlData = this.getPyprojectToml(projectData.root);
 
       let isDep = this.isProjectDependent(
         tomlData.tool?.poetry?.dependencies,
@@ -984,9 +1083,10 @@ export class PoetryProvider extends BaseProvider {
         );
 
         if (depProjectName) {
-          const pyprojectToml = getPyprojectData<PoetryPyprojectToml>(
-            joinPathFragments(projects[depProjectName].root, 'pyproject.toml'),
+          const pyprojectToml = this.getPyprojectToml(
+            projects[depProjectName].root,
           );
+
           deps.push({
             name: depProjectName,
             category,

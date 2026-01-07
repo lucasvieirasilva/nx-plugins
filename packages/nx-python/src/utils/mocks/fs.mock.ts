@@ -12,7 +12,7 @@ const copyRecursiveSync = (
 ) => {
   const exists = fs.existsSync(src);
   const stats = exists && fs.statSync(src);
-  const isDirectory = exists && stats.isDirectory();
+  const isDirectory = exists && stats && stats.isDirectory();
   if (isDirectory) {
     if (!fs.existsSync(dest)) {
       fs.mkdirSync(dest);
@@ -31,7 +31,7 @@ const copyRecursiveSync = (
 };
 
 vi.mock('fs', async () => {
-  const memfs = (await vi.importActual('memfs')) as typeof import('memfs');
+  const memfs = await vi.importActual<typeof import('memfs')>('memfs');
 
   return {
     default: memfs.fs,
@@ -40,8 +40,33 @@ vi.mock('fs', async () => {
   };
 });
 
+vi.mock('node:fs', async () => {
+  const memfs = await vi.importActual<typeof import('memfs')>('memfs');
+  return {
+    default: memfs.fs,
+    ...memfs.fs,
+    cpSync: copyRecursiveSync,
+  };
+});
+
+vi.mock('fs/promises', async () => {
+  const memfs = await vi.importActual<typeof import('memfs')>('memfs');
+  return {
+    default: memfs.fs.promises,
+    ...memfs.fs.promises,
+  };
+});
+
+vi.mock('node:fs/promises', async () => {
+  const memfs = await vi.importActual<typeof import('memfs')>('memfs');
+  return {
+    default: memfs.fs.promises,
+    ...memfs.fs.promises,
+  };
+});
+
 vi.mock('fs-extra', async () => {
-  const memfs = (await vi.importActual('memfs')) as typeof import('memfs');
+  const memfs = await vi.importActual<typeof import('memfs')>('memfs');
 
   return {
     default: memfs.fs,

@@ -1,11 +1,14 @@
 import {
+  ExpandedPluginConfiguration,
   generateFiles,
   getWorkspaceLayout,
   names,
   offsetFromRoot,
   ProjectConfiguration,
+  readNxJson,
   readProjectConfiguration,
   Tree,
+  updateNxJson,
 } from '@nx/devkit';
 import {
   BasePythonProjectGeneratorSchema,
@@ -18,6 +21,7 @@ import path from 'path';
 import { parse } from '@iarna/toml';
 import { DEV_DEPENDENCIES_VERSION_MAP } from './consts';
 import { BaseProvider } from '../provider/base';
+import { PluginOptions } from '../types';
 
 export function getPyTestAddopts(
   options: PytestGeneratorSchema,
@@ -231,9 +235,39 @@ export async function updateNxReleaseConfig(
   return projectConfiguration;
 }
 
+export function updateInferDependenciesOption(
+  tree: Tree,
+  options: BaseNormalizedSchema,
+) {
+  if (options.useSyncGenerators) {
+    const nxJson = readNxJson(tree);
+    const pluginConfig = nxJson.plugins?.find(
+      (plugin): plugin is ExpandedPluginConfiguration =>
+        typeof plugin === 'object' && plugin.plugin === '@nxlv/python',
+    );
+    if (pluginConfig) {
+      pluginConfig.options = {
+        ...(pluginConfig.options as PluginOptions),
+        inferDependencies: true,
+      };
+    } else {
+      nxJson.plugins = [
+        ...(nxJson.plugins || []),
+        {
+          plugin: '@nxlv/python',
+          options: {
+            inferDependencies: true,
+          },
+        },
+      ];
+    }
+    updateNxJson(tree, nxJson);
+  }
+}
+
 export async function getDefaultPythonProjectTargets(
   options: BaseNormalizedSchema,
-  provider: BaseProvider,
+  provider: BaseProvider<unknown>,
 ): Promise<ProjectConfiguration['targets']> {
   const targets: ProjectConfiguration['targets'] = {
     lock: {
@@ -267,6 +301,9 @@ export async function getDefaultPythonProjectTargets(
         lockedVersions: options.buildLockedVersions,
         bundleLocalDependencies: options.buildBundleLocalDependencies,
       },
+      ...(options.useSyncGenerators
+        ? { syncGenerators: ['@nxlv/python:pkg-sync'] }
+        : {}),
       cache: true,
     },
   };

@@ -1,3 +1,4 @@
 export type PluginOptions = {
-  packageManager: 'poetry' | 'uv';
+  packageManager?: 'poetry' | 'uv';
+  inferDependencies?: boolean;
 };

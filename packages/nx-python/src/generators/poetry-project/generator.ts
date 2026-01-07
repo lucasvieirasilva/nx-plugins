@@ -23,6 +23,7 @@ import {
   normalizeOptions as baseNormalizeOptions,
   getDefaultPythonProjectTargets,
   getPyprojectTomlByProjectName,
+  updateInferDependenciesOption,
   updateNxReleaseConfig,
 } from '../utils';
 import { DEV_DEPENDENCIES_VERSION_MAP } from '../consts';
@@ -196,7 +197,10 @@ function addTestDependencies(
   };
 }
 
-async function updateRootPoetryLock(tree: Tree, provider: BaseProvider) {
+async function updateRootPoetryLock(
+  tree: Tree,
+  provider: BaseProvider<PoetryPyprojectToml>,
+) {
   if (tree.exists('./pyproject.toml')) {
     console.log(chalk`  Updating root {bgBlue poetry.lock}...`);
     await provider.lock();
@@ -246,6 +250,7 @@ export default async function (
   }
 
   updateNxReleaseConfig(normalizedOptions, projectConfiguration);
+  updateInferDependenciesOption(tree, normalizedOptions);
 
   addProjectConfiguration(
     tree,

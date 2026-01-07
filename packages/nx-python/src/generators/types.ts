@@ -28,6 +28,7 @@ export interface BasePythonProjectGeneratorSchema
   tags?: string;
   directory?: string;
   useNxReleaseLegacyVersioning?: boolean;
+  useSyncGenerators?: boolean;
 }
 
 export interface BaseNormalizedSchema extends BasePythonProjectGeneratorSchema {
