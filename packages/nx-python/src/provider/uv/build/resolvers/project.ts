@@ -14,6 +14,10 @@ import { BuildExecutorSchema } from '../../../../executors/build/schema';
 import { ExecutorContext } from '@nx/devkit';
 import { createHash } from 'crypto';
 
+// Matches a package name followed by a version specifier (>, >=, <, <=, ==, !=, ~=, ===) and version number
+const VERSION_RANGE_REGEX =
+  /^([a-zA-Z0-9._-]+)\s*(==|!=|~=|===|>=|<=|>|<)\s*([^\s,;]+)(?:,?\s*(==|!=|~=|===|>=|<=|>|<)\s*([^\s,;]+))*$/;
+
 /**
  * Resolves project dependencies for UV package manager when lockedVersion is false.
  *
@@ -404,7 +408,10 @@ export class ProjectDependencyResolver {
         } else {
           // Step 6: Handle publish mode - reference local dependency by version
           const index = this.addIndex(pyproject, targetOptions);
-          const depName = `${dependency}==${dependencyPyproject.project.version}`;
+          // Step 6a: Check if the dependency has a version range specified
+          const depName = VERSION_RANGE_REGEX.test(dependency)
+            ? dependency
+            : `${dependency}==${dependencyPyproject.project.version}`;
           this.appendDependency(pyproject, targetOptions, group, depName, true);
 
           // Update the source configuration
