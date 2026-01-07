@@ -7,7 +7,7 @@ export class Package {
   location: string;
 
   constructor(
-    private readonly provider: BaseProvider,
+    private readonly provider: BaseProvider<unknown>,
     workspaceRoot: string,
     private workspaceRelativeLocation: string,
   ) {

@@ -32,6 +32,7 @@ This approach helps to deploy the projects to Cloud services like AWS Lambda, Go
 ### News
 
 - We now support [Uv](https://docs.astral.sh/uv/) package manager.
+- EXPERIMENTAL: Scan source code for local package imports and add them to the `pyproject.toml` file via Nx [Sync generator](https://nx.dev/docs/concepts/sync-generators).
 
 ### Nx 21 Release Notes
 
@@ -203,6 +204,85 @@ for Nx 20.x or higher, use the following pattern:
 ```
 
 **NOTE**: The default package manager is `poetry`, but it's automatically detected if the repository is configured to use `uv` workspaces since the `uv.lock` filw will be present in the root directory.
+
+## EXPERIMENTAL: Automatically sync local package dependencies
+
+Currently, Nx automatically updates `package.json` TypeScript packages through the [Dependency Checks ESLint Rule](https://nx.dev/docs/technologies/eslint/eslint-plugin/guides/dependency-checks) and syncs the `tsconfig.json` file via Sync Generators.
+
+However, when using the `@nxlv/python` plugin, local packages need to be manually synced to the `pyproject.toml` by running the `nx run <project>:add <local-package-name> --local` command.
+
+Starting from version `21.3.0` of the `@nxlv/python` plugin, you can enable the automatic sync of local packages to the `pyproject.toml` files.
+
+### How to enable it
+
+Update the `nx.json` file to add the `inferDependencies` option set to `true` and add the `@nxlv/python:pkg-sync` to the sync generators.
+
+```json
+{
+  ...
+  "sync": {
+    "globalGenerators": ["@nxlv/python:pkg-sync"]
+  },
+  "plugins": [
+    {
+      "plugin": "@nxlv/python",
+      "options": {
+        ...
+        "inferDependencies": true
+      }
+    },
+    ...
+  ]
+  ...
+}
+```
+
+**NOTE**: The `inferDependencies` option is disabled by default.
+**NOTE**: When using the `sync.globalGenerators` option, Nx will only run the sync generator when the `nx sync` or `nx sync:check` commands are executed.
+
+Alternatively, you can add the `@nxlv/python:pkg-sync` to individual tasks by updating the `project.json` file to add the `syncGenerators` option.
+
+```json
+{
+  ...
+  "targets": {
+    ...
+    "build": {
+      ...
+      "syncGenerators": ["@nxlv/python:pkg-sync"]
+    }
+  }
+}
+```
+
+**NOTE**: When using the `syncGenerators` option at the task level, Nx will run the sync generator before the task is executed.
+
+### How it works
+
+When the `inferDependencies` option is enabled, the `@nxlv/python` dependency graph plugin scans the source code for local package imports and adds them to the dependency graph.
+
+The dependency graph executes in the background within the Nx Daemon.
+
+**NOTE**: For large workspaces, this process might take a while to complete. As this feature is experimental, any feedback on our GitHub issues is very welcome.
+
+The sync generator is executed after the Nx dependency graph is completed and checks if the project's dependencies match the dependency graph.
+
+If a local dependency is missing, the sync generator adds it to the `pyproject.toml` file and updates the dependency tree and lock files automatically or by running `nx sync`.
+
+To update the `pyproject.toml` files automatically when running Nx tasks, update the `nx.json` file to add the `sync.applyChanges` option set to `true`.
+
+```json
+{
+  ...
+  "sync": {
+    ...
+    "applyChanges": true
+  }
+  ...
+}
+```
+
+**NOTE**: This only applies for sync generators that are added at the task level, not globally in the `nx.json` file.
 
 ## 💖 Support
 

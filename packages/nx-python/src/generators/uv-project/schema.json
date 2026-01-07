@@ -140,6 +140,11 @@
       "type": "boolean",
       "description": "Whether to generate the project in a src directory or the module in the project root",
       "default": false
+    },
+    "useSyncGenerators": {
+      "type": "boolean",
+      "description": "EXPERIMENTAL: Use sync generators to automatically sync local package dependencies when building the project (When enabled, the generator will also add the `inferDependencies` option to the `nx.json` file)",
+      "default": false
     }
   },
   "required": ["name", "projectType"]

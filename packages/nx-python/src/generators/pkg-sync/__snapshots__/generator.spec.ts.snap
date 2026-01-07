@@ -1,0 +1,191 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`pkg-sync generator > poetry > project > should sync a project with a missing dependency 1`] = `
+"[tool.poetry]
+name = "app1"
+version = "1.0.0"
+
+[tool.poetry.dependencies.dep1]
+path = "../../libs/dep1"
+develop = true
+"
+`;
+
+exports[`pkg-sync generator > poetry > project > should sync a project with a missing dependency with dependents 1`] = `
+"[tool.poetry]
+name = "dep1"
+version = "1.0.0"
+
+[tool.poetry.dependencies.dep2]
+path = "../dep2"
+develop = true
+"
+`;
+
+exports[`pkg-sync generator > poetry > workspace > should only sync the root project when there are no missing dependencies 1`] = `
+"[tool.poetry]
+name = "workspace"
+version = "1.0.0"
+
+[tool.poetry.dependencies.app1]
+path = "apps/app1"
+develop = true
+
+[tool.poetry.dependencies.dep1]
+path = "libs/dep1"
+develop = true
+"
+`;
+
+exports[`pkg-sync generator > poetry > workspace > should sync a project with a missing dependency 1`] = `
+"[tool.poetry]
+name = "app1"
+version = "1.0.0"
+
+[tool.poetry.dependencies.dep1]
+path = "../../libs/dep1"
+develop = true
+"
+`;
+
+exports[`pkg-sync generator > poetry > workspace > should sync a project with a missing dependency 2`] = `
+"[tool.poetry]
+name = "workspace"
+version = "1.0.0"
+
+[tool.poetry.dependencies.app1]
+path = "apps/app1"
+
+[tool.poetry.dependencies.dep1]
+path = "libs/dep1"
+develop = true
+"
+`;
+
+exports[`pkg-sync generator > poetry > workspace > should sync a project with a missing dependency with dependents 1`] = `
+"[tool.poetry]
+name = "dep1"
+version = "1.0.0"
+
+[tool.poetry.dependencies.dep2]
+path = "../dep2"
+develop = true
+"
+`;
+
+exports[`pkg-sync generator > poetry > workspace > should sync a project with a missing dependency with dependents 2`] = `
+"[tool.poetry]
+name = "workspace"
+version = "1.0.0"
+
+[tool.poetry.dependencies.app1]
+path = "apps/app1"
+develop = true
+
+[tool.poetry.dependencies.dep1]
+path = "libs/dep1"
+develop = true
+
+[tool.poetry.dependencies.dep2]
+path = "libs/dep2"
+develop = true
+"
+`;
+
+exports[`pkg-sync generator > uv > project > should sync a project with a missing dependency 1`] = `
+"[project]
+name = "app1"
+version = "1.0.0"
+dependencies = [ "dep1" ]
+
+[tool.uv.sources.dep1]
+path = "../../libs/dep1"
+"
+`;
+
+exports[`pkg-sync generator > uv > project > should sync a project with a missing dependency with dependents 1`] = `
+"[project]
+name = "dep1"
+version = "1.0.0"
+dependencies = [ "dep2" ]
+
+[tool.uv.sources.dep2]
+path = "../dep2"
+"
+`;
+
+exports[`pkg-sync generator > uv > workspace > should only sync the root project when there are no missing dependencies 1`] = `
+"[project]
+name = "workspace"
+version = "1.0.0"
+dependencies = [ "app1", "dep1" ]
+
+[tool.uv.workspace]
+members = [ "apps/app1", "libs/dep1" ]
+
+[tool.uv.sources.app1]
+workspace = true
+
+[tool.uv.sources.dep1]
+workspace = true
+"
+`;
+
+exports[`pkg-sync generator > uv > workspace > should sync a project with a missing dependency 1`] = `
+"[project]
+name = "app1"
+version = "1.0.0"
+dependencies = [ "dep1" ]
+
+[tool.uv.sources.dep1]
+workspace = true
+"
+`;
+
+exports[`pkg-sync generator > uv > workspace > should sync a project with a missing dependency 2`] = `
+"[project]
+name = "workspace"
+version = "1.0.0"
+dependencies = [ "app1", "dep1" ]
+
+[tool.uv.workspace]
+members = [ "apps/app1", "libs/dep1" ]
+
+[tool.uv.sources.app1]
+workspace = true
+
+[tool.uv.sources.dep1]
+workspace = true
+"
+`;
+
+exports[`pkg-sync generator > uv > workspace > should sync a project with a missing dependency with dependents 1`] = `
+"[project]
+name = "dep1"
+version = "1.0.0"
+dependencies = [ "dep2" ]
+
+[tool.uv.sources.dep2]
+workspace = true
+"
+`;
+
+exports[`pkg-sync generator > uv > workspace > should sync a project with a missing dependency with dependents 2`] = `
+"[project]
+name = "workspace"
+version = "1.0.0"
+dependencies = [ "app1", "dep1", "dep2" ]
+
+[tool.uv.workspace]
+members = [ "apps/app1", "libs/dep1", "libs/dep2" ]
+
+[tool.uv.sources.app1]
+workspace = true
+
+[tool.uv.sources.dep1]
+workspace = true
+
+[tool.uv.sources.dep2]
+workspace = true
+"
+`;

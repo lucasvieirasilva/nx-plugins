@@ -10,6 +10,8 @@ import {
   DependencyProjectMetadata,
   BaseProvider,
   ProjectMetadata,
+  SyncGeneratorResult,
+  SyncGeneratorCallback,
 } from '../base';
 import { AddExecutorSchema } from '../../executors/add/schema';
 import { SpawnSyncOptions } from 'child_process';
@@ -35,7 +37,6 @@ import chalk from 'chalk';
 import { copySync, removeSync, writeFileSync } from 'fs-extra';
 import {
   getLocalDependencyConfig,
-  getPyprojectData,
   readPyprojectToml,
   writePyprojectToml,
 } from '../utils';
@@ -52,8 +53,10 @@ import { LockExecutorSchema } from '../../executors/lock/schema';
 import { SyncExecutorSchema } from '../../executors/sync/schema';
 import semver from 'semver';
 import { minimatch } from 'minimatch';
+import { normalizeDependencyName } from './build/resolvers/utils';
+import assert from 'node:assert';
 
-export class UVProvider extends BaseProvider {
+export class UVProvider extends BaseProvider<UVPyprojectToml> {
   protected _rootLockfile: UVLockfile;
 
   constructor(workspaceRoot: string, logger: Logger, tree?: Tree) {
@@ -82,11 +85,7 @@ export class UVProvider extends BaseProvider {
   }
 
   public getMetadata(projectRoot: string): ProjectMetadata {
-    const pyprojectTomlPath = joinPathFragments(projectRoot, 'pyproject.toml');
-
-    const projectData = this.tree
-      ? readPyprojectToml<UVPyprojectToml>(this.tree, pyprojectTomlPath)
-      : getPyprojectData<UVPyprojectToml>(pyprojectTomlPath);
+    const projectData = this.getPyprojectToml(projectRoot);
 
     return {
       name: projectData?.project?.name,
@@ -94,15 +93,41 @@ export class UVProvider extends BaseProvider {
     };
   }
 
+  public getModulesFolders(projectRoot: string): string[] {
+    const projectData = this.getPyprojectToml(projectRoot);
+
+    const isTargetHatch =
+      projectData['build-system']['build-backend'] === 'hatchling.build';
+    const isTargetUvBuild =
+      projectData['build-system']['build-backend'] === 'uv_build';
+
+    const isSrcDir = this.fileExists(join(projectRoot, 'src'));
+    if (isSrcDir) {
+      return readdirSync(join(this.workspaceRoot, projectRoot, 'src')).map(
+        (pkg) => join(projectRoot, 'src', pkg),
+      );
+    } else if (isTargetHatch) {
+      return (
+        projectData.tool?.hatch?.build?.targets?.wheel?.packages?.map((pkg) =>
+          join(projectRoot, pkg),
+        ) ?? []
+      );
+    } else if (isTargetUvBuild) {
+      return (
+        projectData.tool?.uv?.['build-backend']?.['module-name']?.map((pkg) =>
+          join(projectRoot, pkg),
+        ) ?? []
+      );
+    }
+
+    return [];
+  }
+
   public getDependencyMetadata(
     projectRoot: string,
     dependencyName: string,
   ): DependencyProjectMetadata | null {
-    const pyprojectTomlPath = joinPathFragments(projectRoot, 'pyproject.toml');
-    const projectData = this.tree
-      ? readPyprojectToml<UVPyprojectToml>(this.tree, pyprojectTomlPath)
-      : getPyprojectData<UVPyprojectToml>(pyprojectTomlPath);
-
+    const projectData = this.getPyprojectToml(projectRoot);
     if (!projectData) {
       return null;
     }
@@ -137,9 +162,9 @@ export class UVProvider extends BaseProvider {
         'pyproject.toml',
       );
 
-      const dependencyProjectData = this.tree
-        ? readPyprojectToml<UVPyprojectToml>(this.tree, dependencyPyprojectPath)
-        : getPyprojectData<UVPyprojectToml>(dependencyPyprojectPath);
+      const dependencyProjectData = this.getPyprojectToml(
+        join(projectRoot, dependencyRelativePath),
+      );
 
       if (!dependencyProjectData) {
         throw new Error(`${dependencyPyprojectPath} not found`);
@@ -163,10 +188,7 @@ export class UVProvider extends BaseProvider {
 
   public updateVersion(projectRoot: string, newVersion: string): void {
     const pyprojectTomlPath = joinPathFragments(projectRoot, 'pyproject.toml');
-
-    const projectData = this.tree
-      ? readPyprojectToml<UVPyprojectToml>(this.tree, pyprojectTomlPath)
-      : getPyprojectData<UVPyprojectToml>(pyprojectTomlPath);
+    const projectData = this.getPyprojectToml(projectRoot);
 
     if (!projectData.project) {
       throw new Error('project section not found in pyproject.toml');
@@ -189,8 +211,8 @@ export class UVProvider extends BaseProvider {
 
     const deps: Dependency[] = [];
 
-    if (fs.existsSync(pyprojectToml)) {
-      const tomlData = getPyprojectData<UVPyprojectToml>(pyprojectToml);
+    if (this.fileExists(pyprojectToml)) {
+      const tomlData = this.getPyprojectToml(projectData.root);
       const sources = this.sources(tomlData);
 
       deps.push(
@@ -247,9 +269,7 @@ export class UVProvider extends BaseProvider {
         }
       });
     } else {
-      const pyprojectToml = getPyprojectData<UVPyprojectToml>(
-        joinPathFragments(root, 'pyproject.toml'),
-      );
+      const pyprojectToml = this.getPyprojectToml(root);
 
       for (const project in projects) {
         const projectData = projects[project];
@@ -257,10 +277,8 @@ export class UVProvider extends BaseProvider {
           projectData.root,
           'pyproject.toml',
         );
-        if (fs.existsSync(projectPyprojectTomlPath)) {
-          const tomlData = getPyprojectData<UVPyprojectToml>(
-            projectPyprojectTomlPath,
-          );
+        if (this.fileExists(projectPyprojectTomlPath)) {
+          const tomlData = this.getPyprojectToml(projectData.root);
 
           if (tomlData.tool?.uv?.sources?.[pyprojectToml.project.name]) {
             result.push(project);
@@ -352,6 +370,139 @@ export class UVProvider extends BaseProvider {
     if (!this.isWorkspace) {
       this.syncDependents(context, context.projectName);
     }
+  }
+
+  async syncGenerator(
+    projectName: string,
+    missingDependencies: string[],
+    context: ExecutorContext,
+  ): Promise<SyncGeneratorResult> {
+    assert(this.tree, 'Tree is required');
+    let outOfSyncMessage = '';
+    const callbacks: SyncGeneratorCallback[] = [];
+    const projectConfig =
+      context.projectsConfigurations.projects[context.projectName];
+
+    const pyprojectTomlPath = joinPathFragments(
+      projectConfig.root,
+      'pyproject.toml',
+    );
+    const pyprojectToml = readPyprojectToml<UVPyprojectToml>(
+      this.tree,
+      pyprojectTomlPath,
+    );
+
+    for (const dependency of missingDependencies) {
+      pyprojectToml.project.dependencies ??= [];
+      pyprojectToml.project.dependencies.push(dependency);
+      if (this.isWorkspace) {
+        pyprojectToml.tool ??= {};
+        pyprojectToml.tool.uv ??= {};
+        pyprojectToml.tool.uv.sources ??= {};
+        pyprojectToml.tool.uv.sources[dependency] = {
+          workspace: true,
+        };
+      } else {
+        const dependencyConfig = getLocalDependencyConfig(context, dependency);
+        const dependencyPath = path.relative(
+          projectConfig.root,
+          dependencyConfig.root,
+        );
+
+        pyprojectToml.tool ??= {};
+        pyprojectToml.tool.uv ??= {};
+        pyprojectToml.tool.uv.sources ??= {};
+        pyprojectToml.tool.uv.sources[dependency] = {
+          path: dependencyPath,
+        };
+      }
+
+      writePyprojectToml(this.tree, pyprojectTomlPath, pyprojectToml);
+    }
+
+    let rootInstallCallback = false;
+
+    if (this.isWorkspace) {
+      const rootPyprojectToml = readPyprojectToml<UVPyprojectToml>(
+        this.tree,
+        'pyproject.toml',
+      );
+      if (!rootPyprojectToml.project.dependencies.includes(projectName)) {
+        rootPyprojectToml.project.dependencies ??= [];
+        rootPyprojectToml.project.dependencies.push(projectName);
+
+        outOfSyncMessage += `Root pyproject.toml is out of sync. Missing dependency: ${projectName}\n`;
+        rootInstallCallback = true;
+        callbacks.push({
+          actions: ['sync-root'],
+          callback: async () => await this.install(context.root),
+        });
+      }
+
+      if (!rootPyprojectToml.tool.uv.sources?.[projectName]) {
+        rootPyprojectToml.tool ??= {};
+        rootPyprojectToml.tool.uv ??= {};
+        rootPyprojectToml.tool.uv.sources ??= {};
+        rootPyprojectToml.tool.uv.sources[projectName] = {
+          workspace: true,
+        };
+        outOfSyncMessage += `Root pyproject.toml is out of sync. Missing source: ${projectName}\n`;
+        if (!rootInstallCallback) {
+          rootInstallCallback = true;
+          callbacks.push({
+            actions: ['sync-root'],
+            callback: async () => await this.install(context.root),
+          });
+        }
+      }
+
+      if (
+        !rootPyprojectToml.tool.uv.workspace?.members.includes(
+          projectConfig.root,
+        )
+      ) {
+        rootPyprojectToml.tool.uv.workspace ??= {
+          members: [],
+        };
+        rootPyprojectToml.tool.uv.workspace.members.push(projectConfig.root);
+        outOfSyncMessage += `Root pyproject.toml is out of sync. Missing workspace member: ${projectConfig.root}\n`;
+        if (!rootInstallCallback) {
+          rootInstallCallback = true;
+          callbacks.push({
+            actions: ['sync-root'],
+            callback: async () => await this.install(context.root),
+          });
+        }
+      }
+
+      writePyprojectToml(this.tree, 'pyproject.toml', rootPyprojectToml);
+    }
+
+    if (!this.isWorkspace && missingDependencies.length > 0) {
+      callbacks.push(
+        {
+          actions: [`sync-${projectConfig.root}`],
+          description: `Syncing project ${projectConfig.root}`,
+          callback: async () => await this.install(projectConfig.root),
+        },
+        {
+          actions: [`sync-dependents-${context.projectName}`],
+          description: `Syncing dependents of project ${context.projectName}`,
+          callback: () => this.syncDependents(context, context.projectName),
+        },
+      );
+    } else if (missingDependencies.length > 0 && !rootInstallCallback) {
+      callbacks.push({
+        actions: ['sync-root'],
+        description: `Syncing root project`,
+        callback: async () => await this.install(context.root),
+      });
+    }
+
+    return {
+      callbacks,
+      outOfSyncMessage,
+    };
   }
 
   public async update(
@@ -644,7 +795,7 @@ export class UVProvider extends BaseProvider {
     });
 
     const buildPyProjectToml = join(buildFolderPath, 'pyproject.toml');
-    let buildTomlData = getPyprojectData<UVPyprojectToml>(buildPyProjectToml);
+    let buildTomlData = this.getPyprojectToml(buildFolderPath);
 
     buildTomlData['dependency-groups'] = {};
 
@@ -725,9 +876,7 @@ export class UVProvider extends BaseProvider {
       return projectPyprojectToml?.tool?.uv?.sources ?? {};
     }
 
-    const rootPyprojectToml = getPyprojectData<UVPyprojectToml>(
-      joinPathFragments(this.workspaceRoot, 'pyproject.toml'),
-    );
+    const rootPyprojectToml = this.getPyprojectToml(this.workspaceRoot);
     return {
       ...(rootPyprojectToml?.tool?.uv?.sources ?? {}),
       ...(projectPyprojectToml?.tool?.uv?.sources ?? {}),
@@ -745,14 +894,15 @@ export class UVProvider extends BaseProvider {
     const deps: Dependency[] = [];
 
     for (const dep of dependencies) {
-      if (!sources[dep]) {
+      const normalizedDep = normalizeDependencyName(dep);
+      if (!sources[normalizedDep]) {
         continue;
       }
 
       if (this.isWorkspace) {
         this.appendWorkspaceDependencyToDeps(
           projectName,
-          dep,
+          normalizedDep,
           category,
           sources,
           projects,
@@ -761,7 +911,7 @@ export class UVProvider extends BaseProvider {
       } else {
         this.appendIndividualDependencyToDeps(
           projectData,
-          dep,
+          normalizedDep,
           category,
           sources,
           projects,
@@ -806,9 +956,7 @@ export class UVProvider extends BaseProvider {
       return;
     }
 
-    const pyprojectToml = getPyprojectData<UVPyprojectToml>(
-      joinPathFragments(projects[depProjectName].root, 'pyproject.toml'),
-    );
+    const pyprojectToml = this.getPyprojectToml(projects[depProjectName].root);
 
     deps.push({
       name: depProjectName,
@@ -843,9 +991,7 @@ export class UVProvider extends BaseProvider {
       return;
     }
 
-    const pyprojectToml = getPyprojectData<UVPyprojectToml>(
-      joinPathFragments(projects[depProjectName].root, 'pyproject.toml'),
-    );
+    const pyprojectToml = this.getPyprojectToml(projects[depProjectName].root);
 
     deps.push({
       name: depProjectName,

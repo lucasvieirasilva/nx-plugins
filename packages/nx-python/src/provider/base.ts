@@ -1,4 +1,9 @@
-import { ExecutorContext, ProjectConfiguration, Tree } from '@nx/devkit';
+import {
+  ExecutorContext,
+  joinPathFragments,
+  ProjectConfiguration,
+  Tree,
+} from '@nx/devkit';
 import { AddExecutorSchema } from '../executors/add/schema';
 import { SpawnSyncOptions } from 'child_process';
 import { UpdateExecutorSchema } from '../executors/update/schema';
@@ -13,6 +18,7 @@ import path from 'path';
 import fs from 'fs';
 import chalk from 'chalk';
 import { parse } from '@iarna/toml';
+import { getPyprojectData, readPyprojectToml } from './utils';
 
 export type Dependency = {
   name: string;
@@ -40,7 +46,18 @@ export type DependencyProjectMetadata = ProjectMetadata & {
   group?: string;
 };
 
-export abstract class BaseProvider {
+export type SyncGeneratorCallback = {
+  actions: string[];
+  description?: string;
+  callback: () => Promise<void> | void;
+};
+
+export type SyncGeneratorResult = {
+  callbacks: SyncGeneratorCallback[];
+  outOfSyncMessage: string;
+};
+
+export abstract class BaseProvider<TPyprojectToml> {
   constructor(
     protected readonly workspaceRoot: string,
     protected readonly logger: Logger,
@@ -50,6 +67,17 @@ export abstract class BaseProvider {
   ) {}
 
   abstract checkPrerequisites(): Promise<void>;
+
+  public getPyprojectToml(projectRoot: string): TPyprojectToml {
+    const pyprojectTomlPath = joinPathFragments(projectRoot, 'pyproject.toml');
+    return this.tree
+      ? readPyprojectToml<TPyprojectToml>(this.tree, pyprojectTomlPath)
+      : getPyprojectData<TPyprojectToml>(pyprojectTomlPath);
+  }
+
+  public fileExists(path: string): boolean {
+    return this.tree ? this.tree.exists(path) : fs.existsSync(path);
+  }
 
   abstract getMetadata(projectRoot: string): ProjectMetadata;
 
@@ -65,6 +93,8 @@ export abstract class BaseProvider {
     projects: Record<string, ProjectConfiguration>,
     cwd: string,
   ): Dependency[];
+
+  abstract getModulesFolders(projectRoot: string): string[];
 
   abstract getDependents(
     projectName: string,
@@ -82,6 +112,12 @@ export abstract class BaseProvider {
     options: AddExecutorSchema,
     context: ExecutorContext,
   ): Promise<void>;
+
+  abstract syncGenerator(
+    projectName: string,
+    missingDependencies: string[],
+    context: ExecutorContext,
+  ): Promise<SyncGeneratorResult>;
 
   abstract update(
     options: UpdateExecutorSchema,

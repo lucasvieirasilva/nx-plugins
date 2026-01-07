@@ -24,7 +24,7 @@ export function resolveLocalPackageDependencies(
   projectGraph: ProjectGraph,
   filteredProjects: ProjectGraphProjectNode[],
   projectNameToPackageRootMap: Map<string, string>,
-  provider: BaseProvider,
+  provider: BaseProvider<unknown>,
   resolvePackageRoot: (projectNode: ProjectGraphProjectNode) => string,
   includeAll = false,
 ): Record<string, LocalPackageDependency[]> {

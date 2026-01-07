@@ -17,6 +17,7 @@ import {
   normalizeOptions as baseNormalizeOptions,
   getDefaultPythonProjectTargets,
   getPyprojectTomlByProjectName,
+  updateInferDependenciesOption,
   updateNxReleaseConfig,
 } from '../utils';
 import {
@@ -241,7 +242,10 @@ function addTestDependencies(
   };
 }
 
-async function updateRootUvLock(tree: Tree, provider: BaseProvider) {
+async function updateRootUvLock(
+  tree: Tree,
+  provider: BaseProvider<UVPyprojectToml>,
+) {
   if (tree.exists('pyproject.toml')) {
     console.log(chalk`  Updating root {bgBlue uv.lock}...`);
     await provider.install();
@@ -291,6 +295,7 @@ export default async function (tree: Tree, options: UVProjectGeneratorSchema) {
   }
 
   updateNxReleaseConfig(normalizedOptions, projectConfiguration);
+  updateInferDependenciesOption(tree, normalizedOptions);
 
   addProjectConfiguration(
     tree,

@@ -55,7 +55,7 @@ type LockUpdateTask = () => Promise<void>;
 function updatePoetryPyprojectRoot(
   host: Tree,
   options: Schema,
-  provider: BaseProvider,
+  provider: BaseProvider<PoetryPyprojectToml>,
 ): LockUpdateTask[] {
   const postGeneratorTasks = [];
 
@@ -103,7 +103,7 @@ function movePoetryDevDependencies(
   host: Tree,
   pyprojectTomlPath: string,
   projectConfig: ProjectConfiguration,
-  provider: BaseProvider,
+  provider: BaseProvider<PoetryPyprojectToml>,
 ) {
   const devDependencies =
     pyprojectToml.tool.poetry.group?.dev?.dependencies || {};
@@ -223,7 +223,13 @@ async function generator(host: Tree, options: Schema) {
   await addFiles(host, options);
   const lockUpdateTasks: LockUpdateTask[] = [];
   if (options.packageManager === 'poetry') {
-    lockUpdateTasks.push(...updatePoetryPyprojectRoot(host, options, provider));
+    lockUpdateTasks.push(
+      ...updatePoetryPyprojectRoot(
+        host,
+        options,
+        provider as BaseProvider<PoetryPyprojectToml>,
+      ),
+    );
   } else if (options.packageManager === 'uv') {
     lockUpdateTasks.push(...updateUvPyprojectRoot(host, options));
   }

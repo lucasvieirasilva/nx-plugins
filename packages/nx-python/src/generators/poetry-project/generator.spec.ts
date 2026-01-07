@@ -2,7 +2,12 @@ import { vi, MockInstance } from 'vitest';
 import '../../utils/mocks/cross-spawn.mock';
 import * as poetryUtils from '../../provider/poetry/utils';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
-import { Tree, readProjectConfiguration } from '@nx/devkit';
+import {
+  Tree,
+  readNxJson,
+  readProjectConfiguration,
+  updateNxJson,
+} from '@nx/devkit';
 
 import generator from './generator';
 import dedent from 'string-dedent';
@@ -111,6 +116,63 @@ describe('application generator', () => {
       expect(
         appTree.exists(`${projectDirectory}/tests/test_hello.py`),
       ).toBeFalsy();
+    });
+
+    it('should run successfully with useSyncGenerators option', async () => {
+      await generator(appTree, {
+        ...options,
+        name: 'my-app-test',
+        directory: 'src/app/test',
+        projectNameAndRootFormat: 'as-provided',
+        useSyncGenerators: true,
+      });
+      const config = readProjectConfiguration(appTree, 'my-app-test');
+      expect(config).toMatchSnapshot();
+
+      const projectDirectory = 'src/app/test';
+      const moduleName = 'my_app_test';
+
+      assertGeneratedFilesBase(appTree, projectDirectory, moduleName);
+
+      expect(
+        appTree.exists(`${projectDirectory}/tests/test_hello.py`),
+      ).toBeFalsy();
+      expect(appTree.read('nx.json', 'utf-8')).toMatchSnapshot();
+    });
+
+    it('should run successfully with useSyncGenerators option (infer already enabled)', async () => {
+      const nxJson = readNxJson(appTree);
+      updateNxJson(appTree, {
+        ...nxJson,
+        plugins: [
+          {
+            plugin: '@nxlv/python',
+            options: {
+              inferDependencies: true,
+            },
+          },
+        ],
+      });
+
+      await generator(appTree, {
+        ...options,
+        name: 'my-app-test',
+        directory: 'src/app/test',
+        projectNameAndRootFormat: 'as-provided',
+        useSyncGenerators: true,
+      });
+      const config = readProjectConfiguration(appTree, 'my-app-test');
+      expect(config).toMatchSnapshot();
+
+      const projectDirectory = 'src/app/test';
+      const moduleName = 'my_app_test';
+
+      assertGeneratedFilesBase(appTree, projectDirectory, moduleName);
+
+      expect(
+        appTree.exists(`${projectDirectory}/tests/test_hello.py`),
+      ).toBeFalsy();
+      expect(appTree.read('nx.json', 'utf-8')).toMatchSnapshot();
     });
   });
 

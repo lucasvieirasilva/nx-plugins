@@ -102,7 +102,7 @@ export const afterAllProjectsVersioned: AfterAllProjectsVersioned = async (
 
 export default class PythonVersionActions extends VersionActions {
   validManifestFilenames = ['pyproject.toml'];
-  private provider: BaseProvider;
+  private provider: BaseProvider<unknown>;
 
   async init(tree: Tree, isInProjectsToProcess: boolean): Promise<void> {
     await super.init(tree, isInProjectsToProcess);
