@@ -1,3 +1,13 @@
+## 6.2.0 (2026-01-14)
+
+### 🚀 Features
+
+- add experimental sync generators for automatic local package dependency management ([5e06e16](https://github.com/lucasvieirasilva/nx-plugins/commit/5e06e16))
+
+### ❤️ Thank You
+
+- Lucas Vieira @lucasvieirasilva
+
 ## 6.1.1 (2026-01-07)
 
 ### 🩹 Fixes
