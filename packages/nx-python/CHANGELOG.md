@@ -1,3 +1,13 @@
+## 22.0.3 (2026-01-15)
+
+### 🩹 Fixes
+
+- export release version actions ([1b8f551](https://github.com/lucasvieirasilva/nx-plugins/commit/1b8f551))
+
+### ❤️ Thank You
+
+- Lucas Vieira @lucasvieirasilva
+
 ## 22.0.2 (2026-01-15)
 
 ### 🩹 Fixes

@@ -1,7 +1,7 @@
 {
   "name": "@nxlv/data-migration",
   "description": "Nx Data Migration Tool based on TypeScript (Supported Databases: DynamoDB)",
-  "version": "8.0.2",
+  "version": "8.0.3",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
