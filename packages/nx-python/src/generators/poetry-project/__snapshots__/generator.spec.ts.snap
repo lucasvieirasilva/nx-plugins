@@ -7,7 +7,7 @@ exports[`application generator > as-provided > should run successfully minimal c
   "projectType": "application",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "src/app/test",
@@ -113,7 +113,7 @@ exports[`application generator > as-provided > should run successfully minimal c
   "projectType": "application",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "my-app-test",
@@ -219,7 +219,7 @@ exports[`application generator > as-provided > should run successfully with useS
   "projectType": "application",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "src/app/test",
@@ -353,7 +353,7 @@ exports[`application generator > as-provided > should run successfully with useS
   "projectType": "application",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "src/app/test",
@@ -487,7 +487,7 @@ exports[`application generator > custom template dir > should run successfully w
   "projectType": "application",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -575,7 +575,7 @@ exports[`application generator > individual package > should run successfully mi
   "projectType": "application",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -681,7 +681,7 @@ exports[`application generator > individual package > should run successfully mi
   "projectType": "application",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -787,7 +787,7 @@ exports[`application generator > individual package > should run successfully mi
   "projectType": "library",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "libs/test",
@@ -893,7 +893,7 @@ exports[`application generator > individual package > should run successfully mi
   "projectType": "application",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "apps/subdir/test",
@@ -999,7 +999,7 @@ exports[`application generator > individual package > should run successfully mi
   "projectType": "application",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -1108,7 +1108,7 @@ exports[`application generator > individual package > should run successfully wi
   "projectType": "application",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -1243,7 +1243,7 @@ exports[`application generator > individual package > should run successfully wi
   "projectType": "application",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -1420,7 +1420,7 @@ exports[`application generator > individual package > should run successfully wi
   "projectType": "application",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -1598,7 +1598,7 @@ exports[`application generator > individual package > should run successfully wi
   "projectType": "application",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -1777,7 +1777,7 @@ exports[`application generator > individual package > should run successfully wi
   "projectType": "application",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -1957,7 +1957,7 @@ exports[`application generator > individual package > should run successfully wi
   "projectType": "application",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -2138,7 +2138,7 @@ exports[`application generator > individual package > should run successfully wi
   "projectType": "application",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -2299,7 +2299,7 @@ exports[`application generator > individual package > should run successfully wi
   "projectType": "application",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -2525,7 +2525,7 @@ exports[`application generator > individual package > should run successfully wi
   "projectType": "application",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -2791,7 +2791,7 @@ exports[`application generator > individual package > should run successfully wi
   "projectType": "application",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -3018,7 +3018,7 @@ exports[`application generator > individual package > should run successfully wi
   "projectType": "application",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -3176,7 +3176,7 @@ exports[`application generator > individual package > should run successfully wi
   "projectType": "application",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -3366,7 +3366,7 @@ exports[`application generator > shared virtual environment > should run success
   "projectType": "application",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -3492,7 +3492,7 @@ exports[`application generator > shared virtual environment > should run success
   "projectType": "application",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -3618,7 +3618,7 @@ exports[`application generator > shared virtual environment > should run success
   "projectType": "application",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -3744,7 +3744,7 @@ exports[`application generator > shared virtual environment > should run success
   "projectType": "application",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -3871,7 +3871,7 @@ exports[`application generator > shared virtual environment > should run success
   "projectType": "application",
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions",
+      "versionActions": "@nxlv/python/release/version-actions",
     },
   },
   "root": "apps/test",

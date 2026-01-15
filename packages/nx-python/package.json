@@ -11,7 +11,8 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
-    }
+    },
+    "./release/version-actions": "./dist/release/version-actions.js"
   },
   "files": [
     "dist",

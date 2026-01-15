@@ -72,7 +72,7 @@ To:
   "tags": [],
   "release": {
     "version": {
-      "versionActions": "@nxlv/python/src/release/version-actions"
+      "versionActions": "@nxlv/python/release/version-actions"
     }
   }
 }

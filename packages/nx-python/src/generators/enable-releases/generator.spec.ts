@@ -58,11 +58,11 @@ describe('nx-python enable-releases', () => {
       projectNameAndRootFormat: 'derived',
     });
 
-    await generator(appTree, {});
+    await generator(appTree);
 
     expect(readJson(appTree, 'proj1/project.json').release).toEqual({
       version: {
-        versionActions: '@nxlv/python/src/release/version-actions',
+        versionActions: '@nxlv/python/release/version-actions',
       },
     });
   });
