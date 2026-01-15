@@ -24,9 +24,6 @@
       "cache": true
     },
     "nx-release-publish": {
-      "options": {
-        "packageRoot": "dist/{projectRoot}"
-      },
       "dependsOn": ["build"]
     },
     "@nx/vitest:test": {
