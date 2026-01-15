@@ -249,7 +249,7 @@ export default async function (
     };
   }
 
-  updateNxReleaseConfig(normalizedOptions, projectConfiguration);
+  updateNxReleaseConfig(projectConfiguration);
   updateInferDependenciesOption(tree, normalizedOptions);
 
   addProjectConfiguration(

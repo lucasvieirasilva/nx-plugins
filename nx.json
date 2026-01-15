@@ -23,15 +23,15 @@
       "inputs": ["default", "{workspaceRoot}/.eslintrc.json"],
       "cache": true
     },
-    "@nx/vite:test": {
-      "cache": true,
-      "inputs": ["default", "^production"]
-    },
     "nx-release-publish": {
       "options": {
         "packageRoot": "dist/{projectRoot}"
       },
       "dependsOn": ["build"]
+    },
+    "@nx/vitest:test": {
+      "cache": true,
+      "inputs": ["default", "^production"]
     }
   },
   "workspaceLayout": {
@@ -61,7 +61,12 @@
         "typecheck": {
           "targetName": "typecheck"
         },
-        "build": false
+        "build": {
+          "targetName": "build",
+          "configName": "tsconfig.lib.json",
+          "buildDepsName": "build-deps",
+          "watchDepsName": "watch-deps"
+        }
       }
     },
     {
@@ -90,7 +95,9 @@
         }
       }
     },
-    "releaseTagPattern": "{projectName}-v{version}",
-    "projects": ["nx-python", "data-migration", "util"]
+    "projects": ["nx-python", "data-migration", "util"],
+    "releaseTag": {
+      "pattern": "{projectName}-v{version}"
+    }
   }
 }

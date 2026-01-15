@@ -125,11 +125,6 @@
       "enum": ["as-provided", "derived"],
       "default": "as-provided"
     },
-    "useNxReleaseLegacyVersioning": {
-      "type": "boolean",
-      "description": "Use legacy versioning for nx-release",
-      "default": true
-    },
     "buildSystem": {
       "type": "string",
       "description": "Build system to use",

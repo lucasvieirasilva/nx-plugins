@@ -14,12 +14,18 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "typeRoots": ["node_modules/@types", "./types", "./node_modules"],
-    "paths": {
-      "@nxlv/data-migration": ["packages/data-migration/src/index.ts"],
-      "@nxlv/python": ["packages/nx-python/src/index.ts"],
-      "@nxlv/util": ["packages/util/src/index.ts"]
-    }
+    "typeRoots": ["node_modules/@types", "./types", "./node_modules"]
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": ["node_modules", "tmp"],
+  "references": [
+    {
+      "path": "./packages/data-migration"
+    },
+    {
+      "path": "./packages/util"
+    },
+    {
+      "path": "./packages/nx-python"
+    }
+  ]
 }

@@ -528,7 +528,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
           Role: lambdaOptions.iamRoleArn,
           Handler: 'handler.handler',
           Code: {
-            ZipFile: fs.readFileSync(zipPath),
+            ZipFile: fs.readFileSync(zipPath) as Uint8Array,
           },
           Description: `Lambda function for migration ${this.namespace}/${this.name}/${this.version} stream`,
           Timeout: lambdaOptions.timeout,

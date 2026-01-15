@@ -35,7 +35,6 @@ describe('application generator', () => {
     codeCoverageHtmlReport: false,
     codeCoverageXmlReport: false,
     projectNameAndRootFormat: 'derived',
-    useNxReleaseLegacyVersioning: true,
     buildSystem: 'hatch',
     srcDir: false,
   };
@@ -204,7 +203,6 @@ describe('application generator', () => {
   it('should run successfully with minimal options (new release versioning)', async () => {
     const callbackTask = await generator(appTree, {
       ...options,
-      useNxReleaseLegacyVersioning: false,
     });
     await callbackTask();
     const config = readProjectConfiguration(appTree, 'test');

@@ -34,10 +34,6 @@ This approach helps to deploy the projects to Cloud services like AWS Lambda, Go
 - We now support [Uv](https://docs.astral.sh/uv/) package manager.
 - EXPERIMENTAL: Scan source code for local package imports and add them to the `pyproject.toml` file via Nx [Sync generator](https://nx.dev/docs/concepts/sync-generators).
 
-### Nx 21 Release Notes
-
-This plugin supports the new Nx 21 release versioning.
-
 ##### Migrating Nx release versioning
 
 Update all python `project.json` files to use the new `versionActions` property.
@@ -79,68 +75,6 @@ To:
       "versionActions": "@nxlv/python/src/release/version-actions"
     }
   }
-}
-```
-
-**NOTE**: If you have other plugins that don't support the new release versioning, keep the `release.version.generator` property in the `project.json` file as is and update the `nx.json` file to use the legacy versioning.
-
-`nx.json`
-
-```json
-{
-  "release": {
-    ...
-    "version": {
-      ...
-      "useLegacyVersioning": true
-    }
-  }
-}
-```
-
-For now, the `@nxlv/python` plugin generates new projects with the legacy versioning, so, if you want to use the new release versioning, add the `--useNxReleaseLegacyVersioning` option to the project generator.
-
-**Poetry Project**:
-
-```shell
-nx generate @nxlv/python:poetry-project myproject --useNxReleaseLegacyVersioning=false
-```
-
-**Uv Project**:
-
-```shell
-nx generate @nxlv/python:uv-project myproject --useNxReleaseLegacyVersioning=false
-```
-
-or update the `nx.json` file to default the project generator to use the new release versioning.
-
-`nx.json`
-
-**Poetry Project**:
-
-```json
-{
-  ...
-  "generators": {
-    "@nxlv/python:poetry-project": {
-      "useNxReleaseLegacyVersioning": false
-    }
-  }
-  ...
-}
-```
-
-**Uv Project**:
-
-```json
-{
-  ...
-  "generators": {
-    "@nxlv/python:uv-project": {
-      "useNxReleaseLegacyVersioning": false
-    }
-  }
-  ...
 }
 ```
 

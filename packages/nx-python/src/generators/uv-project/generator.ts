@@ -294,7 +294,7 @@ export default async function (tree: Tree, options: UVProjectGeneratorSchema) {
     };
   }
 
-  updateNxReleaseConfig(normalizedOptions, projectConfiguration);
+  updateNxReleaseConfig(projectConfiguration);
   updateInferDependenciesOption(tree, normalizedOptions);
 
   addProjectConfiguration(

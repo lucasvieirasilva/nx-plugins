@@ -27,7 +27,6 @@ export interface BasePythonProjectGeneratorSchema
   pyenvPythonVersion?: string | number;
   tags?: string;
   directory?: string;
-  useNxReleaseLegacyVersioning?: boolean;
   useSyncGenerators?: boolean;
 }
 

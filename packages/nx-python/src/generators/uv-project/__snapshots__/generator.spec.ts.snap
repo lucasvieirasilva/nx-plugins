@@ -7,7 +7,7 @@ exports[`application generator > as-provided > should run successfully minimal c
   "projectType": "application",
   "release": {
     "version": {
-      "generator": "@nxlv/python:release-version",
+      "versionActions": "@nxlv/python/src/release/version-actions",
     },
   },
   "root": "src/app/test",
@@ -117,7 +117,7 @@ exports[`application generator > as-provided > should run successfully minimal c
   "projectType": "application",
   "release": {
     "version": {
-      "generator": "@nxlv/python:release-version",
+      "versionActions": "@nxlv/python/src/release/version-actions",
     },
   },
   "root": "my-app-test",
@@ -227,7 +227,7 @@ exports[`application generator > as-provided > should run successfully with useS
   "projectType": "application",
   "release": {
     "version": {
-      "generator": "@nxlv/python:release-version",
+      "versionActions": "@nxlv/python/src/release/version-actions",
     },
   },
   "root": "src/app/test",
@@ -365,7 +365,7 @@ exports[`application generator > as-provided > should run successfully with useS
   "projectType": "application",
   "release": {
     "version": {
-      "generator": "@nxlv/python:release-version",
+      "versionActions": "@nxlv/python/src/release/version-actions",
     },
   },
   "root": "src/app/test",
@@ -503,7 +503,7 @@ exports[`application generator > custom template dir > should run successfully w
   "projectType": "application",
   "release": {
     "version": {
-      "generator": "@nxlv/python:release-version",
+      "versionActions": "@nxlv/python/src/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -588,7 +588,7 @@ exports[`application generator > project > should run successfully minimal confi
   "projectType": "library",
   "release": {
     "version": {
-      "generator": "@nxlv/python:release-version",
+      "versionActions": "@nxlv/python/src/release/version-actions",
     },
   },
   "root": "libs/test",
@@ -700,7 +700,7 @@ exports[`application generator > project > should run successfully minimal confi
   "projectType": "application",
   "release": {
     "version": {
-      "generator": "@nxlv/python:release-version",
+      "versionActions": "@nxlv/python/src/release/version-actions",
     },
   },
   "root": "apps/subdir/test",
@@ -812,7 +812,7 @@ exports[`application generator > project > should run successfully minimal confi
   "projectType": "application",
   "release": {
     "version": {
-      "generator": "@nxlv/python:release-version",
+      "versionActions": "@nxlv/python/src/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -927,7 +927,7 @@ exports[`application generator > project > should run successfully with flake8 l
   "projectType": "application",
   "release": {
     "version": {
-      "generator": "@nxlv/python:release-version",
+      "versionActions": "@nxlv/python/src/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -1065,7 +1065,7 @@ exports[`application generator > project > should run successfully with flake8 l
   "projectType": "application",
   "release": {
     "version": {
-      "generator": "@nxlv/python:release-version",
+      "versionActions": "@nxlv/python/src/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -1245,7 +1245,7 @@ exports[`application generator > project > should run successfully with flake8 l
   "projectType": "application",
   "release": {
     "version": {
-      "generator": "@nxlv/python:release-version",
+      "versionActions": "@nxlv/python/src/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -1426,7 +1426,7 @@ exports[`application generator > project > should run successfully with flake8 l
   "projectType": "application",
   "release": {
     "version": {
-      "generator": "@nxlv/python:release-version",
+      "versionActions": "@nxlv/python/src/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -1608,7 +1608,7 @@ exports[`application generator > project > should run successfully with flake8 l
   "projectType": "application",
   "release": {
     "version": {
-      "generator": "@nxlv/python:release-version",
+      "versionActions": "@nxlv/python/src/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -1791,7 +1791,7 @@ exports[`application generator > project > should run successfully with flake8 l
   "projectType": "application",
   "release": {
     "version": {
-      "generator": "@nxlv/python:release-version",
+      "versionActions": "@nxlv/python/src/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -1975,7 +1975,7 @@ exports[`application generator > project > should run successfully with flake8 l
   "projectType": "application",
   "release": {
     "version": {
-      "generator": "@nxlv/python:release-version",
+      "versionActions": "@nxlv/python/src/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -2139,7 +2139,7 @@ exports[`application generator > project > should run successfully with linting 
   "projectType": "application",
   "release": {
     "version": {
-      "generator": "@nxlv/python:release-version",
+      "versionActions": "@nxlv/python/src/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -2374,7 +2374,7 @@ exports[`application generator > project > should run successfully with linting 
   "projectType": "application",
   "release": {
     "version": {
-      "generator": "@nxlv/python:release-version",
+      "versionActions": "@nxlv/python/src/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -2687,7 +2687,7 @@ exports[`application generator > project > should run successfully with linting 
   "projectType": "application",
   "release": {
     "version": {
-      "generator": "@nxlv/python:release-version",
+      "versionActions": "@nxlv/python/src/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -2921,7 +2921,7 @@ exports[`application generator > project > should run successfully with ruff lin
   "projectType": "application",
   "release": {
     "version": {
-      "generator": "@nxlv/python:release-version",
+      "versionActions": "@nxlv/python/src/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -3086,7 +3086,7 @@ exports[`application generator > project > should run successfully with ruff lin
   "projectType": "application",
   "release": {
     "version": {
-      "generator": "@nxlv/python:release-version",
+      "versionActions": "@nxlv/python/src/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -3279,7 +3279,7 @@ exports[`application generator > project > should run successfully with ruff lin
   "projectType": "application",
   "release": {
     "version": {
-      "generator": "@nxlv/python:release-version",
+      "versionActions": "@nxlv/python/src/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -3593,7 +3593,7 @@ exports[`application generator > should run successfully with minimal options 1`
   "projectType": "application",
   "release": {
     "version": {
-      "generator": "@nxlv/python:release-version",
+      "versionActions": "@nxlv/python/src/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -3705,7 +3705,7 @@ exports[`application generator > workspace > should run successfully with minima
   "projectType": "application",
   "release": {
     "version": {
-      "generator": "@nxlv/python:release-version",
+      "versionActions": "@nxlv/python/src/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -3827,7 +3827,7 @@ exports[`application generator > workspace > should run successfully with minima
   "projectType": "application",
   "release": {
     "version": {
-      "generator": "@nxlv/python:release-version",
+      "versionActions": "@nxlv/python/src/release/version-actions",
     },
   },
   "root": "apps/test",
@@ -3949,7 +3949,7 @@ exports[`application generator > workspace > should run successfully with minima
   "projectType": "application",
   "release": {
     "version": {
-      "generator": "@nxlv/python:release-version",
+      "versionActions": "@nxlv/python/src/release/version-actions",
     },
   },
   "root": "apps/test",
