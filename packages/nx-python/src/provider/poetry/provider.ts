@@ -947,7 +947,7 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
     );
 
     if (rootPyprojectToml) {
-      const rootPyprojectToml = this.getPyprojectToml(context.root);
+      const rootPyprojectToml = this.getPyprojectToml(this.workspaceRoot);
       const allRootDependencyNames = Object.keys(
         getAllDependenciesFromPyprojectToml(rootPyprojectToml),
       );

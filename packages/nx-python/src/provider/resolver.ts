@@ -17,6 +17,10 @@ export const getProvider = async (
   options?: PluginOptions,
 ): Promise<BaseProvider<UVPyprojectToml | PoetryPyprojectToml>> => {
   const loggerInstance = logger ?? new Logger();
+  if (tree) {
+    // If tree is provided, we want the workspace root to be the relative path not the absolute path
+    workspaceRoot = '.';
+  }
 
   if (options?.packageManager) {
     switch (options.packageManager) {
