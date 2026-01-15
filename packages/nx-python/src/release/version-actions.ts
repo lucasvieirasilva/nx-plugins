@@ -104,8 +104,8 @@ export default class PythonVersionActions extends VersionActions {
   validManifestFilenames = ['pyproject.toml'];
   private provider: BaseProvider<unknown>;
 
-  async init(tree: Tree, isInProjectsToProcess: boolean): Promise<void> {
-    await super.init(tree, isInProjectsToProcess);
+  async init(tree: Tree): Promise<void> {
+    await super.init(tree);
     updatedProjects = [];
 
     const nxJson = readJson<NxJsonConfiguration>(tree, 'nx.json');

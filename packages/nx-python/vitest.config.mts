@@ -1,25 +1,14 @@
-/// <reference types='vitest' />
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 
-import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
-
-export default defineConfig({
+export default defineConfig(() => ({
   root: __dirname,
   cacheDir: '../../node_modules/.vite/packages/nx-python',
-
-  plugins: [nxViteTsPaths()],
-
-  // Uncomment this if you are using workers.
-  // worker: {
-  //  plugins: [ nxViteTsPaths() ],
-  // },
-
   test: {
     name: 'nx-python',
+    watch: false,
     globals: true,
     environment: 'node',
-    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-
+    include: ['{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     reporters: ['default'],
     coverage: {
       enabled: true,
@@ -33,7 +22,7 @@ export default defineConfig({
         'lcov',
       ],
       reportsDirectory: '../../coverage/packages/nx-python',
-      provider: 'v8',
+      provider: 'v8' as const,
     },
   },
-});
+}));

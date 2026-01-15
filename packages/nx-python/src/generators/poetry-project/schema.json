@@ -126,11 +126,6 @@
       "enum": ["as-provided", "derived"],
       "default": "as-provided"
     },
-    "useNxReleaseLegacyVersioning": {
-      "type": "boolean",
-      "description": "Use legacy versioning for nx-release",
-      "default": true
-    },
     "useSyncGenerators": {
       "type": "boolean",
       "description": "EXPERIMENTAL: Use sync generators to automatically sync local package dependencies when building the project (When enabled, the generator will also add the `inferDependencies` option to the `nx.json` file)",

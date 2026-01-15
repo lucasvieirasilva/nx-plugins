@@ -1,1 +1,1 @@
-export * from './graph/dependency-graph';
+export * from './plugins/plugin';

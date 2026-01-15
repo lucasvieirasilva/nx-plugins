@@ -1,3 +1,1 @@
-export type Schema = {
-  useNxReleaseLegacyVersioning: boolean;
-};
+export type Schema = object;

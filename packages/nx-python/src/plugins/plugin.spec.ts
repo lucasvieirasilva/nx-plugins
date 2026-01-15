@@ -1,6 +1,6 @@
 import '../utils/mocks/fs.mock';
 import { getProvider } from '../provider';
-import { createDependencies } from './dependency-graph';
+import { createDependencies } from './plugin';
 import { vol } from 'memfs';
 
 import dedent from 'string-dedent';

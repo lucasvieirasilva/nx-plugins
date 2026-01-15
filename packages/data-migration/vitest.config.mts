@@ -1,24 +1,14 @@
-/// <reference types='vitest' />
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 
-import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
-
-export default defineConfig({
+export default defineConfig(() => ({
   root: __dirname,
   cacheDir: '../../node_modules/.vite/packages/data-migration',
-
-  plugins: [nxViteTsPaths()],
-
-  // Uncomment this if you are using workers.
-  // worker: {
-  //  plugins: [ nxViteTsPaths() ],
-  // },
-
   test: {
     name: 'data-migration',
+    watch: false,
     globals: true,
     environment: 'node',
-    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    include: ['{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     setupFiles: ['../../tests/setup.ts'],
     reporters: ['default'],
     coverage: {
@@ -33,7 +23,7 @@ export default defineConfig({
         'lcov',
       ],
       reportsDirectory: '../../coverage/packages/data-migration',
-      provider: 'v8',
+      provider: 'v8' as const,
     },
   },
-});
+}));
