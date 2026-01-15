@@ -9,20 +9,21 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/packages/nx-python",
+        "outputPath": "packages/nx-python/dist",
         "main": "packages/nx-python/src/index.ts",
         "tsConfig": "packages/nx-python/tsconfig.lib.json",
+        "generatePackageJson": false,
+        "rootDir": "packages/nx-python/src",
         "assets": [
-          "packages/nx-python/*.md",
           {
             "input": "./packages/nx-python/src",
             "glob": "**/!(*.ts)",
-            "output": "./src"
+            "output": "."
           },
           {
             "input": "./packages/nx-python/src",
             "glob": "**/*.d.ts",
-            "output": "./src"
+            "output": "."
           },
           {
             "input": "./packages/nx-python",

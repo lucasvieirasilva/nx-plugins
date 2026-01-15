@@ -2,7 +2,21 @@
   "name": "@nxlv/util",
   "description": "Shared utilities for @nxlv packages",
   "version": "6.2.0",
-  "main": "src/index.js",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "!**/*.tsbuildinfo"
+  ],
   "private": false,
   "license": "MIT",
   "repository": {

@@ -64,6 +64,8 @@ export function getPyTestAddopts(
 
     return `\n${args.join('\n')}\n`;
   }
+
+  return undefined;
 }
 
 export function calculateProjectNameAndRoot(

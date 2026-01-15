@@ -9,20 +9,21 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/packages/data-migration",
+        "outputPath": "packages/data-migration/dist",
         "main": "packages/data-migration/src/index.ts",
         "tsConfig": "packages/data-migration/tsconfig.lib.json",
+        "rootDir": "packages/data-migration/src",
+        "generatePackageJson": false,
         "assets": [
-          "packages/data-migration/*.md",
           {
             "input": "./packages/data-migration/src",
             "glob": "**/!(*.ts)",
-            "output": "./src"
+            "output": "."
           },
           {
             "input": "./packages/data-migration/src",
             "glob": "**/*.d.ts",
-            "output": "./src"
+            "output": "."
           },
           {
             "input": "./packages/data-migration",

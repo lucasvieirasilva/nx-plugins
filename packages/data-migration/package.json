@@ -2,7 +2,23 @@
   "name": "@nxlv/data-migration",
   "description": "Nx Data Migration Tool based on TypeScript (Supported Databases: DynamoDB)",
   "version": "7.2.0",
-  "main": "src/index.js",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "!**/*.tsbuildinfo",
+    "generators.json",
+    "executors.json"
+  ],
   "generators": "./generators.json",
   "executors": "./executors.json",
   "private": false,
@@ -16,25 +32,28 @@
     "access": "public"
   },
   "dependencies": {
-    "tslib": "^2.3.0",
-    "@nx/devkit": "^22.0.0",
-    "glob": "^10.2.6",
+    "@aws-sdk/client-cloudwatch-logs": "^3.525.0",
     "@aws-sdk/client-dynamodb": "^3.525.0",
     "@aws-sdk/client-dynamodb-streams": "^3.525.0",
-    "@aws-sdk/client-lambda": "^3.525.0",
-    "@aws-sdk/client-iam": "^3.525.0",
-    "@aws-sdk/client-ssm": "^3.525.0",
-    "esbuild": "0.20.1",
-    "archiver": "^7.0.0",
-    "lodash": "^4.17.21",
-    "chalk": "^4.1.1",
-    "@aws-sdk/client-ecs": "^3.525.0",
-    "dynamoose": "^4.0.0",
-    "@aws-sdk/client-sts": "^3.525.0",
     "@aws-sdk/client-ecr": "^3.525.0",
-    "@aws-sdk/client-cloudwatch-logs": "^3.525.0",
+    "@aws-sdk/client-ecs": "^3.525.0",
+    "@aws-sdk/client-iam": "^3.525.0",
+    "@aws-sdk/client-lambda": "^3.525.0",
+    "@aws-sdk/client-ssm": "^3.525.0",
+    "@aws-sdk/client-sts": "^3.525.0",
+    "@nx/devkit": "^22.0.0",
+    "@nxlv/util": "workspace:*",
+    "archiver": "^7.0.0",
+    "chalk": "^4.1.1",
     "cross-spawn": "^7.0.3",
+    "dynamoose": "^4.0.0",
+    "esbuild": "0.20.1",
+    "glob": "^10.2.6",
+    "lodash": "^4.17.21",
     "prompts": "^2.4.2",
-    "@nxlv/util": "workspace:*"
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/prompts": "^2.4.9"
   }
 }

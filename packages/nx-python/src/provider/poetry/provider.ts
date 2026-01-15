@@ -925,6 +925,8 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
     } else {
       await this.updateProject(projectConfig.root, updateLockOnly);
     }
+
+    return undefined;
   }
 
   private async updateDependencyTree(context: ExecutorContext) {

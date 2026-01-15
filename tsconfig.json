@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compileOnSave": false,
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/data-migration-example"
+    },
+    {
+      "path": "./packages/data-migration"
+    },
+    {
+      "path": "./packages/nx-python"
+    },
+    {
+      "path": "./packages/util"
+    }
+  ]
+}

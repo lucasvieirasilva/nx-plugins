@@ -2,7 +2,24 @@
   "name": "@nxlv/python",
   "description": "Custom NX Plugin to support the Python language",
   "version": "21.3.1",
-  "main": "src/index.js",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "!**/*.tsbuildinfo",
+    "generators.json",
+    "executors.json",
+    "migrations.json"
+  ],
   "generators": "./generators.json",
   "executors": "./executors.json",
   "license": "MIT",

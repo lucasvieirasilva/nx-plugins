@@ -104,7 +104,7 @@ export default class PythonVersionActions extends VersionActions {
   validManifestFilenames = ['pyproject.toml'];
   private provider: BaseProvider<unknown>;
 
-  async init(tree: Tree): Promise<void> {
+  override async init(tree: Tree): Promise<void> {
     await super.init(tree);
     updatedProjects = [];
 
@@ -124,7 +124,7 @@ export default class PythonVersionActions extends VersionActions {
     this.provider = provider;
   }
 
-  async readDependencies(
+  override async readDependencies(
     tree: Tree,
     projectGraph: ProjectGraph,
   ): Promise<ProjectGraphDependency[]> {

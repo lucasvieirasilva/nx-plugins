@@ -1,8 +1,12 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "../../dist/out-tsc",
-    "declaration": true,
+    "baseUrl": ".",
+    "rootDir": "src",
+    "outDir": "dist",
+    "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
+    "emitDeclarationOnly": false,
+    "forceConsistentCasingInFileNames": true,
     "types": ["node"]
   },
   "include": ["src/**/*.ts"],
@@ -11,5 +15,10 @@
     "src/**/*.spec.ts",
     "src/**/*.test.ts",
     "src/**/__mocks__/**/*.ts"
+  ],
+  "references": [
+    {
+      "path": "../util/tsconfig.lib.json"
+    }
   ]
 }
