@@ -1,3 +1,13 @@
+## 8.0.1 (2026-01-15)
+
+### 🩹 Fixes
+
+- update nx executor paths ([e5ae5b6](https://github.com/lucasvieirasilva/nx-plugins/commit/e5ae5b6))
+
+### ❤️ Thank You
+
+- Lucas Vieira @lucasvieirasilva
+
 # 8.0.0 (2026-01-15)
 
 ### 🚀 Features
