@@ -319,11 +319,11 @@ importers:
         specifier: ^3.525.0
         version: 3.804.0(@aws-sdk/client-dynamodb@3.804.0)
       '@nxlv/data-migration':
-        specifier: 7.0.0
-        version: 7.0.0(nx@22.3.3(@swc-node/register@1.9.2(@swc/core@1.5.7(@swc/helpers@0.5.12))(@swc/types@0.1.7)(typescript@5.9.3))(@swc/core@1.5.7(@swc/helpers@0.5.12)))
+        specifier: workspace:*
+        version: link:../data-migration
       '@nxlv/util':
-        specifier: 6.0.0
-        version: 6.0.0
+        specifier: workspace:*
+        version: link:../util
       aws-lambda:
         specifier: ^1.0.7
         version: 1.0.7
@@ -2087,11 +2087,6 @@ packages:
   '@nrwl/nx-cloud@19.1.0':
     resolution: {integrity: sha512-krngXVPfX0Zf6+zJDtcI59/Pt3JfcMPMZ9C/+/x6rvz4WGgyv1s0MI4crEUM0Lx5ZpS4QI0WNDCFVQSfGEBXUg==}
 
-  '@nx/devkit@21.6.10':
-    resolution: {integrity: sha512-h2ZpwhKk9p1kWgokMXP6F4PVakUA3jPbKmjtY+wCsW2VZg72tIVVzs33DGUxTvN6WG6Z4xbLKc0LJkgaOdDTOw==}
-    peerDependencies:
-      nx: '>= 20 <= 22'
-
   '@nx/devkit@22.3.3':
     resolution: {integrity: sha512-/hxcdhE+QDalsWEbJurHtZh9aY27taHeImbCVJnogwv85H3RbAE+0YuKXGInutfLszAs7phwzli71yq+d2P45Q==}
     peerDependencies:
@@ -2201,15 +2196,6 @@ packages:
 
   '@nx/workspace@22.3.3':
     resolution: {integrity: sha512-A7Qd1Yi/hp/VPvig6tV+JmlYVSA4WhckNkP1giYZoESpGLxRlpwINpd5ii3oafOlglUdEZ8AiS3X+RUg9QmCAQ==}
-
-  '@nxlv/data-migration@7.0.0':
-    resolution: {integrity: sha512-I+uw5K0I9nGSUCB3ArfrHACmv+J2nlXOUoH2a0uyWSnyTYOYKQ4tVk0NXOtoqG54pX+poOEwwWkvxrHr3O1D9g==}
-
-  '@nxlv/util@5.0.0':
-    resolution: {integrity: sha512-VtUHvPBl+tDz93POS6fmavjyy6dvsDtBSWWcQ5boRpLIcETSl468Vrv9vwRMvJs9JNlmSaXQfO8pZv+hK2Epdg==}
-
-  '@nxlv/util@6.0.0':
-    resolution: {integrity: sha512-rb0U7xWAA691K1T9fzoFuFuxU9wThzAUBngUphNyf5++UOleYBjuFQ4awJE8qaMuUK8Frr/szI2a/D9mHGmXXQ==}
 
   '@phenomnomnominal/tsquery@5.0.1':
     resolution: {integrity: sha512-3nVv+e2FQwsW8Aw6qTU6f+1rfcJ3hrcnvH/mu9i8YhxO+9sqbOfpL8m6PbET5+xKOlz/VSbp0RoYWYCtIsnmuA==}
@@ -8495,17 +8481,6 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@nx/devkit@21.6.10(nx@22.3.3(@swc-node/register@1.9.2(@swc/core@1.5.7(@swc/helpers@0.5.12))(@swc/types@0.1.7)(typescript@5.9.3))(@swc/core@1.5.7(@swc/helpers@0.5.12)))':
-    dependencies:
-      ejs: 3.1.10
-      enquirer: 2.3.6
-      ignore: 5.3.2
-      minimatch: 9.0.3
-      nx: 22.3.3(@swc-node/register@1.9.2(@swc/core@1.5.7(@swc/helpers@0.5.12))(@swc/types@0.1.7)(typescript@5.9.3))(@swc/core@1.5.7(@swc/helpers@0.5.12))
-      semver: 7.7.3
-      tslib: 2.8.1
-      yargs-parser: 21.1.1
-
   '@nx/devkit@22.3.3(nx@22.3.3(@swc-node/register@1.9.2(@swc/core@1.5.7(@swc/helpers@0.5.12))(@swc/types@0.1.7)(typescript@5.9.3))(@swc/core@1.5.7(@swc/helpers@0.5.12)))':
     dependencies:
       '@zkochan/js-yaml': 0.0.7
@@ -8761,42 +8736,6 @@ snapshots:
       - '@swc-node/register'
       - '@swc/core'
       - debug
-
-  '@nxlv/data-migration@7.0.0(nx@22.3.3(@swc-node/register@1.9.2(@swc/core@1.5.7(@swc/helpers@0.5.12))(@swc/types@0.1.7)(typescript@5.9.3))(@swc/core@1.5.7(@swc/helpers@0.5.12)))':
-    dependencies:
-      '@aws-sdk/client-cloudwatch-logs': 3.804.0
-      '@aws-sdk/client-dynamodb': 3.804.0
-      '@aws-sdk/client-dynamodb-streams': 3.804.0
-      '@aws-sdk/client-ecr': 3.804.0
-      '@aws-sdk/client-ecs': 3.804.0
-      '@aws-sdk/client-iam': 3.804.0
-      '@aws-sdk/client-lambda': 3.804.0
-      '@aws-sdk/client-ssm': 3.804.0
-      '@aws-sdk/client-sts': 3.804.0
-      '@nx/devkit': 21.6.10(nx@22.3.3(@swc-node/register@1.9.2(@swc/core@1.5.7(@swc/helpers@0.5.12))(@swc/types@0.1.7)(typescript@5.9.3))(@swc/core@1.5.7(@swc/helpers@0.5.12)))
-      '@nxlv/util': 5.0.0
-      archiver: 7.0.1
-      chalk: 4.1.2
-      cross-spawn: 7.0.6
-      dynamoose: 4.0.4
-      esbuild: 0.20.1
-      glob: 10.4.5
-      lodash: 4.17.21
-      prompts: 2.4.2
-      tslib: 2.8.1
-    transitivePeerDependencies:
-      - aws-crt
-      - nx
-
-  '@nxlv/util@5.0.0':
-    dependencies:
-      lodash: 4.17.21
-      tslib: 2.8.1
-
-  '@nxlv/util@6.0.0':
-    dependencies:
-      lodash: 4.17.21
-      tslib: 2.8.1
 
   '@phenomnomnominal/tsquery@5.0.1(typescript@5.9.3)':
     dependencies:
