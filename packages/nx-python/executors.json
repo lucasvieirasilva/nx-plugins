@@ -2,88 +2,88 @@
   "$schema": "http://json-schema.org/schema",
   "executors": {
     "build": {
-      "implementation": "./src/executors/build/executor",
-      "schema": "./src/executors/build/schema.json",
+      "implementation": "./executors/build/executor",
+      "schema": "./executors/build/schema.json",
       "description": "build executor"
     },
     "publish": {
-      "implementation": "./src/executors/publish/executor",
-      "schema": "./src/executors/publish/schema.json",
+      "implementation": "./executors/publish/executor",
+      "schema": "./executors/publish/schema.json",
       "description": "publish executor"
     },
     "add": {
-      "implementation": "./src/executors/add/executor",
-      "schema": "./src/executors/add/schema.json",
+      "implementation": "./executors/add/executor",
+      "schema": "./executors/add/schema.json",
       "description": "Add a dependency to the project"
     },
     "flake8": {
-      "implementation": "./src/executors/flake8/executor",
-      "schema": "./src/executors/flake8/schema.json",
+      "implementation": "./executors/flake8/executor",
+      "schema": "./executors/flake8/schema.json",
       "description": "Flake8 Linting Executor"
     },
     "tox": {
-      "implementation": "./src/executors/tox/executor",
-      "schema": "./src/executors/tox/schema.json",
+      "implementation": "./executors/tox/executor",
+      "schema": "./executors/tox/schema.json",
       "description": "Nx Python Tox Executor"
     },
     "install": {
-      "implementation": "./src/executors/install/executor",
-      "schema": "./src/executors/install/schema.json",
+      "implementation": "./executors/install/executor",
+      "schema": "./executors/install/schema.json",
       "description": "Nx Python Poetry Install"
     },
     "update": {
-      "implementation": "./src/executors/update/executor",
-      "schema": "./src/executors/update/schema.json",
+      "implementation": "./executors/update/executor",
+      "schema": "./executors/update/schema.json",
       "description": "Poetry Update Wrapper Executor"
     },
     "remove": {
-      "implementation": "./src/executors/remove/executor",
-      "schema": "./src/executors/remove/schema.json",
+      "implementation": "./executors/remove/executor",
+      "schema": "./executors/remove/schema.json",
       "description": "Poetry Remove Wrapper Executor"
     },
     "sls-deploy": {
-      "implementation": "./src/executors/sls-deploy/executor",
-      "schema": "./src/executors/sls-deploy/schema.json",
+      "implementation": "./executors/sls-deploy/executor",
+      "schema": "./executors/sls-deploy/schema.json",
       "description": "Serverless Deploy Wrapper Executor"
     },
     "sls-package": {
-      "implementation": "./src/executors/sls-package/executor",
-      "schema": "./src/executors/sls-package/schema.json",
+      "implementation": "./executors/sls-package/executor",
+      "schema": "./executors/sls-package/schema.json",
       "description": "Serverless Package Wrapper Executor"
     },
     "run-commands": {
-      "implementation": "./src/executors/run-commands/executor",
-      "schema": "./src/executors/run-commands/schema.json",
+      "implementation": "./executors/run-commands/executor",
+      "schema": "./executors/run-commands/schema.json",
       "description": "Python Venv Run Commands Executor"
     },
     "ruff-check": {
-      "implementation": "./src/executors/ruff-check/executor",
-      "schema": "./src/executors/ruff-check/schema.json",
+      "implementation": "./executors/ruff-check/executor",
+      "schema": "./executors/ruff-check/schema.json",
       "description": "Ruff Check Executor"
     },
     "ruff-format": {
-      "implementation": "./src/executors/ruff-format/executor",
-      "schema": "./src/executors/ruff-format/schema.json",
+      "implementation": "./executors/ruff-format/executor",
+      "schema": "./executors/ruff-format/schema.json",
       "description": "Ruff Format Executor"
     },
     "sync": {
-      "implementation": "./src/executors/sync/executor",
-      "schema": "./src/executors/sync/schema.json",
+      "implementation": "./executors/sync/executor",
+      "schema": "./executors/sync/schema.json",
       "description": "Sync Dependencies Executor"
     },
     "lock": {
-      "implementation": "./src/executors/lock/executor",
-      "schema": "./src/executors/lock/schema.json",
+      "implementation": "./executors/lock/executor",
+      "schema": "./executors/lock/schema.json",
       "description": "Lock Dependencies Executor"
     },
     "package-dependencies": {
-      "implementation": "./src/executors/package-dependencies/executor",
-      "schema": "./src/executors/package-dependencies/schema.json",
+      "implementation": "./executors/package-dependencies/executor",
+      "schema": "./executors/package-dependencies/schema.json",
       "description": "Package the dependencies for a project"
     },
     "package-project": {
-      "implementation": "./src/executors/package-project/executor",
-      "schema": "./src/executors/package-project/schema.json",
+      "implementation": "./executors/package-project/executor",
+      "schema": "./executors/package-project/schema.json",
       "description": "Package the project for a project"
     }
   }
