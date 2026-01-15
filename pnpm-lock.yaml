@@ -277,8 +277,8 @@ importers:
         specifier: ^22.0.0
         version: 22.3.3(nx@22.3.3(@swc-node/register@1.9.2(@swc/core@1.5.7(@swc/helpers@0.5.12))(@swc/types@0.1.7)(typescript@5.9.3))(@swc/core@1.5.7(@swc/helpers@0.5.12)))
       '@nxlv/util':
-        specifier: 6.2.0
-        version: 6.2.0
+        specifier: workspace:*
+        version: link:../util
       archiver:
         specifier: ^7.0.0
         version: 7.0.1
@@ -487,6 +487,7 @@ packages:
   '@aws-sdk/lib-dynamodb@3.804.0':
     resolution: {integrity: sha512-IxndjnmdDMhgW6oHS5/0F2LHSQ27jmCJ1CmwQBhgN9V6+Pw4ADHkVZay55vJn7/qSdMrGixDrWRb0nnO4Eqktg==}
     engines: {node: '>=18.0.0'}
+    deprecated: Please upgrade to @aws-sdk/lib-dynamodb@3.850.0 to support Command reuse https://github.com/aws/aws-sdk-js-v3/issues/7217.
     peerDependencies:
       '@aws-sdk/client-dynamodb': ^3.804.0
 
@@ -2209,9 +2210,6 @@ packages:
 
   '@nxlv/util@6.0.0':
     resolution: {integrity: sha512-rb0U7xWAA691K1T9fzoFuFuxU9wThzAUBngUphNyf5++UOleYBjuFQ4awJE8qaMuUK8Frr/szI2a/D9mHGmXXQ==}
-
-  '@nxlv/util@6.2.0':
-    resolution: {integrity: sha512-r801F4EDNA5ZoWKB5/OPr8pXPMlKF+2uSKSQTIZzpt3VsDuJxA/RV1o2jkwv1zvBQtKIjaXHB1MVxNFp8bHg5w==}
 
   '@phenomnomnominal/tsquery@5.0.1':
     resolution: {integrity: sha512-3nVv+e2FQwsW8Aw6qTU6f+1rfcJ3hrcnvH/mu9i8YhxO+9sqbOfpL8m6PbET5+xKOlz/VSbp0RoYWYCtIsnmuA==}
@@ -8796,11 +8794,6 @@ snapshots:
       tslib: 2.8.1
 
   '@nxlv/util@6.0.0':
-    dependencies:
-      lodash: 4.17.21
-      tslib: 2.8.1
-
-  '@nxlv/util@6.2.0':
     dependencies:
       lodash: 4.17.21
       tslib: 2.8.1
