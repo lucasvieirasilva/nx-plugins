@@ -1,3 +1,24 @@
+# 8.0.0 (2026-01-15)
+
+### 🚀 Features
+
+- ⚠️  migrate workspace to nx 22.x ([#338](https://github.com/lucasvieirasilva/nx-plugins/issues/338))
+
+### ⚠️  Breaking Changes
+
+- migrate workspace to nx 22.x  ([#338](https://github.com/lucasvieirasilva/nx-plugins/issues/338))
+  You must migrate your nx workspace to 22.x to use this version of the @nxlv/python
+  plugin
+  re #338
+
+### 🧱 Updated Dependencies
+
+- Updated util to 7.0.0
+
+### ❤️ Thank You
+
+- Lucas Vieira @lucasvieirasilva
+
 ## 7.2.0 (2026-01-14)
 
 ### 🚀 Features
