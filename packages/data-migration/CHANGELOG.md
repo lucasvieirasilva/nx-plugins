@@ -1,3 +1,13 @@
+## 8.0.2 (2026-01-15)
+
+### 🩹 Fixes
+
+- update nx generators, executors and migrations paths ([04a55a2](https://github.com/lucasvieirasilva/nx-plugins/commit/04a55a2))
+
+### ❤️ Thank You
+
+- Lucas Vieira @lucasvieirasilva
+
 ## 8.0.1 (2026-01-15)
 
 ### 🩹 Fixes
