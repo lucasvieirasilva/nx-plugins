@@ -1,3 +1,13 @@
+## 22.0.1 (2026-01-15)
+
+### 🩹 Fixes
+
+- update nx executor, generator, migrations paths ([766ac56](https://github.com/lucasvieirasilva/nx-plugins/commit/766ac56))
+
+### ❤️ Thank You
+
+- Lucas Vieira @lucasvieirasilva
+
 # 22.0.0 (2026-01-15)
 
 ### 🚀 Features

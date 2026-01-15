@@ -1,7 +1,7 @@
 {
   "name": "@nxlv/python",
   "description": "Custom NX Plugin to support the Python language",
-  "version": "22.0.0",
+  "version": "22.0.1",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
