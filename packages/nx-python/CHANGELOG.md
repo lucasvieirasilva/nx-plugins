@@ -1,3 +1,13 @@
+## 21.3.1 (2026-01-15)
+
+### 🩹 Fixes
+
+- adjust workspace root handling in provider resolver ([4ce43f3](https://github.com/lucasvieirasilva/nx-plugins/commit/4ce43f3))
+
+### ❤️ Thank You
+
+- Lucas Vieira @lucasvieirasilva
+
 ## 21.3.0 (2026-01-14)
 
 ### 🚀 Features
