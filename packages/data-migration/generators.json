@@ -4,8 +4,8 @@
   "version": "0.0.1",
   "generators": {
     "migration": {
-      "factory": "./src/generators/migration/generator",
-      "schema": "./src/generators/migration/schema.json",
+      "factory": "./dist/generators/migration/generator",
+      "schema": "./dist/generators/migration/schema.json",
       "description": "migration generator"
     }
   }

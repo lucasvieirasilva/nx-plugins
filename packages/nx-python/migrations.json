@@ -4,7 +4,7 @@
       "version": "16.1.0",
       "description": "Migrate all nx:run-commands to @nxlv/python:run-commands",
       "cli": "nx",
-      "implementation": "./migrations/update-16-1-0/replace-nx-run-commands"
+      "implementation": "./dist/migrations/update-16-1-0/replace-nx-run-commands"
     }
   }
 }

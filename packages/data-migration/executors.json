@@ -2,13 +2,13 @@
   "$schema": "http://json-schema.org/schema",
   "executors": {
     "migrate": {
-      "implementation": "./executors/migrate/executor",
-      "schema": "./executors/migrate/schema.json",
+      "implementation": "./dist/executors/migrate/executor",
+      "schema": "./dist/executors/migrate/schema.json",
       "description": "Run Migration"
     },
     "rollback": {
-      "implementation": "./executors/rollback/executor",
-      "schema": "./executors/rollback/schema.json",
+      "implementation": "./dist/executors/rollback/executor",
+      "schema": "./dist/executors/rollback/schema.json",
       "description": "Rollback changes"
     }
   }

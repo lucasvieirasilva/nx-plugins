@@ -4,34 +4,34 @@
   "version": "1.0.0",
   "generators": {
     "project": {
-      "factory": "./generators/project/generator",
-      "schema": "./generators/project/schema.json",
+      "factory": "./dist/generators/project/generator",
+      "schema": "./dist/generators/project/schema.json",
       "description": "python project generator (Legacy)"
     },
     "migrate-to-shared-venv": {
-      "factory": "./generators/migrate-to-shared-venv/generator",
-      "schema": "./generators/migrate-to-shared-venv/schema.json",
+      "factory": "./dist/generators/migrate-to-shared-venv/generator",
+      "schema": "./dist/generators/migrate-to-shared-venv/schema.json",
       "description": "Migrate Isolated Venv to Shared Venv"
     },
     "poetry-project": {
-      "factory": "./generators/poetry-project/generator",
-      "schema": "./generators/poetry-project/schema.json",
+      "factory": "./dist/generators/poetry-project/generator",
+      "schema": "./dist/generators/poetry-project/schema.json",
       "description": "Python Poetry Project"
     },
     "uv-project": {
-      "factory": "./generators/uv-project/generator",
-      "schema": "./generators/uv-project/schema.json",
+      "factory": "./dist/generators/uv-project/generator",
+      "schema": "./dist/generators/uv-project/schema.json",
       "description": "Python UV Project"
     },
     "enable-releases": {
-      "factory": "./generators/enable-releases/generator",
-      "schema": "./generators/enable-releases/schema.json",
+      "factory": "./dist/generators/enable-releases/generator",
+      "schema": "./dist/generators/enable-releases/schema.json",
       "description": "Enable Releases for Python projects",
       "hidden": true
     },
     "pkg-sync": {
-      "factory": "./generators/pkg-sync/generator",
-      "schema": "./generators/pkg-sync/schema.json",
+      "factory": "./dist/generators/pkg-sync/generator",
+      "schema": "./dist/generators/pkg-sync/schema.json",
       "description": "Package Sync Generator"
     }
   }
