@@ -1,13 +1,17 @@
 import toml, { JsonMap } from '@iarna/toml';
 import { ExecutorContext, Tree } from '@nx/devkit';
 import chalk from 'chalk';
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 
 export const getPyprojectData = <T>(pyprojectToml: string): T => {
+  if (!existsSync(pyprojectToml)) {
+    return {} as T;
+  }
+
   const content = readFileSync(pyprojectToml).toString('utf-8');
   if (content.trim() === '') return {} as T;
 
-  return toml.parse(readFileSync(pyprojectToml).toString('utf-8')) as T;
+  return toml.parse(content) as T;
 };
 
 export const readPyprojectToml = <T>(tree: Tree, tomlFile: string): T => {
