@@ -96,10 +96,14 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
   public getModulesFolders(projectRoot: string): string[] {
     const projectData = this.getPyprojectToml(projectRoot);
 
+    if (!projectData || Object.keys(projectData).length === 0) {
+      return [];
+    }
+
     const isTargetHatch =
-      projectData['build-system']['build-backend'] === 'hatchling.build';
+      projectData['build-system']?.['build-backend'] === 'hatchling.build';
     const isTargetUvBuild =
-      projectData['build-system']['build-backend'] === 'uv_build';
+      projectData['build-system']?.['build-backend'] === 'uv_build';
 
     const isSrcDir = this.fileExists(join(projectRoot, 'src'));
     if (isSrcDir) {
