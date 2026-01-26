@@ -1,3 +1,13 @@
+## 22.0.4 (2026-01-26)
+
+### 🩹 Fixes
+
+- check for pyproject.toml existence before reading ([b2858aa](https://github.com/lucasvieirasilva/nx-plugins/commit/b2858aa))
+
+### ❤️ Thank You
+
+- Raymond Hoagland @raymondhoagland
+
 ## 22.0.3 (2026-01-15)
 
 ### 🩹 Fixes
