@@ -1,3 +1,13 @@
+## 22.0.5 (2026-01-27)
+
+### 🩹 Fixes
+
+- **nx-python:** handle empty or missing pyproject.toml in getModulesFolders method ([126ee5e](https://github.com/lucasvieirasilva/nx-plugins/commit/126ee5e))
+
+### ❤️ Thank You
+
+- anurag.ag @anuragagarwal561994
+
 ## 22.0.4 (2026-01-26)
 
 ### 🩹 Fixes
