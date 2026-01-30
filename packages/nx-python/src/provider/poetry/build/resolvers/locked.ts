@@ -263,9 +263,10 @@ export class LockedDependencyResolver extends BaseDependencyResolver {
 
   private extractLocalPackageInfo(exportedLineElements: string[]) {
     if (exportedLineElements[0].startsWith('-e file:')) {
-      const location = isWindows()
+      const encodedLocation = isWindows()
         ? exportedLineElements[0].substring(11).trim() // -e file:///C:/Users/
         : exportedLineElements[0].substring(10).trim(); // -e file:///Users/
+      const location = decodeURIComponent(encodedLocation); // path was url-encoded by poetry export
       const pyprojectToml = path.join(location, 'pyproject.toml');
       if (!existsSync(pyprojectToml)) {
         throw new Error(
@@ -282,7 +283,10 @@ export class LockedDependencyResolver extends BaseDependencyResolver {
 
     const atPosition = exportedLineElements[0].indexOf('@');
     const packageName = exportedLineElements[0].substring(0, atPosition).trim();
-    const location = exportedLineElements[0].substring(atPosition + 1).trim();
+    const encodedLocation = exportedLineElements[0]
+      .substring(atPosition + 1)
+      .trim();
+    const location = decodeURIComponent(encodedLocation); // path was url-encoded by poetry export
     return { packageName, location };
   }
 
