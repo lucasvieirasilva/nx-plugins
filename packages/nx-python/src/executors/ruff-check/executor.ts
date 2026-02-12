@@ -3,6 +3,7 @@ import chalk from 'chalk';
 import { Logger } from '../utils/logger';
 import { RuffCheckExecutorSchema } from './schema';
 import { getProvider } from '../../provider';
+import { extractBooleanFlag } from '../utils/args';
 
 const logger = new Logger();
 
@@ -20,20 +21,14 @@ export default async function executor(
     const projectConfig =
       context.projectsConfigurations.projects[context.projectName];
 
-    const fixIndex = options.__unparsed__.findIndex(
-      (item) => item.trim() === '--fix',
-    );
+    const unparsedFix = extractBooleanFlag(options.__unparsed__, '--fix');
+    options.fix = unparsedFix ?? options.fix;
 
-    if (fixIndex !== -1) {
-      const nextArg = options.__unparsed__[fixIndex + 1]?.toLowerCase()?.trim();
-      if (nextArg === 'true' || nextArg === 'false') {
-        const deletedArgs = options.__unparsed__.splice(fixIndex, 2);
-        options.fix = deletedArgs[1]?.toLowerCase() === 'true';
-      } else {
-        options.__unparsed__.splice(fixIndex, 1);
-        options.fix = true;
-      }
-    }
+    const unparsedExitZero = extractBooleanFlag(
+      options.__unparsed__,
+      '--exit-zero',
+    );
+    options.exitZero = unparsedExitZero ?? options.exitZero;
 
     const commandArgs = ['ruff', 'check']
       .concat(options.lintFilePatterns)
@@ -41,6 +36,10 @@ export default async function executor(
 
     if (options.fix) {
       commandArgs.push('--fix');
+    }
+
+    if (options.exitZero) {
+      commandArgs.push('--exit-zero');
     }
 
     const provider = await getProvider(

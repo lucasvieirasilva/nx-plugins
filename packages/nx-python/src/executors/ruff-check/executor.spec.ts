@@ -135,6 +135,60 @@ describe('Ruff Check Executor', () => {
       expect(output.success).toBe(true);
     });
 
+    it('should execute ruff check linting with exitZero', async () => {
+      vi.mocked(spawn.sync).mockReturnValueOnce({
+        status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
+      });
+
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
+      const output = await executor(
+        {
+          lintFilePatterns: ['app'],
+          exitZero: true,
+          __unparsed__: [],
+        },
+        context,
+      );
+      expect(checkPoetryExecutableMock).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
+      expect(spawn.sync).toHaveBeenCalledTimes(1);
+      expect(spawn.sync).toHaveBeenCalledWith(
+        'poetry',
+        ['run', 'ruff', 'check', 'app', '--exit-zero'],
+        {
+          cwd: 'apps/app',
+          shell: true,
+          stdio: 'inherit',
+        },
+      );
+      expect(output.success).toBe(true);
+    });
+
     it('should fail to execute ruff check linting ', async () => {
       vi.mocked(spawn.sync).mockReturnValueOnce({
         status: 1,
@@ -509,6 +563,108 @@ describe('Ruff Check Executor', () => {
       expect(spawn.sync).toHaveBeenCalledWith(
         'uv',
         ['run', 'ruff', 'check', 'app', '--fix'],
+        {
+          cwd: 'apps/app',
+          shell: true,
+          stdio: 'inherit',
+        },
+      );
+      expect(output.success).toBe(true);
+    });
+
+    it('should execute ruff check linting with exitZero', async () => {
+      vi.mocked(spawn.sync).mockReturnValueOnce({
+        status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
+      });
+
+      const output = await executor(
+        {
+          lintFilePatterns: ['app'],
+          exitZero: true,
+          __unparsed__: [],
+        },
+        {
+          cwd: '',
+          root: '.',
+          isVerbose: false,
+          projectName: 'app',
+          projectsConfigurations: {
+            version: 2,
+            projects: {
+              app: {
+                root: 'apps/app',
+                targets: {},
+              },
+            },
+          },
+          nxJsonConfiguration: {},
+          projectGraph: {
+            dependencies: {},
+            nodes: {},
+          },
+        },
+      );
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledTimes(1);
+      expect(spawn.sync).toHaveBeenCalledWith(
+        'uv',
+        ['run', 'ruff', 'check', 'app', '--exit-zero'],
+        {
+          cwd: 'apps/app',
+          shell: true,
+          stdio: 'inherit',
+        },
+      );
+      expect(output.success).toBe(true);
+    });
+
+    it('should deduplicate --exit-zero from unparsed args', async () => {
+      vi.mocked(spawn.sync).mockReturnValueOnce({
+        status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
+      });
+
+      const output = await executor(
+        {
+          lintFilePatterns: ['app'],
+          exitZero: true,
+          __unparsed__: ['--exit-zero'],
+        },
+        {
+          cwd: '',
+          root: '.',
+          isVerbose: false,
+          projectName: 'app',
+          projectsConfigurations: {
+            version: 2,
+            projects: {
+              app: {
+                root: 'apps/app',
+                targets: {},
+              },
+            },
+          },
+          nxJsonConfiguration: {},
+          projectGraph: {
+            dependencies: {},
+            nodes: {},
+          },
+        },
+      );
+      expect(checkPrerequisites).toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledTimes(1);
+      expect(spawn.sync).toHaveBeenCalledWith(
+        'uv',
+        ['run', 'ruff', 'check', 'app', '--exit-zero'],
         {
           cwd: 'apps/app',
           shell: true,
