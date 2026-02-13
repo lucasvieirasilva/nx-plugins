@@ -1,3 +1,13 @@
+## 22.1.0 (2026-02-13)
+
+### 🚀 Features
+
+- **nx-python:** add exitZero option to ruff-check executor ([#343](https://github.com/lucasvieirasilva/nx-plugins/issues/343))
+
+### ❤️ Thank You
+
+- 🚀 Jack
+
 ## 22.0.5 (2026-01-27)
 
 ### 🩹 Fixes
