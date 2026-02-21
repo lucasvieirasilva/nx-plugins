@@ -1,8 +1,9 @@
 import { ExecutorContext } from '@nx/devkit';
 import chalk from 'chalk';
+import { getProvider } from '../../provider';
+import { extractBooleanFlag } from '../utils/args';
 import { Logger } from '../utils/logger';
 import { RuffFormatExecutorSchema } from './schema';
-import { getProvider } from '../../provider';
 
 const logger = new Logger();
 
@@ -19,6 +20,9 @@ export default async function executor(
 
     const projectConfig =
       context.projectsConfigurations.projects[context.projectName];
+
+    const unparsedCheck = extractBooleanFlag(options.__unparsed__, '--check');
+    options.check = unparsedCheck ?? options.check;
 
     const commandArgs = ['ruff', 'format']
       .concat(options.filePatterns)

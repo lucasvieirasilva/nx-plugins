@@ -191,6 +191,114 @@ describe('Ruff Format Executor', () => {
       expect(output.success).toBe(true);
     });
 
+    it('should execute ruff format with check if duplicated into unparsed args', async () => {
+      vi.mocked(spawn.sync).mockReturnValueOnce({
+        status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
+      });
+
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
+      const output = await executor(
+        {
+          filePatterns: ['app'],
+          check: true,
+          __unparsed__: ['--check'],
+        },
+        context,
+      );
+      expect(checkPoetryExecutableMock).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
+      expect(spawn.sync).toHaveBeenCalledTimes(1);
+      expect(spawn.sync).toHaveBeenCalledWith(
+        'poetry',
+        ['run', 'ruff', 'format', 'app', '--check'],
+        {
+          cwd: 'apps/app',
+          shell: true,
+          stdio: 'inherit',
+        },
+      );
+      expect(output.success).toBe(true);
+    });
+
+    it('should execute ruff format with check if only populated into unparsed args', async () => {
+      vi.mocked(spawn.sync).mockReturnValueOnce({
+        status: 0,
+        output: [''],
+        pid: 0,
+        signal: null,
+        stderr: null,
+        stdout: null,
+      });
+
+      const context: ExecutorContext = {
+        cwd: '',
+        root: '.',
+        isVerbose: false,
+        projectName: 'app',
+        projectsConfigurations: {
+          version: 2,
+          projects: {
+            app: {
+              root: 'apps/app',
+              targets: {},
+            },
+          },
+        },
+        nxJsonConfiguration: {},
+        projectGraph: {
+          dependencies: {},
+          nodes: {},
+        },
+      };
+
+      const output = await executor(
+        {
+          filePatterns: ['app'],
+          check: false,
+          __unparsed__: ['--check'],
+        },
+        context,
+      );
+      expect(checkPoetryExecutableMock).toHaveBeenCalled();
+      expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
+      expect(spawn.sync).toHaveBeenCalledTimes(1);
+      expect(spawn.sync).toHaveBeenCalledWith(
+        'poetry',
+        ['run', 'ruff', 'format', 'app', '--check'],
+        {
+          cwd: 'apps/app',
+          shell: true,
+          stdio: 'inherit',
+        },
+      );
+      expect(output.success).toBe(true);
+    });
+
     it('should fail to execute ruff format ', async () => {
       vi.mocked(spawn.sync).mockReturnValueOnce({
         status: 1,
