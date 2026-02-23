@@ -1,3 +1,13 @@
+## 22.1.1 (2026-02-23)
+
+### 🩹 Fixes
+
+- dont duplicate --check when passed to the ruff-format executor ([e195042](https://github.com/lucasvieirasilva/nx-plugins/commit/e195042))
+
+### ❤️ Thank You
+
+- Raymond Hoagland @raymondhoagland
+
 ## 22.1.0 (2026-02-13)
 
 ### 🚀 Features
