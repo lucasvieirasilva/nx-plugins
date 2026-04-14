@@ -1,3 +1,13 @@
+## 22.1.2 (2026-04-14)
+
+### 🩹 Fixes
+
+- **nx-python:** use Python package name for lockfile lookup in UV workspace deps ([5fcc435](https://github.com/lucasvieirasilva/nx-plugins/commit/5fcc435))
+
+### ❤️ Thank You
+
+- baconcheese113 @baconcheese113
+
 ## 22.1.1 (2026-02-23)
 
 ### 🩹 Fixes
