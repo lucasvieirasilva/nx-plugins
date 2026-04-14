@@ -1118,6 +1118,97 @@ describe('nx-python dependency graph', () => {
         ]);
       });
 
+      it('should detect dependencies when Nx project name differs from Python package name', async () => {
+        vol.fromJSON({
+          'apps/my-app/pyproject.toml': dedent`
+          [project]
+          name = "acme-my-app"
+          version = "0.1.0"
+          requires-python = ">=3.12"
+          dependencies = [
+              "acme-shared-lib",
+          ]
+
+          [tool.uv.sources]
+          acme-shared-lib = { workspace = true }
+          `,
+
+          'libs/shared-lib/pyproject.toml': dedent`
+          [project]
+          name = "acme-shared-lib"
+          version = "0.1.0"
+          requires-python = ">=3.12"
+          dependencies = []
+          `,
+
+          'pyproject.toml': dedent`
+          [tool.uv.sources]
+          acme-my-app = { workspace = true }
+          acme-shared-lib = { workspace = true }
+          `,
+
+          'uv.lock': dedent`
+          version = 1
+          requires-python = ">=3.12"
+
+          [[package]]
+          name = "acme-my-app"
+          version = "0.1.0"
+          source = { editable = "apps/my-app" }
+          dependencies = [
+              { name = "acme-shared-lib" },
+          ]
+
+          [package.metadata]
+          requires-dist = [
+              { name = "acme-shared-lib", editable = "libs/shared-lib" },
+          ]
+
+          [[package]]
+          name = "acme-shared-lib"
+          version = "0.1.0"
+          source = { editable = "libs/shared-lib" }
+          `,
+        });
+
+        const projects = {
+          'my-app': {
+            root: 'apps/my-app',
+            targets: {},
+          },
+          'shared-lib': {
+            root: 'libs/shared-lib',
+            targets: {},
+          },
+        };
+
+        const result = await createDependencies(
+          { packageManager: 'uv' },
+          {
+            externalNodes: {},
+            workspaceRoot: '.',
+            projects,
+            nxJsonConfiguration: {},
+            fileMap: {
+              nonProjectFiles: [],
+              projectFileMap: {},
+            },
+            filesToProcess: {
+              nonProjectFiles: [],
+              projectFileMap: {},
+            },
+          },
+        );
+
+        expect(result).toStrictEqual([
+          {
+            source: 'my-app',
+            target: 'shared-lib',
+            type: 'implicit',
+          },
+        ]);
+      });
+
       it('should progress the dependency graph when there is an app with an empty pyproject.toml', async () => {
         vol.fromJSON({
           'apps/app1/pyproject.toml': dedent`
