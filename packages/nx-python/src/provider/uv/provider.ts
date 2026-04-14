@@ -218,10 +218,11 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
     if (this.fileExists(pyprojectToml)) {
       const tomlData = this.getPyprojectToml(projectData.root);
       const sources = this.sources(tomlData);
+      const packageName = tomlData?.project?.name ?? projectName;
 
       deps.push(
         ...this.resolveDependencies(
-          projectName,
+          packageName,
           sources,
           projects[projectName],
           tomlData?.project?.dependencies || [],
@@ -233,7 +234,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
       for (const group in tomlData['dependency-groups']) {
         deps.push(
           ...this.resolveDependencies(
-            projectName,
+            packageName,
             sources,
             projects[projectName],
             tomlData['dependency-groups'][group],
@@ -888,7 +889,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
   }
 
   private resolveDependencies(
-    projectName: string,
+    packageName: string,
     sources: UVPyprojectToml['tool']['uv']['sources'],
     projectData: ProjectConfiguration,
     dependencies: string[],
@@ -905,7 +906,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
 
       if (this.isWorkspace) {
         this.appendWorkspaceDependencyToDeps(
-          projectName,
+          packageName,
           normalizedDep,
           category,
           sources,
@@ -928,7 +929,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
   }
 
   private appendWorkspaceDependencyToDeps(
-    projectName: string,
+    packageName: string,
     dependencyName: string,
     category: string,
     sources: UVPyprojectToml['tool']['uv']['sources'],
@@ -939,7 +940,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
       return;
     }
 
-    const packageMetadata = this.rootLockfile.package[projectName]?.metadata;
+    const packageMetadata = this.rootLockfile.package[packageName]?.metadata;
 
     const depMetadata =
       category === 'main'
