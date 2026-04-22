@@ -2,6 +2,7 @@ import { join } from 'path';
 import { UVPyprojectToml } from '../../types';
 import { copySync } from 'fs-extra';
 import { existsSync, readdirSync } from 'fs';
+import { pycacheFilter } from '../../../utils';
 
 export function includeDependencyPackage(
   projectData: UVPyprojectToml,
@@ -41,7 +42,7 @@ export function includeDependencyPackage(
   if (isSrcDir) {
     for (const pkg of readdirSync(join(workspaceRoot, projectRoot, 'src'))) {
       const pkgFolder = join(workspaceRoot, projectRoot, 'src', pkg);
-      copySync(pkgFolder, getTargetModulePath(pkg));
+      copySync(pkgFolder, getTargetModulePath(pkg), { filter: pycacheFilter });
 
       updateModules(pkg);
     }
@@ -49,7 +50,7 @@ export function includeDependencyPackage(
     for (const pkg of projectData.tool?.hatch?.build?.targets?.wheel
       ?.packages ?? []) {
       const pkgFolder = join(workspaceRoot, projectRoot, pkg);
-      copySync(pkgFolder, getTargetModulePath(pkg));
+      copySync(pkgFolder, getTargetModulePath(pkg), { filter: pycacheFilter });
 
       updateModules(pkg);
     }
