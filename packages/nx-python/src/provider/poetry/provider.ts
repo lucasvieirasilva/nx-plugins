@@ -58,6 +58,7 @@ import {
 } from './build/resolvers';
 import {
   getLocalDependencyConfig,
+  pycacheFilter,
   readPyprojectToml,
   writePyprojectToml,
 } from '../utils';
@@ -803,7 +804,7 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
       ) {
         const source = join(root, file);
         const target = join(buildFolderPath, file);
-        copySync(source, target);
+        copySync(source, target, { filter: pycacheFilter });
       }
     });
 
