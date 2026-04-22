@@ -37,6 +37,7 @@ import chalk from 'chalk';
 import { copySync, removeSync, writeFileSync } from 'fs-extra';
 import {
   getLocalDependencyConfig,
+  pycacheFilter,
   readPyprojectToml,
   writePyprojectToml,
 } from '../utils';
@@ -795,7 +796,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
       ) {
         const source = join(projectRoot, file);
         const target = join(buildFolderPath, file);
-        copySync(source, target);
+        copySync(source, target, { filter: pycacheFilter });
       }
     });
 

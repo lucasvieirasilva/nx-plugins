@@ -8,8 +8,14 @@ import path from 'path';
 const copyRecursiveSync = (
   src: string,
   dest: string,
-  options?: { recursive: boolean },
+  options?: {
+    recursive?: boolean;
+    filter?: (src: string, dest: string) => boolean;
+  },
 ) => {
+  if (options?.filter && !options.filter(src, dest)) {
+    return;
+  }
   const exists = fs.existsSync(src);
   const stats = exists && fs.statSync(src);
   const isDirectory = exists && stats && stats.isDirectory();
@@ -18,10 +24,11 @@ const copyRecursiveSync = (
       fs.mkdirSync(dest);
     }
     fs.readdirSync(src).forEach(function (childItemName) {
-      if (options === undefined || options?.recursive) {
+      if (options === undefined || options?.recursive !== false) {
         copyRecursiveSync(
           path.join(src, childItemName),
           path.join(dest, childItemName),
+          options,
         );
       }
     });

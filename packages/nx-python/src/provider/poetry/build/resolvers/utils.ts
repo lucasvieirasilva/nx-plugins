@@ -1,6 +1,7 @@
 import { join } from 'path';
 import { copySync } from 'fs-extra';
 import { PoetryPyprojectToml } from '../../types';
+import { pycacheFilter } from '../../../utils';
 
 export function includeDependencyPackage(
   tomlData: PoetryPyprojectToml,
@@ -12,7 +13,7 @@ export function includeDependencyPackage(
     const pkgFolder = join(root, pkg.from ?? '', pkg.include);
     const buildPackageFolder = join(buildFolderPath, pkg.include);
 
-    copySync(pkgFolder, buildPackageFolder);
+    copySync(pkgFolder, buildPackageFolder, { filter: pycacheFilter });
 
     if (
       buildTomlData.tool.poetry.packages.find(
