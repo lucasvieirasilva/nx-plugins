@@ -1,3 +1,13 @@
+## 22.1.3 (2026-04-22)
+
+### 🩹 Fixes
+
+- **nx-python:** unresolvable url-encoded local paths in LockedDependencyResolver ([fb51e7c](https://github.com/lucasvieirasilva/nx-plugins/commit/fb51e7c))
+
+### ❤️ Thank You
+
+- Florian Straubinger
+
 ## 22.1.2 (2026-04-14)
 
 ### 🩹 Fixes
