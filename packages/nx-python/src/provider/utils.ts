@@ -2,6 +2,7 @@ import toml, { JsonMap } from '@iarna/toml';
 import { ExecutorContext, Tree } from '@nx/devkit';
 import chalk from 'chalk';
 import { existsSync, readFileSync } from 'fs';
+import { sep } from 'node:path';
 
 export const getPyprojectData = <T>(pyprojectToml: string): T => {
   if (!existsSync(pyprojectToml)) {
@@ -34,6 +35,11 @@ export function writePyprojectToml(
 export function getLoggingTab(level: number): string {
   return '    '.repeat(level);
 }
+
+// Skip __pycache__ during recursive copies: CPython writes .pyc files atomically
+// (temp file then rename), which races with readdir+lstat walks and surfaces ENOENT.
+export const pycacheFilter = (src: string): boolean =>
+  !src.split(sep).includes('__pycache__');
 
 export function getLocalDependencyConfig(
   context: ExecutorContext,
