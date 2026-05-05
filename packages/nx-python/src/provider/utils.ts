@@ -2,7 +2,7 @@ import toml, { JsonMap } from '@iarna/toml';
 import { ExecutorContext, Tree } from '@nx/devkit';
 import chalk from 'chalk';
 import { existsSync, readFileSync } from 'fs';
-import { sep } from 'path';
+import { sep } from 'node:path';
 
 export const getPyprojectData = <T>(pyprojectToml: string): T => {
   if (!existsSync(pyprojectToml)) {
