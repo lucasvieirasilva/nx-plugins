@@ -1,3 +1,14 @@
+## 22.1.4 (2026-05-08)
+
+### 🩹 Fixes
+
+- **nx-python:** skip __pycache__ during copySync to avoid CPython race ([#351](https://github.com/lucasvieirasilva/nx-plugins/issues/351))
+
+### ❤️ Thank You
+
+- chris-kzn
+- Claude Opus 4.7 (1M context)
+
 ## 22.1.3 (2026-04-22)
 
 ### 🩹 Fixes
