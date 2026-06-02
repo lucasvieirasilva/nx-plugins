@@ -13,10 +13,9 @@ import { join } from 'node:path';
 import { hashFile } from 'nx/src/hasher/file-hasher';
 import { readFile } from 'node:fs/promises';
 import fs from 'node:fs';
+import { extractImportedModules, getPythonParser } from './infer';
 
 const cachedScannedFiles: Record<string, [string, string][]> = {};
-
-const IMPORT_REGEX = /(?:import|from)\s+([a-zA-Z_][\w]*)/g;
 
 export const createDependencies: CreateDependencies<PluginOptions> = async (
   options,
@@ -73,6 +72,8 @@ export const createDependencies: CreateDependencies<PluginOptions> = async (
 
       logger.verbose(`[${project}] Scanning ${filesToScan.length} files`);
 
+      const parser = await getPythonParser();
+
       await Promise.all(
         filesToScan.map(async ([file, hash]) => {
           const hashKey = `${file}-${hash}`;
@@ -92,8 +93,7 @@ export const createDependencies: CreateDependencies<PluginOptions> = async (
           } else {
             const content = await readFile(file, { encoding: 'utf-8' });
             const fileModules: [string, string][] = [];
-            for (const match of content.matchAll(IMPORT_REGEX)) {
-              const module = match[1].trim();
+            for (const module of extractImportedModules(parser, content)) {
               fileModules.push([file, module]);
               logger.verbose(`[${project}] [${file}] Found module: ${module}`);
               if (moduleProjectMap.has(module)) {
