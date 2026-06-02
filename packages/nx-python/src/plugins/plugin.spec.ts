@@ -554,6 +554,136 @@ describe('nx-python dependency graph', () => {
           },
         ]);
       });
+
+      it('should parse imports with tree-sitter (multi-imports, aliases, ignoring comments and strings)', async () => {
+        vol.fromJSON({
+          'apps/app1/pyproject.toml': dedent`
+          [tool.poetry]
+          name = "app1"
+          version = "1.0.0"
+            [[tool.poetry.packages]]
+            include = "app1"
+
+            [tool.poetry.dependencies]
+            python = "^3.8"
+          `,
+          'apps/app1/app1/imports.py': dedent`
+          import dep1, dep2.submod
+          import dep3 as renamed
+          # import dep4
+          example = "import dep4"
+          `,
+
+          'libs/dep1/pyproject.toml': dedent`
+          [tool.poetry]
+          name = "dep1"
+          version = "1.0.0"
+            [[tool.poetry.packages]]
+            include = "dep1"
+
+            [tool.poetry.dependencies]
+            python = "^3.8"
+          `,
+          'libs/dep2/pyproject.toml': dedent`
+          [tool.poetry]
+          name = "dep2"
+          version = "1.0.0"
+            [[tool.poetry.packages]]
+            include = "dep2"
+
+            [tool.poetry.dependencies]
+            python = "^3.8"
+          `,
+          'libs/dep3/pyproject.toml': dedent`
+          [tool.poetry]
+          name = "dep3"
+          version = "1.0.0"
+            [[tool.poetry.packages]]
+            include = "dep3"
+
+            [tool.poetry.dependencies]
+            python = "^3.8"
+          `,
+          'libs/dep4/pyproject.toml': dedent`
+          [tool.poetry]
+          name = "dep4"
+          version = "1.0.0"
+            [[tool.poetry.packages]]
+            include = "dep4"
+
+            [tool.poetry.dependencies]
+            python = "^3.8"
+          `,
+        });
+
+        const projects = {
+          app1: {
+            root: 'apps/app1',
+            targets: {},
+          },
+          dep1: {
+            root: 'libs/dep1',
+            targets: {},
+          },
+          dep2: {
+            root: 'libs/dep2',
+            targets: {},
+          },
+          dep3: {
+            root: 'libs/dep3',
+            targets: {},
+          },
+          dep4: {
+            root: 'libs/dep4',
+            targets: {},
+          },
+        };
+
+        const result = await createDependencies(
+          {
+            inferDependencies: true,
+          },
+          {
+            externalNodes: {},
+            workspaceRoot: '.',
+            projects,
+            nxJsonConfiguration: {},
+            fileMap: {
+              nonProjectFiles: [],
+              projectFileMap: {},
+            },
+            filesToProcess: {
+              nonProjectFiles: [],
+              projectFileMap: {},
+            },
+          },
+        );
+
+        // `dep1` and `dep2` come from a single multi-import statement, `dep3`
+        // from an aliased import. `dep4` only appears in a comment and a
+        // string literal, so the tree-sitter parser correctly ignores it
+        // (unlike the previous regex-based approach).
+        expect(result).toStrictEqual([
+          {
+            source: 'app1',
+            target: 'dep1',
+            type: 'dynamic',
+            sourceFile: 'apps/app1/app1/imports.py',
+          },
+          {
+            source: 'app1',
+            target: 'dep2',
+            type: 'dynamic',
+            sourceFile: 'apps/app1/app1/imports.py',
+          },
+          {
+            source: 'app1',
+            target: 'dep3',
+            type: 'dynamic',
+            sourceFile: 'apps/app1/app1/imports.py',
+          },
+        ]);
+      });
     });
   });
 

@@ -37,21 +37,64 @@ const copyRecursiveSync = (
   }
 };
 
+/**
+ * tree-sitter grammars are loaded from `.wasm` files that live on the real
+ * filesystem (inside `node_modules`), not from the in-memory project layout the
+ * tests build with memfs. These helpers let `.wasm` reads fall through to the
+ * real `fs` while every other read keeps hitting memfs.
+ */
+const isWasmPath = (p: unknown): boolean => String(p).endsWith('.wasm');
+
+/**
+ * Build a wrapper that forwards `.wasm` reads to `realFn` (the real `fs`) and
+ * everything else to `memfsFn` (memfs). The wrapper declares its own rest
+ * parameter so the arguments can be spread into the overloaded `fs` methods.
+ */
+const passthrough =
+  (
+    realFn: (...args: unknown[]) => unknown,
+    memfsFn: (...args: unknown[]) => unknown,
+  ) =>
+  (path: unknown, ...args: unknown[]) =>
+    isWasmPath(path) ? realFn(path, ...args) : memfsFn(path, ...args);
+
+const withWasmPassthrough = (
+  memfsFs: typeof import('memfs').fs,
+  realFs: typeof import('node:fs'),
+) => ({
+  readFileSync: passthrough(
+    realFs.readFileSync as never,
+    memfsFs.readFileSync as never,
+  ),
+  readFile: passthrough(realFs.readFile as never, memfsFs.readFile as never),
+  existsSync: passthrough(
+    realFs.existsSync as never,
+    memfsFs.existsSync as never,
+  ),
+});
+
 vi.mock('fs', async () => {
   const memfs = await vi.importActual<typeof import('memfs')>('memfs');
+  const realFs = await vi.importActual<typeof import('node:fs')>('node:fs');
+  const overrides = withWasmPassthrough(memfs.fs, realFs);
 
   return {
-    default: memfs.fs,
+    default: { ...memfs.fs, ...overrides, cpSync: copyRecursiveSync },
     ...memfs.fs,
+    ...overrides,
     cpSync: copyRecursiveSync,
   };
 });
 
 vi.mock('node:fs', async () => {
   const memfs = await vi.importActual<typeof import('memfs')>('memfs');
+  const realFs = await vi.importActual<typeof import('node:fs')>('node:fs');
+  const overrides = withWasmPassthrough(memfs.fs, realFs);
+
   return {
-    default: memfs.fs,
+    default: { ...memfs.fs, ...overrides, cpSync: copyRecursiveSync },
     ...memfs.fs,
+    ...overrides,
     cpSync: copyRecursiveSync,
   };
 });
