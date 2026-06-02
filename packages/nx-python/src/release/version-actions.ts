@@ -14,6 +14,7 @@ import type {
 import { getProvider } from '../provider';
 import { PluginOptions } from '../types';
 import { BaseProvider } from '../provider/base';
+import { BuildExecutorSchema } from '../executors/build/schema';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { checkPathExists } from '../utils/path';
@@ -226,7 +227,9 @@ export default class PythonVersionActions extends VersionActions {
     for (const manifestToUpdate of this.manifestsToUpdate) {
       const projectRoot = path.dirname(manifestToUpdate.manifestPath);
       this.provider.updateVersion(projectRoot, newVersion);
-      updatedProjects.push(projectRoot);
+      if (!updatedProjects.includes(projectRoot)) {
+        updatedProjects.push(projectRoot);
+      }
 
       logMessages.push(
         `✍️  New version ${newVersion} written to manifest: ${manifestToUpdate.manifestPath}`,
@@ -240,30 +243,64 @@ export default class PythonVersionActions extends VersionActions {
     projectGraph: ProjectGraph,
     dependenciesToUpdate: Record<string, string>,
   ): Promise<string[]> {
-    const projects = Object.entries(projectGraph.nodes).reduce<
-      Record<string, ProjectConfiguration>
-    >((acc, [projectName, node]) => {
-      acc[projectName] = node.data;
-      return acc;
-    }, {});
+    const dependencyNames = Object.keys(dependenciesToUpdate);
+    if (dependencyNames.length === 0) {
+      return [];
+    }
 
-    for (const dependency of Object.keys(dependenciesToUpdate)) {
-      const dependencyProject = projects[dependency];
-      if (!updatedProjects.includes(dependencyProject.root)) {
-        updatedProjects.push(dependencyProject.root);
+    // When local dependencies are bundled into the build artifact (the default,
+    // `bundleLocalDependencies: true`), the dependent does not reference its
+    // workspace dependencies by version, so a dependency version bump requires
+    // no action here. Only in publish mode (`bundleLocalDependencies: false`)
+    // does the build pin each local dependency as `dep==<version>`, which means
+    // this (the dependent) project must have its lock file regenerated so the
+    // new pinned versions propagate — even when it was not version-bumped.
+    const buildOptions = this.projectGraphNode.data.targets?.build?.options as
+      | BuildExecutorSchema
+      | undefined;
+    const bundleLocalDependencies =
+      buildOptions?.bundleLocalDependencies ?? true;
+
+    if (bundleLocalDependencies) {
+      return [];
+    }
+
+    // Map each updated workspace dependency (keyed by its Nx project name) to
+    // its package name and freshly written version. `updateProjectVersion` runs
+    // before this, so the dependency's manifest already holds the new version.
+    const packageVersions: Record<string, string> = {};
+    for (const depProjectName of dependencyNames) {
+      const depNode = projectGraph.nodes[depProjectName];
+      if (!depNode) {
+        continue;
       }
 
-      this.updateProjectDependencies(
-        tree,
-        projectGraph,
-        this.provider
-          .getDependencies(dependency, projects, tree.root)
-          .reduce<Record<string, string>>((acc, dependency) => {
-            acc[dependency.name] = dependency.version;
-            return acc;
-          }, {}),
+      const metadata = this.provider.getMetadata(depNode.data.root);
+      if (metadata?.name) {
+        packageVersions[metadata.name] = metadata.version;
+      }
+    }
+
+    const logMessages: string[] = [];
+    for (const manifestToUpdate of this.manifestsToUpdate) {
+      const projectRoot = path.dirname(manifestToUpdate.manifestPath);
+
+      logMessages.push(
+        ...this.provider.updateDependencyVersions(projectRoot, packageVersions),
+      );
+
+      if (!updatedProjects.includes(projectRoot)) {
+        updatedProjects.push(projectRoot);
+      }
+
+      logMessages.push(
+        `✍️  Flagged ${dependencyNames.length} workspace ${
+          dependencyNames.length === 1 ? 'dependency' : 'dependencies'
+        } (${dependencyNames.join(
+          ', ',
+        )}) for lock file refresh in manifest: ${manifestToUpdate.manifestPath}`,
       );
     }
-    return [];
+    return logMessages;
   }
 }

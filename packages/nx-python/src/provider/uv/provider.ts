@@ -41,6 +41,7 @@ import {
   readPyprojectToml,
   writePyprojectToml,
 } from '../utils';
+import { rewriteDependencySpecifier } from './version-utils';
 import { UVLockfile, UVPyprojectToml } from './types';
 import toml from '@iarna/toml';
 import fs, { mkdirSync, readdirSync } from 'fs';
@@ -205,6 +206,70 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
     } else {
       writeFileSync(pyprojectTomlPath, toml.stringify(projectData));
     }
+  }
+
+  public updateDependencyVersions(
+    projectRoot: string,
+    dependencyVersions: Record<string, string>,
+  ): string[] {
+    if (Object.keys(dependencyVersions).length === 0) {
+      return [];
+    }
+
+    const pyprojectTomlPath = joinPathFragments(projectRoot, 'pyproject.toml');
+    const projectData = this.getPyprojectToml(projectRoot);
+    if (!projectData?.project) {
+      return [];
+    }
+
+    let changed = false;
+
+    const rewriteDependencies = (dependencies: string[] | undefined): void => {
+      if (!dependencies) {
+        return;
+      }
+
+      for (let i = 0; i < dependencies.length; i++) {
+        for (const [packageName, newVersion] of Object.entries(
+          dependencyVersions,
+        )) {
+          const { changed: didChange, result } = rewriteDependencySpecifier(
+            dependencies[i],
+            packageName,
+            newVersion,
+          );
+          if (didChange) {
+            dependencies[i] = result;
+            changed = true;
+            break;
+          }
+        }
+      }
+    };
+
+    rewriteDependencies(projectData.project.dependencies);
+    for (const group of Object.values(
+      projectData.project['optional-dependencies'] ?? {},
+    )) {
+      rewriteDependencies(group);
+    }
+    for (const group of Object.values(projectData['dependency-groups'] ?? {})) {
+      rewriteDependencies(group);
+    }
+
+    if (!changed) {
+      return [];
+    }
+
+    if (this.tree) {
+      writePyprojectToml(this.tree, pyprojectTomlPath, projectData);
+    } else {
+      writeFileSync(pyprojectTomlPath, toml.stringify(projectData));
+    }
+
+    return [
+      `✍️  Updated workspace dependency versions in manifest: ${pyprojectTomlPath}`,
+    ];
   }
 
   public getDependencies(
