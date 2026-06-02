@@ -60,6 +60,37 @@ function getTopLevelModule(dottedName: Parser.SyntaxNode): string | undefined {
 }
 
 /**
+ * Top-level module of a `from ... import ...` statement, or `undefined` for
+ * relative imports (e.g. `from . import x`) which can never reference another
+ * local project.
+ */
+function getFromImportModule(node: Parser.SyntaxNode): string | undefined {
+  const moduleName = node.childForFieldName('module_name');
+  // `relative_import` nodes (e.g. `from . import x`) are skipped.
+  if (moduleName?.type !== 'dotted_name') {
+    return undefined;
+  }
+  return getTopLevelModule(moduleName);
+}
+
+/**
+ * Top-level modules of an `import ...` statement, which can hold several
+ * `dotted_name` / `aliased_import` children (e.g. `import foo, bar.baz as qux`).
+ */
+function getPlainImportModules(node: Parser.SyntaxNode): string[] {
+  const modules: string[] = [];
+  for (let i = 0; i < node.namedChildCount; i++) {
+    const child = node.namedChild(i);
+    const dottedName = child ? getDottedName(child) : undefined;
+    const module = dottedName ? getTopLevelModule(dottedName) : undefined;
+    if (module) {
+      modules.push(module);
+    }
+  }
+  return modules;
+}
+
+/**
  * Parse a Python source file with tree-sitter and return the top-level module
  * name of every import, in source order.
  *
@@ -80,31 +111,12 @@ export function extractImportedModules(
     'import_from_statement',
   ])) {
     if (node.type === 'import_from_statement') {
-      const moduleName = node.childForFieldName('module_name');
-      // `relative_import` nodes (e.g. `from . import x`) are skipped.
-      if (moduleName?.type === 'dotted_name') {
-        const module = getTopLevelModule(moduleName);
-        if (module) {
-          modules.push(module);
-        }
+      const module = getFromImportModule(node);
+      if (module) {
+        modules.push(module);
       }
-      continue;
-    }
-
-    // `import_statement` can hold several `dotted_name` / `aliased_import`
-    // children (e.g. `import foo, bar.baz as qux`).
-    for (let i = 0; i < node.namedChildCount; i++) {
-      const child = node.namedChild(i);
-      if (!child) {
-        continue;
-      }
-      const dottedName = getDottedName(child);
-      if (dottedName) {
-        const module = getTopLevelModule(dottedName);
-        if (module) {
-          modules.push(module);
-        }
-      }
+    } else {
+      modules.push(...getPlainImportModules(node));
     }
   }
 
