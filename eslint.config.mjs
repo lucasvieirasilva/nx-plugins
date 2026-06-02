@@ -33,6 +33,7 @@ export default [
         {
           ignoredFiles: [
             '{projectRoot}/src/**/*.{spec,test,mock}.ts',
+            '{projectRoot}/src/**/*.d.ts',
             '{projectRoot}/eslint.config.{js,cjs,mjs}',
             '{projectRoot}/vite.config.{js,ts,mjs,mts}',
             '{projectRoot}/vitest.config.{js,ts,mjs,mts}',

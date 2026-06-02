@@ -24,7 +24,7 @@ jobs:
       - uses: ./.github/actions/setup-monorepo
 
       - run: pnpm nx format:check
-      - run: pnpm nx affected -t lint test build
+      - run: pnpm nx affected -t lint typecheck test build
       - run: |
           echo "NO_COVERAGE_RUN=$(if [ -z "$(pnpm nx print-affected --select=projects)" ]; then echo "true"; else echo "false";fi)" >> $GITHUB_ENV
       - name: Merge coverage

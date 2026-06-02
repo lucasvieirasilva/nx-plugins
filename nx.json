@@ -6,6 +6,9 @@
       "inputs": ["production", "^production"],
       "cache": true
     },
+    "typecheck": {
+      "inputs": ["default", "^production"]
+    },
     "@nx/jest:jest": {
       "cache": true,
       "inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js"],
