@@ -6,7 +6,7 @@ import { Migration, MigrationBase } from '../../..';
   name: 'test1',
 })
 export default class extends MigrationBase {
-  async condition(): Promise<boolean> {
+  override async condition(): Promise<boolean> {
     return true;
   }
 

@@ -113,7 +113,7 @@ import { DynamoDBMigrationBase } from './migration';
 import path from 'path';
 
 class AwsErrorMock extends Error {
-  constructor(public name: string) {
+  constructor(public override name: string) {
     super(name);
   }
 }

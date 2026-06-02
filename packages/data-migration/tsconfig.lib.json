@@ -14,7 +14,8 @@
     "vite.config.ts",
     "src/**/*.spec.ts",
     "src/**/*.test.ts",
-    "src/**/__mocks__/**/*.ts"
+    "src/**/__mocks__/**/*.ts",
+    "src/aws-sdk-client-mock-matchers.d.ts"
   ],
   "references": [
     {

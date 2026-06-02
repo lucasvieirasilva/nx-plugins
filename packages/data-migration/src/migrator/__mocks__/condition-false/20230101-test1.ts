@@ -6,7 +6,7 @@ import { Migration, MigrationBase } from '../../..';
   name: 'test1',
 })
 export default class extends MigrationBase {
-  async condition() {
+  override async condition() {
     return false;
   }
 
