@@ -116,6 +116,14 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
     }
   }
 
+  public updateDependencyVersions(): string[] {
+    // Poetry references local workspace dependencies via `path`/`develop`, which
+    // cannot carry a version specifier (path and version are mutually exclusive
+    // in Poetry). The published version is injected at build time from the
+    // dependency's own pyproject.toml, so there is nothing to rewrite here.
+    return [];
+  }
+
   public getDependencyMetadata(
     projectRoot: string,
     dependencyName: string,

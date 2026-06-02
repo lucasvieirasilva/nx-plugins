@@ -1,5 +1,6 @@
 import { BaseProvider } from './base';
 import { PoetryProvider } from './poetry';
+import { PoetryPyprojectToml } from './poetry/types';
 import { Logger } from '../executors/utils/logger';
 import chalk from 'chalk';
 import { ExecutorContext } from '@nx/devkit';
@@ -8,7 +9,7 @@ import path from 'path';
 
 describe('Activate Venv', () => {
   const originalEnv = process.env;
-  let provider: BaseProvider;
+  let provider: BaseProvider<PoetryPyprojectToml>;
   let installMock: MockInstance;
 
   beforeAll(() => {
