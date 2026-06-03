@@ -1,3 +1,14 @@
+## 22.2.0 (2026-06-03)
+
+### 🚀 Features
+
+- **nx-python:** add syntax-aware local dependency inference plugin ([#348](https://github.com/lucasvieirasilva/nx-plugins/issues/348))
+- **nx-python:** bump local dependency version ranges during release ([c18db4d](https://github.com/lucasvieirasilva/nx-plugins/commit/c18db4d))
+
+### ❤️ Thank You
+
+- Lucas Vieira @lucasvieirasilva
+
 ## 22.1.4 (2026-05-08)
 
 ### 🩹 Fixes

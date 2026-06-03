@@ -1,3 +1,7 @@
+## 7.0.2 (2026-06-03)
+
+This was a version bump only for util to align it with other projects, there were no code changes.
+
 ## 7.0.1 (2026-01-15)
 
 ### 🩹 Fixes
