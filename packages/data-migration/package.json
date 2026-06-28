@@ -41,7 +41,6 @@
     "@aws-sdk/client-lambda": "^3.525.0",
     "@aws-sdk/client-ssm": "^3.525.0",
     "@aws-sdk/client-sts": "^3.525.0",
-    "@nx/devkit": "^22.0.0",
     "@nxlv/util": "workspace:*",
     "archiver": "^7.0.0",
     "chalk": "^4.1.1",
@@ -52,6 +51,9 @@
     "lodash": "^4.17.21",
     "prompts": "^2.4.2",
     "tslib": "^2.3.0"
+  },
+  "peerDependencies": {
+    "@nx/devkit": ">=22.0.0"
   },
   "devDependencies": {
     "@types/prompts": "^2.4.9"
