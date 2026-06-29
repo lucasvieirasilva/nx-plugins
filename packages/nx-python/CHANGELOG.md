@@ -1,3 +1,13 @@
+## 22.2.1 (2026-06-29)
+
+### 🩹 Fixes
+
+- declare @nx/devkit as a peer dependency for Nx 23 support ([004002c](https://github.com/lucasvieirasilva/nx-plugins/commit/004002c))
+
+### ❤️ Thank You
+
+- J Rob Gant @rgant
+
 ## 22.2.0 (2026-06-03)
 
 ### 🚀 Features
