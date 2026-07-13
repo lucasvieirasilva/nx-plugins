@@ -63,6 +63,7 @@ If either prerequisite is unmet, write status: failed with the unmet requirement
    ```
 
 2. **Locate all Vitest configuration files**:
+
    - Search for `vitest.config.{ts,js,mjs}`
    - Search for `vitest.workspace.{ts,js,mjs}` (removed in Vitest 4 — migrate to inline `test.projects`; see section 1.3 below)
    - Check `project.json` files for `@nx/vitest:test` / `@nx/vite:test` executor options
@@ -328,13 +329,7 @@ import { configDefaults, defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    exclude: [
-      ...configDefaults.exclude,
-      '**/dist/**',
-      '**/cypress/**',
-      '**/.{idea,git,cache,output,temp}/**',
-      '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*',
-    ],
+    exclude: [...configDefaults.exclude, '**/dist/**', '**/cypress/**', '**/.{idea,git,cache,output,temp}/**', '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*'],
   },
 });
 ```
