@@ -170,7 +170,7 @@ describe('nx-python (poetry)', () => {
       // dev dependencies.
       ws.generate(
         'migrate-to-shared-venv',
-        '--packageManager=poetry --moveDevDependencies=true',
+        `--packageManager=poetry --moveDevDependencies=true ${PY_VERSION_ARGS}`,
       );
     });
 
