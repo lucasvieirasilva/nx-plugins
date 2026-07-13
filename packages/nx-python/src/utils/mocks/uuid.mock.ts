@@ -1,6 +1,6 @@
-import { vi } from 'vitest';
+import { Mock, vi } from 'vitest';
 
-export const uuidMock = vi.fn();
+export const uuidMock: Mock = vi.fn();
 
 vi.mock('uuid', () => {
   return {

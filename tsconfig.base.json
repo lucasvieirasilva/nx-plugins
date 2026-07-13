@@ -10,13 +10,14 @@
     "noImplicitOverride": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "target": "es2022",
-    "module": "commonjs",
+    "module": "nodenext",
     "lib": ["es2022"],
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "strict": false
   },
   "exclude": ["node_modules", "tmp"],
   "references": [
