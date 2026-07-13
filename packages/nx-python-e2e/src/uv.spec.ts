@@ -162,7 +162,7 @@ describe('nx-python (uv)', () => {
       // single shared uv.lock that owns every member and the dev dependencies.
       ws.generate(
         'migrate-to-shared-venv',
-        '--packageManager=uv --moveDevDependencies=true',
+        `--packageManager=uv --moveDevDependencies=true ${PY_VERSION_ARGS}`,
       );
     });
 
