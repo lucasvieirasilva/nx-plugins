@@ -56,3 +56,5 @@ vitest.config.*.timestamp*
 .claude/settings.local.json
 
 .env.local
+
+.nx/migrate-runs
