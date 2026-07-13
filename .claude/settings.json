@@ -9,5 +9,8 @@
   },
   "enabledPlugins": {
     "nx@nx-claude-plugins": true
+  },
+  "permissions": {
+    "defaultMode": "auto"
   }
 }

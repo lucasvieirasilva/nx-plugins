@@ -99,5 +99,6 @@
     "releaseTag": {
       "pattern": "{projectName}-v{version}"
     }
-  }
+  },
+  "analytics": false
 }
