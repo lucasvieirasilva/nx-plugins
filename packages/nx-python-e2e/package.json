@@ -1,0 +1,24 @@
+{
+  "name": "nx-python-e2e",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "projectType": "application",
+    "sourceRoot": "packages/nx-python-e2e/src",
+    "implicitDependencies": [
+      "nx-python"
+    ],
+    "targets": {
+      "e2e": {
+        "executor": "@nx/vitest:test",
+        "cache": false,
+        "dependsOn": [
+          "^build"
+        ],
+        "options": {
+          "configFile": "packages/nx-python-e2e/vitest.config.mts"
+        }
+      }
+    }
+  }
+}

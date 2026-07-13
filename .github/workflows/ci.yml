@@ -15,6 +15,74 @@ permissions:
   id-token: write
 
 jobs:
+  e2e:
+    name: e2e (node ${{ matrix.node }}, py ${{ matrix.python }}, poetry ${{ matrix.poetry }}, uv ${{ matrix.uv }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Current baseline (all latest).
+          - node: 24
+            python: '3.12'
+            poetry: '2.4.1'
+            uv: '0.11.14'
+          # Mid-range node + python.
+          - node: 22
+            python: '3.11'
+            poetry: '2.4.1'
+            uv: '0.11.14'
+          # Oldest supported node + python.
+          - node: 20
+            python: '3.9'
+            poetry: '2.4.1'
+            uv: '0.11.14'
+          # Poetry 1.x (export is built-in; no plugin needed).
+          - node: 24
+            python: '3.12'
+            poetry: '1.8.5'
+            uv: '0.11.14'
+          # Older uv.
+          - node: 24
+            python: '3.11'
+            poetry: '2.4.1'
+            uv: '0.5.9'
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Use PNPM 10.x
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+      - name: Use Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@nxlv'
+      - name: Use Python ${{ matrix.python }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install Poetry ${{ matrix.poetry }}
+        run: |
+          pipx install poetry==${{ matrix.poetry }}
+          # Poetry 2.x moved `poetry export` into a separate plugin, which the
+          # plugin's build relies on. Poetry 1.x ships it built-in.
+          if [[ "${{ matrix.poetry }}" == 2.* ]]; then
+            pipx inject poetry poetry-plugin-export
+          fi
+      - name: Use uv ${{ matrix.uv }}
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: ${{ matrix.uv }}
+      - name: Install Node.js dependencies
+        run: pnpm install
+      - name: Run nx-python e2e
+        run: pnpm nx run nx-python-e2e:e2e --skip-nx-cache
+
   main:
     runs-on: ubuntu-latest
     steps:
