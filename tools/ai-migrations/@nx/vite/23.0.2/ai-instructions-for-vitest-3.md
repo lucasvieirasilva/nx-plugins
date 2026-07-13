@@ -50,6 +50,7 @@ In your handoff `summary` (1–3 sentences per the system prompt), name the brea
    ```
 
 3. **Locate all Vitest configuration files**:
+
    - Search for `vitest.config.{ts,js,mjs}`
    - Search for `vitest.workspace.{ts,js,mjs}` (deprecated in Vitest 3.2 — see "v3.2 Workspace File Deprecation" below)
    - Check `project.json` files for `@nx/vitest:test` / `@nx/vite:test` executor options
@@ -316,7 +317,7 @@ test(
   () => {
     /* ... */
   },
-  { retry: 3 }
+  { retry: 3 },
 );
 
 // ✅ AFTER (Vitest 3.0)
@@ -422,15 +423,7 @@ vi.isMockFunction(fooService.foo);
 export default defineConfig({
   test: {
     fakeTimers: {
-      toFake: [
-        'setTimeout',
-        'clearTimeout',
-        'setInterval',
-        'clearInterval',
-        'setImmediate',
-        'clearImmediate',
-        'Date',
-      ],
+      toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'setImmediate', 'clearImmediate', 'Date'],
     },
   },
 });
