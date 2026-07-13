@@ -46,7 +46,7 @@ describe('remote wrapper', () => {
           return undefined as never;
         });
 
-        import('./wrapper').then(() => console.log('done'));
+        import('./wrapper.js').then(() => console.log('done'));
       });
     });
 
@@ -83,7 +83,7 @@ describe('remote wrapper', () => {
           return undefined as never;
         });
 
-        import('./wrapper').then(() => console.log('done'));
+        import('./wrapper.js').then(() => console.log('done'));
       });
     });
   });
@@ -116,7 +116,7 @@ describe('remote wrapper', () => {
           return undefined as never;
         });
 
-        import('./wrapper').then(() => console.log('done'));
+        import('./wrapper.js').then(() => console.log('done'));
       });
     });
 
@@ -151,7 +151,7 @@ describe('remote wrapper', () => {
           return undefined as never;
         });
 
-        import('./wrapper').then(() => console.log('done'));
+        import('./wrapper.js').then(() => console.log('done'));
       });
     });
   });

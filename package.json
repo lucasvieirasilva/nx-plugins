@@ -48,7 +48,7 @@
     "prettier": "^3.2.5",
     "string-dedent": "^3.0.1",
     "ts-node": "10.9.2",
-    "typescript": "5.9.3",
+    "typescript": "6.0.3",
     "typescript-eslint": "8.53.0",
     "vite": "8.1.4",
     "vitest": "4.1.9"

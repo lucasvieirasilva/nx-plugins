@@ -21,7 +21,7 @@ export default async function runExecutor(
   const logger = new CLILogger(options.logLevel);
 
   try {
-    const { MigratorRunner } = await import('../../migrator/runner');
+    const { MigratorRunner } = await import('../../migrator/runner.js');
     const runner = new MigratorRunner(
       context.cwd,
       migrationsPath,

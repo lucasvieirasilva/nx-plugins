@@ -14,7 +14,7 @@ describe('model', () => {
     delete process.env.AWS_REGION;
     delete process.env.MIGRATION_TABLE_NAME;
 
-    await import('./state.model');
+    await import('./state.model.js');
 
     expect(model).toHaveBeenCalledWith(
       'migration-state-us-east-1-test',
@@ -31,7 +31,7 @@ describe('model', () => {
     delete process.env.AWS_REGION;
     process.env.MIGRATION_TABLE_NAME = 'custom-table-name';
 
-    await import('./state.model');
+    await import('./state.model.js');
 
     expect(model).toHaveBeenCalledWith(
       'custom-table-name',
@@ -48,7 +48,7 @@ describe('model', () => {
     delete process.env.MIGRATION_TABLE_NAME;
     process.env.AWS_REGION = 'us-east-2';
 
-    await import('./state.model');
+    await import('./state.model.js');
 
     expect(model).toHaveBeenCalledWith(
       'migration-state-us-east-2-test',
