@@ -58,3 +58,5 @@ vitest.config.*.timestamp*
 .env.local
 
 .nx/migrate-runs
+
+.nx/self-healing
