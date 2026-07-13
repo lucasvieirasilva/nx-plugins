@@ -47,7 +47,7 @@ import {
   DeleteRoleCommand,
 } from '@aws-sdk/client-iam';
 import fs from 'fs';
-import archiver from 'archiver';
+import { ZipArchive } from 'archiver';
 import _ from 'lodash';
 import {
   SSMClient,
@@ -834,7 +834,7 @@ export abstract class DynamoDBMigrationBase extends MigrationBase {
   }
 
   private zipDirectory(sourceDir: string, outPath: string): Promise<void> {
-    const archive = archiver('zip', { zlib: { level: 9 } });
+    const archive = new ZipArchive({ zlib: { level: 9 } });
     const stream = fs.createWriteStream(outPath);
 
     return new Promise((resolve, reject) => {

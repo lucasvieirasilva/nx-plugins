@@ -40,10 +40,12 @@ const archiverDirectoryMock = vi.fn();
 
 vi.mock('archiver', () => ({
   __esModule: true,
-  default: vi.fn(() => ({
-    directory: archiverDirectoryMock,
-    finalize: vi.fn(),
-  })),
+  ZipArchive: vi.fn(function () {
+    return {
+      directory: archiverDirectoryMock,
+      finalize: vi.fn(),
+    };
+  }),
 }));
 
 const { waitUntilTableExistsMock, waitUntilTableNotExistsMock } = vi.hoisted(

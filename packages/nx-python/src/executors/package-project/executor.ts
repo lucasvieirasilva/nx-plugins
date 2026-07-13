@@ -7,7 +7,7 @@ import { existsSync } from 'fs-extra';
 import { getProvider } from '../../provider';
 import os from 'os';
 import fsPromises from 'fs/promises';
-import archiver from 'archiver';
+import { ZipArchive } from 'archiver';
 import fs from 'fs';
 
 const logger = new Logger();
@@ -74,7 +74,7 @@ export default async function executor(
         await fsPromises.unlink(options.outputPath);
       }
 
-      const archive = archiver('zip', { zlib: { level: 9 } });
+      const archive = new ZipArchive({ zlib: { level: 9 } });
 
       const outputStream = fs.createWriteStream(options.outputPath);
       archive.pipe(outputStream);
