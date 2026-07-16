@@ -1,3 +1,13 @@
+## 22.2.2 (2026-07-16)
+
+### 🩹 Fixes
+
+- **nx-python:** preserve Windows drive letter when reading pyproject.toml ([73c98a4](https://github.com/lucasvieirasilva/nx-plugins/commit/73c98a4))
+
+### ❤️ Thank You
+
+- Shadi Shaheen
+
 ## 22.2.1 (2026-06-29)
 
 ### 🩹 Fixes
