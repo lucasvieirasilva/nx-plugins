@@ -96,14 +96,27 @@ export abstract class BaseProvider<TPyprojectToml> {
    * Reads and parses the `pyproject.toml` of a project, using the in-memory
    * {@link Tree} when available and falling back to the real filesystem.
    *
+   * The path is built differently per source: the {@link Tree} expects a
+   * workspace-relative POSIX path, so `joinPathFragments` is correct there.
+   * The real filesystem, however, may receive an absolute OS path — in an
+   * executor context `projectRoot` can be the temporary build folder from
+   * `os.tmpdir()`. On Windows `joinPathFragments` normalizes to POSIX and
+   * strips the drive letter (`C:\...\pyproject.toml` -> `/.../pyproject.toml`),
+   * so the file is never found and the pyproject parses as empty. `path.join`
+   * preserves the drive letter and is used for the filesystem read.
+   *
    * @param projectRoot - Project root containing the `pyproject.toml`.
    * @returns The parsed `pyproject.toml` contents.
    */
   public getPyprojectToml(projectRoot: string): TPyprojectToml {
-    const pyprojectTomlPath = joinPathFragments(projectRoot, 'pyproject.toml');
     return this.tree
-      ? readPyprojectToml<TPyprojectToml>(this.tree, pyprojectTomlPath)
-      : getPyprojectData<TPyprojectToml>(pyprojectTomlPath);
+      ? readPyprojectToml<TPyprojectToml>(
+          this.tree,
+          joinPathFragments(projectRoot, 'pyproject.toml'),
+        )
+      : getPyprojectData<TPyprojectToml>(
+          path.join(projectRoot, 'pyproject.toml'),
+        );
   }
 
   /**
