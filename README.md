@@ -12,16 +12,16 @@
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=lucasvieirasilva_nx-plugins&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=lucasvieirasilva_nx-plugins)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=lucasvieirasilva_nx-plugins&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=lucasvieirasilva_nx-plugins)
 
-## What is Nx
+## What is Nx?
 
 🔎 Extensible Dev Tools for Monorepos.
 
-## Plugins available
+## Available Plugins
 
 - [@nxlv/nx-python](packages/nx-python/README.md)
 - [@nxlv/data-migration](packages/data-migration/README.md)
 
-## Libraries available
+## Available Libraries
 
 - [@nxlv/util](packages/util/README.md)
 
