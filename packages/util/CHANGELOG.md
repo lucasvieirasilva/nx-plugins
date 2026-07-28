@@ -1,3 +1,7 @@
+# 8.0.0 (2026-07-28)
+
+This was a version bump only for util to align it with other projects, there were no code changes.
+
 ## 7.0.3 (2026-06-29)
 
 This was a version bump only for util to align it with other projects, there were no code changes.
