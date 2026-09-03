@@ -1,3 +1,6 @@
+import { vol } from 'memfs';
+import dedent from 'string-dedent';
+import '../utils/mocks/fs.mock';
 import { BaseProvider } from './base';
 import { PoetryProvider } from './poetry';
 import { PoetryPyprojectToml } from './poetry/types';
@@ -146,5 +149,57 @@ describe('getPyprojectToml', () => {
       tree,
       'apps/app/pyproject.toml',
     );
+  });
+});
+
+describe('readPyprojectSource / writePyprojectSource', () => {
+  const source = dedent`
+    [tool.poetry]
+    # Kept deliberately: see docs/build.md.
+    name = "app"
+    version = "1.0.0"
+  `;
+
+  afterEach(() => {
+    vol.reset();
+    vi.restoreAllMocks();
+  });
+
+  it('reads and writes through the tree when one is provided', () => {
+    const tree = {
+      exists: () => false,
+      read: vi.fn().mockReturnValue(source),
+      write: vi.fn(),
+    } as unknown as Tree;
+    const provider = new PoetryProvider('apps/app', new Logger(), tree);
+
+    expect(provider.readPyprojectSource('apps/app/pyproject.toml')).toBe(
+      source,
+    );
+    expect(tree.read).toHaveBeenCalledWith('apps/app/pyproject.toml', 'utf-8');
+
+    provider.writePyprojectSource('apps/app/pyproject.toml', 'edited');
+    expect(tree.write).toHaveBeenCalledWith(
+      'apps/app/pyproject.toml',
+      'edited',
+    );
+  });
+
+  it('reads and writes the real filesystem without a tree', () => {
+    vol.fromJSON({ 'apps/app/pyproject.toml': source });
+    const provider = new PoetryProvider('.', new Logger());
+
+    expect(provider.readPyprojectSource('apps/app/pyproject.toml')).toBe(
+      source,
+    );
+
+    provider.writePyprojectSource('apps/app/pyproject.toml', 'edited');
+    expect(vol.readFileSync('apps/app/pyproject.toml', 'utf-8')).toBe('edited');
+  });
+
+  it('returns null when the manifest does not exist', () => {
+    const provider = new PoetryProvider('.', new Logger());
+
+    expect(provider.readPyprojectSource('apps/app/pyproject.toml')).toBeNull();
   });
 });

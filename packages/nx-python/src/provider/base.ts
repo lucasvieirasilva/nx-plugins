@@ -130,6 +130,41 @@ export abstract class BaseProvider<TPyprojectToml> {
   }
 
   /**
+   * Reads the raw text of a `pyproject.toml`, using the in-memory {@link Tree}
+   * when available and falling back to the real filesystem.
+   *
+   * Unlike {@link getPyprojectToml} the document is not parsed, so callers can
+   * edit the source text and keep the comments and formatting a round-trip
+   * through the TOML object model would drop.
+   *
+   * @param pyprojectTomlPath - Path to the manifest.
+   * @returns The manifest source, or `null` when the file does not exist.
+   */
+  public readPyprojectSource(pyprojectTomlPath: string): string | null {
+    if (this.tree) {
+      return this.tree.read(pyprojectTomlPath, 'utf-8');
+    }
+    return this.fileExists(pyprojectTomlPath)
+      ? fs.readFileSync(pyprojectTomlPath, 'utf-8')
+      : null;
+  }
+
+  /**
+   * Writes the raw text of a `pyproject.toml`, using the in-memory {@link Tree}
+   * when available and falling back to the real filesystem.
+   *
+   * @param pyprojectTomlPath - Path to the manifest.
+   * @param source - The manifest source to write.
+   */
+  public writePyprojectSource(pyprojectTomlPath: string, source: string): void {
+    if (this.tree) {
+      this.tree.write(pyprojectTomlPath, source);
+    } else {
+      fs.writeFileSync(pyprojectTomlPath, source);
+    }
+  }
+
+  /**
    * Resolves a project's own name and version from its manifest.
    *
    * @param projectRoot - Project root containing the `pyproject.toml`.

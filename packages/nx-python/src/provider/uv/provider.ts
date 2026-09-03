@@ -34,13 +34,7 @@ import {
 } from './utils';
 import path, { join } from 'path';
 import chalk from 'chalk';
-import {
-  copySync,
-  existsSync,
-  readFileSync,
-  removeSync,
-  writeFileSync,
-} from 'fs-extra';
+import { copySync, removeSync, writeFileSync } from 'fs-extra';
 import {
   getLocalDependencyConfig,
   pycacheFilter,
@@ -234,27 +228,6 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
       writePyprojectToml(this.tree, pyprojectTomlPath, projectData);
     } else {
       writeFileSync(pyprojectTomlPath, toml.stringify(projectData));
-    }
-  }
-
-  /** Read a manifest from the Nx tree when in a generator, otherwise from disk. */
-  private readPyprojectSource(pyprojectTomlPath: string): string | null {
-    if (this.tree) {
-      return this.tree.read(pyprojectTomlPath, 'utf-8');
-    }
-    return existsSync(pyprojectTomlPath)
-      ? readFileSync(pyprojectTomlPath, 'utf-8')
-      : null;
-  }
-
-  private writePyprojectSource(
-    pyprojectTomlPath: string,
-    source: string,
-  ): void {
-    if (this.tree) {
-      this.tree.write(pyprojectTomlPath, source);
-    } else {
-      writeFileSync(pyprojectTomlPath, source);
     }
   }
 
