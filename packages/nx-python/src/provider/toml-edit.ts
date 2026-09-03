@@ -52,7 +52,7 @@ function findTableRange(
 
 /** Escape a literal for embedding in a regular expression. */
 function escapeRegExp(literal: string): string {
-  return literal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return literal.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 }
 
 /**
@@ -76,7 +76,7 @@ export function setTableStringValue(
 
   const [start, end] = range;
   const assignment = new RegExp(
-    `^([ \\t]*${escapeRegExp(key)}[ \\t]*=[ \\t]*)(["'])(?:[^"'\\\\]|\\\\.)*\\2(.*)$`,
+    String.raw`^([ \t]*${escapeRegExp(key)}[ \t]*=[ \t]*)(["'])(?:[^"'\\]|\\.)*\2(.*)$`,
   );
 
   for (let i = start; i < end; i++) {
@@ -120,7 +120,7 @@ export function replaceStringLiterals(
     if (from === to) {
       continue;
     }
-    const literal = new RegExp(`(["'])${escapeRegExp(from)}\\1`, 'g');
+    const literal = new RegExp(String.raw`(["'])${escapeRegExp(from)}\1`, 'g');
     result = result.replace(literal, (match, quote: string) => {
       count++;
       return `${quote}${to}${quote}`;

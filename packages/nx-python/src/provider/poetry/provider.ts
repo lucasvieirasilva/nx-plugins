@@ -48,7 +48,6 @@ import { v4 as uuid } from 'uuid';
 import {
   readdirSync,
   copySync,
-  existsSync,
   readFileSync,
   writeFileSync,
   mkdirSync,
@@ -113,11 +112,7 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
     // Rewrite the version in place so the document keeps its comments and
     // formatting, falling back to the object round-trip when there is no
     // literal to edit.
-    const source = this.tree
-      ? this.tree.read(pyprojectTomlPath, 'utf-8')
-      : existsSync(pyprojectTomlPath)
-        ? readFileSync(pyprojectTomlPath, 'utf-8')
-        : null;
+    const source = this.readPyprojectSource(pyprojectTomlPath);
     if (source !== null) {
       const { changed, result } = setTableStringValue(
         source,
@@ -126,11 +121,7 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
         newVersion,
       );
       if (changed) {
-        if (this.tree) {
-          this.tree.write(pyprojectTomlPath, result);
-        } else {
-          writeFileSync(pyprojectTomlPath, result);
-        }
+        this.writePyprojectSource(pyprojectTomlPath, result);
         return;
       }
     }
