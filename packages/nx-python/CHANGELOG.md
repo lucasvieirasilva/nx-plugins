@@ -1,3 +1,14 @@
+## 23.0.1 (2026-09-05)
+
+### 🩹 Fixes
+
+- **nx-python:** preserve comments and formatting when bumping versions ([adbb584](https://github.com/lucasvieirasilva/nx-plugins/commit/adbb584))
+
+### ❤️ Thank You
+
+- Claude Opus 5
+- Robin De Schepper
+
 # 23.0.0 (2026-07-28)
 
 This was a version bump only for nx-python to align it with other projects, there were no code changes.
