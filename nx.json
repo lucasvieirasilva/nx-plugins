@@ -41,7 +41,7 @@
       "!{projectRoot}/.eslintrc.json",
       "!{projectRoot}/eslint.config.js",
       "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
-      "!{projectRoot}/**/?(*.)+(mock).[jt]s?(x)?",
+      "!{projectRoot}/**/?(*.)+(mock).[jt]s?(x)",
       "!{projectRoot}/tsconfig.spec.json",
       "!{projectRoot}/vite.config.[jt]s",
       "!{projectRoot}/src/test-setup.[jt]s",
