@@ -1,3 +1,13 @@
+## 23.0.2 (2026-09-07)
+
+### 🩹 Fixes
+
+- **nx-python:** render chalk templates with chalk-template ([667e894](https://github.com/lucasvieirasilva/nx-plugins/commit/667e894))
+
+### ❤️ Thank You
+
+- Lucas Vieira @lucasvieirasilva
+
 ## 23.0.1 (2026-09-05)
 
 ### 🩹 Fixes

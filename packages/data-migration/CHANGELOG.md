@@ -1,3 +1,9 @@
+## 9.0.1 (2026-09-07)
+
+### 🧱 Updated Dependencies
+
+- Updated util to 8.0.1
+
 # 9.0.0 (2026-07-28)
 
 ### 🧱 Updated Dependencies
