@@ -6,7 +6,7 @@ import { PoetryProvider } from './poetry';
 import { PoetryPyprojectToml } from './poetry/types';
 import { Logger } from '../executors/utils/logger';
 import * as utils from './utils';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import { ExecutorContext, Tree } from '@nx/devkit';
 import { MockInstance } from 'vitest';
 import path from 'path';
@@ -17,7 +17,7 @@ describe('Activate Venv', () => {
   let installMock: MockInstance;
 
   beforeAll(() => {
-    console.log(chalk`init chalk`);
+    console.log(chalkTemplate`init chalk`);
   });
 
   beforeEach(() => {

@@ -16,7 +16,7 @@ import { SyncExecutorSchema } from '../executors/sync/schema';
 import { Logger } from '../executors/utils/logger';
 import path from 'path';
 import fs from 'fs';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import { parse } from '@iarna/toml';
 import { getPyprojectData, readPyprojectToml } from './utils';
 
@@ -458,7 +458,7 @@ export abstract class BaseProvider<TPyprojectToml> {
           const autoActivate = rootConfig.tool.nx?.autoActivate ?? false;
           if (autoActivate) {
             console.log(
-              chalk`\n{bold shared virtual environment detected and not activated, activating...}\n\n`,
+              chalkTemplate`\n{bold shared virtual environment detected and not activated, activating...}\n\n`,
             );
             const virtualEnv = path.resolve(workspaceRoot, '.venv');
             this.setVenvEnvironmentVariables(virtualEnv);
@@ -478,7 +478,7 @@ export abstract class BaseProvider<TPyprojectToml> {
         const virtualEnv = path.resolve(baseDir, '.venv');
         if (!fs.existsSync(virtualEnv)) {
           this.logger.info(
-            chalk`\n  {bold Creating virtual environment in {bgBlue  ${baseDir} }...}\n`,
+            chalkTemplate`\n  {bold Creating virtual environment in {bgBlue  ${baseDir} }...}\n`,
           );
           await this.install(baseDir);
         }

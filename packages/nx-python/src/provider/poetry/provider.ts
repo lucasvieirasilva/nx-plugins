@@ -29,7 +29,7 @@ import {
   runPoetry,
   RunPoetryOptions,
 } from './utils';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import { parse, stringify } from '@iarna/toml';
 import { setTableStringValue } from '../toml-edit';
 import { SpawnSyncOptions } from 'child_process';
@@ -296,7 +296,7 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
 
     if (options.local) {
       this.logger.info(
-        chalk`\n  {bold Adding {bgBlue  ${options.name} } workspace dependency...}\n`,
+        chalkTemplate`\n  {bold Adding {bgBlue  ${options.name} } workspace dependency...}\n`,
       );
       await this.updateLocalProject(
         context,
@@ -309,7 +309,7 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
       );
     } else {
       this.logger.info(
-        chalk`\n  {bold Adding {bgBlue  ${options.name} } dependency...}\n`,
+        chalkTemplate`\n  {bold Adding {bgBlue  ${options.name} } dependency...}\n`,
       );
       const installArgs = ['add', options.name]
         .concat(options.group ? ['--group', options.group] : [])
@@ -325,7 +325,7 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
     await this.updateDependencyTree(context);
 
     this.logger.info(
-      chalk`\n  {green.bold '${options.name}'} {green dependency has been successfully added to the project}\n`,
+      chalkTemplate`\n  {green.bold '${options.name}'} {green dependency has been successfully added to the project}\n`,
     );
   }
 
@@ -426,7 +426,7 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
 
     if (options.local && options.name) {
       this.logger.info(
-        chalk`\n  {bold Updating {bgBlue  ${options.name} } workspace dependency...}\n`,
+        chalkTemplate`\n  {bold Updating {bgBlue  ${options.name} } workspace dependency...}\n`,
       );
 
       if (
@@ -435,7 +435,7 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
         )
       ) {
         throw new Error(
-          chalk`\n  {red.bold ${options.name}} workspace project does not exist\n`,
+          chalkTemplate`\n  {red.bold ${options.name}} workspace project does not exist\n`,
         );
       }
 
@@ -443,10 +443,12 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
     } else {
       if (options.name) {
         this.logger.info(
-          chalk`\n  {bold Updating {bgBlue  ${options.name} } dependency...}\n`,
+          chalkTemplate`\n  {bold Updating {bgBlue  ${options.name} } dependency...}\n`,
         );
       } else {
-        this.logger.info(chalk`\n  {bold Updating project dependencies...}\n`);
+        this.logger.info(
+          chalkTemplate`\n  {bold Updating project dependencies...}\n`,
+        );
       }
 
       const updateArgs = ['update']
@@ -459,7 +461,7 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
     await this.updateDependencyTree(context);
 
     this.logger.info(
-      chalk`\n  {green.bold '${options.name}'} {green dependency has been successfully added to the project}\n`,
+      chalkTemplate`\n  {green.bold '${options.name}'} {green dependency has been successfully added to the project}\n`,
     );
   }
 
@@ -477,7 +479,7 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
     const projectConfig =
       context.projectsConfigurations.projects[context.projectName];
     this.logger.info(
-      chalk`\n  {bold Removing {bgBlue  ${options.name} } dependency...}\n`,
+      chalkTemplate`\n  {bold Removing {bgBlue  ${options.name} } dependency...}\n`,
     );
 
     let dependencyName = options.name;
@@ -505,7 +507,7 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
     await this.updateDependencyTree(context);
 
     this.logger.info(
-      chalk`\n  {green.bold '${options.name}'} {green dependency has been successfully removed}\n`,
+      chalkTemplate`\n  {green.bold '${options.name}'} {green dependency has been successfully removed}\n`,
     );
   }
 
@@ -546,7 +548,7 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
       }
 
       this.logger.info(
-        chalk`\n  {bold Publishing project {bgBlue  ${context.projectName} }...}\n`,
+        chalkTemplate`\n  {bold Publishing project {bgBlue  ${context.projectName} }...}\n`,
       );
 
       const commandArgs = [
@@ -562,9 +564,9 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
       const commandStr = `${POETRY_EXECUTABLE} ${commandArgs.join(' ')}`;
 
       this.logger.info(
-        chalk`{bold Running command}: ${commandStr} ${
+        chalkTemplate`{bold Running command}: ${commandStr} ${
           buildFolderPath && buildFolderPath !== '.'
-            ? chalk`at {bold ${buildFolderPath}} folder`
+            ? chalkTemplate`at {bold ${buildFolderPath}} folder`
             : ''
         }\n`,
       );
@@ -579,7 +581,7 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
       if (typeof error === 'object' && 'code' in error && 'output' in error) {
         if (error.code !== 0 && error.output.includes('File already exists')) {
           this.logger.info(
-            chalk`\n  {bgYellow.bold  WARNING } {bold The package is already published}\n`,
+            chalkTemplate`\n  {bgYellow.bold  WARNING } {bold The package is already published}\n`,
           );
 
           return;
@@ -811,7 +813,7 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
     }
 
     this.logger.info(
-      chalk`\n  {bold Building project {bgBlue  ${context.projectName} }...}\n`,
+      chalkTemplate`\n  {bold Building project {bgBlue  ${context.projectName} }...}\n`,
     );
 
     const { root } =
@@ -822,7 +824,9 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
 
     mkdirSync(buildFolderPath, { recursive: true });
 
-    this.logger.info(chalk`  Copying project files to a temporary folder`);
+    this.logger.info(
+      chalkTemplate`  Copying project files to a temporary folder`,
+    );
     readdirSync(root).forEach((file) => {
       if (
         !options.ignorePaths.some((pattern) =>
@@ -870,7 +874,7 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
     removeSync(distFolder);
 
     if (!options.skipBuild) {
-      this.logger.info(chalk`  Generating sdist and wheel artifacts`);
+      this.logger.info(chalkTemplate`  Generating sdist and wheel artifacts`);
       const buildArgs = ['build'];
       if (options.format) {
         buildArgs.push('--format', options.format);
@@ -881,7 +885,7 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
       removeSync(options.outputPath);
       mkdirSync(options.outputPath, { recursive: true });
       this.logger.info(
-        chalk`  Artifacts generated at {bold ${options.outputPath}} folder`,
+        chalkTemplate`  Artifacts generated at {bold ${options.outputPath}} folder`,
       );
       copySync(distFolder, options.outputPath);
     }
@@ -984,7 +988,7 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
 
       if (allRootDependencyNames.includes(pkgName)) {
         this.logger.info(
-          chalk`\nUpdating root {bold pyproject.toml} dependency {bold ${pkgName}}`,
+          chalkTemplate`\nUpdating root {bold pyproject.toml} dependency {bold ${pkgName}}`,
         );
 
         await this.lock();
@@ -1018,7 +1022,7 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
         continue;
       }
 
-      this.logger.info(chalk`\nUpdating project {bold ${dep}}`);
+      this.logger.info(chalkTemplate`\nUpdating project {bold ${dep}}`);
       const depConfig = workspace.projects[dep];
 
       await this.updateProject(depConfig.root, updateLockOnly);

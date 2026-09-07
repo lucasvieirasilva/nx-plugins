@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import path, { join, relative, resolve } from 'path';
 import { existsSync } from 'fs-extra';
 import { UVLockfile, UVPyprojectToml, UVPyprojectTomlIndex } from '../../types';
@@ -60,7 +60,7 @@ export class ProjectDependencyResolver {
     buildTomlData: UVPyprojectToml,
     workspaceRoot: string,
   ): UVPyprojectToml {
-    this.logger.info(chalk`  Resolving dependencies...`);
+    this.logger.info(chalkTemplate`  Resolving dependencies...`);
 
     return this.updatePyproject(
       projectRoot,
@@ -162,7 +162,7 @@ export class ProjectDependencyResolver {
 
         if (!existsSync(dependencyPyprojectPath)) {
           this.logger.info(
-            chalk`${tab}• Skipping local dependency {blue.bold ${dependency}} as pyproject.toml not found`,
+            chalkTemplate`${tab}• Skipping local dependency {blue.bold ${dependency}} as pyproject.toml not found`,
           );
           continue;
         }
@@ -188,7 +188,7 @@ export class ProjectDependencyResolver {
           // Log the dependency being added (avoid duplicates)
           if (!loggedDependencies.includes(dependency)) {
             this.logger.info(
-              chalk`${tab}• Adding {blue.bold ${dependency}} local dependency`,
+              chalkTemplate`${tab}• Adding {blue.bold ${dependency}} local dependency`,
             );
             loggedDependencies.push(dependency);
           }
@@ -399,7 +399,7 @@ export class ProjectDependencyResolver {
 
               if (!loggedDependencies.includes(depName)) {
                 this.logger.info(
-                  chalk`${tab}• Adding {blue.bold ${depName}} dependency`,
+                  chalkTemplate`${tab}• Adding {blue.bold ${depName}} dependency`,
                 );
                 loggedDependencies.push(depName);
               }
@@ -428,7 +428,7 @@ export class ProjectDependencyResolver {
 
           if (!loggedDependencies.includes(depName)) {
             this.logger.info(
-              chalk`${tab}• Adding {blue.bold ${depName}} local dependency`,
+              chalkTemplate`${tab}• Adding {blue.bold ${depName}} local dependency`,
             );
             loggedDependencies.push(depName);
           }
@@ -437,7 +437,7 @@ export class ProjectDependencyResolver {
         // Step 7: This is an external dependency - just log it
         if (!loggedDependencies.includes(dependency)) {
           this.logger.info(
-            chalk`${tab}• Adding {blue.bold ${dependency}} dependency`,
+            chalkTemplate`${tab}• Adding {blue.bold ${dependency}} dependency`,
           );
           loggedDependencies.push(dependency);
         }
@@ -694,7 +694,7 @@ export class ProjectDependencyResolver {
       const newName = `${name}-${hash}`;
 
       this.logger.info(
-        chalk`  Duplicate index for {blue.bold ${name}} renamed to ${newName}`,
+        chalkTemplate`  Duplicate index for {blue.bold ${name}} renamed to ${newName}`,
       );
 
       if (indexes.find((s) => s.name === newName)) {

@@ -2,7 +2,7 @@ import { ExecutorContext } from '@nx/devkit';
 import { ToxExecutorSchema } from './schema';
 import buildExecutor from '../build/executor';
 import path from 'path';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import { Logger } from '../utils/logger';
 import { readdirSync, existsSync } from 'fs-extra';
 import { getProvider } from '../../provider';
@@ -47,7 +47,9 @@ export default async function executor(
     }
 
     if (!existsSync(distFolder)) {
-      throw new Error(chalk`Folder {blue.bold ${distFolder}} not found`);
+      throw new Error(
+        chalkTemplate`Folder {blue.bold ${distFolder}} not found`,
+      );
     }
 
     const packageFile = readdirSync(distFolder).find((file) =>
@@ -56,7 +58,7 @@ export default async function executor(
 
     if (!packageFile) {
       throw new Error(
-        chalk`No package file {blue.bold *.tar.gz} found in the {bold ${distFolder}}`,
+        chalkTemplate`No package file {blue.bold *.tar.gz} found in the {bold ${distFolder}}`,
       );
     }
 
@@ -83,7 +85,7 @@ export default async function executor(
       success: true,
     };
   } catch (error) {
-    logger.info(chalk`\n  {bgRed.bold  ERROR } ${error.message}\n`);
+    logger.info(chalkTemplate`\n  {bgRed.bold  ERROR } ${error.message}\n`);
     return {
       success: false,
     };

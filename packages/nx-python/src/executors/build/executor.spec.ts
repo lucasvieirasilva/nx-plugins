@@ -11,7 +11,7 @@ import { existsSync, readFileSync, mkdirsSync, writeFileSync } from 'fs-extra';
 import { parse } from '@iarna/toml';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import dedent from 'string-dedent';
 import spawn from 'cross-spawn';
 import { SpawnSyncOptions } from 'child_process';
@@ -23,9 +23,10 @@ import { UVPyprojectToml } from '../../provider/uv/types';
 
 describe('Build Executor', () => {
   let buildPath = null;
+  let consoleInfoSpy: MockInstance;
 
   beforeAll(() => {
-    console.log(chalk`init chalk`);
+    console.log(chalkTemplate`init chalk`);
   });
 
   beforeEach(() => {
@@ -42,9 +43,16 @@ describe('Build Executor', () => {
     });
 
     vi.spyOn(process, 'chdir').mockReturnValue(undefined);
+    consoleInfoSpy = vi.spyOn(console, 'info');
   });
 
   afterEach(() => {
+    // chalk 5 dropped tagged-template support; a `chalk\`{bold ...}\`` call prints
+    // the raw template. Every logged line must come out fully rendered.
+    for (const [message] of consoleInfoSpy.mock.calls) {
+      expect(String(message)).not.toMatch(/\{[a-z][a-zA-Z.]* /);
+    }
+
     vol.reset();
     vi.resetAllMocks();
   });

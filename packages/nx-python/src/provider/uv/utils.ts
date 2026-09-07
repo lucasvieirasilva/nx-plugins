@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import { SpawnSyncOptions } from 'child_process';
 import commandExists from 'command-exists';
 import spawn from 'cross-spawn';
@@ -35,9 +35,9 @@ export function runUv(args: string[], options: RunUvOptions = {}): void {
 
   if (log) {
     console.log(
-      chalk`{bold Running command}: ${commandStr} ${
+      chalkTemplate`{bold Running command}: ${commandStr} ${
         options.cwd && options.cwd !== '.'
-          ? chalk`at {bold ${options.cwd}} folder`
+          ? chalkTemplate`at {bold ${options.cwd}} folder`
           : ''
       }\n`,
     );
@@ -51,7 +51,7 @@ export function runUv(args: string[], options: RunUvOptions = {}): void {
 
   if (error && result.status !== 0) {
     throw new Error(
-      chalk`{bold ${commandStr}} command failed with exit code {bold ${result.status}}`,
+      chalkTemplate`{bold ${commandStr}} command failed with exit code {bold ${result.status}}`,
     );
   }
 }

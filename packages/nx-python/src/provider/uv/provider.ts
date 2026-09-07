@@ -33,7 +33,7 @@ import {
   UV_EXECUTABLE,
 } from './utils';
 import path, { join } from 'path';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import { copySync, removeSync, writeFileSync } from 'fs-extra';
 import {
   getLocalDependencyConfig,
@@ -691,12 +691,12 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
       }
 
       this.logger.info(
-        chalk`\n  {bold Publishing project {bgBlue  ${context.projectName} }...}\n`,
+        chalkTemplate`\n  {bold Publishing project {bgBlue  ${context.projectName} }...}\n`,
       );
 
       if (options.dryRun) {
         this.logger.info(
-          chalk`\n  {bgYellow.bold  WARNING } {bold Dry run is currently not supported by uv}\n`,
+          chalkTemplate`\n  {bgYellow.bold  WARNING } {bold Dry run is currently not supported by uv}\n`,
         );
       }
 
@@ -878,7 +878,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
     }
 
     this.logger.info(
-      chalk`\n  {bold Building project {bgBlue  ${context.projectName} }...}\n`,
+      chalkTemplate`\n  {bold Building project {bgBlue  ${context.projectName} }...}\n`,
     );
 
     const projectRoot = this.getProjectRoot(context);
@@ -888,7 +888,9 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
 
     mkdirSync(buildFolderPath, { recursive: true });
 
-    this.logger.info(chalk`  Copying project files to a temporary folder`);
+    this.logger.info(
+      chalkTemplate`  Copying project files to a temporary folder`,
+    );
     readdirSync(projectRoot).forEach((file) => {
       if (
         !options.ignorePaths.some((pattern) =>
@@ -927,7 +929,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
     removeSync(distFolder);
 
     if (!options.skipBuild) {
-      this.logger.info(chalk`  Generating sdist and wheel artifacts`);
+      this.logger.info(chalkTemplate`  Generating sdist and wheel artifacts`);
       const buildArgs = ['build'];
       if (options.format) {
         buildArgs.push(`--${options.format}`);
@@ -938,7 +940,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
       removeSync(options.outputPath);
       mkdirSync(options.outputPath, { recursive: true });
       this.logger.info(
-        chalk`  Artifacts generated at {bold ${options.outputPath}} folder`,
+        chalkTemplate`  Artifacts generated at {bold ${options.outputPath}} folder`,
       );
       copySync(distFolder, options.outputPath);
     }
@@ -1127,7 +1129,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
         continue;
       }
 
-      this.logger.info(chalk`\nUpdating project {bold ${dep}}`);
+      this.logger.info(chalkTemplate`\nUpdating project {bold ${dep}}`);
       const depConfig = context.projectsConfigurations.projects[dep];
       runUv(['sync'], {
         cwd: depConfig.root,

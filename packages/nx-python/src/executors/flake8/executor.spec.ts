@@ -1,6 +1,6 @@
 import { vi, MockInstance } from 'vitest';
 import { vol } from 'memfs';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import '../../utils/mocks/fs.mock';
 import '../../utils/mocks/cross-spawn.mock';
 import * as poetryUtils from '../../provider/poetry/utils';
@@ -18,7 +18,7 @@ describe('Flake8 Executor', () => {
   let tmppath = null;
 
   beforeAll(() => {
-    console.log(chalk`init chalk`);
+    console.log(chalkTemplate`init chalk`);
   });
 
   afterEach(() => {

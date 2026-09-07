@@ -1,5 +1,5 @@
 import { ExecutorContext } from '@nx/devkit';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import { Logger } from '../utils/logger';
 import { Flake8ExecutorSchema } from './schema';
 import path from 'path';
@@ -17,7 +17,7 @@ export default async function executor(
   process.chdir(workspaceRoot);
   try {
     logger.info(
-      chalk`\n  {bold Running flake8 linting on project {bgBlue  ${context.projectName} }...}\n`,
+      chalkTemplate`\n  {bold Running flake8 linting on project {bgBlue  ${context.projectName} }...}\n`,
     );
 
     const projectConfig =
@@ -56,17 +56,19 @@ export default async function executor(
     const output = readFileSync(absPath, 'utf8');
     const lines = output.split('\n').length;
     if (lines > 1) {
-      logger.info(chalk`\n  {bgRed.bold  ERROR } linting issues\n${output}`);
+      logger.info(
+        chalkTemplate`\n  {bgRed.bold  ERROR } linting issues\n${output}`,
+      );
       return { success: false };
     }
 
-    logger.info(chalk`\n  {green All files pass linting.}\n`);
+    logger.info(chalkTemplate`\n  {green All files pass linting.}\n`);
 
     return {
       success: true,
     };
   } catch (error) {
-    logger.info(chalk`\n  {bgRed.bold  ERROR } ${error.message}\n`);
+    logger.info(chalkTemplate`\n  {bgRed.bold  ERROR } ${error.message}\n`);
     return {
       success: false,
     };

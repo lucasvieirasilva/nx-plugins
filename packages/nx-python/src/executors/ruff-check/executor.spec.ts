@@ -1,6 +1,6 @@
 import { vi, MockInstance } from 'vitest';
 import { vol } from 'memfs';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import '../../utils/mocks/fs.mock';
 import '../../utils/mocks/cross-spawn.mock';
 import * as poetryUtils from '../../provider/poetry/utils';
@@ -12,7 +12,7 @@ import { PoetryProvider } from '../../provider/poetry/provider';
 
 describe('Ruff Check Executor', () => {
   beforeAll(() => {
-    console.log(chalk`init chalk`);
+    console.log(chalkTemplate`init chalk`);
   });
 
   afterEach(() => {

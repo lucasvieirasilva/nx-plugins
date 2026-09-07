@@ -1,7 +1,7 @@
 import { InstallExecutorSchema } from './schema';
 import { Logger } from '../utils/logger';
 import { ExecutorContext } from '@nx/devkit';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import { getProvider } from '../../provider';
 
 const logger = new Logger();
@@ -26,7 +26,7 @@ export default async function executor(
       success: true,
     };
   } catch (error) {
-    logger.info(chalk`\n  {bgRed.bold  ERROR } ${error.message}\n`);
+    logger.info(chalkTemplate`\n  {bgRed.bold  ERROR } ${error.message}\n`);
     return {
       success: false,
     };

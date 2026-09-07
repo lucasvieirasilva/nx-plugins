@@ -8,7 +8,7 @@ import {
 } from '@nx/devkit';
 import * as path from 'path';
 import { parse, stringify } from '@iarna/toml';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import _ from 'lodash';
 import { UVPyprojectToml } from '../../provider/uv/types';
 import { DEV_DEPENDENCIES_VERSION_MAP } from '../consts';
@@ -247,9 +247,9 @@ async function updateRootUvLock(
   provider: BaseProvider<UVPyprojectToml>,
 ) {
   if (tree.exists('pyproject.toml')) {
-    console.log(chalk`  Updating root {bgBlue uv.lock}...`);
+    console.log(chalkTemplate`  Updating root {bgBlue uv.lock}...`);
     await provider.install();
-    console.log(chalk`\n  {bgBlue uv.lock} updated.\n`);
+    console.log(chalkTemplate`\n  {bgBlue uv.lock} updated.\n`);
   }
 }
 

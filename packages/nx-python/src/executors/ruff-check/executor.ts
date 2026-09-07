@@ -1,5 +1,5 @@
 import { ExecutorContext } from '@nx/devkit';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import { Logger } from '../utils/logger';
 import { RuffCheckExecutorSchema } from './schema';
 import { getProvider } from '../../provider';
@@ -15,7 +15,7 @@ export default async function executor(
   process.chdir(workspaceRoot);
   try {
     logger.info(
-      chalk`\n{bold Running ruff check on project {bgBlue  ${context.projectName} }...}\n`,
+      chalkTemplate`\n{bold Running ruff check on project {bgBlue  ${context.projectName} }...}\n`,
     );
 
     const projectConfig =
@@ -65,7 +65,7 @@ export default async function executor(
       success: true,
     };
   } catch (error) {
-    logger.info(chalk`\n  {bgRed.bold  ERROR } ${error.message}\n`);
+    logger.info(chalkTemplate`\n  {bgRed.bold  ERROR } ${error.message}\n`);
     return {
       success: false,
     };

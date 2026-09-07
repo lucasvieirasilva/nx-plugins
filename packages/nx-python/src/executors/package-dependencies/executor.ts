@@ -1,5 +1,5 @@
 import { ExecutorContext } from '@nx/devkit';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import { Logger } from '../utils/logger';
 import { ExecutorSchema } from './schema';
 import path from 'path';
@@ -63,7 +63,7 @@ export default async function executor(
 
   try {
     logger.info(
-      chalk`\n  {bold Packaging dependencies for project {bgBlue  ${context.projectName} } to {bgBlue  ${options.outputType} } }\n`,
+      chalkTemplate`\n  {bold Packaging dependencies for project {bgBlue  ${context.projectName} } to {bgBlue  ${options.outputType} } }\n`,
     );
 
     const targetDir =
@@ -103,10 +103,12 @@ export default async function executor(
       );
     }
 
-    logger.info(chalk`\n  {bold Installing dependencies...}\n`);
-    logger.info(chalk`  {bold Python version: ${options.pythonVersion} }`);
-    logger.info(chalk`  {bold ABI: ${options.abi} }`);
-    logger.info(chalk`  {bold Platform: ${options.platform} }`);
+    logger.info(chalkTemplate`\n  {bold Installing dependencies...}\n`);
+    logger.info(
+      chalkTemplate`  {bold Python version: ${options.pythonVersion} }`,
+    );
+    logger.info(chalkTemplate`  {bold ABI: ${options.abi} }`);
+    logger.info(chalkTemplate`  {bold Platform: ${options.platform} }`);
     const pipResult = spawn.sync(
       'pip',
       [
@@ -138,7 +140,7 @@ export default async function executor(
     }
 
     if (options.outputType === 'zip') {
-      logger.info(chalk`\n  {bold Creating zip file...}\n`);
+      logger.info(chalkTemplate`\n  {bold Creating zip file...}\n`);
 
       const outputDir = path.dirname(options.outputPath);
       if (!existsSync(outputDir)) {
@@ -164,21 +166,21 @@ export default async function executor(
       await new Promise((resolve, reject) => {
         outputStream.on('error', (err) => {
           logger.info(
-            chalk`\n  {bgRed.bold  ERROR } Error finalizing archive: ${err.message}\n`,
+            chalkTemplate`\n  {bgRed.bold  ERROR } Error finalizing archive: ${err.message}\n`,
           );
           reject(err);
         });
 
         outputStream.on('close', () => {
           logger.info(
-            chalk`\n  {bold Zip file created at {bgBlue  ${options.outputPath} } ${archive.pointer()} bytes }\n`,
+            chalkTemplate`\n  {bold Zip file created at {bgBlue  ${options.outputPath} } ${archive.pointer()} bytes }\n`,
           );
           resolve(undefined);
         });
       });
     } else {
       logger.info(
-        chalk`\n  {bold Folder created at {bgBlue  ${options.outputPath} } }\n`,
+        chalkTemplate`\n  {bold Folder created at {bgBlue  ${options.outputPath} } }\n`,
       );
     }
 
@@ -186,7 +188,7 @@ export default async function executor(
       success: true,
     };
   } catch (error) {
-    logger.info(chalk`\n  {bgRed.bold  ERROR } ${error.message}\n`);
+    logger.info(chalkTemplate`\n  {bgRed.bold  ERROR } ${error.message}\n`);
     return {
       success: false,
     };

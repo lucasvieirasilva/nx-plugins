@@ -1,5 +1,5 @@
 import { ExecutorContext } from '@nx/devkit';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import spawn from 'cross-spawn';
 import { Logger } from '../utils/logger';
 import { ExecutorSchema } from './schema';
@@ -34,7 +34,7 @@ export default async function executor(
 
   try {
     logger.info(
-      chalk`\n  {bold Running serverless framework deploy on project {bgBlue  ${context.projectName} }...}\n`,
+      chalkTemplate`\n  {bold Running serverless framework deploy on project {bgBlue  ${context.projectName} }...}\n`,
     );
 
     const distFolder = path.join(cwd, 'dist');
@@ -69,7 +69,7 @@ export default async function executor(
       success: true,
     };
   } catch (error) {
-    logger.info(chalk`\n  {bgRed.bold  ERROR } ${error.message}\n`);
+    logger.info(chalkTemplate`\n  {bgRed.bold  ERROR } ${error.message}\n`);
     return {
       success: false,
     };

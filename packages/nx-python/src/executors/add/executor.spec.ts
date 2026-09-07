@@ -6,7 +6,7 @@ import * as poetryUtils from '../../provider/poetry/utils';
 import { UVProvider } from '../../provider/uv/provider';
 import { PoetryProvider } from '../../provider/poetry/provider';
 import executor from './executor';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import { parseToml } from '../../provider/poetry/utils';
 import dedent from 'string-dedent';
 import spawn from 'cross-spawn';
@@ -14,7 +14,7 @@ import { ExecutorContext } from '@nx/devkit';
 
 describe('Add Executor', () => {
   beforeAll(() => {
-    console.log(chalk`init chalk`);
+    console.log(chalkTemplate`init chalk`);
   });
 
   afterEach(() => {

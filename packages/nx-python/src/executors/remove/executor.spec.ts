@@ -3,7 +3,7 @@ import { vol } from 'memfs';
 import '../../utils/mocks/fs.mock';
 import '../../utils/mocks/cross-spawn.mock';
 import * as poetryUtils from '../../provider/poetry/utils';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import executor from './executor';
 import dedent from 'string-dedent';
 import spawn from 'cross-spawn';
@@ -18,7 +18,7 @@ describe('Delete Executor', () => {
   });
 
   beforeAll(() => {
-    console.log(chalk`init chalk`);
+    console.log(chalkTemplate`init chalk`);
   });
 
   describe('poetry', () => {
