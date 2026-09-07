@@ -1,5 +1,5 @@
 import { ExecutorContext } from '@nx/devkit';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import { UpdateExecutorSchema } from './schema';
 import { getProvider } from '../../provider';
 
@@ -23,7 +23,7 @@ export default async function executor(
       success: true,
     };
   } catch (error) {
-    console.log(chalk`\n  {bgRed.bold  ERROR } ${error.message}\n`);
+    console.log(chalkTemplate`\n  {bgRed.bold  ERROR } ${error.message}\n`);
     return {
       success: false,
     };

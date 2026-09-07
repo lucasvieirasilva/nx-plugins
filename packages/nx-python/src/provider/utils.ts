@@ -1,6 +1,6 @@
 import toml, { JsonMap } from '@iarna/toml';
 import { ExecutorContext, Tree } from '@nx/devkit';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import { existsSync, readFileSync } from 'fs';
 import { sep } from 'node:path';
 
@@ -49,7 +49,7 @@ export function getLocalDependencyConfig(
     context.projectsConfigurations.projects[dependencyName];
   if (!dependencyConfig) {
     throw new Error(
-      chalk`project {bold ${dependencyName}} not found in the Nx workspace`,
+      chalkTemplate`project {bold ${dependencyName}} not found in the Nx workspace`,
     );
   }
   return dependencyConfig;

@@ -7,7 +7,7 @@ import {
 } from '@nx/devkit';
 import * as path from 'path';
 import { parse, stringify } from '@iarna/toml';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import _ from 'lodash';
 import {
   PoetryProvider,
@@ -202,10 +202,10 @@ async function updateRootPoetryLock(
   provider: BaseProvider<PoetryPyprojectToml>,
 ) {
   if (tree.exists('./pyproject.toml')) {
-    console.log(chalk`  Updating root {bgBlue poetry.lock}...`);
+    console.log(chalkTemplate`  Updating root {bgBlue poetry.lock}...`);
     await provider.lock();
     await provider.install();
-    console.log(chalk`\n  {bgBlue poetry.lock} updated.\n`);
+    console.log(chalkTemplate`\n  {bgBlue poetry.lock} updated.\n`);
   }
 }
 

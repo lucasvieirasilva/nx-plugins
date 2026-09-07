@@ -2,7 +2,7 @@ import { vi, MockInstance } from 'vitest';
 import { vol } from 'memfs';
 import '../../utils/mocks/fs.mock';
 import '../../utils/mocks/cross-spawn.mock';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import * as poetryUtils from '../../provider/poetry/utils';
 import executor from './executor';
 import spawn from 'cross-spawn';
@@ -34,7 +34,7 @@ describe('Serverless Framework Package Executor', () => {
   };
 
   beforeAll(() => {
-    console.log(chalk`init chalk`);
+    console.log(chalkTemplate`init chalk`);
   });
 
   afterEach(() => {

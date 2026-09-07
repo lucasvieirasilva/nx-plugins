@@ -6,7 +6,7 @@ import * as poetryUtils from '../../provider/poetry/utils';
 import * as buildExecutor from '../build/executor';
 import { ToxExecutorSchema } from './schema';
 import executor from './executor';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import spawn from 'cross-spawn';
 import { ExecutorContext } from '@nx/devkit';
 import { UVProvider } from '../../provider/uv';
@@ -41,7 +41,7 @@ describe('Tox Executor', () => {
   };
 
   beforeAll(() => {
-    console.log(chalk`init chalk`);
+    console.log(chalkTemplate`init chalk`);
   });
 
   beforeEach(() => {

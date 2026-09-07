@@ -10,7 +10,7 @@ import {
 import path from 'path';
 import { Schema } from './schema';
 import { parse, stringify } from '@iarna/toml';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import { PoetryPyprojectToml } from '../../provider/poetry';
 import { checkPoetryExecutable, runPoetry } from '../../provider/poetry/utils';
 
@@ -123,10 +123,10 @@ function updateRootPyprojectToml(
 
 function updateRootPoetryLock(host: Tree, normalizedOptions: NormalizedSchema) {
   if (host.exists('./pyproject.toml')) {
-    console.log(chalk`  Updating root {bgBlue poetry.lock}...`);
+    console.log(chalkTemplate`  Updating root {bgBlue poetry.lock}...`);
     const updateArgs = ['update', normalizedOptions.packageName];
     runPoetry(updateArgs, { log: false });
-    console.log(chalk`\n  {bgBlue poetry.lock} updated.\n`);
+    console.log(chalkTemplate`\n  {bgBlue poetry.lock} updated.\n`);
   }
 }
 

@@ -1,5 +1,5 @@
 import path from 'path';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import { Logger } from '../../../../executors/utils/logger';
 import { UVLockfile, UVLockfilePackage, UVPyprojectToml } from '../../types';
 import { getUvLockfile, getUvVersion, UV_EXECUTABLE } from '../../utils';
@@ -31,7 +31,7 @@ export class LockedDependencyResolver {
   ): UVPyprojectToml {
     const tab = getLoggingTab(1);
     const result: PackageDependency[] = [];
-    this.logger.info(chalk`  Resolving dependencies...`);
+    this.logger.info(chalkTemplate`  Resolving dependencies...`);
 
     const requirementsTxt = this.getProjectRequirementsTxt(
       devDependencies,
@@ -58,7 +58,7 @@ export class LockedDependencyResolver {
 
         if (!existsSync(dependencyPyprojectPath)) {
           this.logger.info(
-            chalk`    • Skipping local dependency {blue.bold ${dependencyPath}} as pyproject.toml not found`,
+            chalkTemplate`    • Skipping local dependency {blue.bold ${dependencyPath}} as pyproject.toml not found`,
           );
           continue;
         }
@@ -68,7 +68,7 @@ export class LockedDependencyResolver {
         );
 
         this.logger.info(
-          chalk`    • Adding {blue.bold ${projectData.project.name}} local dependency`,
+          chalkTemplate`    • Adding {blue.bold ${projectData.project.name}} local dependency`,
         );
 
         includeDependencyPackage(
@@ -83,7 +83,7 @@ export class LockedDependencyResolver {
       }
 
       this.logger.info(
-        chalk`    • Adding {blue.bold ${line.trim()}} dependency`,
+        chalkTemplate`    • Adding {blue.bold ${line.trim()}} dependency`,
       );
 
       result.push({
@@ -107,7 +107,7 @@ export class LockedDependencyResolver {
         .length > 0
     ) {
       if (!this.lockFileExists(projectRoot, workspaceRoot)) {
-        throw new Error(chalk`{bold uv.lock file not found`);
+        throw new Error(chalkTemplate`{bold uv.lock file not found`);
       }
 
       const lockData = getUvLockfile(
@@ -117,7 +117,7 @@ export class LockedDependencyResolver {
       );
 
       if (!lockData) {
-        throw new Error(chalk`{bold failed to get uv.lock file}`);
+        throw new Error(chalkTemplate`{bold failed to get uv.lock file}`);
       }
 
       for (const extra in buildTomlData.project['optional-dependencies']) {
@@ -149,7 +149,7 @@ export class LockedDependencyResolver {
         );
 
         this.logger.info(
-          chalk`${tab}• Extra: {blue.bold ${extra}} - {blue.bold ${resolvedDeps.join(
+          chalkTemplate`${tab}• Extra: {blue.bold ${extra}} - {blue.bold ${resolvedDeps.join(
             ', ',
           )}} Locked Dependencies`,
         );
@@ -196,7 +196,7 @@ export class LockedDependencyResolver {
 
       if (lockCmd.status !== 0) {
         throw new Error(
-          chalk`{bold failed to generate uv.lock file with exit code {bold ${lockCmd.status}}}`,
+          chalkTemplate`{bold failed to generate uv.lock file with exit code {bold ${lockCmd.status}}}`,
         );
       }
     }
@@ -209,7 +209,7 @@ export class LockedDependencyResolver {
 
     if (result.status !== 0) {
       throw new Error(
-        chalk`{bold failed to export requirements txt with exit code {bold ${result.status}}}`,
+        chalkTemplate`{bold failed to export requirements txt with exit code {bold ${result.status}}}`,
       );
     }
 
@@ -238,7 +238,7 @@ export class LockedDependencyResolver {
     const tab = getLoggingTab(level);
     for (const [dep, extras] of deps) {
       this.logger.info(
-        chalk`${tab}• Resolving dependency: {blue.bold ${dep.name}}`,
+        chalkTemplate`${tab}• Resolving dependency: {blue.bold ${dep.name}}`,
       );
 
       if (dep.source.editable) {
@@ -260,7 +260,7 @@ export class LockedDependencyResolver {
           );
 
           this.logger.info(
-            chalk`    • Adding {blue.bold ${projectData.project.name}} local dependency`,
+            chalkTemplate`    • Adding {blue.bold ${projectData.project.name}} local dependency`,
           );
 
           includeDependencyPackage(
@@ -308,7 +308,7 @@ export class LockedDependencyResolver {
             });
 
             this.logger.info(
-              chalk`${tab}• Resolving extra: {blue.bold ${extra}} - {blue.bold ${pkgDeps
+              chalkTemplate`${tab}• Resolving extra: {blue.bold ${extra}} - {blue.bold ${pkgDeps
                 .map(([pkgDep]) => pkgDep.name)
                 .join(', ')}} Locked Dependencies`,
             );

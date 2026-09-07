@@ -1,5 +1,5 @@
 import { ExecutorContext, ProjectConfiguration, Tree } from '@nx/devkit';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import spawn from 'cross-spawn';
 import path from 'path';
 import toml from '@iarna/toml';
@@ -140,9 +140,9 @@ export function runPoetry(
 
   if (log) {
     console.log(
-      chalk`{bold Running command}: ${commandStr} ${
+      chalkTemplate`{bold Running command}: ${commandStr} ${
         options.cwd && options.cwd !== '.'
-          ? chalk`at {bold ${options.cwd}} folder`
+          ? chalkTemplate`at {bold ${options.cwd}} folder`
           : ''
       }\n`,
     );
@@ -156,7 +156,7 @@ export function runPoetry(
 
   if (error && result.status !== 0) {
     throw new Error(
-      chalk`{bold ${commandStr}} command failed with exit code {bold ${result.status}}`,
+      chalkTemplate`{bold ${commandStr}} command failed with exit code {bold ${result.status}}`,
     );
   }
 }

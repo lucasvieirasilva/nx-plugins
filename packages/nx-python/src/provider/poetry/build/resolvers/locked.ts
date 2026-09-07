@@ -3,6 +3,7 @@ import { readFileSync, existsSync } from 'fs-extra';
 import path, { join, relative } from 'path';
 import { PoetryLock, PoetryLockPackage } from './types';
 import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import uri2path from 'file-uri-to-path';
 import { includeDependencyPackage, sanitizePackageName } from './utils';
 import { Logger } from '../../../../executors/utils/logger';
@@ -32,7 +33,7 @@ export class LockedDependencyResolver extends BaseDependencyResolver {
     devDependencies: boolean,
     workspaceRoot: string,
   ): PoetryPyprojectToml {
-    this.logger.info(chalk`  Resolving dependencies...`);
+    this.logger.info(chalkTemplate`  Resolving dependencies...`);
 
     const deps = this.resolveDependencies(
       devDependencies,
@@ -140,7 +141,7 @@ export class LockedDependencyResolver extends BaseDependencyResolver {
         dep.name = elements[0].split('==')[0];
         dep.version = elements[0].split('==')[1]?.trim();
         this.logger.info(
-          chalk`${tab}• Adding {blue.bold ${dep.name}==${dep.version}} dependency`,
+          chalkTemplate`${tab}• Adding {blue.bold ${dep.name}==${dep.version}} dependency`,
         );
         this.resolvePackageExtras(dep);
 
@@ -164,7 +165,7 @@ export class LockedDependencyResolver extends BaseDependencyResolver {
         );
 
         this.logger.info(
-          chalk`${tab}• Extra: {blue.bold ${extra}} - {blue.bold ${resolvedDeps.join(
+          chalkTemplate`${tab}• Extra: {blue.bold ${extra}} - {blue.bold ${resolvedDeps.join(
             ', ',
           )}} Locked Dependencies`,
         );
@@ -195,7 +196,7 @@ export class LockedDependencyResolver extends BaseDependencyResolver {
     ) {
       const warning = chalk.bgHex('#FFA500');
       console.log(
-        chalk`{bold ${warning(' WARNING ')} Poetry export plugin is not installed, installing it now...}`,
+        chalkTemplate`{bold ${warning(' WARNING ')} Poetry export plugin is not installed, installing it now...}`,
       );
 
       runPoetry(['self', 'add', 'poetry-plugin-export'], { cwd: root });
@@ -270,7 +271,7 @@ export class LockedDependencyResolver extends BaseDependencyResolver {
       const pyprojectToml = path.join(location, 'pyproject.toml');
       if (!existsSync(pyprojectToml)) {
         throw new Error(
-          chalk`pyproject.toml not found in {blue.bold ${location}}`,
+          chalkTemplate`pyproject.toml not found in {blue.bold ${location}}`,
         );
       }
 
@@ -309,7 +310,7 @@ export class LockedDependencyResolver extends BaseDependencyResolver {
     );
     if (!lockedPkg) {
       throw new Error(
-        chalk`Package {blue.bold ${resolvedPkgName}} not found in poetry.lock`,
+        chalkTemplate`Package {blue.bold ${resolvedPkgName}} not found in poetry.lock`,
       );
     }
     return lockedPkg;
@@ -329,7 +330,7 @@ export class LockedDependencyResolver extends BaseDependencyResolver {
       readFileSync(pyprojectToml).toString('utf-8'),
     ) as PoetryPyprojectToml;
     this.logger.info(
-      chalk`${tab}• Adding {blue.bold ${packageName}} local dependency`,
+      chalkTemplate`${tab}• Adding {blue.bold ${packageName}} local dependency`,
     );
     includeDependencyPackage(
       tomlData,
@@ -353,7 +354,7 @@ export class LockedDependencyResolver extends BaseDependencyResolver {
     }
 
     this.logger.info(
-      chalk`${tab}• Adding {blue.bold ${dep.name}==${dep.git}@${lockedPkg.source.reference}} dependency`,
+      chalkTemplate`${tab}• Adding {blue.bold ${dep.name}==${dep.git}@${lockedPkg.source.reference}} dependency`,
     );
 
     deps.push(dep);
@@ -368,7 +369,7 @@ export class LockedDependencyResolver extends BaseDependencyResolver {
     const tab = getLoggingTab(level);
     for (const dep of deps) {
       this.logger.info(
-        chalk`${tab}• Resolving dependency: {blue.bold ${dep.name}}`,
+        chalkTemplate`${tab}• Resolving dependency: {blue.bold ${dep.name}}`,
       );
       if (
         dep.source?.type !== 'directory' &&
@@ -389,7 +390,7 @@ export class LockedDependencyResolver extends BaseDependencyResolver {
       optionalPkgDeps.forEach((pkgDep) => resolvedDeps.push(pkgDep.name));
       if (optionalPkgDeps.length > 0) {
         this.logger.info(
-          chalk`${tab}• Resolved Dependencies: {blue.bold ${optionalPkgDeps
+          chalkTemplate`${tab}• Resolved Dependencies: {blue.bold ${optionalPkgDeps
             .map((pkgDep) => pkgDep.name)
             .join(' ')}}`,
         );

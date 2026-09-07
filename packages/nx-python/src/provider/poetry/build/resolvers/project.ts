@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import { join, normalize, relative, resolve } from 'path';
 import { readFileSync } from 'fs-extra';
 import { parse } from '@iarna/toml';
@@ -53,7 +53,7 @@ export class ProjectDependencyResolver extends BaseDependencyResolver {
     buildFolderPath: string,
     buildTomlData: PoetryPyprojectToml,
   ): PoetryPyprojectToml {
-    this.logger.info(chalk`  Resolving dependencies...`);
+    this.logger.info(chalkTemplate`  Resolving dependencies...`);
 
     return this.updatePyproject(root, buildTomlData, buildFolderPath);
   }
@@ -122,7 +122,7 @@ export class ProjectDependencyResolver extends BaseDependencyResolver {
       if (typeof data === 'string') {
         if (!loggedDependencies) {
           this.logger.info(
-            chalk`${tab}• Adding {blue.bold ${name}@${data}} dependency`,
+            chalkTemplate`${tab}• Adding {blue.bold ${name}@${data}} dependency`,
           );
           loggedDependencies.push(name);
         }
@@ -155,7 +155,7 @@ export class ProjectDependencyResolver extends BaseDependencyResolver {
           // Log the dependency being added (avoid duplicates)
           if (!loggedDependencies.includes(packageName)) {
             this.logger.info(
-              chalk`${tab}• Adding {blue.bold ${packageName}} local dependency`,
+              chalkTemplate`${tab}• Adding {blue.bold ${packageName}} local dependency`,
             );
             loggedDependencies.push(packageName);
           }
@@ -235,7 +235,7 @@ export class ProjectDependencyResolver extends BaseDependencyResolver {
 
               if (!loggedDependencies.includes(depName)) {
                 this.logger.info(
-                  chalk`${tab}• Adding {blue.bold ${depName}@${typeof depData === 'string' ? depData : depData.version}} dependency`,
+                  chalkTemplate`${tab}• Adding {blue.bold ${depName}@${typeof depData === 'string' ? depData : depData.version}} dependency`,
                 );
                 loggedDependencies.push(depName);
               }
@@ -328,7 +328,7 @@ export class ProjectDependencyResolver extends BaseDependencyResolver {
 
           if (!loggedDependencies.includes(name)) {
             this.logger.info(
-              chalk`${tab}• Adding {blue.bold ${name}@${depPyproject.tool.poetry.version}} local dependency`,
+              chalkTemplate`${tab}• Adding {blue.bold ${name}@${depPyproject.tool.poetry.version}} local dependency`,
             );
             loggedDependencies.push(name);
           }
@@ -337,7 +337,7 @@ export class ProjectDependencyResolver extends BaseDependencyResolver {
         // Step 7: This is an external dependency - just log it
         if (!loggedDependencies.includes(name)) {
           this.logger.info(
-            chalk`${tab}• Adding {blue.bold ${name}${data.version ? `@${data.version}` : data.git ? ` ${data.git}@${data.rev}` : ''}} dependency`,
+            chalkTemplate`${tab}• Adding {blue.bold ${name}${data.version ? `@${data.version}` : data.git ? ` ${data.git}@${data.rev}` : ''}} dependency`,
           );
           loggedDependencies.push(name);
         }
@@ -458,7 +458,7 @@ export class ProjectDependencyResolver extends BaseDependencyResolver {
       const newName = `${name}-${hash}`;
 
       this.logger.info(
-        chalk`  Duplicate source for {blue.bold ${name}} renamed to ${newName}`,
+        chalkTemplate`  Duplicate source for {blue.bold ${name}} renamed to ${newName}`,
       );
 
       if (sources.find((s) => s.name === newName)) {

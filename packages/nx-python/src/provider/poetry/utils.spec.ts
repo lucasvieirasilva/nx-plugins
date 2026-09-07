@@ -11,13 +11,13 @@ vi.mock('command-exists', () => {
 });
 
 import * as poetryUtils from './utils';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import spawn from 'cross-spawn';
 import commandExists from 'command-exists';
 
 describe('Poetry Utils', () => {
   beforeAll(() => {
-    console.log(chalk`init chalk`);
+    console.log(chalkTemplate`init chalk`);
   });
 
   afterEach(() => {

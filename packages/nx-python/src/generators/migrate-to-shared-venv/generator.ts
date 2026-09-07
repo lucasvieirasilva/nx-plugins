@@ -9,7 +9,7 @@ import {
 import path from 'path';
 import { Schema } from './schema';
 import { parse, stringify } from '@iarna/toml';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import { PoetryPyprojectToml } from '../../provider/poetry';
 import { UVPyprojectToml } from '../../provider/uv/types';
 import { getProvider } from '../../provider';
@@ -124,10 +124,10 @@ function movePoetryDevDependencies(
 
   return async () => {
     console.log(
-      chalk`  Updating ${pyprojectToml.tool.poetry.name} {bgBlue poetry.lock}...`,
+      chalkTemplate`  Updating ${pyprojectToml.tool.poetry.name} {bgBlue poetry.lock}...`,
     );
     await provider.lock(projectConfig.root);
-    console.log(chalk`\n  {bgBlue poetry.lock} updated.\n`);
+    console.log(chalkTemplate`\n  {bgBlue poetry.lock} updated.\n`);
   };
 }
 

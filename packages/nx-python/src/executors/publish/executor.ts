@@ -1,6 +1,6 @@
 import { ExecutorContext } from '@nx/devkit';
 import { PublishExecutorSchema } from './schema';
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import { Logger } from '../utils/logger';
 import { getProvider } from '../../provider';
 
@@ -28,7 +28,7 @@ export default async function executor(
     };
   } catch (error) {
     logger.info(
-      chalk`\n  {bgRed.bold  ERROR } {bold The publish command failed}:\n\n  {bold ${error.message}}\n`,
+      chalkTemplate`\n  {bgRed.bold  ERROR } {bold The publish command failed}:\n\n  {bold ${error.message}}\n`,
     );
 
     return {

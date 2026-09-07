@@ -54,7 +54,7 @@ vi.mock('child_process', async (importOriginal) => {
   };
 });
 
-import chalk from 'chalk';
+import chalkTemplate from 'chalk-template';
 import * as poetryUtils from '../../provider/poetry/utils';
 import executor from './executor';
 import { EventEmitter } from 'events';
@@ -65,7 +65,7 @@ import { PoetryProvider } from '../../provider/poetry/provider';
 
 describe('Publish Executor', () => {
   beforeAll(() => {
-    console.log(chalk`init chalk`);
+    console.log(chalkTemplate`init chalk`);
   });
 
   afterEach(() => {
