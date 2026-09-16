@@ -1,3 +1,14 @@
+## 23.1.0 (2026-09-16)
+
+### 🚀 Features
+
+- **nx-python:** publish local dependencies with a version range ([3223045](https://github.com/lucasvieirasilva/nx-plugins/commit/3223045))
+
+### ❤️ Thank You
+
+- Claude Opus 5 (1M context)
+- Lucas Vieira @lucasvieirasilva
+
 ## 23.0.3 (2026-09-16)
 
 ### 🩹 Fixes
