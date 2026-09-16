@@ -25,9 +25,9 @@ export const getProvider = async (
   if (options?.packageManager) {
     switch (options.packageManager) {
       case 'poetry':
-        return new PoetryProvider(workspaceRoot, loggerInstance, tree);
+        return new PoetryProvider(workspaceRoot, loggerInstance, tree, options);
       case 'uv':
-        return new UVProvider(workspaceRoot, loggerInstance, tree);
+        return new UVProvider(workspaceRoot, loggerInstance, tree, options);
       default:
         throw new Error(
           `Plugin option "packageManager" must be either "poetry" or "uv". Received "${options.packageManager}".`,
@@ -44,9 +44,9 @@ export const getProvider = async (
   }
 
   if (uv) {
-    return new UVProvider(workspaceRoot, loggerInstance, tree);
+    return new UVProvider(workspaceRoot, loggerInstance, tree, options);
   } else {
-    return new PoetryProvider(workspaceRoot, loggerInstance, tree);
+    return new PoetryProvider(workspaceRoot, loggerInstance, tree, options);
   }
 };
 

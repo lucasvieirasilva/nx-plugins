@@ -631,6 +631,66 @@ To identify if the package is publishable, the executor checks `project.json` fi
 
 If the `publish` option is set to `false` and the `--bundleLocalDependencies=false` option is used, the executor will bundle the package.
 
+###### Publishing a local dependency with a version range
+
+By default the built distribution pins each local dependency to the exact version it was built against (`pymonorepo-lib1 = "1.0.0"`). That is right for an application, but a published library usually wants to declare the range of versions it supports, so it can be installed alongside a consumer that already depends on a different version of the same package.
+
+**uv** expresses this with a standard [PEP 621](https://peps.python.org/pep-0621/) specifier. Write the range in `project.dependencies` and keep `tool.uv.sources` for the local resolution; the build preserves whatever specifier you wrote:
+
+```toml
+[project]
+dependencies = ["pymonorepo-lib1>=1.0.0,<2.0.0"]
+
+[tool.uv.sources]
+pymonorepo-lib1 = { workspace = true }
+```
+
+**Poetry** has no equivalent, because a `path` dependency cannot carry a `version` and Poetry rejects unknown keys inside the dependency table. Declare the range under `tool.nx` instead, keyed by the dependency's package name:
+
+```toml
+  [tool.poetry.dependencies]
+  pymonorepo-lib1 = { path = "../lib1", develop = true }
+
+[tool.nx.dependencies.pymonorepo-lib1]
+range = ">=1.0.0,<2.0.0"
+```
+
+Both produce the same metadata in the built distribution:
+
+```
+Requires-Dist: pymonorepo-lib1 (>=1.0.0,<2.0.0)
+```
+
+The range only applies in publish mode (`--bundleLocalDependencies=false`), where the dependency is referenced by version rather than bundled. Without a declared range the exact-version pin is unchanged.
+
+###### Keeping a declared lower bound across releases
+
+When a local dependency is released, `nx release` raises the lower bound of the range to the version just released, so `>=1.0.0,<2.0.0` becomes `>=1.3.0,<2.0.0` after that dependency releases `1.3.0`. The ceiling is left alone. This is the default because the dependent was built and tested against the new version, and nothing guarantees the older one still works.
+
+If your libraries instead declare the widest range they are tested against, turn it off workspace-wide in `nx.json`:
+
+```json
+{
+  "plugins": [
+    {
+      "plugin": "@nxlv/python",
+      "options": {
+        "bumpLocalDependencyRange": false
+      }
+    }
+  ]
+}
+```
+
+A single project overrides the workspace setting in its own `pyproject.toml`:
+
+```toml
+[tool.nx]
+bumpLocalDependencyRange = false
+```
+
+This applies to both providers. Note that it does not change which projects `nx release` bumps: `updateDependents` still re-releases every dependent of a released project, regardless of whether the new version already satisfies the declared range.
+
 ###### Custom source specification
 
 In addition when adding dependencies in this way its also possible to configure a custom source for a package. This works similar to the `publish` option in that its specified on the target dependencies build options. To use this set the `customSourceName` and `customSourceUrl` to valid values for the source to retrieve the package from for each package stored on a custom Pypi.

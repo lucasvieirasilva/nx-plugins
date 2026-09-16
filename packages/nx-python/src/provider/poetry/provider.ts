@@ -16,6 +16,7 @@ import {
 } from '../base';
 import fs from 'fs';
 import path, { join } from 'path';
+import { PluginOptions } from '../../types';
 import { PoetryPyprojectToml, PoetryPyprojectTomlDependencies } from './types';
 import { AddExecutorSchema } from '../../executors/add/schema';
 import {
@@ -32,6 +33,7 @@ import {
 import chalkTemplate from 'chalk-template';
 import { parse, stringify } from '@iarna/toml';
 import { setTableStringValue } from '../toml-edit';
+import { rewriteVersionSpecifier } from '../version-utils';
 import { SpawnSyncOptions } from 'child_process';
 import { RemoveExecutorSchema } from '../../executors/remove/schema';
 import { UpdateExecutorSchema } from '../../executors/update/schema';
@@ -70,12 +72,24 @@ import { minimatch } from 'minimatch';
 import assert from 'node:assert';
 
 export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
-  constructor(workspaceRoot: string, logger: Logger, tree?: Tree) {
+  constructor(
+    workspaceRoot: string,
+    logger: Logger,
+    tree?: Tree,
+    pluginOptions?: PluginOptions,
+  ) {
     const isWorkspace = tree
       ? tree.exists(joinPathFragments(workspaceRoot, 'pyproject.toml'))
       : fs.existsSync(joinPathFragments(workspaceRoot, 'pyproject.toml'));
 
-    super(workspaceRoot, logger, isWorkspace, 'poetry.lock', tree);
+    super(
+      workspaceRoot,
+      logger,
+      isWorkspace,
+      'poetry.lock',
+      tree,
+      pluginOptions,
+    );
   }
 
   public async checkPrerequisites(): Promise<void> {
@@ -135,12 +149,88 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
     }
   }
 
-  public updateDependencyVersions(): string[] {
+  public updateDependencyVersions(
+    projectRoot: string,
+    dependencyVersions: Record<string, string>,
+  ): string[] {
     // Poetry references local workspace dependencies via `path`/`develop`, which
     // cannot carry a version specifier (path and version are mutually exclusive
-    // in Poetry). The published version is injected at build time from the
-    // dependency's own pyproject.toml, so there is nothing to rewrite here.
-    return [];
+    // in Poetry), so there is nothing to rewrite in `[tool.poetry.dependencies]`.
+    // A project that declared an explicit publish range under
+    // `[tool.nx.dependencies]` is a different matter: that range is what the
+    // built distribution will require, so it has to keep allowing the release.
+    if (Object.keys(dependencyVersions).length === 0) {
+      return [];
+    }
+
+    if (!this.shouldBumpLocalDependencyRange(projectRoot)) {
+      return [];
+    }
+
+    const pyprojectTomlPath = joinPathFragments(projectRoot, 'pyproject.toml');
+    const projectData = this.getPyprojectToml(projectRoot);
+    const declared = projectData?.tool?.nx?.dependencies;
+    if (!declared) {
+      return [];
+    }
+
+    const logMessages: string[] = [];
+    let changed = false;
+
+    for (const [packageName, newVersion] of Object.entries(
+      dependencyVersions,
+    )) {
+      const current = declared[packageName]?.range;
+      if (!current) {
+        continue;
+      }
+
+      const { changed: didChange, result } = rewriteVersionSpecifier(
+        current,
+        packageName,
+        newVersion,
+      );
+
+      if (!didChange) {
+        continue;
+      }
+
+      // Rewrite the literal in the original source so the document keeps its
+      // comments and formatting, falling back to the object round-trip.
+      const source = this.readPyprojectSource(pyprojectTomlPath);
+      const edited =
+        source !== null
+          ? setTableStringValue(
+              source,
+              `tool.nx.dependencies.${packageName}`,
+              'range',
+              result,
+            )
+          : { changed: false, result: '' };
+
+      if (edited.changed) {
+        this.writePyprojectSource(pyprojectTomlPath, edited.result);
+      } else {
+        // No literal to edit in the source (e.g. an inline table); fall back to
+        // rewriting the parsed document.
+        declared[packageName].range = result;
+        changed = true;
+      }
+
+      logMessages.push(
+        `✍️  Updated published range for ${packageName} to ${result} in manifest: ${pyprojectTomlPath}`,
+      );
+    }
+
+    if (changed) {
+      if (this.tree) {
+        writePyprojectToml(this.tree, pyprojectTomlPath, projectData);
+      } else {
+        writeFileSync(pyprojectTomlPath, stringify(projectData));
+      }
+    }
+
+    return logMessages;
   }
 
   public getDependencyMetadata(

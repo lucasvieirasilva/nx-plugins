@@ -105,6 +105,51 @@ export function rewriteDependencySpecifier(
     return unchanged;
   }
 
+  const { changed, result: rewrittenSpecifier } = rewriteVersionSpecifier(
+    trimmedSpecifier,
+    packageName,
+    newVersion,
+    `${name}${extras}`,
+  );
+
+  if (!changed) {
+    return unchanged;
+  }
+
+  return {
+    changed: true,
+    result: `${name}${extras}${rewrittenSpecifier}${
+      marker ? ` ${marker.trim()}` : ''
+    }`,
+  };
+}
+
+/**
+ * Rewrites a bare PEP 440 version specifier (no package name), e.g.
+ * `>=1.0.0,<2.0.0`, so the newly released version satisfies it.
+ *
+ * This is the operator-level half of {@link rewriteDependencySpecifier}, split
+ * out so the Poetry provider can apply identical semantics to the range it
+ * stores in `[tool.nx.dependencies]`. Poetry cannot express a range next to a
+ * `path` dependency, so its range lives outside the requirement string, but it
+ * must mean exactly what the uv provider's inline specifier means.
+ *
+ * @param specifier - The bare specifier to rewrite (e.g. `>=1.0.0,<2.0.0`).
+ * @param packageName - The package name being released, for error messages.
+ * @param newVersion - The newly released version (e.g. `1.4.0`).
+ * @param displayName - How to render the requirement in an error message.
+ */
+export function rewriteVersionSpecifier(
+  specifier: string,
+  packageName: string,
+  newVersion: string,
+  displayName = packageName,
+): RewriteSpecifierResult {
+  const trimmedSpecifier = specifier.trim();
+  if (!trimmedSpecifier) {
+    return { changed: false, result: specifier };
+  }
+
   let changed = false;
   const rewrittenClauses = trimmedSpecifier.split(',').map((rawClause) => {
     const clause = rawClause.trim();
@@ -142,19 +187,10 @@ export function rewriteDependencySpecifier(
   if (!satisfies(newVersion, rewrittenSpecifier)) {
     throw new Error(
       `Cannot update dependency "${packageName}" to version ${newVersion}: ` +
-        `the version constraint "${name}${extras}${rewrittenSpecifier}" does not allow ${newVersion}. ` +
+        `the version constraint "${displayName}${rewrittenSpecifier}" does not allow ${newVersion}. ` +
         `Please fix the version constraint for "${packageName}" in the manifest.`,
     );
   }
 
-  if (!changed) {
-    return unchanged;
-  }
-
-  return {
-    changed: true,
-    result: `${name}${extras}${rewrittenSpecifier}${
-      marker ? ` ${marker.trim()}` : ''
-    }`,
-  };
+  return { changed, result: rewrittenSpecifier };
 }
