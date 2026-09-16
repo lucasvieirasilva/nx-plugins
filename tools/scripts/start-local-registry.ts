@@ -7,6 +7,13 @@
 import { startLocalRegistry } from '@nx/js/plugins/jest/local-registry';
 import { releasePublish, releaseVersion } from 'nx/release';
 
+/**
+ * Environment variable carrying the `@nxlv/python` version published for this
+ * run, read by the specs' workspace harness. Vitest forks its workers after
+ * globalSetup, so a variable set here reaches them.
+ */
+export const E2E_VERSION_ENV = 'NXLV_PYTHON_E2E_VERSION';
+
 export default async () => {
   // local registry target to run
   const localRegistryTarget = '@nxlv/nx-plugins:local-registry';
@@ -33,8 +40,18 @@ export default async () => {
   // to be present for the target registry before it will publish.
   process.env['npm_config_//localhost:4873/:_authToken'] = 'e2e-fake-token';
 
+  // A unique version per run, recorded for the specs to install by exact
+  // version. Republishing a fixed version (e.g. `0.0.0-e2e`) looks like it
+  // works — the publish succeeds — but the scratch workspace then silently
+  // installs a STALE tarball, because pnpm keys its content-addressed store by
+  // name@version and caches the registry metadata behind the `e2e` dist-tag.
+  // Every code change since the first publish is invisible to the e2e, which
+  // passes or fails against code that is not the one under test.
+  const e2eVersion = `0.0.0-e2e-${Date.now()}`;
+  process.env[E2E_VERSION_ENV] = e2eVersion;
+
   await releaseVersion({
-    specifier: '0.0.0-e2e',
+    specifier: e2eVersion,
     stageChanges: false,
     gitCommit: false,
     gitTag: false,

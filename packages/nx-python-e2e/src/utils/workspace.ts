@@ -7,6 +7,29 @@ import { tmpdir } from 'os';
 // Must match the port of the `local-registry` target (see root package.json).
 const LOCAL_REGISTRY = 'http://localhost:4873';
 
+// Set by the globalSetup (tools/scripts/start-local-registry.ts) to the version
+// it just published.
+const E2E_VERSION_ENV = 'NXLV_PYTHON_E2E_VERSION';
+
+/**
+ * The exact `@nxlv/python` version published for this run.
+ *
+ * Installing by exact version rather than the `e2e` dist-tag is what keeps the
+ * scratch workspace honest: pnpm caches registry metadata, so a tag can resolve
+ * to a stale version, and it keys its content-addressed store by name@version,
+ * so a reused version serves a stale tarball. Either way the e2e would silently
+ * exercise code that is not the code under test.
+ */
+function publishedPluginSpec(): string {
+  const version = process.env[E2E_VERSION_ENV];
+  if (!version) {
+    throw new Error(
+      `${E2E_VERSION_ENV} is not set. The local registry globalSetup should publish a version and export it.`,
+    );
+  }
+  return version;
+}
+
 /** The active interpreter's `major.minor`, e.g. "3.12". */
 function detectPythonVersion(): string {
   const output = execSync('python --version', { encoding: 'utf-8' });
@@ -101,11 +124,14 @@ export function createTestWorkspace(
   );
 
   const workspaceFlag = existsSync(join(dir, 'pnpm-workspace.yaml')) ? 'w' : '';
-  execSync(`pnpm add -D${workspaceFlag} @nxlv/python@e2e`, {
-    cwd: dir,
-    stdio: 'inherit',
-    env: scratchEnv,
-  });
+  execSync(
+    `pnpm add -D${workspaceFlag} @nxlv/python@${publishedPluginSpec()}`,
+    {
+      cwd: dir,
+      stdio: 'inherit',
+      env: scratchEnv,
+    },
+  );
 
   // Register the plugin (needed for inferDependencies and to pin the package
   // manager for uv workspaces).
