@@ -108,6 +108,82 @@ describe('UVProvider', () => {
       ).toEqual(['lib1']);
     });
 
+    it('keeps the declared lower bound when the project opts out', () => {
+      const manifest = dedent`
+        [project]
+        name = "app1"
+        version = "1.3.0"
+        dependencies = [ "lib1>=1.0.0,<2.0.0" ]
+
+        [tool.nx]
+        bumpLocalDependencyRange = false
+
+        [tool.uv.sources.lib1]
+        workspace = true
+      `;
+      vol.fromJSON({ 'apps/app1/pyproject.toml': manifest });
+
+      const result = provider.updateDependencyVersions('apps/app1', {
+        lib1: '1.4.0',
+      });
+
+      expect(result).toEqual([]);
+      expect(vol.readFileSync('apps/app1/pyproject.toml', 'utf-8')).toBe(
+        manifest,
+      );
+    });
+
+    it('keeps the declared lower bound when the workspace opts out', () => {
+      const optedOut = new UVProvider('.', new Logger(), undefined, {
+        bumpLocalDependencyRange: false,
+      });
+      const manifest = dedent`
+        [project]
+        name = "app1"
+        version = "1.3.0"
+        dependencies = [ "lib1>=1.0.0,<2.0.0" ]
+
+        [tool.uv.sources.lib1]
+        workspace = true
+      `;
+      vol.fromJSON({ 'apps/app1/pyproject.toml': manifest });
+
+      const result = optedOut.updateDependencyVersions('apps/app1', {
+        lib1: '1.4.0',
+      });
+
+      expect(result).toEqual([]);
+      expect(vol.readFileSync('apps/app1/pyproject.toml', 'utf-8')).toBe(
+        manifest,
+      );
+    });
+
+    it('lets the project override the workspace opt-out', () => {
+      const optedOut = new UVProvider('.', new Logger(), undefined, {
+        bumpLocalDependencyRange: false,
+      });
+      vol.fromJSON({
+        'apps/app1/pyproject.toml': dedent`
+          [project]
+          name = "app1"
+          version = "1.3.0"
+          dependencies = [ "lib1>=1.0.0,<2.0.0" ]
+
+          [tool.nx]
+          bumpLocalDependencyRange = true
+
+          [tool.uv.sources.lib1]
+          workspace = true
+        `,
+      });
+
+      optedOut.updateDependencyVersions('apps/app1', { lib1: '1.4.0' });
+
+      expect(
+        optedOut.getPyprojectToml('apps/app1').project.dependencies,
+      ).toEqual(['lib1>=1.4.0,<2.0.0']);
+    });
+
     it('throws when the resulting specifier excludes the released version', () => {
       vol.fromJSON({
         'apps/app1/pyproject.toml': dedent`

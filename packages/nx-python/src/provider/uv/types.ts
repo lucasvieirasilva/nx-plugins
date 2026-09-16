@@ -15,6 +15,19 @@ export type UVPyprojectToml = {
     'build-backend'?: string;
   };
   tool?: {
+    nx?: {
+      /**
+       * Whether `nx release` raises the lower bound of a local dependency's
+       * version specifier to the version just released. Overrides the
+       * workspace-wide plugin option for this project only.
+       *
+       * uv expresses a local dependency's range in the standard
+       * `[project].dependencies` specifier (e.g. `mylib>=1.0.0,<2.0.0`), with
+       * `[tool.uv.sources]` supplying the local resolution, so there is no
+       * `tool.nx` range key here as there is for Poetry.
+       */
+      bumpLocalDependencyRange?: boolean;
+    };
     hatch?: {
       build?: {
         targets?: {

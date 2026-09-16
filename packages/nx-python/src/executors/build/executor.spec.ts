@@ -3057,6 +3057,107 @@ describe('Build Executor', () => {
         ).toStrictEqual({});
       });
 
+      it('should publish a local dependency with the range declared in tool.nx', async () => {
+        vol.fromJSON({
+          'apps/app/.venv/pyvenv.cfg': 'fake',
+          'apps/app/app/index.py': 'print("Hello from app")',
+          'apps/app/pyproject.toml': dedent`
+          [tool.poetry]
+          name = "app"
+          version = "1.0.0"
+            [[tool.poetry.packages]]
+            include = "app"
+
+            [tool.poetry.dependencies]
+            python = "^3.8"
+            click = "^7.1.2"
+            dep1 = { path = "../../libs/dep1" }
+
+            [tool.poetry.group.dev.dependencies]
+            pytest = "6.2.4"
+
+          [tool.nx.dependencies.dep1]
+          range = ">=1.0.0,<2.0.0"
+          `,
+
+          'apps/dep1/.venv/pyvenv.cfg': 'fake',
+          'apps/dep1/dep1/index.py': 'print("Hello from app")',
+          'libs/dep1/pyproject.toml': dedent`
+          [tool.poetry]
+          name = "dep1"
+          version = "1.0.0"
+            [[tool.poetry.packages]]
+            include = "dep1"
+
+            [tool.poetry.dependencies]
+            python = "^3.8"
+            numpy = "^1.21.0"
+          `,
+        });
+
+        vi.mocked(spawn.sync).mockImplementation((_, args, opts) => {
+          spawnBuildMockImpl(opts);
+          return {
+            status: 0,
+            output: [''],
+            pid: 0,
+            signal: null,
+            stderr: null,
+            stdout: null,
+          };
+        });
+
+        const options: BuildExecutorSchema = {
+          ignorePaths: ['.venv', '.tox', 'tests/'],
+          silent: false,
+          outputPath: 'dist/apps/app',
+          keepBuildFolder: true,
+          devDependencies: false,
+          lockedVersions: false,
+          bundleLocalDependencies: false,
+        };
+
+        const context: ExecutorContext = {
+          cwd: '',
+          root: '.',
+          isVerbose: false,
+          projectName: 'app',
+          projectsConfigurations: {
+            version: 2,
+            projects: {
+              app: {
+                root: 'apps/app',
+                targets: {},
+              },
+              dep1: {
+                root: 'libs/dep1',
+              },
+            },
+          },
+          nxJsonConfiguration: {},
+          projectGraph: {
+            dependencies: {},
+            nodes: {},
+          },
+        };
+
+        const output = await executor(options, context);
+
+        expect(output.success).toBe(true);
+
+        const projectTomlData = parse(
+          readFileSync(`${buildPath}/pyproject.toml`).toString('utf-8'),
+        ) as PoetryPyprojectToml;
+
+        // The declared range is published instead of the `==1.0.0` pin, so the
+        // wheel can be installed beside a consumer that wants another 1.x.
+        expect(projectTomlData.tool.poetry.dependencies).toStrictEqual({
+          python: '^3.8',
+          click: '^7.1.2',
+          dep1: '>=1.0.0,<2.0.0',
+        });
+      });
+
       it('should build the project without locked versions and bundle the local dependencies', async () => {
         vol.fromJSON({
           'apps/app/.venv/pyvenv.cfg': 'fake',

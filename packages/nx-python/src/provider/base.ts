@@ -19,6 +19,7 @@ import fs from 'fs';
 import chalkTemplate from 'chalk-template';
 import { parse } from '@iarna/toml';
 import { getPyprojectData, readPyprojectToml } from './utils';
+import { PluginOptions } from '../types';
 
 export type Dependency = {
   name: string;
@@ -77,6 +78,7 @@ export abstract class BaseProvider<TPyprojectToml> {
    * @param tree - Optional Nx {@link Tree}. When provided, file reads/writes go
    *   through the in-memory tree (generators); otherwise the real filesystem is
    *   used (executors).
+   * @param pluginOptions - Workspace-wide `@nxlv/python` options from `nx.json`.
    */
   constructor(
     protected readonly workspaceRoot: string,
@@ -84,7 +86,31 @@ export abstract class BaseProvider<TPyprojectToml> {
     public readonly isWorkspace: boolean,
     public readonly lockFileName: string,
     protected readonly tree?: Tree,
+    protected readonly pluginOptions: PluginOptions = {},
   ) {}
+
+  /**
+   * Whether `nx release` should raise the lower bound of a local dependency's
+   * version range to the version just released.
+   *
+   * A project's own `[tool.nx] bumpLocalDependencyRange` wins, so one library
+   * in a monorepo can keep its declared floor while the rest track the newest
+   * release. Otherwise the workspace-wide plugin option applies, and the
+   * default is `true` to preserve the historical behavior.
+   *
+   * @param projectRoot - Project root containing the `pyproject.toml`.
+   */
+  public shouldBumpLocalDependencyRange(projectRoot: string): boolean {
+    const projectData = this.getPyprojectToml(projectRoot) as {
+      tool?: { nx?: { bumpLocalDependencyRange?: boolean } };
+    };
+
+    return (
+      projectData?.tool?.nx?.bumpLocalDependencyRange ??
+      this.pluginOptions?.bumpLocalDependencyRange ??
+      true
+    );
+  }
 
   /**
    * Ensures the package manager executable (and any other prerequisite) is

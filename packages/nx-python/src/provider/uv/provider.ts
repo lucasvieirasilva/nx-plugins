@@ -41,13 +41,14 @@ import {
   readPyprojectToml,
   writePyprojectToml,
 } from '../utils';
-import { rewriteDependencySpecifier } from './version-utils';
+import { rewriteDependencySpecifier } from '../version-utils';
 import {
   replaceStringLiterals,
   setTableStringValue,
   StringLiteralReplacement,
 } from '../toml-edit';
 import { UVLockfile, UVPyprojectToml } from './types';
+import { PluginOptions } from '../../types';
 import toml from '@iarna/toml';
 import fs, { mkdirSync, readdirSync } from 'fs';
 import { tmpdir } from 'os';
@@ -66,14 +67,26 @@ import assert from 'node:assert';
 export class UVProvider extends BaseProvider<UVPyprojectToml> {
   protected _rootLockfile: UVLockfile;
 
-  constructor(workspaceRoot: string, logger: Logger, tree?: Tree) {
+  constructor(
+    workspaceRoot: string,
+    logger: Logger,
+    tree?: Tree,
+    pluginOptions?: PluginOptions,
+  ) {
     const lockFileName = 'uv.lock';
     const uvLockPath = joinPathFragments(workspaceRoot, lockFileName);
     const isWorkspace = tree
       ? tree.exists(uvLockPath)
       : fs.existsSync(uvLockPath);
 
-    super(workspaceRoot, logger, isWorkspace, lockFileName, tree);
+    super(
+      workspaceRoot,
+      logger,
+      isWorkspace,
+      lockFileName,
+      tree,
+      pluginOptions,
+    );
   }
 
   private get rootLockfile(): UVLockfile {
@@ -236,6 +249,13 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
     dependencyVersions: Record<string, string>,
   ): string[] {
     if (Object.keys(dependencyVersions).length === 0) {
+      return [];
+    }
+
+    // Opting out keeps the lower bound the project declared, so the published
+    // range stays the widest one it was tested against rather than narrowing to
+    // the newest sibling release.
+    if (!this.shouldBumpLocalDependencyRange(projectRoot)) {
       return [];
     }
 

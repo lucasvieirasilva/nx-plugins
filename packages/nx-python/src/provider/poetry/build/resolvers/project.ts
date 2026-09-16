@@ -315,20 +315,29 @@ export class ProjectDependencyResolver extends BaseDependencyResolver {
         } else {
           // Step 6: Handle publish mode - reference local dependency by version
           const source = this.addSource(pyproject, targetOptions);
+
+          // Step 6a: Prefer an explicit range from `[tool.nx.dependencies]`.
+          // Poetry cannot carry a version specifier next to `path`, so this is
+          // the only place a project can say which versions of the dependency
+          // its distribution actually supports. Falling back to the exact
+          // version keeps the historical `dep==1.2.3` behavior.
+          const declaredRange = pyproject.tool?.nx?.dependencies?.[name]?.range;
+          const versionSpec = declaredRange ?? depPyproject.tool.poetry.version;
+
           if (source) {
             // Add with custom source if specified
             targetDependencies[name] = {
-              version: depPyproject.tool.poetry.version,
+              version: versionSpec,
               source: source,
             };
           } else {
             // Add as simple version string
-            targetDependencies[name] = depPyproject.tool.poetry.version;
+            targetDependencies[name] = versionSpec;
           }
 
           if (!loggedDependencies.includes(name)) {
             this.logger.info(
-              chalkTemplate`${tab}• Adding {blue.bold ${name}@${depPyproject.tool.poetry.version}} local dependency`,
+              chalkTemplate`${tab}• Adding {blue.bold ${name}@${versionSpec}} local dependency`,
             );
             loggedDependencies.push(name);
           }
