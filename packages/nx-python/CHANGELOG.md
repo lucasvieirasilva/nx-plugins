@@ -1,3 +1,13 @@
+## 23.0.3 (2026-09-16)
+
+### 🩹 Fixes
+
+- **nx-python:** match pkg-sync manifest keys by package name ([51b1d93](https://github.com/lucasvieirasilva/nx-plugins/commit/51b1d93))
+
+### ❤️ Thank You
+
+- Lucas Vieira @lucasvieirasilva
+
 ## 23.0.2 (2026-09-07)
 
 ### 🩹 Fixes
