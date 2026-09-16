@@ -142,11 +142,7 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
 
     projectData.tool.poetry.version = newVersion;
 
-    if (this.tree) {
-      writePyprojectToml(this.tree, pyprojectTomlPath, projectData);
-    } else {
-      writeFileSync(pyprojectTomlPath, stringify(projectData));
-    }
+    this.writePyprojectDocument(pyprojectTomlPath, projectData);
   }
 
   public updateDependencyVersions(
@@ -175,62 +171,105 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
     }
 
     const logMessages: string[] = [];
-    let changed = false;
+    let documentChanged = false;
 
     for (const [packageName, newVersion] of Object.entries(
       dependencyVersions,
     )) {
-      const current = declared[packageName]?.range;
-      if (!current) {
+      const range = this.bumpDeclaredRange(declared, packageName, newVersion);
+      if (!range) {
         continue;
       }
 
-      const { changed: didChange, result } = rewriteVersionSpecifier(
-        current,
-        packageName,
-        newVersion,
-      );
-
-      if (!didChange) {
-        continue;
-      }
-
-      // Rewrite the literal in the original source so the document keeps its
-      // comments and formatting, falling back to the object round-trip.
-      const source = this.readPyprojectSource(pyprojectTomlPath);
-      const edited =
-        source !== null
-          ? setTableStringValue(
-              source,
-              `tool.nx.dependencies.${packageName}`,
-              'range',
-              result,
-            )
-          : { changed: false, result: '' };
-
-      if (edited.changed) {
-        this.writePyprojectSource(pyprojectTomlPath, edited.result);
-      } else {
+      if (
+        !this.writeDeclaredRangeInPlace(pyprojectTomlPath, packageName, range)
+      ) {
         // No literal to edit in the source (e.g. an inline table); fall back to
-        // rewriting the parsed document.
-        declared[packageName].range = result;
-        changed = true;
+        // rewriting the parsed document once the loop is done.
+        declared[packageName].range = range;
+        documentChanged = true;
       }
 
       logMessages.push(
-        `✍️  Updated published range for ${packageName} to ${result} in manifest: ${pyprojectTomlPath}`,
+        `✍️  Updated published range for ${packageName} to ${range} in manifest: ${pyprojectTomlPath}`,
       );
     }
 
-    if (changed) {
-      if (this.tree) {
-        writePyprojectToml(this.tree, pyprojectTomlPath, projectData);
-      } else {
-        writeFileSync(pyprojectTomlPath, stringify(projectData));
-      }
+    if (documentChanged) {
+      this.writePyprojectDocument(pyprojectTomlPath, projectData);
     }
 
     return logMessages;
+  }
+
+  /**
+   * Rewrites a declared publish range so it keeps allowing `newVersion`.
+   *
+   * @returns The new range, or `null` when the dependency declares none or the
+   *   existing range already allows the version.
+   */
+  private bumpDeclaredRange(
+    declared: Record<string, { range?: string }>,
+    packageName: string,
+    newVersion: string,
+  ): string | null {
+    const current = declared[packageName]?.range;
+    if (!current) {
+      return null;
+    }
+
+    const { changed, result } = rewriteVersionSpecifier(
+      current,
+      packageName,
+      newVersion,
+    );
+
+    return changed ? result : null;
+  }
+
+  /**
+   * Rewrites a declared range's literal in the manifest source, so the document
+   * keeps the comments and formatting a TOML round-trip would drop.
+   *
+   * @returns Whether the source could be edited in place.
+   */
+  private writeDeclaredRangeInPlace(
+    pyprojectTomlPath: string,
+    packageName: string,
+    range: string,
+  ): boolean {
+    const source = this.readPyprojectSource(pyprojectTomlPath);
+    if (source === null) {
+      return false;
+    }
+
+    const { changed, result } = setTableStringValue(
+      source,
+      `tool.nx.dependencies.${packageName}`,
+      'range',
+      range,
+    );
+    if (!changed) {
+      return false;
+    }
+
+    this.writePyprojectSource(pyprojectTomlPath, result);
+    return true;
+  }
+
+  /**
+   * Writes a parsed manifest back, through the {@link Tree} when there is one
+   * and the real filesystem otherwise.
+   */
+  private writePyprojectDocument(
+    pyprojectTomlPath: string,
+    projectData: PoetryPyprojectToml,
+  ): void {
+    if (this.tree) {
+      writePyprojectToml(this.tree, pyprojectTomlPath, projectData);
+    } else {
+      writeFileSync(pyprojectTomlPath, stringify(projectData));
+    }
   }
 
   public getDependencyMetadata(
