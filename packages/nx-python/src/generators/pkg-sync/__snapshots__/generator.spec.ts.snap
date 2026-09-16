@@ -37,6 +37,17 @@ develop = true
 "
 `;
 
+exports[`pkg-sync generator > poetry > workspace > should register a missing project in the root pyproject.toml using its package name 1`] = `
+"[tool.poetry]
+name = "workspace"
+version = "1.0.0"
+
+[tool.poetry.dependencies.my-org-task-runner]
+path = "libs/runner"
+develop = true
+"
+`;
+
 exports[`pkg-sync generator > poetry > workspace > should sync a project with a missing dependency 1`] = `
 "[tool.poetry]
 name = "app1"
@@ -127,6 +138,20 @@ members = [ "apps/app1", "libs/dep1" ]
 workspace = true
 
 [tool.uv.sources.dep1]
+workspace = true
+"
+`;
+
+exports[`pkg-sync generator > uv > workspace > should register a missing project in the root pyproject.toml using its package name 1`] = `
+"[project]
+name = "workspace"
+version = "1.0.0"
+dependencies = [ "my-org-task-runner" ]
+
+[tool.uv.workspace]
+members = [ "libs/runner" ]
+
+[tool.uv.sources.my-org-task-runner]
 workspace = true
 "
 `;

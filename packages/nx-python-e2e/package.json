@@ -2,6 +2,9 @@
   "name": "nx-python-e2e",
   "version": "0.0.1",
   "private": true,
+  "devDependencies": {
+    "@nxlv/python": "workspace:*"
+  },
   "nx": {
     "projectType": "application",
     "sourceRoot": "packages/nx-python-e2e/src",

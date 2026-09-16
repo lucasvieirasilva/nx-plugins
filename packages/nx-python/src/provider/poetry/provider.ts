@@ -370,14 +370,21 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
         this.tree,
         'pyproject.toml',
       );
-      if (!rootPyprojectToml.tool?.poetry?.dependencies?.[projectName]) {
+      // The root manifest references the project by the name it publishes
+      // under, which is not necessarily the Nx project name, and the entry may
+      // live in any dependency group rather than only in `main`.
+      const packageName = this.getPackageName(projectConfig.root, projectName);
+      const rootDependencies =
+        getAllDependenciesFromPyprojectToml(rootPyprojectToml);
+
+      if (!rootDependencies[packageName]) {
         rootPyprojectToml.tool.poetry.dependencies ??= {};
-        rootPyprojectToml.tool.poetry.dependencies[projectName] = {
+        rootPyprojectToml.tool.poetry.dependencies[packageName] = {
           path: projectConfig.root,
           develop: true,
         };
         writePyprojectToml(this.tree, 'pyproject.toml', rootPyprojectToml);
-        outOfSyncMessage += `Root pyproject.toml is out of sync. Missing dependency: ${projectName}\n`;
+        outOfSyncMessage += `Root pyproject.toml is out of sync. Missing dependency: ${packageName}\n`;
 
         if (missingDependencies.length === 0) {
           callbacks.push({

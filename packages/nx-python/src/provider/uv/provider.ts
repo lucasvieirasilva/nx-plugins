@@ -500,17 +500,24 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
     );
 
     for (const dependency of missingDependencies) {
+      const dependencyConfig = getLocalDependencyConfig(context, dependency);
+      // Manifests declare dependencies by the name the dependency publishes
+      // under, which is not necessarily its Nx project name.
+      const dependencyPackageName = this.getPackageName(
+        dependencyConfig.root,
+        dependency,
+      );
+
       pyprojectToml.project.dependencies ??= [];
-      pyprojectToml.project.dependencies.push(dependency);
+      pyprojectToml.project.dependencies.push(dependencyPackageName);
       if (this.isWorkspace) {
         pyprojectToml.tool ??= {};
         pyprojectToml.tool.uv ??= {};
         pyprojectToml.tool.uv.sources ??= {};
-        pyprojectToml.tool.uv.sources[dependency] = {
+        pyprojectToml.tool.uv.sources[dependencyPackageName] = {
           workspace: true,
         };
       } else {
-        const dependencyConfig = getLocalDependencyConfig(context, dependency);
         const dependencyPath = path.relative(
           projectConfig.root,
           dependencyConfig.root,
@@ -519,7 +526,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
         pyprojectToml.tool ??= {};
         pyprojectToml.tool.uv ??= {};
         pyprojectToml.tool.uv.sources ??= {};
-        pyprojectToml.tool.uv.sources[dependency] = {
+        pyprojectToml.tool.uv.sources[dependencyPackageName] = {
           path: dependencyPath,
         };
       }
@@ -534,11 +541,22 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
         this.tree,
         'pyproject.toml',
       );
-      if (!rootPyprojectToml.project.dependencies.includes(projectName)) {
-        rootPyprojectToml.project.dependencies ??= [];
-        rootPyprojectToml.project.dependencies.push(projectName);
+      // The root manifest references the project by the name it publishes
+      // under, which is not necessarily the Nx project name, and the entry may
+      // live in any dependency group rather than only in `project.dependencies`.
+      const packageName = this.getPackageName(projectConfig.root, projectName);
+      const rootDependencyNames = new Set(
+        [
+          ...(rootPyprojectToml.project?.dependencies ?? []),
+          ...Object.values(rootPyprojectToml['dependency-groups'] ?? {}).flat(),
+        ].map((dependency) => normalizeDependencyName(dependency)),
+      );
 
-        outOfSyncMessage += `Root pyproject.toml is out of sync. Missing dependency: ${projectName}\n`;
+      if (!rootDependencyNames.has(packageName)) {
+        rootPyprojectToml.project.dependencies ??= [];
+        rootPyprojectToml.project.dependencies.push(packageName);
+
+        outOfSyncMessage += `Root pyproject.toml is out of sync. Missing dependency: ${packageName}\n`;
         rootInstallCallback = true;
         callbacks.push({
           actions: ['sync-root'],
@@ -546,14 +564,14 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
         });
       }
 
-      if (!rootPyprojectToml.tool.uv.sources?.[projectName]) {
+      if (!rootPyprojectToml.tool.uv.sources?.[packageName]) {
         rootPyprojectToml.tool ??= {};
         rootPyprojectToml.tool.uv ??= {};
         rootPyprojectToml.tool.uv.sources ??= {};
-        rootPyprojectToml.tool.uv.sources[projectName] = {
+        rootPyprojectToml.tool.uv.sources[packageName] = {
           workspace: true,
         };
-        outOfSyncMessage += `Root pyproject.toml is out of sync. Missing source: ${projectName}\n`;
+        outOfSyncMessage += `Root pyproject.toml is out of sync. Missing source: ${packageName}\n`;
         if (!rootInstallCallback) {
           rootInstallCallback = true;
           callbacks.push({
@@ -582,7 +600,12 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
         }
       }
 
-      writePyprojectToml(this.tree, 'pyproject.toml', rootPyprojectToml);
+      // Only write when something actually changed: a round-trip through the
+      // TOML object model reformats the document, which Nx would then report as
+      // an out-of-sync workspace even though nothing was missing.
+      if (rootInstallCallback) {
+        writePyprojectToml(this.tree, 'pyproject.toml', rootPyprojectToml);
+      }
     }
 
     if (!this.isWorkspace && missingDependencies.length > 0) {

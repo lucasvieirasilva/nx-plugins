@@ -4,6 +4,9 @@
   "include": [],
   "references": [
     {
+      "path": "../nx-python"
+    },
+    {
       "path": "./tsconfig.spec.json"
     }
   ]

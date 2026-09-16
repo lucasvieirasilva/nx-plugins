@@ -753,6 +753,133 @@ describe('pkg-sync generator', () => {
 
         expect(tree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
       });
+
+      it('should not report the root project out of sync when it references the projects by their package name', async () => {
+        const projectGraph: ProjectGraph = {
+          nodes: {
+            app1: {
+              name: 'app1',
+              type: 'app',
+              data: {
+                root: 'apps/app1',
+                targets: {},
+              },
+            },
+            dep1: {
+              name: 'dep1',
+              type: 'lib',
+              data: {
+                root: 'libs/dep1',
+                targets: {},
+              },
+            },
+          },
+          dependencies: {
+            app1: [
+              {
+                target: 'dep1',
+                source: 'app1',
+                type: DependencyType.implicit,
+              },
+            ],
+          },
+        };
+
+        tree.write(
+          'pyproject.toml',
+          dedent`
+          [tool.poetry]
+          name = "workspace"
+          version = "1.0.0"
+
+          [tool.poetry.dependencies]
+          my-org-app1 = { path = "apps/app1", develop = true }
+
+          [tool.poetry.group.dev.dependencies]
+          my-org-dep1 = { path = "libs/dep1", develop = true }
+          `,
+        );
+
+        tree.write(
+          'apps/app1/pyproject.toml',
+          dedent`
+          [tool.poetry]
+          name = "my-org-app1"
+          version = "1.0.0"
+
+          [tool.poetry.dependencies]
+          my-org-dep1 = { path = "../../libs/dep1", develop = true }
+          `,
+        );
+        tree.write(
+          'libs/dep1/pyproject.toml',
+          dedent`
+          [tool.poetry]
+          name = "my-org-dep1"
+          version = "1.0.0"
+          `,
+        );
+
+        const rootPyprojectToml = tree.read('pyproject.toml', 'utf-8');
+
+        mocks.createProjectGraphAsync.mockResolvedValue(projectGraph);
+        const result = await syncGenerator(tree);
+
+        assert(result, 'result is not defined');
+        expect(result.outOfSyncMessage).toBe('');
+
+        await result.callback();
+
+        expect(spawn.sync).not.toHaveBeenCalled();
+        expect(tree.read('pyproject.toml', 'utf-8')).toBe(rootPyprojectToml);
+      });
+
+      it('should register a missing project in the root pyproject.toml using its package name', async () => {
+        const projectGraph: ProjectGraph = {
+          nodes: {
+            runner: {
+              name: 'runner',
+              type: 'lib',
+              data: {
+                root: 'libs/runner',
+                targets: {},
+              },
+            },
+          },
+          dependencies: {},
+        };
+
+        tree.write(
+          'pyproject.toml',
+          dedent`
+          [tool.poetry]
+          name = "workspace"
+          version = "1.0.0"
+          `,
+          // Intentionally missing the runner dependency
+        );
+
+        tree.write(
+          'libs/runner/pyproject.toml',
+          dedent`
+          [tool.poetry]
+          name = "my-org-task-runner"
+          version = "1.0.0"
+          `,
+        );
+
+        mocks.createProjectGraphAsync.mockResolvedValue(projectGraph);
+        const result = await syncGenerator(tree);
+
+        assert(result, 'result is not defined');
+        expect(result.outOfSyncMessage).toBe(
+          'Root pyproject.toml is out of sync. Missing dependency: my-org-task-runner\n',
+        );
+
+        await result.callback();
+
+        expect(tree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
+      });
     });
   });
   describe('uv', () => {
@@ -1376,6 +1503,195 @@ describe('pkg-sync generator', () => {
           shell: false,
           stdio: 'inherit',
         });
+
+        expect(tree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
+      });
+
+      it('should not report the root project out of sync when it references the projects by their package name', async () => {
+        const projectGraph: ProjectGraph = {
+          nodes: {
+            app1: {
+              name: 'app1',
+              type: 'app',
+              data: {
+                root: 'apps/app1',
+                targets: {},
+              },
+            },
+            dep1: {
+              name: 'dep1',
+              type: 'lib',
+              data: {
+                root: 'libs/dep1',
+                targets: {},
+              },
+            },
+          },
+          dependencies: {
+            app1: [
+              {
+                target: 'dep1',
+                source: 'app1',
+                type: DependencyType.implicit,
+              },
+            ],
+          },
+        };
+
+        tree.write(
+          'pyproject.toml',
+          dedent`
+          [project]
+          name = "workspace"
+          version = "1.0.0"
+
+          dependencies = [
+            "my-org-app1",
+          ]
+
+          [dependency-groups]
+          dev = [
+            "my-org-dep1",
+          ]
+
+          [tool.uv.workspace]
+          members = [
+            "apps/app1",
+            "libs/dep1",
+          ]
+
+          [tool.uv.sources]
+          my-org-app1 = { workspace = true }
+          my-org-dep1 = { workspace = true }
+          `,
+        );
+
+        tree.write(
+          'uv.lock',
+          dedent`
+          [[package]]
+          name = "my-org-app1"
+          version = "1.0.0"
+          source = { editable = "apps/app1" }
+          dependencies = [
+            { name = "my-org-dep1" },
+          ]
+
+          [package.metadata]
+          requires-dist = [
+            { name = "my-org-dep1", editable = "libs/dep1" },
+          ]
+
+          [[package]]
+          name = "my-org-dep1"
+          version = "1.0.0"
+          source = { editable = "libs/dep1" }
+          dependencies = []
+          `,
+        );
+
+        tree.write(
+          'apps/app1/pyproject.toml',
+          dedent`
+          [project]
+          name = "my-org-app1"
+          version = "1.0.0"
+          dependencies = [
+            "my-org-dep1",
+          ]
+
+          [tool.uv.sources]
+          my-org-dep1 = { workspace = true }
+          `,
+        );
+        tree.write(
+          'libs/dep1/pyproject.toml',
+          dedent`
+          [project]
+          name = "my-org-dep1"
+          version = "1.0.0"
+          dependencies = []
+          `,
+        );
+
+        const rootPyprojectToml = tree.read('pyproject.toml', 'utf-8');
+
+        mocks.createProjectGraphAsync.mockResolvedValue(projectGraph);
+        const result = await syncGenerator(tree);
+
+        assert(result, 'result is not defined');
+        expect(result.outOfSyncMessage).toBe('');
+
+        await result.callback();
+
+        expect(spawn.sync).not.toHaveBeenCalled();
+        expect(tree.read('pyproject.toml', 'utf-8')).toBe(rootPyprojectToml);
+      });
+
+      it('should register a missing project in the root pyproject.toml using its package name', async () => {
+        const projectGraph: ProjectGraph = {
+          nodes: {
+            runner: {
+              name: 'runner',
+              type: 'lib',
+              data: {
+                root: 'libs/runner',
+                targets: {},
+              },
+            },
+          },
+          dependencies: {},
+        };
+
+        tree.write(
+          'pyproject.toml',
+          dedent`
+          [project]
+          name = "workspace"
+          version = "1.0.0"
+
+          dependencies = []
+
+          [tool.uv.workspace]
+          members = []
+
+          [tool.uv.sources]
+          `,
+          // Intentionally missing the runner dependency
+        );
+
+        tree.write(
+          'uv.lock',
+          dedent`
+          [[package]]
+          name = "my-org-task-runner"
+          version = "1.0.0"
+          source = { editable = "libs/runner" }
+          dependencies = []
+          `,
+        );
+
+        tree.write(
+          'libs/runner/pyproject.toml',
+          dedent`
+          [project]
+          name = "my-org-task-runner"
+          version = "1.0.0"
+          dependencies = []
+          `,
+        );
+
+        mocks.createProjectGraphAsync.mockResolvedValue(projectGraph);
+        const result = await syncGenerator(tree);
+
+        assert(result, 'result is not defined');
+        expect(result.outOfSyncMessage).toBe(
+          'Root pyproject.toml is out of sync. Missing dependency: my-org-task-runner\n' +
+            'Root pyproject.toml is out of sync. Missing source: my-org-task-runner\n' +
+            'Root pyproject.toml is out of sync. Missing workspace member: libs/runner\n',
+        );
+
+        await result.callback();
 
         expect(tree.read('pyproject.toml', 'utf-8')).toMatchSnapshot();
       });
