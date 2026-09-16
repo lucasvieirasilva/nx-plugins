@@ -398,7 +398,11 @@ importers:
         specifier: ^0.20.8
         version: 0.20.8
 
-  packages/nx-python-e2e: {}
+  packages/nx-python-e2e:
+    devDependencies:
+      '@nxlv/python':
+        specifier: workspace:*
+        version: link:../nx-python
 
   packages/util:
     dependencies:

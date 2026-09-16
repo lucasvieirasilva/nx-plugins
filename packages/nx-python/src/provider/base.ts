@@ -172,6 +172,24 @@ export abstract class BaseProvider<TPyprojectToml> {
   abstract getMetadata(projectRoot: string): ProjectMetadata;
 
   /**
+   * Resolves the distribution name a project publishes under, i.e. the key
+   * every manifest must use when it declares a dependency on that project.
+   *
+   * The Nx project name and the package name are independent: a project named
+   * `runner` in the graph may declare `name = "my-org-task-runner"` in its
+   * manifest. Dependency keys must always be the package name, so callers that
+   * read or write manifests resolve the name through this helper instead of
+   * assuming the Nx project name.
+   *
+   * @param projectRoot - Project root containing the `pyproject.toml`.
+   * @param projectName - Nx project name, used as a fallback when the manifest
+   *   declares no name.
+   */
+  public getPackageName(projectRoot: string, projectName: string): string {
+    return this.getMetadata(projectRoot)?.name ?? projectName;
+  }
+
+  /**
    * Resolves the name, version and dependency group of a local dependency of a
    * project.
    *

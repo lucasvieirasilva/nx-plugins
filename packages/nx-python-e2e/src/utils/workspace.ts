@@ -1,3 +1,4 @@
+import { parse, stringify, JsonMap } from '@iarna/toml';
 import { execSync, ExecSyncOptions } from 'child_process';
 import { dirname, join } from 'path';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
@@ -45,6 +46,10 @@ export interface TestWorkspace {
   writeFile(relativePath: string, content: string): void;
   /** Serialize + write a JSON file relative to the workspace root. */
   writeJson(relativePath: string, content: unknown): void;
+  /** Read + parse a TOML file (e.g. a pyproject.toml) relative to the root. */
+  readToml<T = Record<string, unknown>>(relativePath: string): T;
+  /** Serialize + write a TOML file relative to the workspace root. */
+  writeToml(relativePath: string, content: unknown): void;
   /** Whether a path (relative to the workspace root) exists. */
   exists(relativePath: string): boolean;
   /** Remove the scratch workspace from disk. */
@@ -139,6 +144,10 @@ export function createTestWorkspace(
       writeFileSync(join(dir, relativePath), content),
     writeJson: (relativePath, content) =>
       writeFileSync(join(dir, relativePath), JSON.stringify(content, null, 2)),
+    readToml: <T = Record<string, unknown>>(relativePath: string): T =>
+      parse(readFileSync(join(dir, relativePath), 'utf-8')) as unknown as T,
+    writeToml: (relativePath, content) =>
+      writeFileSync(join(dir, relativePath), stringify(content as JsonMap)),
     exists: (relativePath) => existsSync(join(dir, relativePath)),
     cleanup: () => rmSync(dir, { recursive: true, force: true }),
   };
@@ -174,4 +183,37 @@ export function wheelRequirement(
     .split(';')[0]
     .replace(packageName, '')
     .trim();
+}
+
+/**
+ * Registers `@nxlv/python:pkg-sync` as a global sync generator so `nx sync` and
+ * `nx sync:check` run it for the whole workspace, rather than only for the
+ * projects whose `build` target opted in via `useSyncGenerators`.
+ */
+export function registerGlobalSyncGenerator(ws: TestWorkspace): void {
+  const nxJson = ws.readJson<{
+    sync?: { globalGenerators?: string[] };
+  }>('nx.json');
+  nxJson.sync = { globalGenerators: ['@nxlv/python:pkg-sync'] };
+  ws.writeJson('nx.json', nxJson);
+}
+
+/**
+ * Runs `nx sync:check` and reports whether the workspace is in sync along with
+ * the command output.
+ *
+ * `sync:check` exits non-zero when a sync generator reports drift, which makes
+ * `execSync` throw. The out-of-sync messages are on the thrown error's stdout /
+ * stderr, so they are collected here instead of being lost.
+ */
+export function runSyncCheck(ws: TestWorkspace): {
+  inSync: boolean;
+  output: string;
+} {
+  try {
+    return { inSync: true, output: ws.nx('sync:check') };
+  } catch (error) {
+    const { stdout, stderr } = error as { stdout?: string; stderr?: string };
+    return { inSync: false, output: `${stdout ?? ''}\n${stderr ?? ''}` };
+  }
 }
