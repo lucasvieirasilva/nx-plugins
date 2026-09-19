@@ -687,8 +687,14 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
         chalkTemplate`\n  {bold Publishing project {bgBlue  ${context.projectName} }...}\n`,
       );
 
+      // `--skip-existing` makes re-publishing an already released version a
+      // no-op instead of a failure. Poetry decides that from the HTTP status
+      // and body, and its table covers PyPI, pypiserver, Nexus, Artifactory and
+      // GitLab, which is why this is not done by matching the error text here:
+      // the wording belongs to the client and differs per registry.
       const commandArgs = [
         'publish',
+        '--skip-existing',
         ...(options.dryRun ? ['--dry-run'] : []),
         ...(options.__unparsed__ ?? []),
       ];
@@ -712,16 +718,6 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
     } catch (error) {
       if (buildFolderPath) {
         removeSync(buildFolderPath);
-      }
-
-      if (typeof error === 'object' && 'code' in error && 'output' in error) {
-        if (error.code !== 0 && error.output.includes('File already exists')) {
-          this.logger.info(
-            chalkTemplate`\n  {bgYellow.bold  WARNING } {bold The package is already published}\n`,
-          );
-
-          return;
-        }
       }
 
       throw error;

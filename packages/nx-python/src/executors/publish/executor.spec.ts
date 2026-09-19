@@ -185,12 +185,15 @@ describe('Publish Executor', () => {
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
       expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
-      expect(childProcessMocks.spawn).toHaveBeenCalledWith('poetry publish', {
-        cwd: 'tmp',
-        env: { ...process.env, FORCE_COLOR: 'true' },
-        shell: true,
-        stdio: ['inherit', 'pipe', 'pipe'],
-      });
+      expect(childProcessMocks.spawn).toHaveBeenCalledWith(
+        'poetry publish --skip-existing',
+        {
+          cwd: 'tmp',
+          env: { ...process.env, FORCE_COLOR: 'true' },
+          shell: true,
+          stdio: ['inherit', 'pipe', 'pipe'],
+        },
+      );
       expect(output.success).toBe(true);
       expect(nxDevkitMocks.runExecutor).toHaveBeenCalledWith(
         {
@@ -233,7 +236,7 @@ describe('Publish Executor', () => {
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
       expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(childProcessMocks.spawn).toHaveBeenCalledWith(
-        'poetry publish --repository aws',
+        'poetry publish --skip-existing --repository aws',
         {
           cwd: 'tmp',
           env: { ...process.env, FORCE_COLOR: 'true' },
@@ -283,7 +286,7 @@ describe('Publish Executor', () => {
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
       expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
       expect(childProcessMocks.spawn).toHaveBeenCalledWith(
-        'poetry publish -vvv --dry-run',
+        'poetry publish --skip-existing -vvv --dry-run',
         {
           cwd: 'tmp',
           env: { ...process.env, FORCE_COLOR: 'true' },
@@ -306,7 +309,7 @@ describe('Publish Executor', () => {
       expect(fsExtraMocks.removeSync).toHaveBeenCalledWith('tmp');
     });
 
-    it('should run poetry publish and not throw an exception when the message contains "File already exists"', async () => {
+    it('passes --skip-existing so a duplicate upload is not an error', async () => {
       nxDevkitMocks.runExecutor.mockResolvedValueOnce([
         { success: true, buildFolderPath: 'tmp' },
       ]);
@@ -324,25 +327,32 @@ describe('Publish Executor', () => {
         stdout: {
           on: vi.fn().mockImplementation((event, callback) => {
             stdoutEvent.on(event, callback);
-            stdoutEvent.emit(event, 'HTTP Error 400: File already exists');
+            stdoutEvent.emit(
+              event,
+              ' - Uploading app-1.0.0-py3-none-any.whl File exists. Skipping',
+            );
           }),
         },
         stderr: new EventEmitter(),
         on: vi.fn().mockImplementation((event, callback) => {
           spawnEvent.on(event, callback);
-          spawnEvent.emit('close', 1);
+          // Poetry exits 0 when --skip-existing absorbs the duplicate.
+          spawnEvent.emit('close', 0);
         }),
       });
 
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
       expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
-      expect(childProcessMocks.spawn).toHaveBeenCalledWith('poetry publish', {
-        cwd: 'tmp',
-        env: { ...process.env, FORCE_COLOR: 'true' },
-        shell: true,
-        stdio: ['inherit', 'pipe', 'pipe'],
-      });
+      expect(childProcessMocks.spawn).toHaveBeenCalledWith(
+        'poetry publish --skip-existing',
+        {
+          cwd: 'tmp',
+          env: { ...process.env, FORCE_COLOR: 'true' },
+          shell: true,
+          stdio: ['inherit', 'pipe', 'pipe'],
+        },
+      );
       expect(output.success).toBe(true);
       expect(nxDevkitMocks.runExecutor).toHaveBeenCalledWith(
         {
@@ -358,7 +368,7 @@ describe('Publish Executor', () => {
       expect(fsExtraMocks.removeSync).toHaveBeenCalledWith('tmp');
     });
 
-    it('should throw an exception when status code is not 0 and the message does not contains "File already exists"', async () => {
+    it('fails when the publish command exits non-zero', async () => {
       nxDevkitMocks.runExecutor.mockResolvedValueOnce([
         { success: true, buildFolderPath: 'tmp' },
       ]);
@@ -389,12 +399,15 @@ describe('Publish Executor', () => {
       const output = await executor(options, context);
       expect(checkPoetryExecutableMock).toHaveBeenCalled();
       expect(activateVenvMock).toHaveBeenCalledWith('.', false, context);
-      expect(childProcessMocks.spawn).toHaveBeenCalledWith('poetry publish', {
-        cwd: 'tmp',
-        env: { ...process.env, FORCE_COLOR: 'true' },
-        shell: true,
-        stdio: ['inherit', 'pipe', 'pipe'],
-      });
+      expect(childProcessMocks.spawn).toHaveBeenCalledWith(
+        'poetry publish --skip-existing',
+        {
+          cwd: 'tmp',
+          env: { ...process.env, FORCE_COLOR: 'true' },
+          shell: true,
+          stdio: ['inherit', 'pipe', 'pipe'],
+        },
+      );
       expect(output.success).toBe(false);
       expect(nxDevkitMocks.runExecutor).toHaveBeenCalledWith(
         {
