@@ -1,3 +1,14 @@
+## 23.1.1 (2026-09-19)
+
+### 🩹 Fixes
+
+- **nx-python:** skip already published files instead of matching the error text ([0e4f393](https://github.com/lucasvieirasilva/nx-plugins/commit/0e4f393))
+
+### ❤️ Thank You
+
+- Claude Opus 5 (1M context)
+- Lucas Vieira @lucasvieirasilva
+
 ## 23.1.0 (2026-09-16)
 
 ### 🚀 Features
