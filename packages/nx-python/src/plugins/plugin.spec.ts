@@ -1,6 +1,6 @@
 import '../utils/mocks/fs.mock';
 import { getProvider } from '../provider';
-import { createDependencies } from './plugin';
+import { createDependencies, createNodesV2 } from './plugin';
 import { vol } from 'memfs';
 
 import dedent from 'string-dedent';
@@ -1864,6 +1864,106 @@ describe('nx-python dependency graph', () => {
           },
         ]);
       });
+    });
+  });
+
+  describe('uv external nodes', () => {
+    beforeEach(() => {
+      vol.fromJSON({
+        'apps/app1/pyproject.toml': dedent`
+        [project]
+        name = "app1"
+        version = "0.1.0"
+        dependencies = ["httpx"]
+        `,
+        'pyproject.toml': '',
+        'uv.lock': dedent`
+        version = 1
+        requires-python = ">=3.12"
+
+        [[package]]
+        name = "app1"
+        version = "0.1.0"
+        source = { editable = "apps/app1" }
+        dependencies = [
+            { name = "httpx" },
+        ]
+
+        [[package]]
+        name = "httpx"
+        version = "0.27.0"
+        source = { registry = "https://pypi.org/simple" }
+        dependencies = [
+            { name = "idna" },
+        ]
+
+        [[package]]
+        name = "idna"
+        version = "3.7"
+        source = { registry = "https://pypi.org/simple" }
+        `,
+      });
+    });
+
+    const [pattern, createNodes] = createNodesV2;
+    const nodesContext = { workspaceRoot: '.', nxJsonConfiguration: {} };
+    const dependenciesContext = (externalNodes = {}) => ({
+      externalNodes,
+      workspaceRoot: '.',
+      projects: { app1: { root: 'apps/app1', targets: {} } },
+      nxJsonConfiguration: {},
+      fileMap: { nonProjectFiles: [], projectFileMap: {} },
+      filesToProcess: { nonProjectFiles: [], projectFileMap: {} },
+    });
+
+    it('should add the locked packages as external nodes when enabled', async () => {
+      expect(pattern).toBe('uv.lock');
+
+      const [[file, result]] = await createNodes(
+        ['uv.lock'],
+        { externalNodes: true },
+        nodesContext,
+      );
+
+      expect(file).toBe('uv.lock');
+      expect(Object.keys(result.externalNodes)).toStrictEqual([
+        'pypi:httpx',
+        'pypi:idna',
+      ]);
+    });
+
+    it('should add no external nodes by default', async () => {
+      expect(await createNodes(['uv.lock'], {}, nodesContext)).toStrictEqual(
+        [],
+      );
+    });
+
+    it('should make a member depend on every package it installs', async () => {
+      const [[, { externalNodes }]] = await createNodes(
+        ['uv.lock'],
+        { externalNodes: true },
+        nodesContext,
+      );
+
+      const result = await createDependencies(
+        { externalNodes: true },
+        dependenciesContext(externalNodes),
+      );
+
+      expect(result).toStrictEqual([
+        {
+          source: 'app1',
+          target: 'pypi:httpx',
+          type: 'static',
+          sourceFile: 'apps/app1/pyproject.toml',
+        },
+        {
+          source: 'app1',
+          target: 'pypi:idna',
+          type: 'static',
+          sourceFile: 'apps/app1/pyproject.toml',
+        },
+      ]);
     });
   });
 });

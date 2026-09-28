@@ -9,6 +9,7 @@ import {
   Dependency,
   DependencyProjectMetadata,
   BaseProvider,
+  LockGraph,
   ProjectMetadata,
   SyncGeneratorResult,
   SyncGeneratorCallback,
@@ -62,6 +63,7 @@ import { SyncExecutorSchema } from '../../executors/sync/schema';
 import semver from 'semver';
 import { minimatch } from 'minimatch';
 import { normalizeDependencyName } from './build/resolvers/utils';
+import { getUvLockGraph } from './lock-graph';
 import assert from 'node:assert';
 
 export class UVProvider extends BaseProvider<UVPyprojectToml> {
@@ -102,6 +104,18 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
 
   public async checkPrerequisites(): Promise<void> {
     await checkUvExecutable();
+  }
+
+  public override getLockGraph(): LockGraph | null {
+    if (!this.isWorkspace) {
+      return null;
+    }
+    const lockPath = joinPathFragments(this.workspaceRoot, this.lockFileName);
+    return getUvLockGraph(
+      this.tree
+        ? this.tree.read(lockPath, 'utf-8')
+        : fs.readFileSync(lockPath, 'utf-8'),
+    );
   }
 
   public getMetadata(projectRoot: string): ProjectMetadata {

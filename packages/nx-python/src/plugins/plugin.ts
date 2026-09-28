@@ -2,6 +2,8 @@ import {
   ImplicitDependency,
   DependencyType,
   CreateDependencies,
+  CreateNodesV2,
+  joinPathFragments,
   logger,
   StaticDependency,
   DynamicDependency,
@@ -16,6 +18,30 @@ import fs from 'node:fs';
 import { extractImportedModules, getPythonParser } from './infer';
 
 const cachedScannedFiles: Record<string, [string, string][]> = {};
+
+export const createNodesV2: CreateNodesV2<PluginOptions> = [
+  'uv.lock',
+  async (files, options, context) => {
+    if (!options?.externalNodes) {
+      return [];
+    }
+    const provider = await getProvider(
+      context.workspaceRoot,
+      undefined,
+      undefined,
+      undefined,
+      options,
+    );
+    const lockGraph = provider.getLockGraph();
+    if (!lockGraph) {
+      return [];
+    }
+    return files.map((file) => [
+      file,
+      { externalNodes: lockGraph.externalNodes },
+    ]);
+  },
+];
 
 export const createDependencies: CreateDependencies<PluginOptions> = async (
   options,
@@ -127,6 +153,24 @@ export const createDependencies: CreateDependencies<PluginOptions> = async (
           sourceFile: file,
         });
       });
+  }
+
+  if (options?.externalNodes) {
+    const lockGraph = provider.getLockGraph();
+    for (const project in context.projects) {
+      const { root } = context.projects[project];
+      for (const target of lockGraph?.memberDependencies[root] ?? []) {
+        if (!context.externalNodes[target]) {
+          continue;
+        }
+        result.push({
+          source: project,
+          target,
+          type: DependencyType.static,
+          sourceFile: joinPathFragments(root, 'pyproject.toml'),
+        });
+      }
+    }
   }
 
   return result;
