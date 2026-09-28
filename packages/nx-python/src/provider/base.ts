@@ -51,10 +51,12 @@ export type DependencyProjectMetadata = ProjectMetadata & {
 /**
  * The packages a workspace lock file pins, as Nx external nodes, and the names
  * of the ones each workspace member installs, keyed by the member's root.
+ * `lockFile` is the workspace-relative lock file those edges come from.
  */
 export type LockGraph = {
   externalNodes: Record<string, ProjectGraphExternalNode>;
   memberDependencies: Record<string, string[]>;
+  lockFile: string;
 };
 
 export type SyncGeneratorCallback = {

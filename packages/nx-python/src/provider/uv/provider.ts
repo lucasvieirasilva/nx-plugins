@@ -115,6 +115,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
       this.tree
         ? this.tree.read(lockPath, 'utf-8')
         : fs.readFileSync(lockPath, 'utf-8'),
+      this.lockFileName,
     );
   }
 

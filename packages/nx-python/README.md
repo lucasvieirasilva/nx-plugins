@@ -143,7 +143,7 @@ for Nx 20.x or higher, use the following pattern:
 
 By default the project graph knows nothing about the PyPI packages in a uv workspace, so the only way to make a Python project's task cache follow its dependencies is to list the whole `uv.lock` as an input, and any lock change invalidates every project.
 
-Set the `externalNodes` option to `true` to add each package in the root `uv.lock` to the graph as a `pypi:<name>` external node (`pypi:<name>@<version>` when uv locks a name at several versions), with each workspace member depending on every package it installs: its dependencies, the extras it asks for and its dependency groups. Nx then hashes only a project's own locked packages into its task hashes, the same way it does for npm packages, so `uv.lock` no longer needs to be an input.
+Set the `externalNodes` option to `true` to add each package in the root `uv.lock` to the graph as a `pypi:<name>` external node (`pypi:<name>@<version>` when uv locks a name at several versions, plus `#<source hash>` when it locks one version from several sources), with each workspace member depending on every package it installs: its dependencies, the extras it asks for and its dependency groups. Nx then hashes only a project's own locked packages into its task hashes, the same way it does for npm packages, so `uv.lock` no longer needs to be an input.
 
 ```json
 {

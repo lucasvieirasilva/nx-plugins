@@ -2,6 +2,7 @@ import '../utils/mocks/fs.mock';
 import { getProvider } from '../provider';
 import { createDependencies, createNodesV2 } from './plugin';
 import { vol } from 'memfs';
+import { ProjectGraphBuilder } from 'nx/src/project-graph/project-graph-builder';
 
 import dedent from 'string-dedent';
 
@@ -1907,12 +1908,18 @@ describe('nx-python dependency graph', () => {
 
     const [pattern, createNodes] = createNodesV2;
     const nodesContext = { workspaceRoot: '.', nxJsonConfiguration: {} };
-    const dependenciesContext = (externalNodes = {}) => ({
+    const dependenciesContext = (
+      externalNodes = {},
+      fileMap = {
+        nonProjectFiles: [{ file: 'uv.lock', hash: 'b' }],
+        projectFileMap: {},
+      },
+    ) => ({
       externalNodes,
       workspaceRoot: '.',
       projects: { app1: { root: 'apps/app1', targets: {} } },
       nxJsonConfiguration: {},
-      fileMap: { nonProjectFiles: [], projectFileMap: {} },
+      fileMap,
       filesToProcess: { nonProjectFiles: [], projectFileMap: {} },
     });
 
@@ -1955,14 +1962,85 @@ describe('nx-python dependency graph', () => {
           source: 'app1',
           target: 'pypi:httpx',
           type: 'static',
-          sourceFile: 'apps/app1/pyproject.toml',
+          sourceFile: 'uv.lock',
         },
         {
           source: 'app1',
           target: 'pypi:idna',
           type: 'static',
-          sourceFile: 'apps/app1/pyproject.toml',
+          sourceFile: 'uv.lock',
         },
+      ]);
+    });
+
+    it('should record the edges on uv.lock, whose cached copy Nx drops when the lock changes', async () => {
+      const [[, { externalNodes }]] = await createNodes(
+        ['uv.lock'],
+        { externalNodes: true },
+        nodesContext,
+      );
+      const dependencies = await createDependencies(
+        { externalNodes: true },
+        dependenciesContext(externalNodes),
+      );
+
+      // Nx keeps a file's edges on its FileData and restores them from cache
+      // for as long as that file's hash is unchanged.
+      const pyproject = { file: 'apps/app1/pyproject.toml', hash: 'a' };
+      const lockFile = { file: 'uv.lock', hash: 'b' };
+      const builder = new ProjectGraphBuilder(
+        undefined,
+        { app1: [pyproject] },
+        [lockFile],
+      );
+      builder.addNode({
+        name: 'app1',
+        type: 'lib',
+        data: { root: 'apps/app1' },
+      });
+      for (const node of Object.values(externalNodes)) {
+        builder.addExternalNode(node);
+      }
+      for (const dep of dependencies) {
+        builder.addDependency(
+          dep.source,
+          dep.target,
+          dep.type,
+          'sourceFile' in dep ? dep.sourceFile : undefined,
+        );
+      }
+
+      expect(pyproject).not.toHaveProperty('deps');
+      expect(lockFile).toHaveProperty('deps', [
+        ['app1', 'pypi:httpx', 'static'],
+        ['app1', 'pypi:idna', 'static'],
+      ]);
+      expect(
+        builder.getUpdatedProjectGraph().dependencies['app1'],
+      ).toStrictEqual([
+        { source: 'app1', target: 'pypi:httpx', type: 'static' },
+        { source: 'app1', target: 'pypi:idna', type: 'static' },
+      ]);
+    });
+
+    it('should add implicit edges when another project owns uv.lock', async () => {
+      const [[, { externalNodes }]] = await createNodes(
+        ['uv.lock'],
+        { externalNodes: true },
+        nodesContext,
+      );
+
+      const result = await createDependencies(
+        { externalNodes: true },
+        dependenciesContext(externalNodes, {
+          nonProjectFiles: [],
+          projectFileMap: { root: [{ file: 'uv.lock', hash: 'b' }] },
+        }),
+      );
+
+      expect(result).toStrictEqual([
+        { source: 'app1', target: 'pypi:httpx', type: 'implicit' },
+        { source: 'app1', target: 'pypi:idna', type: 'implicit' },
       ]);
     });
   });

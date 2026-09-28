@@ -6,6 +6,7 @@ import type { LockGraph } from '../base';
 type LockedDependency = {
   name: string;
   version?: string;
+  source?: Record<string, string>;
   extra?: string[];
 };
 
@@ -26,7 +27,10 @@ type LockedPackage = {
  * and dependency groups, the extras those ask for, and the same through any
  * other member it depends on.
  */
-export function getUvLockGraph(lockText: string): LockGraph {
+export function getUvLockGraph(
+  lockText: string,
+  lockFile = 'uv.lock',
+): LockGraph {
   const packages = (toml.parse(lockText).package ?? []) as LockedPackage[];
   const byName = new Map<string, LockedPackage[]>();
   for (const pkg of packages) {
@@ -35,12 +39,19 @@ export function getUvLockGraph(lockText: string): LockGraph {
 
   const isMember = (pkg: LockedPackage) =>
     pkg.source?.editable !== undefined || pkg.source?.virtual !== undefined;
-  // A name uv locks at several versions (per-platform forks) gets a node per
-  // version, the way @nx/js names nested npm versions.
-  const nodeName = (pkg: LockedPackage) =>
-    byName.get(pkg.name).length > 1
+  // uv can lock one name at several versions (per-platform forks), and even
+  // one version from several sources, so a node is named by as much of
+  // name, version and source as it takes to tell the copies apart.
+  const nodeName = (pkg: LockedPackage) => {
+    const copies = byName.get(pkg.name);
+    if (copies.length === 1) {
+      return `pypi:${pkg.name}`;
+    }
+    const sameVersion = copies.filter((copy) => copy.version === pkg.version);
+    return sameVersion.length === 1
       ? `pypi:${pkg.name}@${pkg.version}`
-      : `pypi:${pkg.name}`;
+      : `pypi:${pkg.name}@${pkg.version}#${hash(sourceKey(pkg.source)).slice(0, 8)}`;
+  };
 
   const externalNodes: Record<string, ProjectGraphExternalNode> = {};
   for (const pkg of packages) {
@@ -85,7 +96,7 @@ export function getUvLockGraph(lockText: string): LockGraph {
     const installed = new Set<string>();
     while (queue.length) {
       const [pkg, extra] = queue.pop();
-      const key = `${pkg.name}@${pkg.version}#${extra ?? ''}`;
+      const key = `${identity(pkg)}#${extra ?? ''}`;
       if (walked.has(key)) {
         continue;
       }
@@ -95,8 +106,15 @@ export function getUvLockGraph(lockText: string): LockGraph {
       }
       for (const dep of edges(pkg, extra)) {
         for (const target of byName.get(dep.name) ?? []) {
-          // A forked name's edge names the version it means.
+          // An edge to a name with several copies names the version and
+          // source it means.
           if (dep.version && target.version !== dep.version) {
+            continue;
+          }
+          if (
+            dep.source &&
+            sourceKey(dep.source) !== sourceKey(target.source)
+          ) {
             continue;
           }
           queue.push([target, null]);
@@ -109,7 +127,23 @@ export function getUvLockGraph(lockText: string): LockGraph {
     memberDependencies[memberRoot(member)] = [...installed].sort();
   }
 
-  return { externalNodes, memberDependencies };
+  return { externalNodes, memberDependencies, lockFile };
+}
+
+function sourceKey(source: Record<string, string> = {}): string {
+  return JSON.stringify(
+    Object.keys(source)
+      .sort()
+      .map((key) => [key, source[key]]),
+  );
+}
+
+function identity(pkg: LockedPackage): string {
+  return JSON.stringify([pkg.name, pkg.version, sourceKey(pkg.source)]);
+}
+
+function hash(value: string): string {
+  return createHash('sha256').update(value).digest('hex');
 }
 
 function memberRoot(pkg: LockedPackage): string {
@@ -120,14 +154,12 @@ function memberRoot(pkg: LockedPackage): string {
 }
 
 function hashPackage(pkg: LockedPackage): string {
-  return createHash('sha256')
-    .update(
-      JSON.stringify([
-        pkg.version,
-        pkg.source,
-        pkg.sdist?.hash,
-        (pkg.wheels ?? []).map((wheel) => wheel.hash),
-      ]),
-    )
-    .digest('hex');
+  return hash(
+    JSON.stringify([
+      pkg.version,
+      sourceKey(pkg.source),
+      pkg.sdist?.hash,
+      (pkg.wheels ?? []).map((wheel) => wheel.hash),
+    ]),
+  );
 }

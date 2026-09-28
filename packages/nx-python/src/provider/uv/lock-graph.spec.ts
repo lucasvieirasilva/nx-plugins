@@ -86,6 +86,57 @@ const lock = (uvloop = '0.19.0') => dedent`
   source = { registry = "https://pypi.org/simple" }
 `;
 
+// Written by `uv lock` (0.8.13) for a project taking demo 1.0.0 from one local
+// wheel on Linux and from another elsewhere.
+const twoSources = (
+  wheelB = '17caf46e2c8b7a805a4f8eb900375f368a1b68a94e34bdc4e87af6ab8f42f4c7',
+) => dedent`
+  version = 1
+  revision = 3
+  requires-python = ">=3.12"
+  resolution-markers = [
+      "sys_platform == 'linux'",
+      "sys_platform != 'linux'",
+  ]
+
+  [[package]]
+  name = "demo"
+  version = "1.0.0"
+  source = { path = "wheels-a/demo-1.0.0-py2.py3-none-any.whl" }
+  resolution-markers = [
+      "sys_platform == 'linux'",
+  ]
+  wheels = [
+      { filename = "demo-1.0.0-py2.py3-none-any.whl", hash = "sha256:0fbdc4c17930841dcff77436999762eb9de94f5ffb6afe2c9dbea87cb3504eff" },
+  ]
+
+  [[package]]
+  name = "demo"
+  version = "1.0.0"
+  source = { path = "wheels-b/demo-1.0.0-py2.py3-none-any.whl" }
+  resolution-markers = [
+      "sys_platform != 'linux'",
+  ]
+  wheels = [
+      { filename = "demo-1.0.0-py2.py3-none-any.whl", hash = "sha256:${wheelB}" },
+  ]
+
+  [[package]]
+  name = "root"
+  version = "0.1.0"
+  source = { virtual = "." }
+  dependencies = [
+      { name = "demo", version = "1.0.0", source = { path = "wheels-a/demo-1.0.0-py2.py3-none-any.whl" }, marker = "sys_platform == 'linux'" },
+      { name = "demo", version = "1.0.0", source = { path = "wheels-b/demo-1.0.0-py2.py3-none-any.whl" }, marker = "sys_platform != 'linux'" },
+  ]
+
+  [package.metadata]
+  requires-dist = [
+      { name = "demo", marker = "sys_platform != 'linux'", path = "wheels-b/demo-1.0.0-py2.py3-none-any.whl" },
+      { name = "demo", marker = "sys_platform == 'linux'", path = "wheels-a/demo-1.0.0-py2.py3-none-any.whl" },
+  ]
+`;
+
 describe('getUvLockGraph', () => {
   it('should add an external node per locked package and none for members', () => {
     const { externalNodes } = getUvLockGraph(lock());
@@ -135,5 +186,50 @@ describe('getUvLockGraph', () => {
       (name) => before[name].data.hash !== after[name].data.hash,
     );
     expect(changed).toStrictEqual(['pypi:uvloop']);
+  });
+
+  it('should keep packages that share a name and version but not a source apart', () => {
+    const { externalNodes, memberDependencies } = getUvLockGraph(twoSources());
+
+    const names = Object.keys(externalNodes);
+    expect(names).toHaveLength(2);
+    for (const name of names) {
+      expect(name).toMatch(/^pypi:demo@1\.0\.0#[0-9a-f]{8}$/);
+    }
+    expect(memberDependencies['.']).toStrictEqual([...names].sort());
+
+    const after = getUvLockGraph(twoSources('0'.repeat(64))).externalNodes;
+    const changed = names.filter(
+      (name) => externalNodes[name].data.hash !== after[name].data.hash,
+    );
+    expect(changed).toHaveLength(1);
+  });
+
+  it('should follow an edge only to the source it names', () => {
+    const before = getUvLockGraph(twoSources()).externalNodes;
+    const after = getUvLockGraph(twoSources('0'.repeat(64))).externalNodes;
+    const [wheelB] = Object.keys(before).filter(
+      (name) => before[name].data.hash !== after[name].data.hash,
+    );
+    const onlyA = twoSources()
+      .split('\n')
+      .filter(
+        (line) =>
+          !line.includes(
+            '{ name = "demo", version = "1.0.0", source = { path = "wheels-b/',
+          ),
+      )
+      .join('\n');
+
+    expect(getUvLockGraph(onlyA).memberDependencies['.']).toStrictEqual(
+      Object.keys(before).filter((name) => name !== wheelB),
+    );
+  });
+
+  it('should name the lock file the edges come from', () => {
+    expect(getUvLockGraph(lock()).lockFile).toBe('uv.lock');
+    expect(getUvLockGraph(lock(), 'python/uv.lock').lockFile).toBe(
+      'python/uv.lock',
+    );
   });
 });

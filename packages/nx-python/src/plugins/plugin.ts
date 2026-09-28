@@ -3,7 +3,6 @@ import {
   DependencyType,
   CreateDependencies,
   CreateNodesV2,
-  joinPathFragments,
   logger,
   StaticDependency,
   DynamicDependency,
@@ -157,18 +156,31 @@ export const createDependencies: CreateDependencies<PluginOptions> = async (
 
   if (options?.externalNodes) {
     const lockGraph = provider.getLockGraph();
+    const hasFile = (files: { file: string }[] | undefined) =>
+      !!lockGraph && (files ?? []).some((f) => f.file === lockGraph.lockFile);
+    const lockIsWorkspaceFile = hasFile(context.fileMap.nonProjectFiles);
     for (const project in context.projects) {
       const { root } = context.projects[project];
+      // The edges come from the lock file, not pyproject.toml: Nx restores an
+      // unchanged file's cached edges over freshly computed ones. When another
+      // project owns the lock file, no file of this project can carry them, so
+      // they go in as implicit edges, which Nx recomputes on every build.
+      const onLockFile =
+        lockIsWorkspaceFile || hasFile(context.fileMap.projectFileMap[project]);
       for (const target of lockGraph?.memberDependencies[root] ?? []) {
         if (!context.externalNodes[target]) {
           continue;
         }
-        result.push({
-          source: project,
-          target,
-          type: DependencyType.static,
-          sourceFile: joinPathFragments(root, 'pyproject.toml'),
-        });
+        result.push(
+          onLockFile
+            ? {
+                source: project,
+                target,
+                type: DependencyType.static,
+                sourceFile: lockGraph.lockFile,
+              }
+            : { source: project, target, type: DependencyType.implicit },
+        );
       }
     }
   }
