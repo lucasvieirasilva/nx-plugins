@@ -165,11 +165,12 @@ export const createDependencies: CreateDependencies<PluginOptions> = async (
   return result;
 };
 
-// Each member's edges to the packages it installs. They come from the lock
-// file, not pyproject.toml, because Nx restores an unchanged file's cached
-// edges over freshly computed ones. When another project owns the lock file,
-// no file of this project can carry them, so they go in as implicit edges,
-// which Nx recomputes on every build.
+// Each member's edges to the packages it installs. A project that owns its lock
+// file records them on it: they come from the lock, not pyproject.toml, and Nx
+// restores an unchanged file's cached edges over freshly computed ones. A
+// shared lock file cannot carry them, because Nx keeps one edge per target on
+// a workspace file whichever project added it, so there they go in as
+// implicit edges, which Nx recomputes on every build.
 function lockGraphDependencies(
   provider: Awaited<ReturnType<typeof getProvider>>,
   context: CreateDependenciesContext,
@@ -186,18 +187,14 @@ function lockGraphDependencies(
   if (!lockGraph) {
     return [];
   }
-  const workspaceFiles = new Set(nonProjectFiles.map(({ file }) => file));
-
   return Object.entries(context.projects).flatMap(([project, { root }]) => {
     const member = lockGraph.members[root];
     if (!member) {
       return [];
     }
-    const onLockFile =
-      workspaceFiles.has(member.lockFile) ||
-      (projectFileMap[project] ?? []).some(
-        ({ file }) => file === member.lockFile,
-      );
+    const onLockFile = (projectFileMap[project] ?? []).some(
+      ({ file }) => file === member.lockFile,
+    );
     return member.dependencies
       .filter((target) => context.externalNodes[target])
       .map((target) =>
