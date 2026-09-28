@@ -50,6 +50,7 @@ export const PY_VERSION_ARGS = `--pyprojectPythonDependency=">=3.9,<4" --pyenvPy
 export interface PluginRegistration {
   packageManager?: 'poetry' | 'uv';
   inferDependencies?: boolean;
+  externalNodes?: boolean;
 }
 
 export interface TestWorkspace {
@@ -141,6 +142,7 @@ export function createTestWorkspace(
   const options: PluginRegistration = {};
   if (plugin.packageManager) options.packageManager = plugin.packageManager;
   if (plugin.inferDependencies) options.inferDependencies = true;
+  if (plugin.externalNodes) options.externalNodes = true;
   nxJson.plugins.push(
     Object.keys(options).length > 0
       ? { plugin: '@nxlv/python', options }

@@ -2,6 +2,14 @@ export type PluginOptions = {
   packageManager?: 'poetry' | 'uv';
   inferDependencies?: boolean;
   /**
+   * Whether the packages in a uv workspace's `uv.lock` become `pypi` external
+   * nodes in the project graph, with each member depending on the ones it
+   * installs. Nx then hashes a member's own locked packages into its task
+   * hashes, so `uv.lock` no longer has to be an input of every project.
+   * Defaults to `false`. Poetry workspaces are not affected.
+   */
+  externalNodes?: boolean;
+  /**
    * Whether `nx release` raises the lower bound of a local workspace
    * dependency's version range to the version just released, so that
    * `>=1.0.0,<2.0.0` becomes `>=1.3.0,<2.0.0` when the dependency releases

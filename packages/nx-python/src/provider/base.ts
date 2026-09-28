@@ -2,6 +2,7 @@ import {
   ExecutorContext,
   joinPathFragments,
   ProjectConfiguration,
+  ProjectGraphExternalNode,
   Tree,
 } from '@nx/devkit';
 import { AddExecutorSchema } from '../executors/add/schema';
@@ -45,6 +46,16 @@ export type ProjectMetadata = {
 
 export type DependencyProjectMetadata = ProjectMetadata & {
   group?: string;
+};
+
+/**
+ * The packages a workspace's lock files pin, as Nx external nodes, and for each
+ * member (keyed by its root) the lock file its packages come from and the
+ * names of the nodes it installs.
+ */
+export type LockGraph = {
+  externalNodes: Record<string, ProjectGraphExternalNode>;
+  members: Record<string, { lockFile: string; dependencies: string[] }>;
 };
 
 export type SyncGeneratorCallback = {
@@ -100,6 +111,23 @@ export abstract class BaseProvider<TPyprojectToml> {
    *
    * @param projectRoot - Project root containing the `pyproject.toml`.
    */
+  /**
+   * The workspace's lock files as Nx external nodes, for the `externalNodes`
+   * plugin option. `lockFiles` are the workspace-relative lock files Nx found;
+   * `null` when none of them is one this provider reads.
+   */
+  abstract getLockGraph(lockFiles: string[]): LockGraph | null;
+
+  /**
+   * Reads a workspace-relative file, through the in-memory {@link Tree} when
+   * available.
+   */
+  protected readWorkspaceFile(path: string): string {
+    return this.tree
+      ? this.tree.read(joinPathFragments(this.workspaceRoot, path), 'utf-8')
+      : fs.readFileSync(joinPathFragments(this.workspaceRoot, path), 'utf-8');
+  }
+
   public shouldBumpLocalDependencyRange(projectRoot: string): boolean {
     const projectData = this.getPyprojectToml(projectRoot) as {
       tool?: { nx?: { bumpLocalDependencyRange?: boolean } };

@@ -9,6 +9,7 @@ import {
   Dependency,
   DependencyProjectMetadata,
   BaseProvider,
+  LockGraph,
   ProjectMetadata,
   SyncGeneratorResult,
   SyncGeneratorCallback,
@@ -62,6 +63,7 @@ import { SyncExecutorSchema } from '../../executors/sync/schema';
 import semver from 'semver';
 import { minimatch } from 'minimatch';
 import { normalizeDependencyName } from './build/resolvers/utils';
+import { getUvLockGraph } from './lock-graph';
 import assert from 'node:assert';
 
 export class UVProvider extends BaseProvider<UVPyprojectToml> {
@@ -102,6 +104,26 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
 
   public async checkPrerequisites(): Promise<void> {
     await checkUvExecutable();
+  }
+
+  public override getLockGraph(lockFiles: string[]): LockGraph | null {
+    // A uv workspace locks once at the root; otherwise every project locks on
+    // its own.
+    const uvLocks = lockFiles.filter((file) =>
+      this.isWorkspace
+        ? file === this.lockFileName
+        : path.posix.basename(file) === this.lockFileName,
+    );
+    if (!uvLocks.length) {
+      return null;
+    }
+    return getUvLockGraph(
+      uvLocks.map((file) => ({
+        path: file,
+        text: this.readWorkspaceFile(file),
+      })),
+      this.isWorkspace,
+    );
   }
 
   public getMetadata(projectRoot: string): ProjectMetadata {

@@ -1,7 +1,8 @@
 import '../utils/mocks/fs.mock';
 import { getProvider } from '../provider';
-import { createDependencies } from './plugin';
+import { createDependencies, createNodesV2 } from './plugin';
 import { vol } from 'memfs';
+import { ProjectGraphBuilder } from 'nx/src/project-graph/project-graph-builder';
 
 import dedent from 'string-dedent';
 
@@ -1864,6 +1865,265 @@ describe('nx-python dependency graph', () => {
           },
         ]);
       });
+    });
+  });
+
+  describe('uv external nodes', () => {
+    beforeEach(() => {
+      vol.fromJSON({
+        'apps/app1/pyproject.toml': dedent`
+        [project]
+        name = "app1"
+        version = "0.1.0"
+        dependencies = ["httpx"]
+        `,
+        'pyproject.toml': '',
+        'uv.lock': dedent`
+        version = 1
+        requires-python = ">=3.12"
+
+        [[package]]
+        name = "app1"
+        version = "0.1.0"
+        source = { editable = "apps/app1" }
+        dependencies = [
+            { name = "httpx" },
+        ]
+
+        [[package]]
+        name = "httpx"
+        version = "0.27.0"
+        source = { registry = "https://pypi.org/simple" }
+        dependencies = [
+            { name = "idna" },
+        ]
+
+        [[package]]
+        name = "idna"
+        version = "3.7"
+        source = { registry = "https://pypi.org/simple" }
+        `,
+      });
+    });
+
+    const [pattern, createNodes] = createNodesV2;
+    const nodesContext = { workspaceRoot: '.', nxJsonConfiguration: {} };
+    const dependenciesContext = (
+      externalNodes = {},
+      fileMap = {
+        nonProjectFiles: [{ file: 'uv.lock', hash: 'b' }],
+        projectFileMap: {},
+      },
+    ) => ({
+      externalNodes,
+      workspaceRoot: '.',
+      projects: { app1: { root: 'apps/app1', targets: {} } },
+      nxJsonConfiguration: {},
+      fileMap,
+      filesToProcess: { nonProjectFiles: [], projectFileMap: {} },
+    });
+
+    it('should add the locked packages as external nodes when enabled', async () => {
+      expect(pattern).toBe('**/{uv,poetry}.lock');
+
+      const [[file, result]] = await createNodes(
+        ['uv.lock'],
+        { externalNodes: true },
+        nodesContext,
+      );
+
+      expect(file).toBe('uv.lock');
+      expect(Object.keys(result.externalNodes)).toStrictEqual([
+        'pypi:httpx',
+        'pypi:idna',
+      ]);
+    });
+
+    it('should add no external nodes by default', async () => {
+      expect(await createNodes(['uv.lock'], {}, nodesContext)).toStrictEqual(
+        [],
+      );
+    });
+
+    it('should make a member depend on every package it installs', async () => {
+      const [[, { externalNodes }]] = await createNodes(
+        ['uv.lock'],
+        { externalNodes: true },
+        nodesContext,
+      );
+
+      const result = await createDependencies(
+        { externalNodes: true },
+        dependenciesContext(externalNodes),
+      );
+
+      expect(result).toStrictEqual([
+        {
+          source: 'app1',
+          target: 'pypi:httpx',
+          type: 'static',
+          sourceFile: 'uv.lock',
+        },
+        {
+          source: 'app1',
+          target: 'pypi:idna',
+          type: 'static',
+          sourceFile: 'uv.lock',
+        },
+      ]);
+    });
+
+    it('should record the edges on uv.lock, whose cached copy Nx drops when the lock changes', async () => {
+      const [[, { externalNodes }]] = await createNodes(
+        ['uv.lock'],
+        { externalNodes: true },
+        nodesContext,
+      );
+      const dependencies = await createDependencies(
+        { externalNodes: true },
+        dependenciesContext(externalNodes),
+      );
+
+      // Nx keeps a file's edges on its FileData and restores them from cache
+      // for as long as that file's hash is unchanged.
+      const pyproject = { file: 'apps/app1/pyproject.toml', hash: 'a' };
+      const lockFile = { file: 'uv.lock', hash: 'b' };
+      const builder = new ProjectGraphBuilder(
+        undefined,
+        { app1: [pyproject] },
+        [lockFile],
+      );
+      builder.addNode({
+        name: 'app1',
+        type: 'lib',
+        data: { root: 'apps/app1' },
+      });
+      for (const node of Object.values(externalNodes)) {
+        builder.addExternalNode(node);
+      }
+      for (const dep of dependencies) {
+        builder.addDependency(
+          dep.source,
+          dep.target,
+          dep.type,
+          'sourceFile' in dep ? dep.sourceFile : undefined,
+        );
+      }
+
+      expect(pyproject).not.toHaveProperty('deps');
+      expect(lockFile).toHaveProperty('deps', [
+        ['app1', 'pypi:httpx', 'static'],
+        ['app1', 'pypi:idna', 'static'],
+      ]);
+      expect(
+        builder.getUpdatedProjectGraph().dependencies['app1'],
+      ).toStrictEqual([
+        { source: 'app1', target: 'pypi:httpx', type: 'static' },
+        { source: 'app1', target: 'pypi:idna', type: 'static' },
+      ]);
+    });
+
+    it('should add implicit edges when another project owns uv.lock', async () => {
+      const [[, { externalNodes }]] = await createNodes(
+        ['uv.lock'],
+        { externalNodes: true },
+        nodesContext,
+      );
+
+      const result = await createDependencies(
+        { externalNodes: true },
+        dependenciesContext(externalNodes, {
+          nonProjectFiles: [],
+          projectFileMap: { root: [{ file: 'uv.lock', hash: 'b' }] },
+        }),
+      );
+
+      expect(result).toStrictEqual([
+        { source: 'app1', target: 'pypi:httpx', type: 'implicit' },
+        { source: 'app1', target: 'pypi:idna', type: 'implicit' },
+      ]);
+    });
+  });
+
+  describe('poetry external nodes', () => {
+    beforeEach(() => {
+      vol.fromJSON({
+        'apps/app1/pyproject.toml': dedent`
+        [tool.poetry]
+        name = "app1"
+        version = "0.1.0"
+
+        [tool.poetry.dependencies]
+        python = ">=3.9,<4"
+        requests = "^2.31"
+        `,
+        'apps/app1/poetry.lock': dedent`
+        [[package]]
+        name = "idna"
+        version = "3.20"
+        optional = false
+        python-versions = ">=3.9"
+        groups = ["main"]
+        files = [
+            {file = "idna-3.20-py3-none-any.whl", hash = "sha256:aaa"},
+        ]
+
+        [[package]]
+        name = "requests"
+        version = "2.32.5"
+        optional = false
+        python-versions = ">=3.9"
+        groups = ["main"]
+        files = [
+            {file = "requests-2.32.5-py3-none-any.whl", hash = "sha256:bbb"},
+        ]
+
+        [package.dependencies]
+        idna = ">=2.5,<4"
+        `,
+      });
+    });
+
+    it("should key each project's edges to its own poetry.lock", async () => {
+      const [, createNodes] = createNodesV2;
+      const [[file, { externalNodes }]] = await createNodes(
+        ['apps/app1/poetry.lock'],
+        { externalNodes: true },
+        { workspaceRoot: '.', nxJsonConfiguration: {} },
+      );
+      expect(file).toBe('apps/app1/poetry.lock');
+
+      const result = await createDependencies(
+        { externalNodes: true },
+        {
+          externalNodes,
+          workspaceRoot: '.',
+          projects: { app1: { root: 'apps/app1', targets: {} } },
+          nxJsonConfiguration: {},
+          fileMap: {
+            nonProjectFiles: [],
+            projectFileMap: {
+              app1: [{ file: 'apps/app1/poetry.lock', hash: 'c' }],
+            },
+          },
+          filesToProcess: { nonProjectFiles: [], projectFileMap: {} },
+        },
+      );
+
+      expect(result).toStrictEqual([
+        {
+          source: 'app1',
+          target: 'pypi:idna',
+          type: 'static',
+          sourceFile: 'apps/app1/poetry.lock',
+        },
+        {
+          source: 'app1',
+          target: 'pypi:requests',
+          type: 'static',
+          sourceFile: 'apps/app1/poetry.lock',
+        },
+      ]);
     });
   });
 });

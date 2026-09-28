@@ -13,6 +13,7 @@ import {
   ProjectMetadata,
   SyncGeneratorResult,
   SyncGeneratorCallback,
+  LockGraph,
 } from '../base';
 import fs from 'fs';
 import path, { join } from 'path';
@@ -69,6 +70,7 @@ import semver from 'semver';
 import { LockExecutorSchema } from '../../executors/lock/schema';
 import { SyncExecutorSchema } from '../../executors/sync/schema';
 import { minimatch } from 'minimatch';
+import { getPoetryLockGraph } from './lock-graph';
 import assert from 'node:assert';
 
 export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
@@ -94,6 +96,26 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
 
   public async checkPrerequisites(): Promise<void> {
     await checkPoetryExecutable();
+  }
+
+  public override getLockGraph(lockFiles: string[]): LockGraph | null {
+    // A shared workspace locks once at the root; otherwise every project
+    // locks on its own.
+    const poetryLocks = lockFiles.filter((file) =>
+      this.isWorkspace
+        ? file === this.lockFileName
+        : path.posix.basename(file) === this.lockFileName,
+    );
+    if (!poetryLocks.length) {
+      return null;
+    }
+    return getPoetryLockGraph(
+      poetryLocks.map((file) => ({
+        path: file,
+        text: this.readWorkspaceFile(file),
+      })),
+      this.isWorkspace,
+    );
   }
 
   public getMetadata(projectRoot: string): ProjectMetadata {

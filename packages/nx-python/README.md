@@ -139,6 +139,46 @@ for Nx 20.x or higher, use the following pattern:
 
 **NOTE**: The default package manager is `poetry`, but it's automatically detected if the repository is configured to use `uv` workspaces since the `uv.lock` filw will be present in the root directory.
 
+## Locked packages in the project graph
+
+By default the project graph knows nothing about the PyPI packages in a workspace, so the only way to make a Python project's task cache follow its dependencies is to list the whole lock file (`uv.lock` or `poetry.lock`) as an input, and any lock change invalidates every project.
+
+Set the `externalNodes` option to `true` to add each locked package to the graph as a `pypi:<name>` external node (`pypi:<name>@<version>` when a name is locked at several versions, plus `#<source hash>` when one version is locked from several sources), with each project depending on every package it installs. Nx then hashes only a project's own locked packages into its task hashes, the same way it does for npm packages, so the lock file no longer needs to be an input.
+
+Both providers and both layouts are supported:
+
+- A shared workspace (a root `pyproject.toml`) reads the root lock file. With uv, a member installs its dependencies, the extras it asks for and its dependency groups; with Poetry, it installs what its entry in the root `poetry.lock` reaches.
+- When each project locks on its own, a project installs what its own lock file pins.
+
+```json
+{
+  "plugins": [
+    {
+      "plugin": "@nxlv/python",
+      "options": {
+        "externalNodes": true
+      }
+    }
+  ]
+}
+```
+
+For a target that runs a command (`@nxlv/python:run-commands`, `nx:run-commands`, or any non-`@nx` executor), Nx cannot tell which packages the command uses and hashes every external node in the graph instead. Add an `externalDependencies` input to such a target so that only the project's own packages count:
+
+```json
+{
+  "targets": {
+    "test": {
+      "executor": "@nxlv/python:run-commands",
+      "inputs": ["default", { "externalDependencies": [] }]
+    }
+  }
+}
+```
+
+**NOTE**: The `externalNodes` option is disabled by default.
+**NOTE**: This narrows caching only. Nx diffs lock files per package for `nx affected` only for npm, yarn and pnpm, so once the lock file is no longer an input, `nx affected` does not select a project whose locked packages changed.
+
 ## EXPERIMENTAL: Automatically sync local package dependencies
 
 Currently, Nx automatically updates `package.json` TypeScript packages through the [Dependency Checks ESLint Rule](https://nx.dev/docs/technologies/eslint/eslint-plugin/guides/dependency-checks) and syncs the `tsconfig.json` file via Sync Generators.
