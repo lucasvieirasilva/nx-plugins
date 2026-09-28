@@ -1,3 +1,14 @@
+## 23.2.0 (2026-09-28)
+
+### 🚀 Features
+
+- **nx-python:** add locked uv packages to the project graph as external nodes ([#367](https://github.com/lucasvieirasilva/nx-plugins/pull/367), [#366](https://github.com/lucasvieirasilva/nx-plugins/issues/366))
+
+### ❤️ Thank You
+
+- Salah @spichen
+- Salah Pichen
+
 ## 23.1.1 (2026-09-19)
 
 ### 🩹 Fixes
