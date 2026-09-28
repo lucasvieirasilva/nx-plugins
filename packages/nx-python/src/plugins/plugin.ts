@@ -19,7 +19,7 @@ import { extractImportedModules, getPythonParser } from './infer';
 
 const cachedScannedFiles: Record<string, [string, string][]> = {};
 
-const LOCK_FILES = ['uv.lock', 'poetry.lock'];
+const LOCK_FILES = new Set(['uv.lock', 'poetry.lock']);
 
 export const createNodesV2: CreateNodesV2<PluginOptions> = [
   '**/{uv,poetry}.lock',
@@ -176,7 +176,7 @@ function lockGraphDependencies(
 ): Array<ImplicitDependency | StaticDependency> {
   const { nonProjectFiles, projectFileMap } = context.fileMap;
   const isLockFile = ({ file }: { file: string }) =>
-    LOCK_FILES.includes(file.split('/').pop());
+    LOCK_FILES.has(file.split('/').pop());
   const lockGraph = provider.getLockGraph(
     [nonProjectFiles, ...Object.values(projectFileMap)]
       .flat()

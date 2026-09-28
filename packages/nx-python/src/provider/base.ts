@@ -116,10 +116,7 @@ export abstract class BaseProvider<TPyprojectToml> {
    * plugin option. `lockFiles` are the workspace-relative lock files Nx found;
    * `null` when none of them is one this provider reads.
    */
-  public getLockGraph(lockFiles: string[]): LockGraph | null {
-    void lockFiles;
-    return null;
-  }
+  abstract getLockGraph(lockFiles: string[]): LockGraph | null;
 
   /**
    * Reads a workspace-relative file, through the in-memory {@link Tree} when
