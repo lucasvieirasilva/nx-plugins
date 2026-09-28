@@ -1958,22 +1958,12 @@ describe('nx-python dependency graph', () => {
       );
 
       expect(result).toStrictEqual([
-        {
-          source: 'app1',
-          target: 'pypi:httpx',
-          type: 'static',
-          sourceFile: 'uv.lock',
-        },
-        {
-          source: 'app1',
-          target: 'pypi:idna',
-          type: 'static',
-          sourceFile: 'uv.lock',
-        },
+        { source: 'app1', target: 'pypi:httpx', type: 'implicit' },
+        { source: 'app1', target: 'pypi:idna', type: 'implicit' },
       ]);
     });
 
-    it('should record the edges on uv.lock, whose cached copy Nx drops when the lock changes', async () => {
+    it('should keep the edges off the shared uv.lock, where Nx would cache or drop them', async () => {
       const [[, { externalNodes }]] = await createNodes(
         ['uv.lock'],
         { externalNodes: true },
@@ -2011,15 +2001,12 @@ describe('nx-python dependency graph', () => {
       }
 
       expect(pyproject).not.toHaveProperty('deps');
-      expect(lockFile).toHaveProperty('deps', [
-        ['app1', 'pypi:httpx', 'static'],
-        ['app1', 'pypi:idna', 'static'],
-      ]);
+      expect(lockFile).not.toHaveProperty('deps');
       expect(
         builder.getUpdatedProjectGraph().dependencies['app1'],
       ).toStrictEqual([
-        { source: 'app1', target: 'pypi:httpx', type: 'static' },
-        { source: 'app1', target: 'pypi:idna', type: 'static' },
+        { source: 'app1', target: 'pypi:httpx', type: 'implicit' },
+        { source: 'app1', target: 'pypi:idna', type: 'implicit' },
       ]);
     });
 
@@ -2042,6 +2029,106 @@ describe('nx-python dependency graph', () => {
         { source: 'app1', target: 'pypi:httpx', type: 'implicit' },
         { source: 'app1', target: 'pypi:idna', type: 'implicit' },
       ]);
+    });
+  });
+
+  describe('uv external nodes shared by several members', () => {
+    beforeEach(() => {
+      vol.fromJSON({
+        'apps/app1/pyproject.toml': '[project]\nname = "app1"\n',
+        'apps/app2/pyproject.toml': '[project]\nname = "app2"\n',
+        'pyproject.toml': '',
+        'uv.lock': dedent`
+        version = 1
+        requires-python = ">=3.12"
+
+        [[package]]
+        name = "app1"
+        version = "0.1.0"
+        source = { editable = "apps/app1" }
+        dependencies = [
+            { name = "httpx" },
+        ]
+
+        [[package]]
+        name = "app2"
+        version = "0.1.0"
+        source = { editable = "apps/app2" }
+        dependencies = [
+            { name = "httpx" },
+        ]
+
+        [[package]]
+        name = "httpx"
+        version = "0.27.0"
+        source = { registry = "https://pypi.org/simple" }
+        dependencies = [
+            { name = "idna" },
+        ]
+
+        [[package]]
+        name = "idna"
+        version = "3.7"
+        source = { registry = "https://pypi.org/simple" }
+        `,
+      });
+    });
+
+    it('should give every member its edges when they share the root lock file', async () => {
+      const [, createNodes] = createNodesV2;
+      const [[, { externalNodes }]] = await createNodes(
+        ['uv.lock'],
+        { externalNodes: true },
+        { workspaceRoot: '.', nxJsonConfiguration: {} },
+      );
+      const projectFileMap = {
+        app1: [{ file: 'apps/app1/pyproject.toml', hash: 'a' }],
+        app2: [{ file: 'apps/app2/pyproject.toml', hash: 'b' }],
+      };
+      const nonProjectFiles = [{ file: 'uv.lock', hash: 'c' }];
+      const dependencies = await createDependencies(
+        { externalNodes: true },
+        {
+          externalNodes,
+          workspaceRoot: '.',
+          projects: {
+            app1: { root: 'apps/app1', targets: {} },
+            app2: { root: 'apps/app2', targets: {} },
+          },
+          nxJsonConfiguration: {},
+          fileMap: { nonProjectFiles, projectFileMap },
+          filesToProcess: { nonProjectFiles: [], projectFileMap: {} },
+        },
+      );
+
+      // Nx drops an edge recorded on a workspace file when another project
+      // already recorded one to the same target, so run them through it.
+      const builder = new ProjectGraphBuilder(
+        undefined,
+        projectFileMap,
+        nonProjectFiles,
+      );
+      for (const name of ['app1', 'app2']) {
+        builder.addNode({ name, type: 'lib', data: { root: `apps/${name}` } });
+      }
+      for (const node of Object.values(externalNodes)) {
+        builder.addExternalNode(node);
+      }
+      for (const dep of dependencies) {
+        builder.addDependency(
+          dep.source,
+          dep.target,
+          dep.type,
+          'sourceFile' in dep ? dep.sourceFile : undefined,
+        );
+      }
+      const graph = builder.getUpdatedProjectGraph();
+
+      for (const name of ['app1', 'app2']) {
+        expect(
+          graph.dependencies[name].map(({ target }) => target),
+        ).toStrictEqual(['pypi:httpx', 'pypi:idna']);
+      }
     });
   });
 

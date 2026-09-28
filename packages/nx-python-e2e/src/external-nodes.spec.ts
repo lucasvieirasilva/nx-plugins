@@ -78,4 +78,59 @@ describe('nx-python (externalNodes)', () => {
       expect(dependencies['extlib']).not.toContain('pypi:six');
     });
   });
+
+  // In a shared workspace every member's edges come from the one root lock, so
+  // two members installing the same package must both keep their edge to it.
+  describe.each([
+    {
+      packageManager: 'uv' as const,
+      generator: 'uv-project',
+      args: '--srcDir --buildSystem uv',
+    },
+    {
+      packageManager: 'poetry' as const,
+      generator: 'poetry-project',
+      args: '',
+    },
+  ])(
+    '$packageManager shared workspace',
+    ({ packageManager, generator, args }) => {
+      let ws: TestWorkspace;
+
+      beforeAll(() => {
+        ws = createTestWorkspace(`external-nodes-${packageManager}-shared`, {
+          packageManager,
+          externalNodes: true,
+        });
+        ws.generate(
+          generator,
+          `shapp --projectType application ${args} ${PY_VERSION_ARGS}`,
+        );
+        ws.generate(
+          generator,
+          `shlib --projectType library ${args} ${PY_VERSION_ARGS}`,
+        );
+        ws.generate(
+          'migrate-to-shared-venv',
+          `--packageManager=${packageManager} --moveDevDependencies=true ${PY_VERSION_ARGS}`,
+        );
+        ws.nx('run shapp:add --name six');
+        ws.nx('run shlib:add --name six');
+        ws.nx('run shlib:add --name idna');
+      });
+
+      afterAll(() => {
+        ws?.cleanup();
+      });
+
+      it('gives every member an edge to a package they both install', () => {
+        const { dependencies } = readLockedGraph(ws);
+
+        expect(dependencies['shapp']).toContain('pypi:six');
+        expect(dependencies['shlib']).toContain('pypi:six');
+        expect(dependencies['shlib']).toContain('pypi:idna');
+        expect(dependencies['shapp']).not.toContain('pypi:idna');
+      });
+    },
+  );
 });
