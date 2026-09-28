@@ -192,6 +192,8 @@ function lockGraphDependencies(
     if (!member) {
       return [];
     }
+    // Also record edges on a shared lock file (from nonProjectFiles) once Nx
+    // fixes https://github.com/nrwl/nx/issues/37213.
     const onLockFile = (projectFileMap[project] ?? []).some(
       ({ file }) => file === member.lockFile,
     );
