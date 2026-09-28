@@ -1924,7 +1924,7 @@ describe('nx-python dependency graph', () => {
     });
 
     it('should add the locked packages as external nodes when enabled', async () => {
-      expect(pattern).toBe('uv.lock');
+      expect(pattern).toBe('**/{uv,poetry}.lock');
 
       const [[file, result]] = await createNodes(
         ['uv.lock'],
@@ -2041,6 +2041,88 @@ describe('nx-python dependency graph', () => {
       expect(result).toStrictEqual([
         { source: 'app1', target: 'pypi:httpx', type: 'implicit' },
         { source: 'app1', target: 'pypi:idna', type: 'implicit' },
+      ]);
+    });
+  });
+
+  describe('poetry external nodes', () => {
+    beforeEach(() => {
+      vol.fromJSON({
+        'apps/app1/pyproject.toml': dedent`
+        [tool.poetry]
+        name = "app1"
+        version = "0.1.0"
+
+        [tool.poetry.dependencies]
+        python = ">=3.9,<4"
+        requests = "^2.31"
+        `,
+        'apps/app1/poetry.lock': dedent`
+        [[package]]
+        name = "idna"
+        version = "3.20"
+        optional = false
+        python-versions = ">=3.9"
+        groups = ["main"]
+        files = [
+            {file = "idna-3.20-py3-none-any.whl", hash = "sha256:aaa"},
+        ]
+
+        [[package]]
+        name = "requests"
+        version = "2.32.5"
+        optional = false
+        python-versions = ">=3.9"
+        groups = ["main"]
+        files = [
+            {file = "requests-2.32.5-py3-none-any.whl", hash = "sha256:bbb"},
+        ]
+
+        [package.dependencies]
+        idna = ">=2.5,<4"
+        `,
+      });
+    });
+
+    it("should key each project's edges to its own poetry.lock", async () => {
+      const [, createNodes] = createNodesV2;
+      const [[file, { externalNodes }]] = await createNodes(
+        ['apps/app1/poetry.lock'],
+        { externalNodes: true },
+        { workspaceRoot: '.', nxJsonConfiguration: {} },
+      );
+      expect(file).toBe('apps/app1/poetry.lock');
+
+      const result = await createDependencies(
+        { externalNodes: true },
+        {
+          externalNodes,
+          workspaceRoot: '.',
+          projects: { app1: { root: 'apps/app1', targets: {} } },
+          nxJsonConfiguration: {},
+          fileMap: {
+            nonProjectFiles: [],
+            projectFileMap: {
+              app1: [{ file: 'apps/app1/poetry.lock', hash: 'c' }],
+            },
+          },
+          filesToProcess: { nonProjectFiles: [], projectFileMap: {} },
+        },
+      );
+
+      expect(result).toStrictEqual([
+        {
+          source: 'app1',
+          target: 'pypi:idna',
+          type: 'static',
+          sourceFile: 'apps/app1/poetry.lock',
+        },
+        {
+          source: 'app1',
+          target: 'pypi:requests',
+          type: 'static',
+          sourceFile: 'apps/app1/poetry.lock',
+        },
       ]);
     });
   });

@@ -49,14 +49,13 @@ export type DependencyProjectMetadata = ProjectMetadata & {
 };
 
 /**
- * The packages a workspace lock file pins, as Nx external nodes, and the names
- * of the ones each workspace member installs, keyed by the member's root.
- * `lockFile` is the workspace-relative lock file those edges come from.
+ * The packages a workspace's lock files pin, as Nx external nodes, and for each
+ * member (keyed by its root) the lock file its packages come from and the
+ * names of the nodes it installs.
  */
 export type LockGraph = {
   externalNodes: Record<string, ProjectGraphExternalNode>;
-  memberDependencies: Record<string, string[]>;
-  lockFile: string;
+  members: Record<string, { lockFile: string; dependencies: string[] }>;
 };
 
 export type SyncGeneratorCallback = {
@@ -113,11 +112,23 @@ export abstract class BaseProvider<TPyprojectToml> {
    * @param projectRoot - Project root containing the `pyproject.toml`.
    */
   /**
-   * The root lock file as Nx external nodes, for the `externalNodes` plugin
-   * option. `null` when the provider has no workspace lock file to read.
+   * The workspace's lock files as Nx external nodes, for the `externalNodes`
+   * plugin option. `lockFiles` are the workspace-relative lock files Nx found;
+   * `null` when none of them is one this provider reads.
    */
-  public getLockGraph(): LockGraph | null {
+  public getLockGraph(lockFiles: string[]): LockGraph | null {
+    void lockFiles;
     return null;
+  }
+
+  /**
+   * Reads a workspace-relative file, through the in-memory {@link Tree} when
+   * available.
+   */
+  protected readWorkspaceFile(path: string): string {
+    return this.tree
+      ? this.tree.read(joinPathFragments(this.workspaceRoot, path), 'utf-8')
+      : fs.readFileSync(joinPathFragments(this.workspaceRoot, path), 'utf-8');
   }
 
   public shouldBumpLocalDependencyRange(projectRoot: string): boolean {

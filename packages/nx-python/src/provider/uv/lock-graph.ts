@@ -1,165 +1,152 @@
-import { ProjectGraphExternalNode } from '@nx/devkit';
 import toml from '@iarna/toml';
-import { createHash } from 'node:crypto';
+import { posix } from 'node:path';
 import type { LockGraph } from '../base';
+import {
+  buildLockGraph,
+  LockedPackage,
+  normalizeRoot,
+  packageIdentity,
+  sourceKey,
+  walk,
+} from '../lock-graph';
 
-type LockedDependency = {
+type UvDependency = {
   name: string;
   version?: string;
   source?: Record<string, string>;
   extra?: string[];
 };
 
-type LockedPackage = {
+type UvPackage = {
   name: string;
   version?: string;
   source?: Record<string, string>;
-  dependencies?: LockedDependency[];
-  'optional-dependencies'?: Record<string, LockedDependency[]>;
-  'dev-dependencies'?: Record<string, LockedDependency[]>;
+  dependencies?: UvDependency[];
+  'optional-dependencies'?: Record<string, UvDependency[]>;
+  'dev-dependencies'?: Record<string, UvDependency[]>;
   sdist?: { hash?: string };
   wheels?: { hash?: string }[];
 };
 
+// A package reached through its own dependencies (`extra` null), one of its
+// extras, or one of a member's dependency groups (`group:<name>`).
+type Visit = { pkg: UvPackage; extra: string | null };
+
+export type UvLockFile = { path: string; text: string };
+
 /**
- * Reads a workspace `uv.lock` into one `pypi` external node per locked package,
- * plus the nodes each workspace member installs: its dependencies, its extras
- * and dependency groups, the extras those ask for, and the same through any
- * other member it depends on.
+ * Reads the uv lock files of a workspace: every locked package, and for each
+ * member the packages it installs through its dependencies, its extras and
+ * dependency groups, the extras those ask for, and other members.
+ *
+ * - In a shared workspace (`shared`), the root `uv.lock` lists every member.
+ * - Otherwise each project locks on its own, and its `uv.lock` also lists the
+ *   local projects it depends on; only the project the lock belongs to is
+ *   read from it, since the others have their own locks.
  */
 export function getUvLockGraph(
-  lockText: string,
-  lockFile = 'uv.lock',
+  lockFiles: UvLockFile[],
+  shared: boolean,
 ): LockGraph {
-  const packages = (toml.parse(lockText).package ?? []) as LockedPackage[];
-  const byName = new Map<string, LockedPackage[]>();
+  const locks = lockFiles.map(({ path, text }) =>
+    readUvLock(path, (toml.parse(text).package ?? []) as UvPackage[], shared),
+  );
+  return buildLockGraph(
+    locks.flatMap((lock) => lock.packages),
+    locks.flatMap((lock) => lock.members),
+  );
+}
+
+function readUvLock(lockFile: string, packages: UvPackage[], shared: boolean) {
+  const byName = new Map<string, UvPackage[]>();
   for (const pkg of packages) {
     byName.set(pkg.name, [...(byName.get(pkg.name) ?? []), pkg]);
   }
+  const lockDir = posix.dirname(lockFile);
+  const rootOf = (member: UvPackage) =>
+    normalizeRoot(
+      posix.join(lockDir, member.source.editable ?? member.source.virtual),
+    );
 
-  const isMember = (pkg: LockedPackage) =>
-    pkg.source?.editable !== undefined || pkg.source?.virtual !== undefined;
-  // uv can lock one name at several versions (per-platform forks), and even
-  // one version from several sources, so a node is named by as much of
-  // name, version and source as it takes to tell the copies apart.
-  const nodeName = (pkg: LockedPackage) => {
-    const copies = byName.get(pkg.name);
-    if (copies.length === 1) {
-      return `pypi:${pkg.name}`;
-    }
-    const sameVersion = copies.filter((copy) => copy.version === pkg.version);
-    return sameVersion.length === 1
-      ? `pypi:${pkg.name}@${pkg.version}`
-      : `pypi:${pkg.name}@${pkg.version}#${hash(sourceKey(pkg.source)).slice(0, 8)}`;
+  const members = packages
+    .filter(isMember)
+    .filter((member) => shared || rootOf(member) === normalizeRoot(lockDir))
+    .map((member) => ({
+      root: rootOf(member),
+      lockFile,
+      installs: walk(memberVisits(member), (visit) => next(visit, byName), key)
+        .map((visit) => visit.pkg)
+        .filter((pkg) => !isMember(pkg))
+        .map(toLockedPackage),
+    }));
+
+  return {
+    packages: packages.filter((pkg) => !isMember(pkg)).map(toLockedPackage),
+    members,
   };
-
-  const externalNodes: Record<string, ProjectGraphExternalNode> = {};
-  for (const pkg of packages) {
-    if (isMember(pkg)) {
-      continue;
-    }
-    externalNodes[nodeName(pkg)] = {
-      type: 'pypi',
-      name: nodeName(pkg),
-      data: {
-        version: pkg.version ?? '',
-        packageName: pkg.name,
-        hash: hashPackage(pkg),
-      },
-    };
-  }
-
-  // A null extra is the package's own dependencies; `group:<name>` is one of a
-  // member's dependency groups.
-  const edges = (pkg: LockedPackage, extra: string | null) =>
-    extra === null
-      ? (pkg.dependencies ?? [])
-      : extra.startsWith('group:')
-        ? (pkg['dev-dependencies']?.[extra.slice('group:'.length)] ?? [])
-        : (pkg['optional-dependencies']?.[extra] ?? []);
-
-  const memberDependencies: Record<string, string[]> = {};
-  for (const member of packages) {
-    if (!isMember(member)) {
-      continue;
-    }
-    const queue: [LockedPackage, string | null][] = [
-      [member, null],
-      ...Object.keys(member['optional-dependencies'] ?? {}).map(
-        (extra): [LockedPackage, string] => [member, extra],
-      ),
-      ...Object.keys(member['dev-dependencies'] ?? {}).map(
-        (group): [LockedPackage, string] => [member, `group:${group}`],
-      ),
-    ];
-    const walked = new Set<string>();
-    const installed = new Set<string>();
-    while (queue.length) {
-      const [pkg, extra] = queue.pop();
-      const key = `${identity(pkg)}#${extra ?? ''}`;
-      if (walked.has(key)) {
-        continue;
-      }
-      walked.add(key);
-      if (!isMember(pkg)) {
-        installed.add(nodeName(pkg));
-      }
-      for (const dep of edges(pkg, extra)) {
-        for (const target of byName.get(dep.name) ?? []) {
-          // An edge to a name with several copies names the version and
-          // source it means.
-          if (dep.version && target.version !== dep.version) {
-            continue;
-          }
-          if (
-            dep.source &&
-            sourceKey(dep.source) !== sourceKey(target.source)
-          ) {
-            continue;
-          }
-          queue.push([target, null]);
-          for (const name of dep.extra ?? []) {
-            queue.push([target, name]);
-          }
-        }
-      }
-    }
-    memberDependencies[memberRoot(member)] = [...installed].sort();
-  }
-
-  return { externalNodes, memberDependencies, lockFile };
 }
 
-function sourceKey(source: Record<string, string> = {}): string {
-  return JSON.stringify(
-    Object.keys(source)
-      .sort()
-      .map((key) => [key, source[key]]),
+function isMember(pkg: UvPackage): boolean {
+  return (
+    pkg.source?.editable !== undefined || pkg.source?.virtual !== undefined
   );
 }
 
-function identity(pkg: LockedPackage): string {
-  return JSON.stringify([pkg.name, pkg.version, sourceKey(pkg.source)]);
+function memberVisits(member: UvPackage): Visit[] {
+  return [
+    { pkg: member, extra: null },
+    ...Object.keys(member['optional-dependencies'] ?? {}).map((extra) => ({
+      pkg: member,
+      extra,
+    })),
+    ...Object.keys(member['dev-dependencies'] ?? {}).map((group) => ({
+      pkg: member,
+      extra: `group:${group}`,
+    })),
+  ];
 }
 
-function hash(value: string): string {
-  return createHash('sha256').update(value).digest('hex');
+function edges({ pkg, extra }: Visit): UvDependency[] {
+  if (extra === null) {
+    return pkg.dependencies ?? [];
+  }
+  if (extra.startsWith('group:')) {
+    return pkg['dev-dependencies']?.[extra.slice('group:'.length)] ?? [];
+  }
+  return pkg['optional-dependencies']?.[extra] ?? [];
 }
 
-function memberRoot(pkg: LockedPackage): string {
-  const root = (pkg.source.editable ?? pkg.source.virtual)
-    .replace(/^\.\/?/, '')
-    .replace(/\/+$/, '');
-  return root || '.';
+function next(visit: Visit, byName: Map<string, UvPackage[]>): Visit[] {
+  return edges(visit).flatMap((dep) =>
+    (byName.get(dep.name) ?? [])
+      .filter((target) => matches(dep, target))
+      .flatMap((pkg) => [
+        { pkg, extra: null },
+        ...(dep.extra ?? []).map((extra) => ({ pkg, extra })),
+      ]),
+  );
 }
 
-function hashPackage(pkg: LockedPackage): string {
-  return hash(
-    JSON.stringify([
-      pkg.version,
-      sourceKey(pkg.source),
+// An edge to a name with several copies names the version and source it means.
+function matches(dep: UvDependency, target: UvPackage): boolean {
+  if (dep.version && target.version !== dep.version) {
+    return false;
+  }
+  return !dep.source || sourceKey(dep.source) === sourceKey(target.source);
+}
+
+function key({ pkg, extra }: Visit): string {
+  return `${packageIdentity(pkg)}#${extra ?? ''}`;
+}
+
+function toLockedPackage(pkg: UvPackage): LockedPackage {
+  return {
+    name: pkg.name,
+    version: pkg.version ?? '',
+    source: pkg.source,
+    artifactHashes: [
       pkg.sdist?.hash,
-      (pkg.wheels ?? []).map((wheel) => wheel.hash),
-    ]),
-  );
+      ...(pkg.wheels ?? []).map((wheel) => wheel.hash),
+    ].filter(Boolean),
+  };
 }

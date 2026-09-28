@@ -1,6 +1,9 @@
 import dedent from 'string-dedent';
 import { getUvLockGraph } from './lock-graph';
 
+const shared = (text: string, path = 'uv.lock') =>
+  getUvLockGraph([{ path, text }], true);
+
 const lock = (uvloop = '0.19.0') => dedent`
   version = 1
   requires-python = ">=3.12"
@@ -139,7 +142,7 @@ const twoSources = (
 
 describe('getUvLockGraph', () => {
   it('should add an external node per locked package and none for members', () => {
-    const { externalNodes } = getUvLockGraph(lock());
+    const { externalNodes } = shared(lock());
 
     expect(Object.keys(externalNodes).sort()).toStrictEqual([
       'pypi:httpx',
@@ -163,24 +166,30 @@ describe('getUvLockGraph', () => {
   });
 
   it('should list what each member installs through dependencies, extras, groups and other members', () => {
-    const { memberDependencies } = getUvLockGraph(lock());
+    const { members } = shared(lock());
 
-    expect(memberDependencies).toStrictEqual({
-      'apps/api': [
-        'pypi:httpx',
-        'pypi:idna',
-        'pypi:numpy@2.0.0',
-        'pypi:pytest',
-        'pypi:uvicorn',
-        'pypi:uvloop',
-      ],
-      'libs/shared': ['pypi:idna', 'pypi:numpy@2.0.0'],
+    expect(members).toStrictEqual({
+      'apps/api': {
+        lockFile: 'uv.lock',
+        dependencies: [
+          'pypi:httpx',
+          'pypi:idna',
+          'pypi:numpy@2.0.0',
+          'pypi:pytest',
+          'pypi:uvicorn',
+          'pypi:uvloop',
+        ],
+      },
+      'libs/shared': {
+        lockFile: 'uv.lock',
+        dependencies: ['pypi:idna', 'pypi:numpy@2.0.0'],
+      },
     });
   });
 
   it('should change only the hash of the package that changed', () => {
-    const before = getUvLockGraph(lock()).externalNodes;
-    const after = getUvLockGraph(lock('0.20.0')).externalNodes;
+    const before = shared(lock()).externalNodes;
+    const after = shared(lock('0.20.0')).externalNodes;
 
     const changed = Object.keys(before).filter(
       (name) => before[name].data.hash !== after[name].data.hash,
@@ -189,16 +198,18 @@ describe('getUvLockGraph', () => {
   });
 
   it('should keep packages that share a name and version but not a source apart', () => {
-    const { externalNodes, memberDependencies } = getUvLockGraph(twoSources());
+    const { externalNodes, members } = shared(twoSources());
 
     const names = Object.keys(externalNodes);
     expect(names).toHaveLength(2);
     for (const name of names) {
       expect(name).toMatch(/^pypi:demo@1\.0\.0#[0-9a-f]{8}$/);
     }
-    expect(memberDependencies['.']).toStrictEqual([...names].sort());
+    expect(members['.'].dependencies).toStrictEqual(
+      [...names].sort((a, b) => a.localeCompare(b)),
+    );
 
-    const after = getUvLockGraph(twoSources('0'.repeat(64))).externalNodes;
+    const after = shared(twoSources('0'.repeat(64))).externalNodes;
     const changed = names.filter(
       (name) => externalNodes[name].data.hash !== after[name].data.hash,
     );
@@ -206,8 +217,8 @@ describe('getUvLockGraph', () => {
   });
 
   it('should follow an edge only to the source it names', () => {
-    const before = getUvLockGraph(twoSources()).externalNodes;
-    const after = getUvLockGraph(twoSources('0'.repeat(64))).externalNodes;
+    const before = shared(twoSources()).externalNodes;
+    const after = shared(twoSources('0'.repeat(64))).externalNodes;
     const [wheelB] = Object.keys(before).filter(
       (name) => before[name].data.hash !== after[name].data.hash,
     );
@@ -221,15 +232,66 @@ describe('getUvLockGraph', () => {
       )
       .join('\n');
 
-    expect(getUvLockGraph(onlyA).memberDependencies['.']).toStrictEqual(
+    expect(shared(onlyA).members['.'].dependencies).toStrictEqual(
       Object.keys(before).filter((name) => name !== wheelB),
     );
   });
 
-  it('should name the lock file the edges come from', () => {
-    expect(getUvLockGraph(lock()).lockFile).toBe('uv.lock');
-    expect(getUvLockGraph(lock(), 'python/uv.lock').lockFile).toBe(
-      'python/uv.lock',
+  it('should resolve members against the directory of the lock file', () => {
+    expect(shared(lock(), 'python/uv.lock').members).toMatchObject({
+      'python/apps/api': { lockFile: 'python/uv.lock' },
+      'python/libs/shared': { lockFile: 'python/uv.lock' },
+    });
+  });
+
+  it("should read only a project's own entry from its own lock", () => {
+    const own = (name: string, deps: string, packages: string) => dedent`
+      version = 1
+      requires-python = ">=3.12"
+
+      [[package]]
+      name = "${name}"
+      version = "0.1.0"
+      source = { editable = "." }
+      dependencies = [${deps}]
+      ${packages}
+    `;
+    const lib = dedent`
+      [[package]]
+      name = "lib"
+      version = "0.1.0"
+      source = { editable = "../lib" }
+      dependencies = [{ name = "six" }]
+
+      [[package]]
+      name = "six"
+      version = "1.16.0"
+      source = { registry = "https://pypi.org/simple" }
+    `;
+    const graph = getUvLockGraph(
+      [
+        { path: 'app/uv.lock', text: own('app', '{ name = "lib" }', lib) },
+        {
+          path: 'lib/uv.lock',
+          text: own(
+            'lib',
+            '{ name = "six" }',
+            dedent`
+              [[package]]
+              name = "six"
+              version = "1.16.0"
+              source = { registry = "https://pypi.org/simple" }
+            `,
+          ),
+        },
+      ],
+      false,
     );
+
+    expect(graph.members).toStrictEqual({
+      app: { lockFile: 'app/uv.lock', dependencies: ['pypi:six'] },
+      lib: { lockFile: 'lib/uv.lock', dependencies: ['pypi:six'] },
+    });
+    expect(Object.keys(graph.externalNodes)).toStrictEqual(['pypi:six']);
   });
 });

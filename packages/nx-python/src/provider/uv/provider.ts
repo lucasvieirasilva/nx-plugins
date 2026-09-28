@@ -106,16 +106,23 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
     await checkUvExecutable();
   }
 
-  public override getLockGraph(): LockGraph | null {
-    if (!this.isWorkspace) {
+  public override getLockGraph(lockFiles: string[]): LockGraph | null {
+    // A uv workspace locks once at the root; otherwise every project locks on
+    // its own.
+    const uvLocks = lockFiles.filter((file) =>
+      this.isWorkspace
+        ? file === this.lockFileName
+        : path.posix.basename(file) === this.lockFileName,
+    );
+    if (!uvLocks.length) {
       return null;
     }
-    const lockPath = joinPathFragments(this.workspaceRoot, this.lockFileName);
     return getUvLockGraph(
-      this.tree
-        ? this.tree.read(lockPath, 'utf-8')
-        : fs.readFileSync(lockPath, 'utf-8'),
-      this.lockFileName,
+      uvLocks.map((file) => ({
+        path: file,
+        text: this.readWorkspaceFile(file),
+      })),
+      this.isWorkspace,
     );
   }
 

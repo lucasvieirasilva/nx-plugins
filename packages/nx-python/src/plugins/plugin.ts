@@ -2,6 +2,7 @@ import {
   ImplicitDependency,
   DependencyType,
   CreateDependencies,
+  CreateDependenciesContext,
   CreateNodesV2,
   logger,
   StaticDependency,
@@ -18,8 +19,10 @@ import { extractImportedModules, getPythonParser } from './infer';
 
 const cachedScannedFiles: Record<string, [string, string][]> = {};
 
+const LOCK_FILES = ['uv.lock', 'poetry.lock'];
+
 export const createNodesV2: CreateNodesV2<PluginOptions> = [
-  'uv.lock',
+  '**/{uv,poetry}.lock',
   async (files, options, context) => {
     if (!options?.externalNodes) {
       return [];
@@ -31,10 +34,11 @@ export const createNodesV2: CreateNodesV2<PluginOptions> = [
       undefined,
       options,
     );
-    const lockGraph = provider.getLockGraph();
+    const lockGraph = provider.getLockGraph([...files]);
     if (!lockGraph) {
       return [];
     }
+    // Every matched file reports the same nodes; Nx merges them by name.
     return files.map((file) => [
       file,
       { externalNodes: lockGraph.externalNodes },
@@ -155,35 +159,56 @@ export const createDependencies: CreateDependencies<PluginOptions> = async (
   }
 
   if (options?.externalNodes) {
-    const lockGraph = provider.getLockGraph();
-    const hasFile = (files: { file: string }[] | undefined) =>
-      !!lockGraph && (files ?? []).some((f) => f.file === lockGraph.lockFile);
-    const lockIsWorkspaceFile = hasFile(context.fileMap.nonProjectFiles);
-    for (const project in context.projects) {
-      const { root } = context.projects[project];
-      // The edges come from the lock file, not pyproject.toml: Nx restores an
-      // unchanged file's cached edges over freshly computed ones. When another
-      // project owns the lock file, no file of this project can carry them, so
-      // they go in as implicit edges, which Nx recomputes on every build.
-      const onLockFile =
-        lockIsWorkspaceFile || hasFile(context.fileMap.projectFileMap[project]);
-      for (const target of lockGraph?.memberDependencies[root] ?? []) {
-        if (!context.externalNodes[target]) {
-          continue;
-        }
-        result.push(
-          onLockFile
-            ? {
-                source: project,
-                target,
-                type: DependencyType.static,
-                sourceFile: lockGraph.lockFile,
-              }
-            : { source: project, target, type: DependencyType.implicit },
-        );
-      }
-    }
+    result.push(...lockGraphDependencies(provider, context));
   }
 
   return result;
 };
+
+// Each member's edges to the packages it installs. They come from the lock
+// file, not pyproject.toml, because Nx restores an unchanged file's cached
+// edges over freshly computed ones. When another project owns the lock file,
+// no file of this project can carry them, so they go in as implicit edges,
+// which Nx recomputes on every build.
+function lockGraphDependencies(
+  provider: Awaited<ReturnType<typeof getProvider>>,
+  context: CreateDependenciesContext,
+): Array<ImplicitDependency | StaticDependency> {
+  const { nonProjectFiles, projectFileMap } = context.fileMap;
+  const isLockFile = ({ file }: { file: string }) =>
+    LOCK_FILES.includes(file.split('/').pop());
+  const lockGraph = provider.getLockGraph(
+    [nonProjectFiles, ...Object.values(projectFileMap)]
+      .flat()
+      .filter(isLockFile)
+      .map(({ file }) => file),
+  );
+  if (!lockGraph) {
+    return [];
+  }
+  const workspaceFiles = new Set(nonProjectFiles.map(({ file }) => file));
+
+  return Object.entries(context.projects).flatMap(([project, { root }]) => {
+    const member = lockGraph.members[root];
+    if (!member) {
+      return [];
+    }
+    const onLockFile =
+      workspaceFiles.has(member.lockFile) ||
+      (projectFileMap[project] ?? []).some(
+        ({ file }) => file === member.lockFile,
+      );
+    return member.dependencies
+      .filter((target) => context.externalNodes[target])
+      .map((target) =>
+        onLockFile
+          ? {
+              source: project,
+              target,
+              type: DependencyType.static,
+              sourceFile: member.lockFile,
+            }
+          : { source: project, target, type: DependencyType.implicit },
+      );
+  });
+}
