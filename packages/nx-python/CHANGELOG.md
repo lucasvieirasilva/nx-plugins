@@ -1,3 +1,14 @@
+## 23.2.1 (2026-09-28)
+
+### 🩹 Fixes
+
+- **nx-python:** keep every member's external-node edges in a shared lock workspace ([#368](https://github.com/lucasvieirasilva/nx-plugins/pull/368))
+
+### ❤️ Thank You
+
+- Salah @spichen
+- Salah Pichen
+
 ## 23.2.0 (2026-09-28)
 
 ### 🚀 Features
