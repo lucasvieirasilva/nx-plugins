@@ -22,6 +22,15 @@ import { parse } from '@iarna/toml';
 import { getPyprojectData, readPyprojectToml } from './utils';
 import { PluginOptions } from '../types';
 
+export type RequirementsTxtOptions = {
+  /**
+   * Whether to lock the project before exporting (default `true`). Pass
+   * `false` to export the lock file as it stands, e.g. from a build that must
+   * not rewrite it.
+   */
+  lock?: boolean;
+};
+
 export type Dependency = {
   name: string;
   category: string;
@@ -320,12 +329,14 @@ export abstract class BaseProvider<TPyprojectToml> {
    * @param cwd - Project directory to export from.
    * @param extras - Optional extras to include in the export.
    * @param outputPath - Optional output path (defaults to `requirements.txt`).
+   * @param options - Whether to lock first (see {@link RequirementsTxtOptions}).
    * @returns The path to the written requirements file.
    */
   abstract writeProjectRequirementsTxt(
     cwd: string,
     extras?: string[],
     outputPath?: string,
+    options?: RequirementsTxtOptions,
   ): Promise<string>;
 
   /**

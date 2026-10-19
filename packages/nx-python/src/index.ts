@@ -6,3 +6,9 @@ export * from './plugins/plugin';
 // re-declaring it.
 export type * from './provider/poetry/types';
 export type * from './provider/uv/types';
+
+// The package-manager abstraction the executors use, for tooling that needs
+// the same resolution (e.g. a project's locked requirements) outside an
+// executor.
+export { getProvider } from './provider/resolver';
+export type { BaseProvider, RequirementsTxtOptions } from './provider/base';

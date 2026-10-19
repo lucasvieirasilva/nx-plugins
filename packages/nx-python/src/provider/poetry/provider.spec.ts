@@ -3,6 +3,7 @@ import { vol } from 'memfs';
 import '../../utils/mocks/cross-spawn.mock';
 import '../../utils/mocks/fs.mock';
 import dedent from 'string-dedent';
+import spawn from 'cross-spawn';
 import { PoetryProvider } from './provider';
 import { Logger } from '../../executors/utils/logger';
 
@@ -178,6 +179,50 @@ describe('PoetryProvider', () => {
       expect(() =>
         provider.updateDependencyVersions('apps/app1', { lib1: '1.4.0' }),
       ).toThrow(/does not allow 1\.4\.0/);
+    });
+  });
+
+  describe('writeProjectRequirementsTxt', () => {
+    it('locks the project before exporting it, by default', async () => {
+      const provider = new PoetryProvider('.', new Logger());
+      const lock = vi.spyOn(provider, 'lock').mockResolvedValue();
+      vi.mocked(spawn.sync).mockReturnValue({ status: 0 } as never);
+
+      const output = await provider.writeProjectRequirementsTxt(
+        'libs/lib1',
+        undefined,
+        'requirements.txt',
+      );
+
+      expect(output).toBe('requirements.txt');
+      expect(lock).toHaveBeenCalledWith('libs/lib1');
+      expect(spawn.sync).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.arrayContaining(['export', '--without-hashes']),
+        expect.objectContaining({ cwd: 'libs/lib1' }),
+      );
+    });
+
+    it('exports the lock file as it stands when told not to lock', async () => {
+      const provider = new PoetryProvider('.', new Logger());
+      const lock = vi.spyOn(provider, 'lock').mockResolvedValue();
+      vi.mocked(spawn.sync).mockReturnValue({ status: 0 } as never);
+
+      await provider.writeProjectRequirementsTxt(
+        'libs/lib1',
+        undefined,
+        'requirements.txt',
+        {
+          lock: false,
+        },
+      );
+
+      expect(lock).not.toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.arrayContaining(['export']),
+        expect.objectContaining({ cwd: 'libs/lib1' }),
+      );
     });
   });
 });

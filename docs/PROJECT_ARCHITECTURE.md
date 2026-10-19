@@ -1,6 +1,6 @@
 # Project Architecture — `@nxlv/python`
 
-`@nxlv/python` (`packages/nx-python`) is an Nx plugin that brings Python projects into an Nx workspace. It supports two Python package managers — **Poetry** and **uv** — behind a single abstraction, and exposes them to Nx through **executors**, **generators**, **migrations**, and a **dependency-inference plugin**. The package public surface is `src/index.ts`, which re-exports `./plugins/plugin`; `package.json` also exports `./release/version-actions`.
+`@nxlv/python` (`packages/nx-python`) is an Nx plugin that brings Python projects into an Nx workspace. It supports two Python package managers — **Poetry** and **uv** — behind a single abstraction, and exposes them to Nx through **executors**, **generators**, **migrations**, and a **dependency-inference plugin**. The package public surface is `src/index.ts`, which re-exports `./plugins/plugin`, the `pyproject.toml` types, and `getProvider` with the `BaseProvider` / `RequirementsTxtOptions` types, for tooling that needs the same package-manager resolution outside an executor (e.g. `writeProjectRequirementsTxt(cwd, extras, outputPath, { lock: false })` to export a lock file without rewriting it); `package.json` also exports `./release/version-actions`.
 
 ## High-level layers
 

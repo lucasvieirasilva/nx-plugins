@@ -14,6 +14,7 @@ import {
   SyncGeneratorResult,
   SyncGeneratorCallback,
   LockGraph,
+  RequirementsTxtOptions,
 } from '../base';
 import fs from 'fs';
 import path, { join } from 'path';
@@ -407,8 +408,11 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
     cwd: string,
     extras?: string[],
     outputPath?: string,
+    options?: RequirementsTxtOptions,
   ): Promise<string> {
-    await this.lock(cwd);
+    if (options?.lock ?? true) {
+      await this.lock(cwd);
+    }
 
     const exportArgs = [
       'export',
