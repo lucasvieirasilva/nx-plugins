@@ -1,3 +1,14 @@
+## 23.3.0 (2026-10-19)
+
+### 🚀 Features
+
+- **nx-python:** export getProvider and allow exporting requirements without locking ([#369](https://github.com/lucasvieirasilva/nx-plugins/pull/369))
+
+### ❤️ Thank You
+
+- Claude Opus 5.5
+- Lucas Vieira @lucasvieirasilva
+
 ## 23.2.1 (2026-09-28)
 
 ### 🩹 Fixes
