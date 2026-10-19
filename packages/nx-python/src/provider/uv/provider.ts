@@ -13,6 +13,7 @@ import {
   ProjectMetadata,
   SyncGeneratorResult,
   SyncGeneratorCallback,
+  RequirementsTxtOptions,
 } from '../base';
 import { AddExecutorSchema } from '../../executors/add/schema';
 import { SpawnSyncOptions } from 'child_process';
@@ -443,8 +444,11 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
     cwd: string,
     extras?: string[],
     outputPath?: string,
+    options?: RequirementsTxtOptions,
   ): Promise<string> {
-    await this.lock(cwd);
+    if (options?.lock ?? true) {
+      await this.lock(cwd);
+    }
 
     const uvVersion = getUvVersion();
     const noAnnotateSupported = semver.gte(uvVersion, '0.6.11'); // --no-annotate only supported from 0.6.11

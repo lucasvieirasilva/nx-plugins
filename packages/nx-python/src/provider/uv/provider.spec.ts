@@ -3,6 +3,7 @@ import { vol } from 'memfs';
 import '../../utils/mocks/cross-spawn.mock';
 import '../../utils/mocks/fs.mock';
 import dedent from 'string-dedent';
+import spawn from 'cross-spawn';
 import { UVProvider } from './provider';
 import { Logger } from '../../executors/utils/logger';
 
@@ -200,6 +201,52 @@ describe('UVProvider', () => {
       expect(() =>
         provider.updateDependencyVersions('apps/app1', { lib1: '1.4.0' }),
       ).toThrow(/does not allow 1.4.0/);
+    });
+  });
+
+  describe('writeProjectRequirementsTxt', () => {
+    beforeEach(() => {
+      vi.mocked(spawn.sync).mockReturnValue({
+        status: 0,
+        stdout: Buffer.from('uv 0.7.0'),
+      } as never);
+    });
+
+    it('locks the project before exporting it, by default', async () => {
+      const lock = vi.spyOn(provider, 'lock').mockResolvedValue();
+
+      await provider.writeProjectRequirementsTxt(
+        'libs/lib1',
+        undefined,
+        'requirements.txt',
+      );
+
+      expect(lock).toHaveBeenCalledWith('libs/lib1');
+      expect(spawn.sync).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.arrayContaining(['export', '--frozen']),
+        expect.objectContaining({ cwd: 'libs/lib1' }),
+      );
+    });
+
+    it('exports the lock file as it stands when told not to lock', async () => {
+      const lock = vi.spyOn(provider, 'lock').mockResolvedValue();
+
+      await provider.writeProjectRequirementsTxt(
+        'libs/lib1',
+        undefined,
+        'requirements.txt',
+        {
+          lock: false,
+        },
+      );
+
+      expect(lock).not.toHaveBeenCalled();
+      expect(spawn.sync).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.arrayContaining(['export']),
+        expect.objectContaining({ cwd: 'libs/lib1' }),
+      );
     });
   });
 });
