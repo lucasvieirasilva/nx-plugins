@@ -454,11 +454,21 @@ export class ProjectDependencyResolver {
     for (const [extraName, extraData] of Object.entries(
       pyproject.project['optional-dependencies'] ?? {},
     )) {
+      // An optional dependency is only redundant when a main dependency on the same
+      // package already requests every extra it does: `pkg[extra]` in an extra still
+      // adds something next to a plain `pkg` in the main dependencies.
       pyproject.project['optional-dependencies'][extraName] = extraData.filter(
-        (optionalDep) =>
-          !pyproject.project.dependencies
-            .map((dep) => normalizeDependencyName(dep))
-            .includes(normalizeDependencyName(optionalDep)),
+        (optionalDep) => {
+          const optionalName = normalizeDependencyName(optionalDep);
+          const optionalExtras = extractExtraFromDependencyName(optionalDep);
+          return !pyproject.project.dependencies.some((dep) => {
+            if (normalizeDependencyName(dep) !== optionalName) {
+              return false;
+            }
+            const mainExtras = extractExtraFromDependencyName(dep);
+            return optionalExtras.every((extra) => mainExtras.includes(extra));
+          });
+        },
       );
 
       // Remove empty optional dependency groups
