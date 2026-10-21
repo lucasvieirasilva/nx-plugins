@@ -19,6 +19,11 @@ export function includeDependencyPackage(
   const isTargetSrcDir = existsSync(join(buildFolderPath, 'src'));
   const isSrcDir = existsSync(join(workspaceRoot, projectRoot, 'src'));
 
+  const isDepHatch =
+    projectData?.['build-system']?.['build-backend'] === 'hatchling.build';
+  const isDepUvBuild =
+    projectData?.['build-system']?.['build-backend'] === 'uv_build';
+
   if (isTargetHatch) {
     buildTomlData.tool ??= {};
     buildTomlData.tool.hatch ??= {};
@@ -39,14 +44,7 @@ export function includeDependencyPackage(
     );
   }
 
-  if (isSrcDir) {
-    for (const pkg of readdirSync(join(workspaceRoot, projectRoot, 'src'))) {
-      const pkgFolder = join(workspaceRoot, projectRoot, 'src', pkg);
-      copySync(pkgFolder, getTargetModulePath(pkg), { filter: pycacheFilter });
-
-      updateModules(pkg);
-    }
-  } else {
+  if (isDepHatch) {
     for (const pkg of projectData.tool?.hatch?.build?.targets?.wheel
       ?.packages ?? []) {
       const pkgFolder = join(workspaceRoot, projectRoot, pkg);
@@ -54,6 +52,35 @@ export function includeDependencyPackage(
 
       updateModules(pkg);
     }
+  } else if (isDepUvBuild) {
+    // first - check [tool.uv.build-backend]
+    let pkgsRoot  = projectData.tool?.uv?.['build-backend']?.['module-root'];
+    let pkgsNames = projectData.tool?.uv?.['build-backend']?.['module-name'];
+
+    // if [tool.uv.build-backend] has no packaging instructions use src/ dir:
+    // 1 `src/` - as root for packages
+    // 2 and its subfolders - as package names
+    if ((undefined === pkgsRoot) && (isSrcDir)) {
+      pkgsRoot  = 'src';
+    }
+    if ((undefined === pkgsNames) && (isSrcDir)) {
+      pkgsNames = readdirSync(join(workspaceRoot, projectRoot, 'src'));
+    }
+
+    if (!Array.isArray(pkgsNames)) {
+      pkgsNames = [pkgsNames];
+    }
+
+    for (const pkg of pkgsNames) {
+      const pkgFolder = join(workspaceRoot, projectRoot, pkgsRoot, pkg);
+      copySync(pkgFolder, getTargetModulePath(pkg), { filter: pycacheFilter });
+
+      updateModules(pkg);
+    }
+  } else {
+    throw new Error(
+      `Unsupported build system: ${projectData?.['build-system']?.['build-backend']} for dependency ${projectData?.project?.name}, expected hatchling.build or uv_build`,
+    );
   }
 
   function getTargetModules(fullPath = false): string[] {
