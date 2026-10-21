@@ -1,3 +1,14 @@
+## 23.3.1 (2026-10-21)
+
+### 🩹 Fixes
+
+- **nx-python:** link and bump local deps referenced only through an extra ([#371](https://github.com/lucasvieirasilva/nx-plugins/pull/371))
+
+### ❤️ Thank You
+
+- Claude Opus 4.8
+- Robin De Schepper
+
 ## 23.3.0 (2026-10-19)
 
 ### 🚀 Features
