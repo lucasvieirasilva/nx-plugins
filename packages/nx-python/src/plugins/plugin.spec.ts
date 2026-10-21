@@ -911,6 +911,99 @@ describe('nx-python dependency graph', () => {
         ]);
       });
 
+      it('should link optional-dependencies (extras) in the graph', async () => {
+        vol.fromJSON({
+          'apps/app1/pyproject.toml': dedent`
+          [project]
+          name = "app1"
+          version = "0.1.0"
+          readme = "README.md"
+          requires-python = ">=3.12"
+          dependencies = []
+
+          [project.optional-dependencies]
+          extra1 = [
+              "dep1",
+          ]
+
+          [tool.hatch.build.targets.wheel]
+          packages = ["app1"]
+
+          [tool.uv.sources]
+          dep1 = { workspace = true }
+          `,
+
+          'libs/dep1/pyproject.toml': dedent`
+          [project]
+          name = "dep1"
+          version = "0.1.0"
+          readme = "README.md"
+          requires-python = ">=3.12"
+          dependencies = []
+
+          [tool.hatch.build.targets.wheel]
+          packages = ["dep1"]
+          `,
+
+          'pyproject.toml': '',
+
+          'uv.lock': dedent`
+          version = 1
+          requires-python = ">=3.12"
+
+          [[package]]
+          name = "app1"
+          version = "0.1.0"
+          source = { editable = "apps/app1" }
+          dependencies = []
+
+          [package.optional-dependencies]
+          extra1 = [
+              { name = "dep1" },
+          ]
+
+          [package.metadata]
+          requires-dist = [
+              { name = "dep1", editable = "libs/dep1", marker = "extra == 'extra1'" },
+          ]
+          `,
+        });
+
+        const projects = {
+          app1: {
+            root: 'apps/app1',
+            targets: {},
+          },
+          dep1: {
+            root: 'libs/dep1',
+            targets: {},
+          },
+        };
+
+        const result = await createDependencies(null, {
+          externalNodes: {},
+          workspaceRoot: '.',
+          projects,
+          nxJsonConfiguration: {},
+          fileMap: {
+            nonProjectFiles: [],
+            projectFileMap: {},
+          },
+          filesToProcess: {
+            nonProjectFiles: [],
+            projectFileMap: {},
+          },
+        });
+
+        expect(result).toStrictEqual([
+          {
+            source: 'app1',
+            target: 'dep1',
+            type: 'implicit',
+          },
+        ]);
+      });
+
       it('should link arbitrary groups dependencies in the graph', async () => {
         vol.fromJSON({
           'apps/app1/pyproject.toml': dedent`

@@ -376,6 +376,24 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
         ),
       );
 
+      // Extras (`[project.optional-dependencies]`) reference siblings too; without
+      // this they are invisible to the graph, so a sibling pinned only through an
+      // extra is never linked and its range is never bumped on release.
+      const optionalDependencies =
+        tomlData?.project?.['optional-dependencies'] ?? {};
+      for (const extra in optionalDependencies) {
+        deps.push(
+          ...this.resolveDependencies(
+            packageName,
+            sources,
+            projects[projectName],
+            optionalDependencies[extra],
+            extra,
+            projects,
+          ),
+        );
+      }
+
       for (const group in tomlData['dependency-groups']) {
         deps.push(
           ...this.resolveDependencies(
@@ -1115,10 +1133,13 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
 
     const packageMetadata = this.rootLockfile.package[packageName]?.metadata;
 
+    // Runtime and extra requirements are both recorded in `requires-dist`
+    // (extras carry an `extra == "..."` marker); only dependency groups live in
+    // `requires-dev`, keyed by group name. Look in `requires-dist` first so a
+    // sibling reached only through an extra is resolved, not just one in `[project.dependencies]`.
     const depMetadata =
-      category === 'main'
-        ? packageMetadata?.['requires-dist']?.[dependencyName]
-        : packageMetadata?.['requires-dev']?.[category]?.[dependencyName];
+      packageMetadata?.['requires-dist']?.[dependencyName] ??
+      packageMetadata?.['requires-dev']?.[category]?.[dependencyName];
 
     if (!depMetadata?.editable) {
       return;
