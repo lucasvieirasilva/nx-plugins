@@ -160,10 +160,10 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
         ) ?? []
       );
     } else if (isTargetUvBuild) {
-      return (
-        projectData.tool?.uv?.['build-backend']?.['module-name']?.map((pkg) =>
-          join(projectRoot, pkg),
-        ) ?? []
+      const moduleName =
+        projectData.tool?.uv?.['build-backend']?.['module-name'] ?? [];
+      return (Array.isArray(moduleName) ? moduleName : [moduleName]).map(
+        (pkg) => join(projectRoot, pkg),
       );
     }
 

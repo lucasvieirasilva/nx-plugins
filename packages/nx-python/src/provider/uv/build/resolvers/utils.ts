@@ -76,7 +76,9 @@ export function includeDependencyPackage(
         packages.push(pkgName);
       }
     } else if (isTargetUvBuild) {
-      const moduleNames = buildTomlData.tool.uv['build-backend']['module-name'];
+      const moduleNames = buildTomlData.tool.uv['build-backend'][
+        'module-name'
+      ] as string[];
       if (!moduleNames.includes(pkg)) {
         moduleNames.push(pkg);
       }

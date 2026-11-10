@@ -204,6 +204,53 @@ describe('UVProvider', () => {
     });
   });
 
+  describe('getModulesFolders', () => {
+    it('returns the module folder when module-name is a string', () => {
+      vol.fromJSON({
+        'libs/lib1/pyproject.toml': dedent`
+          [project]
+          name = "lib1"
+          version = "1.0.0"
+
+          [build-system]
+          requires = ["uv_build"]
+          build-backend = "uv_build"
+
+          [tool.uv.build-backend]
+          module-name = "lib1"
+          module-root = ""
+        `,
+      });
+
+      expect(provider.getModulesFolders('libs/lib1')).toEqual([
+        'libs/lib1/lib1',
+      ]);
+    });
+
+    it('returns every module folder when module-name is a list', () => {
+      vol.fromJSON({
+        'libs/lib1/pyproject.toml': dedent`
+          [project]
+          name = "lib1"
+          version = "1.0.0"
+
+          [build-system]
+          requires = ["uv_build"]
+          build-backend = "uv_build"
+
+          [tool.uv.build-backend]
+          module-name = ["lib1", "lib2"]
+          module-root = ""
+        `,
+      });
+
+      expect(provider.getModulesFolders('libs/lib1')).toEqual([
+        'libs/lib1/lib1',
+        'libs/lib1/lib2',
+      ]);
+    });
+  });
+
   describe('writeProjectRequirementsTxt', () => {
     beforeEach(() => {
       vi.mocked(spawn.sync).mockReturnValue({
