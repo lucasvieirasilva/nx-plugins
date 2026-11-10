@@ -10,11 +10,7 @@ import {
 } from '@nx/devkit';
 import { getProvider } from '../provider';
 import { PluginOptions } from '../types';
-import { glob } from 'glob';
-import { join } from 'node:path';
-import { hashFile } from 'nx/src/hasher/file-hasher';
 import { readFile } from 'node:fs/promises';
-import fs from 'node:fs';
 import { extractImportedModules, getPythonParser } from './infer';
 
 const cachedScannedFiles: Record<string, [string, string][]> = {};
@@ -89,15 +85,13 @@ export const createDependencies: CreateDependencies<PluginOptions> = async (
 
     if (inferDependencies) {
       const sourceFolders = projectModulesMap.get(project);
-      const sourceFoldersPatterns = sourceFolders.map((folder) =>
-        join(folder, '**', '*.py'),
-      );
-      const filesToScan = (
-        await glob(sourceFoldersPatterns, {
-          cwd: context.workspaceRoot,
-          fs,
-        })
-      ).map((file) => [file, hashFile(file)]);
+      const filesToScan = (context.fileMap.projectFileMap[project] ?? [])
+        .filter(
+          ({ file }) =>
+            file.endsWith('.py') &&
+            sourceFolders.some((folder) => file.startsWith(`${folder}/`)),
+        )
+        .map(({ file, hash }) => [file, hash]);
 
       logger.verbose(`[${project}] Scanning ${filesToScan.length} files`);
 
