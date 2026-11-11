@@ -1,3 +1,13 @@
+## 23.3.2 (2026-11-11)
+
+### 🩹 Fixes
+
+- **nx-python:** accept a string module-name for uv_build in getModulesFolders ([#373](https://github.com/lucasvieirasilva/nx-plugins/pull/373))
+
+### ❤️ Thank You
+
+- Mor Maman @mormamn
+
 ## 23.3.1 (2026-10-21)
 
 ### 🩹 Fixes
