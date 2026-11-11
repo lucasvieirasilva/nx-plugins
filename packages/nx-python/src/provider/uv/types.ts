@@ -53,7 +53,7 @@ export type UVPyprojectToml = {
         members: string[];
       };
       'build-backend'?: {
-        'module-name'?: string[];
+        'module-name'?: string | string[];
         namespace?: boolean;
       };
     };
