@@ -1,3 +1,13 @@
+## 23.3.3 (2026-11-11)
+
+### 🩹 Fixes
+
+- **nx-python:** infer dependencies only from files in the Nx file map ([#374](https://github.com/lucasvieirasilva/nx-plugins/pull/374))
+
+### ❤️ Thank You
+
+- Mor Maman @mormamn
+
 ## 23.3.2 (2026-11-11)
 
 ### 🩹 Fixes
