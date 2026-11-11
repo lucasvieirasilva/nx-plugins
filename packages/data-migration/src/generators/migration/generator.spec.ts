@@ -30,8 +30,10 @@ describe('migration generator', () => {
   };
 
   beforeEach(async () => {
+    // Nx >= 23 defaults the test tree to oxfmt; this repo formats with prettier.
     appTree = createTreeWithEmptyWorkspace({
       layout: 'apps-libs',
+      formatter: 'prettier',
     });
 
     await libraryGenerator(appTree, {

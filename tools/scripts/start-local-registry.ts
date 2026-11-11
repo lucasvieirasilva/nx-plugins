@@ -4,7 +4,10 @@
  * invoked once, after all e2e tests finish, to tear the registry down.
  */
 
+import { workspaceRoot } from '@nx/devkit';
 import { startLocalRegistry } from '@nx/js/plugins/jest/local-registry';
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { releasePublish, releaseVersion } from 'nx/release';
 
 /**
@@ -13,6 +16,30 @@ import { releasePublish, releaseVersion } from 'nx/release';
  * globalSetup, so a variable set here reaches them.
  */
 export const E2E_VERSION_ENV = 'NXLV_PYTHON_E2E_VERSION';
+
+/**
+ * Captures every workspace package manifest so the throwaway e2e version that
+ * `releaseVersion` writes into them can be undone once it has been published.
+ */
+function snapshotManifests(): Map<string, string> {
+  const packagesDir = join(workspaceRoot, 'packages');
+  const snapshot = new Map<string, string>();
+  for (const dir of readdirSync(packagesDir)) {
+    const manifest = join(packagesDir, dir, 'package.json');
+    if (existsSync(manifest)) {
+      snapshot.set(manifest, readFileSync(manifest, 'utf-8'));
+    }
+  }
+  return snapshot;
+}
+
+function restoreManifests(snapshot: Map<string, string>): void {
+  for (const [manifest, content] of snapshot) {
+    if (readFileSync(manifest, 'utf-8') !== content) {
+      writeFileSync(manifest, content);
+    }
+  }
+}
 
 export default async () => {
   // local registry target to run
@@ -50,26 +77,38 @@ export default async () => {
   const e2eVersion = `0.0.0-e2e-${Date.now()}`;
   process.env[E2E_VERSION_ENV] = e2eVersion;
 
-  await releaseVersion({
-    specifier: e2eVersion,
-    stageChanges: false,
-    gitCommit: false,
-    gitTag: false,
-    firstRelease: true,
-    versionActionsOptionsOverrides: {
-      skipLockFileUpdate: true,
-    },
-  });
-  // Pass the registry explicitly so it is forwarded to `pnpm publish` as a
-  // CLI arg (`--@nxlv:registry=<registry>`). This is required because the
-  // @nxlv scope is pinned to real npm in the user's ~/.npmrc, and env-var
-  // overrides don't reliably reach the publish child process (Nx daemon /
-  // pre-forked workers snapshot the env before this runs).
-  await releasePublish({
-    tag: 'e2e',
-    firstRelease: true,
-    registry,
-  });
+  // `releaseVersion` writes the e2e version into the packages' package.json
+  // files. The specs only need the published tarballs (they read the version
+  // from E2E_VERSION_ENV), so put the manifests back as soon as publishing is
+  // done, even if it fails, instead of leaving them dirty in the working tree.
+  const manifests = snapshotManifests();
+  try {
+    await releaseVersion({
+      specifier: e2eVersion,
+      stageChanges: false,
+      gitCommit: false,
+      gitTag: false,
+      firstRelease: true,
+      versionActionsOptionsOverrides: {
+        skipLockFileUpdate: true,
+      },
+    });
+    // Pass the registry explicitly so it is forwarded to `pnpm publish` as a
+    // CLI arg (`--@nxlv:registry=<registry>`). This is required because the
+    // @nxlv scope is pinned to real npm in the user's ~/.npmrc, and env-var
+    // overrides don't reliably reach the publish child process (Nx daemon /
+    // pre-forked workers snapshot the env before this runs).
+    await releasePublish({
+      tag: 'e2e',
+      firstRelease: true,
+      registry,
+    });
+  } catch (error) {
+    stopLocalRegistry();
+    throw error;
+  } finally {
+    restoreManifests(manifests);
+  }
 
   return () => {
     stopLocalRegistry();

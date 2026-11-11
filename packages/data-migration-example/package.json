@@ -2,12 +2,12 @@
   "name": "@nxlv/nx-plugins/data-migration-example",
   "version": "0.0.1",
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.525.0",
-    "@aws-sdk/lib-dynamodb": "^3.525.0",
-    "@aws-sdk/util-dynamodb": "^3.525.0",
+    "@aws-sdk/client-dynamodb": "^3.1166.0",
+    "@aws-sdk/lib-dynamodb": "^3.1166.0",
+    "@aws-sdk/util-dynamodb": "^3.996.9",
     "@nxlv/data-migration": "workspace:*",
     "@nxlv/util": "workspace:*",
-    "aws-lambda": "^1.0.7",
+    "@types/aws-lambda": "^8.10.136",
     "tslib": "^2.3.0"
   }
 }
