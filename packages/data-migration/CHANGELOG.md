@@ -1,3 +1,17 @@
+## 9.0.4 (2026-11-11)
+
+### 🩹 Fixes
+
+- resolve open Dependabot security alerts ([#377](https://github.com/lucasvieirasilva/nx-plugins/pull/377))
+
+### 🧱 Updated Dependencies
+
+- Updated util to 8.0.4
+
+### ❤️ Thank You
+
+- Lucas Vieira @lucasvieirasilva
+
 ## 9.0.3 (2026-11-11)
 
 ### 🧱 Updated Dependencies

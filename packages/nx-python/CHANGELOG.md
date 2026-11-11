@@ -1,3 +1,13 @@
+## 23.3.5 (2026-11-11)
+
+### 🩹 Fixes
+
+- resolve open Dependabot security alerts ([#377](https://github.com/lucasvieirasilva/nx-plugins/pull/377))
+
+### ❤️ Thank You
+
+- Lucas Vieira @lucasvieirasilva
+
 ## 23.3.4 (2026-11-11)
 
 ### 🩹 Fixes
