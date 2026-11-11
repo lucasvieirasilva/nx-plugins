@@ -17,7 +17,7 @@ permissions:
 jobs:
   e2e:
     name: e2e (node ${{ matrix.node }}, py ${{ matrix.python }}, poetry ${{ matrix.poetry }}, uv ${{ matrix.uv }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
@@ -32,9 +32,11 @@ jobs:
             python: '3.11'
             poetry: '2.4.1'
             uv: '0.11.14'
-          # Oldest supported node + python.
+          # Oldest supported node + python. Python 3.9 is EOL and has no
+          # setup-python build for ubuntu-latest (26.04), so pin to 24.04.
           - node: 20
             python: '3.9'
+            os: ubuntu-24.04
             poetry: '2.4.1'
             uv: '0.11.14'
           # Poetry 1.x (export is built-in; no plugin needed).
