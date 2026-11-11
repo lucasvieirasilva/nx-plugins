@@ -39,7 +39,7 @@ export class ProjectDependencyResolver {
     private readonly logger: Logger,
     private readonly options: BuildExecutorSchema,
     private readonly context: ExecutorContext,
-    private readonly isWorkspace: boolean,
+    private readonly uvWorkspaceRoot: string | null,
   ) {}
 
   /**
@@ -605,12 +605,19 @@ export class ProjectDependencyResolver {
     projectRoot: string,
     relativePath?: string,
   ) {
-    if (this.isWorkspace) {
+    if (this.uvWorkspaceRoot) {
       if (!this.rootUvLock) {
-        this.rootUvLock = getUvLockfile(path.join(workspaceRoot, 'uv.lock'));
+        this.rootUvLock = getUvLockfile(
+          path.join(workspaceRoot, this.uvWorkspaceRoot, 'uv.lock'),
+        );
       }
-      return this.rootUvLock.package[dependency]?.source?.editable;
-    } else if (relativePath) {
+      const editable = this.rootUvLock.package[dependency]?.source?.editable;
+      if (editable) {
+        return path.join(this.uvWorkspaceRoot, editable);
+      }
+    }
+
+    if (relativePath) {
       return path.relative(
         process.cwd(),
         path.resolve(projectRoot, relativePath),

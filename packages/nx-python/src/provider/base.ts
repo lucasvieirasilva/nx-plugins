@@ -110,6 +110,15 @@ export abstract class BaseProvider<TPyprojectToml> {
   ) {}
 
   /**
+   * The root of the shared workspace a project is locked in, relative to the
+   * Nx workspace root (`.` when they are the same directory), or `null` when
+   * the project locks on its own.
+   *
+   * @param projectRoot - Project root, relative to the Nx workspace root.
+   */
+  abstract getWorkspaceRoot(projectRoot: string): string | null;
+
+  /**
    * Whether `nx release` should raise the lower bound of a local dependency's
    * version range to the version just released.
    *
@@ -527,8 +536,13 @@ export abstract class BaseProvider<TPyprojectToml> {
     context?: ExecutorContext,
   ): Promise<void> {
     if (!process.env.VIRTUAL_ENV) {
-      if (this.isWorkspace) {
-        const rootPyproject = path.join(workspaceRoot, 'pyproject.toml');
+      const projectRoot =
+        context?.projectsConfigurations?.projects[context?.projectName]?.root;
+      const sharedRoot = this.getWorkspaceRoot(projectRoot ?? '.');
+      const sharedDir = sharedRoot && path.join(workspaceRoot, sharedRoot);
+
+      if (sharedDir) {
+        const rootPyproject = path.join(sharedDir, 'pyproject.toml');
 
         if (fs.existsSync(rootPyproject)) {
           const rootConfig = parse(fs.readFileSync(rootPyproject, 'utf-8')) as {
@@ -543,20 +557,18 @@ export abstract class BaseProvider<TPyprojectToml> {
             console.log(
               chalkTemplate`\n{bold shared virtual environment detected and not activated, activating...}\n\n`,
             );
-            const virtualEnv = path.resolve(workspaceRoot, '.venv');
+            const virtualEnv = path.resolve(sharedDir, '.venv');
             this.setVenvEnvironmentVariables(virtualEnv);
           }
         }
       }
 
       if (installIfNotExists) {
-        if (!this.isWorkspace && !context) {
+        if (!sharedDir && !context) {
           throw new Error('context is required when not in a workspace');
         }
 
-        const projectRoot =
-          context?.projectsConfigurations?.projects[context?.projectName]?.root;
-        const baseDir = this.isWorkspace ? workspaceRoot : projectRoot;
+        const baseDir = sharedDir ?? projectRoot;
 
         const virtualEnv = path.resolve(baseDir, '.venv');
         if (!fs.existsSync(virtualEnv)) {

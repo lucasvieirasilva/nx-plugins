@@ -61,7 +61,13 @@ export const afterAllProjectsVersioned: AfterAllProjectsVersioned = async (
   }
 
   const changedFiles: string[] = [];
+  const workspaceRoots = new Set<string>();
   for (const project of updatedProjects) {
+    const workspaceRoot = provider.getWorkspaceRoot(project);
+    if (workspaceRoot && workspaceRoot !== '.' && workspaceRoot !== project) {
+      workspaceRoots.add(workspaceRoot);
+    }
+
     const projectLockFile = path.join(project, provider.lockFileName);
 
     if (await checkPathExists(projectLockFile)) {
@@ -72,6 +78,16 @@ export const afterAllProjectsVersioned: AfterAllProjectsVersioned = async (
       } else {
         console.log(`Would run lock for ${project}`);
       }
+    }
+  }
+
+  for (const workspaceRoot of workspaceRoots) {
+    changedFiles.push(path.join(workspaceRoot, provider.lockFileName));
+
+    if (!opts.dryRun) {
+      await provider.lock(path.join(cwd, workspaceRoot), false, lockArgs);
+    } else {
+      console.log(`Would run lock for ${workspaceRoot}`);
     }
   }
 

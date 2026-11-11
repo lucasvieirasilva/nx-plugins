@@ -68,7 +68,8 @@ import { getUvLockGraph } from './lock-graph';
 import assert from 'node:assert';
 
 export class UVProvider extends BaseProvider<UVPyprojectToml> {
-  protected _rootLockfile: UVLockfile;
+  private readonly lockfiles = new Map<string, UVLockfile>();
+  private readonly workspaceRoots = new Map<string, string | null>();
 
   constructor(
     workspaceRoot: string,
@@ -92,15 +93,56 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
     );
   }
 
-  private get rootLockfile(): UVLockfile {
-    if (!this._rootLockfile) {
-      this._rootLockfile = getUvLockfile(
-        joinPathFragments(this.workspaceRoot, this.lockFileName),
-        this.tree,
+  private lockfile(uvWorkspaceRoot: string): UVLockfile {
+    if (!this.lockfiles.has(uvWorkspaceRoot)) {
+      this.lockfiles.set(
+        uvWorkspaceRoot,
+        getUvLockfile(
+          joinPathFragments(
+            this.workspaceRoot,
+            uvWorkspaceRoot,
+            this.lockFileName,
+          ),
+          this.tree,
+        ),
       );
     }
 
-    return this._rootLockfile;
+    return this.lockfiles.get(uvWorkspaceRoot);
+  }
+
+  public getWorkspaceRoot(projectRoot: string): string | null {
+    if (!this.workspaceRoots.has(projectRoot)) {
+      this.workspaceRoots.set(projectRoot, this.findWorkspaceRoot(projectRoot));
+    }
+
+    return this.workspaceRoots.get(projectRoot);
+  }
+
+  private findWorkspaceRoot(projectRoot: string): string | null {
+    let dir = path.posix.normalize(projectRoot);
+    while (dir !== '.' && dir !== '/') {
+      const uvRoot = joinPathFragments(this.workspaceRoot, dir);
+      if (this.fileExists(joinPathFragments(uvRoot, this.lockFileName))) {
+        const workspace = this.getPyprojectToml(uvRoot)?.tool?.uv?.workspace;
+        const member = path.posix.relative(dir, projectRoot);
+        if (
+          workspace &&
+          (!member ||
+            ((workspace.members ?? []).some((pattern) =>
+              minimatch(member, pattern),
+            ) &&
+              !(workspace.exclude ?? []).some((pattern) =>
+                minimatch(member, pattern),
+              )))
+        ) {
+          return dir;
+        }
+      }
+      dir = path.posix.dirname(dir);
+    }
+
+    return this.isWorkspace ? '.' : null;
   }
 
   public async checkPrerequisites(): Promise<void> {
@@ -108,23 +150,29 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
   }
 
   public override getLockGraph(lockFiles: string[]): LockGraph | null {
-    // A uv workspace locks once at the root; otherwise every project locks on
+    // A uv workspace locks once at its root; otherwise every project locks on
     // its own.
-    const uvLocks = lockFiles.filter((file) =>
-      this.isWorkspace
-        ? file === this.lockFileName
-        : path.posix.basename(file) === this.lockFileName,
-    );
+    const uvLocks = lockFiles
+      .filter((file) => path.posix.basename(file) === this.lockFileName)
+      .map((file) => ({ path: file, shared: this.isWorkspaceLock(file) }))
+      .filter(({ shared }) => shared || !this.isWorkspace);
     if (!uvLocks.length) {
       return null;
     }
     return getUvLockGraph(
-      uvLocks.map((file) => ({
-        path: file,
-        text: this.readWorkspaceFile(file),
+      uvLocks.map((lock) => ({
+        ...lock,
+        text: this.readWorkspaceFile(lock.path),
       })),
-      this.isWorkspace,
     );
+  }
+
+  private isWorkspaceLock(lockFile: string): boolean {
+    const dir = path.posix.dirname(lockFile);
+    return dir === '.'
+      ? this.isWorkspace
+      : !!this.getPyprojectToml(joinPathFragments(this.workspaceRoot, dir))
+          ?.tool?.uv?.workspace;
   }
 
   public getMetadata(projectRoot: string): ProjectMetadata {
@@ -179,8 +227,10 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
       return null;
     }
 
-    if (this.isWorkspace) {
-      const data = this.rootLockfile.package?.[projectData?.project?.name];
+    const uvWorkspaceRoot = this.getWorkspaceRoot(projectRoot);
+    if (uvWorkspaceRoot) {
+      const lockfile = this.lockfile(uvWorkspaceRoot);
+      const data = lockfile.package?.[projectData?.project?.name];
       const group = data?.dependencies?.find(
         (item) => item.name === dependencyName,
       )
@@ -190,8 +240,8 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
           )?.[0];
 
       return {
-        name: this.rootLockfile.package[dependencyName].name,
-        version: this.rootLockfile.package[dependencyName].version,
+        name: lockfile.package[dependencyName].name,
+        version: lockfile.package[dependencyName].version,
         group,
       };
     } else {
@@ -362,7 +412,8 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
 
     if (this.fileExists(pyprojectToml)) {
       const tomlData = this.getPyprojectToml(projectData.root);
-      const sources = this.sources(tomlData);
+      const uvWorkspaceRoot = this.getWorkspaceRoot(projectData.root);
+      const sources = this.sources(tomlData, uvWorkspaceRoot);
       const packageName = tomlData?.project?.name ?? projectName;
 
       deps.push(
@@ -373,6 +424,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
           tomlData?.project?.dependencies || [],
           'main',
           projects,
+          uvWorkspaceRoot,
         ),
       );
 
@@ -390,6 +442,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
             optionalDependencies[extra],
             extra,
             projects,
+            uvWorkspaceRoot,
           ),
         );
       }
@@ -403,6 +456,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
             tomlData['dependency-groups'][group],
             group,
             projects,
+            uvWorkspaceRoot,
           ),
         );
       }
@@ -418,8 +472,9 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
     const result: string[] = [];
 
     const { root } = projects[projectName];
-    if (this.isWorkspace) {
-      Object.values(this.rootLockfile.package).forEach((pkg) => {
+    const uvWorkspaceRoot = this.getWorkspaceRoot(root);
+    if (uvWorkspaceRoot) {
+      Object.values(this.lockfile(uvWorkspaceRoot).package).forEach((pkg) => {
         const deps = [
           ...Object.values(pkg.metadata['requires-dist'] ?? {}),
           ...Object.values(pkg.metadata['requires-dev'] ?? {})
@@ -430,7 +485,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
         for (const dep of deps) {
           if (
             dep.editable &&
-            path.normalize(dep.editable) === path.normalize(root)
+            path.join(uvWorkspaceRoot, dep.editable) === path.normalize(root)
           ) {
             result.push(pkg.name);
           }
@@ -504,8 +559,10 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
       context.projectsConfigurations.projects[context.projectName];
     const projectRoot = projectConfig.root;
 
+    const uvWorkspaceRoot = this.getWorkspaceRoot(projectRoot);
+
     const args = ['add'];
-    if (!this.isWorkspace && options.local) {
+    if (!uvWorkspaceRoot && options.local) {
       const dependencyConfig = getLocalDependencyConfig(context, options.name);
       const dependencyPath = path.relative(
         projectConfig.root,
@@ -527,7 +584,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
 
     args.push(...(options.args ?? '').split(' ').filter((arg) => !!arg));
 
-    if (this.isWorkspace) {
+    if (uvWorkspaceRoot) {
       args.push('--project', projectRoot);
       runUv(args, {
         cwd: context.root,
@@ -538,7 +595,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
       });
     }
 
-    if (!this.isWorkspace) {
+    if (!uvWorkspaceRoot) {
       this.syncDependents(context, context.projectName);
     }
   }
@@ -705,20 +762,23 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
   ): Promise<void> {
     await this.checkPrerequisites();
     const projectRoot = this.getProjectRoot(context);
+    const uvWorkspaceRoot = this.getWorkspaceRoot(projectRoot);
 
     const args = ['lock', '--upgrade-package', options.name];
-    if (this.isWorkspace) {
+    if (uvWorkspaceRoot) {
       args.push('--project', projectRoot);
     }
 
     runUv(args, {
-      cwd: this.isWorkspace ? context.root : projectRoot,
+      cwd: uvWorkspaceRoot ? context.root : projectRoot,
     });
     runUv(['sync'], {
-      cwd: this.isWorkspace ? context.root : projectRoot,
+      cwd: uvWorkspaceRoot
+        ? path.join(context.root, uvWorkspaceRoot)
+        : projectRoot,
     });
 
-    if (!this.isWorkspace) {
+    if (!uvWorkspaceRoot) {
       this.syncDependents(context, context.projectName);
     }
   }
@@ -730,18 +790,19 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
     await this.checkPrerequisites();
 
     const projectRoot = this.getProjectRoot(context);
+    const uvWorkspaceRoot = this.getWorkspaceRoot(projectRoot);
 
     const args = ['remove', options.name];
-    if (this.isWorkspace) {
+    if (uvWorkspaceRoot) {
       args.push('--project', projectRoot);
     }
 
     args.push(...(options.args ?? '').split(' ').filter((arg) => !!arg));
     runUv(args, {
-      cwd: this.isWorkspace ? context.root : projectRoot,
+      cwd: uvWorkspaceRoot ? context.root : projectRoot,
     });
 
-    if (!this.isWorkspace) {
+    if (!uvWorkspaceRoot) {
       this.syncDependents(context, context.projectName);
     }
   }
@@ -817,11 +878,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
 
     const args = ['sync'];
     const execOptions: RunUvOptions = {
-      cwd: context
-        ? this.isWorkspace
-          ? context.root
-          : this.getProjectRoot(context)
-        : undefined,
+      cwd: context ? this.getInstallRoot(context) : undefined,
     };
     if (optionsOrCwd && typeof optionsOrCwd === 'object') {
       const options = optionsOrCwd;
@@ -885,7 +942,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
         );
       }
 
-      const cwd = this.isWorkspace ? contextOrUpdate.root : projectConfig.root;
+      const cwd = this.getInstallRoot(contextOrUpdate);
 
       const lockCommand = await this.getLockCommand(cwd, options.update);
 
@@ -996,7 +1053,10 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
     buildTomlData['dependency-groups'] = {};
 
     buildTomlData = options.lockedVersions
-      ? new LockedDependencyResolver(this.logger, this.isWorkspace).apply(
+      ? new LockedDependencyResolver(
+          this.logger,
+          this.getWorkspaceRoot(projectRoot),
+        ).apply(
           projectRoot,
           buildFolderPath,
           buildTomlData,
@@ -1007,7 +1067,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
           this.logger,
           options,
           context,
-          this.isWorkspace,
+          this.getWorkspaceRoot(projectRoot),
         ).apply(projectRoot, buildFolderPath, buildTomlData, context.root);
 
     writeFileSync(buildPyProjectToml, toml.stringify(buildTomlData));
@@ -1067,12 +1127,15 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
 
   private sources(
     projectPyprojectToml: UVPyprojectToml | undefined,
+    uvWorkspaceRoot: string | null,
   ): UVPyprojectToml['tool']['uv']['sources'] {
-    if (!this.isWorkspace) {
+    if (!uvWorkspaceRoot) {
       return projectPyprojectToml?.tool?.uv?.sources ?? {};
     }
 
-    const rootPyprojectToml = this.getPyprojectToml(this.workspaceRoot);
+    const rootPyprojectToml = this.getPyprojectToml(
+      joinPathFragments(this.workspaceRoot, uvWorkspaceRoot),
+    );
     return {
       ...(rootPyprojectToml?.tool?.uv?.sources ?? {}),
       ...(projectPyprojectToml?.tool?.uv?.sources ?? {}),
@@ -1086,6 +1149,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
     dependencies: string[],
     category: string,
     projects: Record<string, ProjectConfiguration>,
+    uvWorkspaceRoot: string | null,
   ) {
     const deps: Dependency[] = [];
 
@@ -1095,7 +1159,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
         continue;
       }
 
-      if (this.isWorkspace) {
+      if (uvWorkspaceRoot && sources[normalizedDep].workspace) {
         this.appendWorkspaceDependencyToDeps(
           packageName,
           normalizedDep,
@@ -1103,6 +1167,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
           sources,
           projects,
           deps,
+          uvWorkspaceRoot,
         );
       } else {
         this.appendIndividualDependencyToDeps(
@@ -1126,12 +1191,10 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
     sources: UVPyprojectToml['tool']['uv']['sources'],
     projects: Record<string, ProjectConfiguration>,
     deps: Dependency[],
+    uvWorkspaceRoot: string,
   ): void {
-    if (!sources[dependencyName]?.workspace) {
-      return;
-    }
-
-    const packageMetadata = this.rootLockfile.package[packageName]?.metadata;
+    const packageMetadata =
+      this.lockfile(uvWorkspaceRoot).package[packageName]?.metadata;
 
     // Runtime and extra requirements are both recorded in `requires-dist`
     // (extras carry an `extra == "..."` marker); only dependency groups live in
@@ -1148,7 +1211,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
     const depProjectName = Object.keys(projects).find(
       (proj) =>
         path.normalize(projects[proj].root) ===
-        path.normalize(depMetadata.editable),
+        path.join(uvWorkspaceRoot, depMetadata.editable),
     );
 
     if (!depProjectName) {
@@ -1197,6 +1260,19 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
       category,
       version: pyprojectToml.project?.version,
     });
+  }
+
+  /**
+   * The directory `uv sync` and `uv lock` run from for the context's project:
+   * the root of its uv workspace, or the project root when it locks on its own.
+   */
+  private getInstallRoot(context: ExecutorContext): string {
+    const projectRoot = this.getProjectRoot(context);
+    const uvWorkspaceRoot = this.getWorkspaceRoot(projectRoot);
+
+    return uvWorkspaceRoot
+      ? path.join(context.root, uvWorkspaceRoot)
+      : projectRoot;
   }
 
   private getProjectRoot(context: ExecutorContext) {

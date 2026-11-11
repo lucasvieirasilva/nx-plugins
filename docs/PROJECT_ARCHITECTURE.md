@@ -29,6 +29,8 @@ Executors and generators almost never talk to Poetry/uv directly. They resolve a
 - **`poetry/`** and **`uv/`** — each has `provider.ts` (the `BaseProvider` implementation), `types.ts` (`PoetryPyprojectToml` / `UVPyprojectToml`), `utils.ts` (e.g. `checkPoetryExecutable`, `checkUvExecutable`, version probing, TOML parsing), and `build/` for packaging.
 - **`utils.ts`** — shared TOML helpers: `getPyprojectData` (real FS) and `readPyprojectToml` (Tree-based).
 
+A provider's `isWorkspace` only says whether there is a lock file at the Nx workspace root. `getWorkspaceRoot(projectRoot)` is what the uv provider goes by: it returns the root of the uv workspace a project belongs to (the nearest parent directory with a `uv.lock` and a `[tool.uv.workspace]` whose `members` match the project), `.` for a workspace at the Nx root, or `null` for a project that locks on its own. The graph, the executors, the build resolvers and the release hook read the lock file and run `uv` relative to that root, so one Nx workspace can hold several uv workspaces.
+
 ### Build sub-system (`provider/<pm>/build/`)
 
 `build/builder.ts` plus `build/resolvers/` (`project.ts`, `locked.ts`, `utils.ts`) handle assembling a buildable/publishable artifact — resolving dependencies either from the project definition or from the lockfile (locked versions), and optionally bundling local dependencies.
