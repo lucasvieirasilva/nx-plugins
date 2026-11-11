@@ -526,11 +526,23 @@ describe('nx-python dependency graph', () => {
             nxJsonConfiguration: {},
             fileMap: {
               nonProjectFiles: [],
-              projectFileMap: {},
+              projectFileMap: {
+                app1: [
+                  { file: 'apps/app1/app1/test1.py', hash: 'a' },
+                  { file: 'apps/app1/app1/test2.py', hash: 'b' },
+                  { file: 'apps/app1/app1/test3.py', hash: 'c' },
+                ],
+              },
             },
             filesToProcess: {
               nonProjectFiles: [],
-              projectFileMap: {},
+              projectFileMap: {
+                app1: [
+                  { file: 'apps/app1/app1/test1.py', hash: 'a' },
+                  { file: 'apps/app1/app1/test2.py', hash: 'b' },
+                  { file: 'apps/app1/app1/test3.py', hash: 'c' },
+                ],
+              },
             },
           },
         );
@@ -543,15 +555,15 @@ describe('nx-python dependency graph', () => {
           },
           {
             source: 'app1',
-            target: 'dep2',
-            type: 'dynamic',
-            sourceFile: 'apps/app1/app1/test2.py',
-          },
-          {
-            source: 'app1',
             target: 'dep1',
             type: 'dynamic',
             sourceFile: 'apps/app1/app1/test1.py',
+          },
+          {
+            source: 'app1',
+            target: 'dep2',
+            type: 'dynamic',
+            sourceFile: 'apps/app1/app1/test2.py',
           },
         ]);
       });
@@ -651,11 +663,15 @@ describe('nx-python dependency graph', () => {
             nxJsonConfiguration: {},
             fileMap: {
               nonProjectFiles: [],
-              projectFileMap: {},
+              projectFileMap: {
+                app1: [{ file: 'apps/app1/app1/imports.py', hash: 'a' }],
+              },
             },
             filesToProcess: {
               nonProjectFiles: [],
-              projectFileMap: {},
+              projectFileMap: {
+                app1: [{ file: 'apps/app1/app1/imports.py', hash: 'a' }],
+              },
             },
           },
         );
@@ -1772,11 +1788,23 @@ describe('nx-python dependency graph', () => {
             nxJsonConfiguration: {},
             fileMap: {
               nonProjectFiles: [],
-              projectFileMap: {},
+              projectFileMap: {
+                app1: [
+                  { file: 'apps/app1/app1/test1.py', hash: 'a' },
+                  { file: 'apps/app1/app1/test2.py', hash: 'b' },
+                  { file: 'apps/app1/app1/test3.py', hash: 'c' },
+                ],
+              },
             },
             filesToProcess: {
               nonProjectFiles: [],
-              projectFileMap: {},
+              projectFileMap: {
+                app1: [
+                  { file: 'apps/app1/app1/test1.py', hash: 'a' },
+                  { file: 'apps/app1/app1/test2.py', hash: 'b' },
+                  { file: 'apps/app1/app1/test3.py', hash: 'c' },
+                ],
+              },
             },
           },
         );
@@ -1789,15 +1817,15 @@ describe('nx-python dependency graph', () => {
           },
           {
             source: 'app1',
-            target: 'dep2',
-            type: 'dynamic',
-            sourceFile: 'apps/app1/app1/test2.py',
-          },
-          {
-            source: 'app1',
             target: 'dep1',
             type: 'dynamic',
             sourceFile: 'apps/app1/app1/test1.py',
+          },
+          {
+            source: 'app1',
+            target: 'dep2',
+            type: 'dynamic',
+            sourceFile: 'apps/app1/app1/test2.py',
           },
         ]);
       });
@@ -1929,11 +1957,23 @@ describe('nx-python dependency graph', () => {
             nxJsonConfiguration: {},
             fileMap: {
               nonProjectFiles: [],
-              projectFileMap: {},
+              projectFileMap: {
+                app1: [
+                  { file: 'apps/app1/src/app1/test1.py', hash: 'a' },
+                  { file: 'apps/app1/src/app1/test2.py', hash: 'b' },
+                  { file: 'apps/app1/src/app1/test3.py', hash: 'c' },
+                ],
+              },
             },
             filesToProcess: {
               nonProjectFiles: [],
-              projectFileMap: {},
+              projectFileMap: {
+                app1: [
+                  { file: 'apps/app1/src/app1/test1.py', hash: 'a' },
+                  { file: 'apps/app1/src/app1/test2.py', hash: 'b' },
+                  { file: 'apps/app1/src/app1/test3.py', hash: 'c' },
+                ],
+              },
             },
           },
         );
@@ -1946,15 +1986,138 @@ describe('nx-python dependency graph', () => {
           },
           {
             source: 'app1',
+            target: 'dep1',
+            type: 'dynamic',
+            sourceFile: 'apps/app1/src/app1/test1.py',
+          },
+          {
+            source: 'app1',
             target: 'dep2',
             type: 'dynamic',
             sourceFile: 'apps/app1/src/app1/test2.py',
           },
+        ]);
+      });
+
+      it('should only scan the files in the Nx file map', async () => {
+        vol.fromJSON({
+          'apps/app1/pyproject.toml': dedent`
+          [project]
+          name = "app1"
+          version = "0.1.0"
+          requires-python = ">=3.12"
+          dependencies = []
+
+          [build-system]
+          requires = ["uv"]
+          build-backend = "uv_build"
+          `,
+
+          'apps/app1/src/app1/changed.py': dedent`
+          import dep1
+          `,
+          'apps/app1/src/app1/unchanged.py': dedent`
+          import dep2
+          `,
+          'apps/app1/src/app1/ignored_gen.py': dedent`
+          import dep2
+          `,
+
+          'libs/dep1/pyproject.toml': dedent`
+          [project]
+          name = "dep1"
+          version = "0.1.0"
+          requires-python = ">=3.12"
+          dependencies = []
+
+          [build-system]
+          requires = ["uv"]
+          build-backend = "uv_build"
+          `,
+
+          'libs/dep1/src/dep1/__init__.py': '',
+
+          'libs/dep2/pyproject.toml': dedent`
+          [project]
+          name = "dep2"
+          version = "0.1.0"
+          requires-python = ">=3.12"
+          dependencies = []
+
+          [build-system]
+          requires = ["uv"]
+          build-backend = "uv_build"
+          `,
+
+          'libs/dep2/src/dep2/__init__.py': '',
+
+          'pyproject.toml': '',
+
+          'uv.lock': dedent`
+          version = 1
+          requires-python = ">=3.12"
+
+          [[package]]
+          name = "app1"
+          version = "0.1.0"
+          source = { editable = "apps/app1" }
+          `,
+        });
+
+        const projects = {
+          app1: {
+            root: 'apps/app1',
+            targets: {},
+          },
+          dep1: {
+            root: 'libs/dep1',
+            targets: {},
+          },
+          dep2: {
+            root: 'libs/dep2',
+            targets: {},
+          },
+        };
+
+        const changed = { file: 'apps/app1/src/app1/changed.py', hash: 'a' };
+        const unchanged = {
+          file: 'apps/app1/src/app1/unchanged.py',
+          hash: 'b',
+        };
+
+        const result = await createDependencies(
+          {
+            inferDependencies: true,
+            packageManager: 'uv',
+          },
+          {
+            externalNodes: {},
+            workspaceRoot: '.',
+            projects,
+            nxJsonConfiguration: {},
+            fileMap: {
+              nonProjectFiles: [],
+              projectFileMap: { app1: [changed, unchanged] },
+            },
+            filesToProcess: {
+              nonProjectFiles: [],
+              projectFileMap: { app1: [changed] },
+            },
+          },
+        );
+
+        expect(result).toStrictEqual([
           {
             source: 'app1',
             target: 'dep1',
             type: 'dynamic',
-            sourceFile: 'apps/app1/src/app1/test1.py',
+            sourceFile: 'apps/app1/src/app1/changed.py',
+          },
+          {
+            source: 'app1',
+            target: 'dep2',
+            type: 'dynamic',
+            sourceFile: 'apps/app1/src/app1/unchanged.py',
           },
         ]);
       });
