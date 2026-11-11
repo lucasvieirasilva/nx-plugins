@@ -14,9 +14,14 @@ import { BuildExecutorSchema } from '../../../../executors/build/schema';
 import { ExecutorContext } from '@nx/devkit';
 import { createHash } from 'crypto';
 
-// Matches a package name followed by a version specifier (>, >=, <, <=, ==, !=, ~=, ===) and version number
+// Matches a package name followed by a version specifier (>, >=, <, <=, ==, !=, ~=, ===)
+// and version number. The name may carry extras (`name[extra1,extra2]`) and the whole
+// requirement may end with an environment marker (`; python_version >= "3.8"`); both are
+// optional and kept out of the capture groups. Without this, a local dependency already
+// pinned to a range but carrying extras or a marker is treated as unversioned, and a
+// `==<version>` is appended after it, producing an invalid requirement that PyPI rejects.
 const VERSION_RANGE_REGEX =
-  /^([a-zA-Z0-9._-]+)\s*(==|!=|~=|===|>=|<=|>|<)\s*([^\s,;]+)(?:,?\s*(==|!=|~=|===|>=|<=|>|<)\s*([^\s,;]+))*$/;
+  /^([a-zA-Z0-9._-]+)\s*(?:\[[^\]]*\])?\s*(==|!=|~=|===|>=|<=|>|<)\s*([^\s,;]+)(?:\s*,?\s*(==|!=|~=|===|>=|<=|>|<)\s*([^\s,;]+))*\s*(?:;.*)?$/;
 
 /**
  * Resolves project dependencies for UV package manager when lockedVersion is false.
@@ -449,11 +454,21 @@ export class ProjectDependencyResolver {
     for (const [extraName, extraData] of Object.entries(
       pyproject.project['optional-dependencies'] ?? {},
     )) {
+      // An optional dependency is only redundant when a main dependency on the same
+      // package already requests every extra it does: `pkg[extra]` in an extra still
+      // adds something next to a plain `pkg` in the main dependencies.
       pyproject.project['optional-dependencies'][extraName] = extraData.filter(
-        (optionalDep) =>
-          !pyproject.project.dependencies
-            .map((dep) => normalizeDependencyName(dep))
-            .includes(normalizeDependencyName(optionalDep)),
+        (optionalDep) => {
+          const optionalName = normalizeDependencyName(optionalDep);
+          const optionalExtras = extractExtraFromDependencyName(optionalDep);
+          return !pyproject.project.dependencies.some((dep) => {
+            if (normalizeDependencyName(dep) !== optionalName) {
+              return false;
+            }
+            const mainExtras = extractExtraFromDependencyName(dep);
+            return optionalExtras.every((extra) => mainExtras.includes(extra));
+          });
+        },
       );
 
       // Remove empty optional dependency groups
