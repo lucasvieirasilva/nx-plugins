@@ -144,7 +144,9 @@ describe('nx-python (poetry)', () => {
       };
       ws.writeJson('lib1/project.json', project);
 
-      const output = ws.nx('run lib1:py-version');
+      // Nx >= 23.3 only prints a summary for a single task unless the output
+      // style is static, so force it to capture the command's stdout.
+      const output = ws.nx('run lib1:py-version --output-style=static');
       expect(output).toMatch(/Python 3\./);
     });
   });
