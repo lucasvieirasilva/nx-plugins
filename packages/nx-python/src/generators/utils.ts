@@ -216,7 +216,7 @@ export function addFiles(
   }
 }
 
-export async function updateNxReleaseConfig(
+export function updateNxReleaseConfig(
   projectConfiguration: ProjectConfiguration,
 ) {
   projectConfiguration.release = {
