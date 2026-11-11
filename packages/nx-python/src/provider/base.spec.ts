@@ -4,6 +4,7 @@ import '../utils/mocks/fs.mock';
 import { BaseProvider } from './base';
 import { PoetryProvider } from './poetry';
 import { PoetryPyprojectToml } from './poetry/types';
+import { UVProvider } from './uv';
 import { Logger } from '../executors/utils/logger';
 import * as utils from './utils';
 import chalkTemplate from 'chalk-template';
@@ -103,6 +104,62 @@ describe('Activate Venv', () => {
       ...originalEnv,
     });
     expect(installMock).not.toHaveBeenCalled();
+  });
+});
+
+describe('Activate Venv (uv workspace in a subdirectory)', () => {
+  const originalEnv = process.env;
+
+  beforeEach(() => {
+    process.env = { ...originalEnv };
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
+    vol.reset();
+    vi.resetAllMocks();
+  });
+
+  it('should activate the venv of the uv workspace the project belongs to', async () => {
+    delete process.env.VIRTUAL_ENV;
+    vol.fromJSON({
+      'python/pyproject.toml': dedent`
+      [tool.uv.workspace]
+      members = ["apps/*"]
+
+      [tool.nx]
+      autoActivate = true
+      `,
+      'python/uv.lock': '',
+      'python/apps/app/pyproject.toml': dedent`
+      [project]
+      name = "app"
+      version = "0.1.0"
+      `,
+    });
+
+    const provider = new UVProvider('.', new Logger());
+    await provider.activateVenv('.', false, {
+      root: '.',
+      cwd: '.',
+      projectName: 'app',
+      isVerbose: false,
+      nxJsonConfiguration: {},
+      projectGraph: {
+        dependencies: {},
+        nodes: {},
+      },
+      projectsConfigurations: {
+        version: 1,
+        projects: {
+          app: {
+            root: 'python/apps/app',
+          },
+        },
+      },
+    });
+
+    expect(process.env.VIRTUAL_ENV).toBe(path.resolve('python/.venv'));
   });
 });
 

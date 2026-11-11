@@ -559,8 +559,10 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
       context.projectsConfigurations.projects[context.projectName];
     const projectRoot = projectConfig.root;
 
+    const uvWorkspaceRoot = this.getWorkspaceRoot(projectRoot);
+
     const args = ['add'];
-    if (!this.isWorkspace && options.local) {
+    if (!uvWorkspaceRoot && options.local) {
       const dependencyConfig = getLocalDependencyConfig(context, options.name);
       const dependencyPath = path.relative(
         projectConfig.root,
@@ -582,7 +584,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
 
     args.push(...(options.args ?? '').split(' ').filter((arg) => !!arg));
 
-    if (this.isWorkspace) {
+    if (uvWorkspaceRoot) {
       args.push('--project', projectRoot);
       runUv(args, {
         cwd: context.root,
@@ -593,7 +595,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
       });
     }
 
-    if (!this.isWorkspace) {
+    if (!uvWorkspaceRoot) {
       this.syncDependents(context, context.projectName);
     }
   }
@@ -760,20 +762,23 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
   ): Promise<void> {
     await this.checkPrerequisites();
     const projectRoot = this.getProjectRoot(context);
+    const uvWorkspaceRoot = this.getWorkspaceRoot(projectRoot);
 
     const args = ['lock', '--upgrade-package', options.name];
-    if (this.isWorkspace) {
+    if (uvWorkspaceRoot) {
       args.push('--project', projectRoot);
     }
 
     runUv(args, {
-      cwd: this.isWorkspace ? context.root : projectRoot,
+      cwd: uvWorkspaceRoot ? context.root : projectRoot,
     });
     runUv(['sync'], {
-      cwd: this.isWorkspace ? context.root : projectRoot,
+      cwd: uvWorkspaceRoot
+        ? path.join(context.root, uvWorkspaceRoot)
+        : projectRoot,
     });
 
-    if (!this.isWorkspace) {
+    if (!uvWorkspaceRoot) {
       this.syncDependents(context, context.projectName);
     }
   }
@@ -785,18 +790,19 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
     await this.checkPrerequisites();
 
     const projectRoot = this.getProjectRoot(context);
+    const uvWorkspaceRoot = this.getWorkspaceRoot(projectRoot);
 
     const args = ['remove', options.name];
-    if (this.isWorkspace) {
+    if (uvWorkspaceRoot) {
       args.push('--project', projectRoot);
     }
 
     args.push(...(options.args ?? '').split(' ').filter((arg) => !!arg));
     runUv(args, {
-      cwd: this.isWorkspace ? context.root : projectRoot,
+      cwd: uvWorkspaceRoot ? context.root : projectRoot,
     });
 
-    if (!this.isWorkspace) {
+    if (!uvWorkspaceRoot) {
       this.syncDependents(context, context.projectName);
     }
   }
@@ -872,11 +878,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
 
     const args = ['sync'];
     const execOptions: RunUvOptions = {
-      cwd: context
-        ? this.isWorkspace
-          ? context.root
-          : this.getProjectRoot(context)
-        : undefined,
+      cwd: context ? this.getInstallRoot(context) : undefined,
     };
     if (optionsOrCwd && typeof optionsOrCwd === 'object') {
       const options = optionsOrCwd;
@@ -940,7 +942,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
         );
       }
 
-      const cwd = this.isWorkspace ? contextOrUpdate.root : projectConfig.root;
+      const cwd = this.getInstallRoot(contextOrUpdate);
 
       const lockCommand = await this.getLockCommand(cwd, options.update);
 
@@ -1051,7 +1053,10 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
     buildTomlData['dependency-groups'] = {};
 
     buildTomlData = options.lockedVersions
-      ? new LockedDependencyResolver(this.logger, this.isWorkspace).apply(
+      ? new LockedDependencyResolver(
+          this.logger,
+          this.getWorkspaceRoot(projectRoot),
+        ).apply(
           projectRoot,
           buildFolderPath,
           buildTomlData,
@@ -1062,7 +1067,7 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
           this.logger,
           options,
           context,
-          this.isWorkspace,
+          this.getWorkspaceRoot(projectRoot),
         ).apply(projectRoot, buildFolderPath, buildTomlData, context.root);
 
     writeFileSync(buildPyProjectToml, toml.stringify(buildTomlData));
@@ -1255,6 +1260,19 @@ export class UVProvider extends BaseProvider<UVPyprojectToml> {
       category,
       version: pyprojectToml.project?.version,
     });
+  }
+
+  /**
+   * The directory `uv sync` and `uv lock` run from for the context's project:
+   * the root of its uv workspace, or the project root when it locks on its own.
+   */
+  private getInstallRoot(context: ExecutorContext): string {
+    const projectRoot = this.getProjectRoot(context);
+    const uvWorkspaceRoot = this.getWorkspaceRoot(projectRoot);
+
+    return uvWorkspaceRoot
+      ? path.join(context.root, uvWorkspaceRoot)
+      : projectRoot;
   }
 
   private getProjectRoot(context: ExecutorContext) {

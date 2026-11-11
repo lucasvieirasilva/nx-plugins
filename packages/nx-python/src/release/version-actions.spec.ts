@@ -1,8 +1,14 @@
 import { vi } from 'vitest';
+import { vol } from 'memfs';
+import '../utils/mocks/fs.mock';
+import '../utils/mocks/cross-spawn.mock';
 import { ProjectGraph, Tree } from '@nx/devkit';
 import { createTreeWithEmptyWorkspace } from '@nx/devkit/testing';
 import dedent from 'string-dedent';
-import PythonVersionActions from './version-actions';
+import spawn from 'cross-spawn';
+import PythonVersionActions, {
+  afterAllProjectsVersioned,
+} from './version-actions';
 import { UVProvider } from '../provider/uv/provider';
 import { PoetryProvider } from '../provider/poetry/provider';
 import { BaseProvider } from '../provider/base';
@@ -261,6 +267,111 @@ describe('PythonVersionActions', () => {
           '✍️  Flagged 1 workspace dependency (lib1) for lock file refresh in manifest: apps/app1/pyproject.toml',
         ]);
         expect(readManifest()).toBe(app1Manifest);
+      });
+    });
+  });
+});
+
+describe('afterAllProjectsVersioned', () => {
+  beforeEach(() => {
+    vi.spyOn(UVProvider.prototype, 'checkPrerequisites').mockResolvedValue(
+      undefined,
+    );
+    vi.mocked(spawn.sync).mockReturnValue({
+      status: 0,
+      output: [''],
+      pid: 0,
+      signal: null,
+      stderr: null,
+      stdout: null,
+    });
+  });
+
+  afterEach(() => {
+    vol.reset();
+    vi.resetAllMocks();
+  });
+
+  async function bumpVersion(projectRoot: string): Promise<void> {
+    const actions = new PythonVersionActions(
+      {} as never,
+      { name: 'app1', type: 'lib', data: { root: projectRoot } } as never,
+      {} as never,
+    );
+    actions.manifestsToUpdate = [
+      {
+        manifestPath: `${projectRoot}/pyproject.toml`,
+        preserveLocalDependencyProtocols: false,
+      },
+    ];
+    (actions as unknown as { provider: BaseProvider<unknown> }).provider =
+      new UVProvider('.', new Logger());
+
+    await actions.updateProjectVersion(null, '0.2.0');
+  }
+
+  describe('uv', () => {
+    it('should lock the uv workspace of the versioned project when its root is in a subdirectory', async () => {
+      vol.fromJSON({
+        'nx.json': JSON.stringify({
+          plugins: [
+            { plugin: '@nxlv/python', options: { packageManager: 'uv' } },
+          ],
+        }),
+        'python/apps/app1/pyproject.toml': dedent`
+        [project]
+        name = "app1"
+        version = "0.1.0"
+        `,
+        'python/pyproject.toml': dedent`
+        [tool.uv.workspace]
+        members = ["apps/*"]
+        `,
+        'python/uv.lock': '',
+      });
+
+      await bumpVersion('python/apps/app1');
+      const result = await afterAllProjectsVersioned('.', {});
+
+      expect(spawn.sync).toHaveBeenCalledTimes(1);
+      expect(spawn.sync).toHaveBeenCalledWith('uv', ['lock'], {
+        cwd: 'python',
+        shell: false,
+        stdio: 'inherit',
+      });
+      expect(result).toStrictEqual({
+        changedFiles: ['python/uv.lock'],
+        deletedFiles: [],
+      });
+    });
+
+    it('should lock the root uv workspace once', async () => {
+      vol.fromJSON({
+        'nx.json': JSON.stringify({ plugins: ['@nxlv/python'] }),
+        'apps/app1/pyproject.toml': dedent`
+        [project]
+        name = "app1"
+        version = "0.1.0"
+        `,
+        'pyproject.toml': dedent`
+        [tool.uv.workspace]
+        members = ["apps/*"]
+        `,
+        'uv.lock': '',
+      });
+
+      await bumpVersion('apps/app1');
+      const result = await afterAllProjectsVersioned('.', {});
+
+      expect(spawn.sync).toHaveBeenCalledTimes(1);
+      expect(spawn.sync).toHaveBeenCalledWith('uv', ['lock'], {
+        cwd: '.',
+        shell: false,
+        stdio: 'inherit',
+      });
+      expect(result).toStrictEqual({
+        changedFiles: ['uv.lock'],
+        deletedFiles: [],
       });
     });
   });

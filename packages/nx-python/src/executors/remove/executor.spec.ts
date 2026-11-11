@@ -941,6 +941,64 @@ describe('Delete Executor', () => {
       });
     });
 
+    describe('workspace in a subdirectory', () => {
+      it('should remove external dependency from the project', async () => {
+        vol.fromJSON({
+          'python/pyproject.toml': dedent`
+          [tool.uv.workspace]
+          members = ["apps/*"]
+          `,
+          'python/uv.lock': '',
+          'python/apps/app/pyproject.toml': dedent`
+          [project]
+          name = "app"
+          version = "0.1.0"
+          `,
+        });
+
+        const options = {
+          name: 'click',
+          local: false,
+        };
+
+        const context: ExecutorContext = {
+          cwd: '',
+          root: '.',
+          isVerbose: false,
+          projectName: 'app',
+          projectsConfigurations: {
+            version: 2,
+            projects: {
+              app: {
+                root: 'python/apps/app',
+                targets: {},
+              },
+            },
+          },
+          nxJsonConfiguration: {},
+          projectGraph: {
+            dependencies: {},
+            nodes: {},
+          },
+        };
+
+        const output = await executor(options, context);
+        expect(checkPrerequisites).toHaveBeenCalled();
+        expect(spawn.sync).toHaveBeenCalledTimes(1);
+        expect(spawn.sync).toHaveBeenNthCalledWith(
+          1,
+          'uv',
+          ['remove', 'click', '--project', 'python/apps/app'],
+          {
+            cwd: '.',
+            shell: false,
+            stdio: 'inherit',
+          },
+        );
+        expect(output.success).toBe(true);
+      });
+    });
+
     describe('project', () => {
       it('run remove target and should update all the dependency tree', async () => {
         vol.fromJSON({
