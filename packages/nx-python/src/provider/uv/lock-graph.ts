@@ -32,23 +32,21 @@ type UvPackage = {
 // extras, or one of a member's dependency groups (`group:<name>`).
 type Visit = { pkg: UvPackage; extra: string | null };
 
-export type UvLockFile = { path: string; text: string };
+export type UvLockFile = { path: string; text: string; shared: boolean };
 
 /**
  * Reads the uv lock files of a workspace: every locked package, and for each
  * member the packages it installs through its dependencies, its extras and
  * dependency groups, the extras those ask for, and other members.
  *
- * - In a shared workspace (`shared`), the root `uv.lock` lists every member.
+ * - A workspace lock (`shared`) lists every member of its workspace. A local
+ *   project outside the workspace is read from its own lock.
  * - Otherwise each project locks on its own, and its `uv.lock` also lists the
  *   local projects it depends on; only the project the lock belongs to is
  *   read from it, since the others have their own locks.
  */
-export function getUvLockGraph(
-  lockFiles: UvLockFile[],
-  shared: boolean,
-): LockGraph {
-  const locks = lockFiles.map(({ path, text }) =>
+export function getUvLockGraph(lockFiles: UvLockFile[]): LockGraph {
+  const locks = lockFiles.map(({ path, text, shared }) =>
     readUvLock(path, (toml.parse(text).package ?? []) as UvPackage[], shared),
   );
   return buildLockGraph(
@@ -70,7 +68,11 @@ function readUvLock(lockFile: string, packages: UvPackage[], shared: boolean) {
 
   const members = packages
     .filter(isMember)
-    .filter((member) => shared || rootOf(member) === normalizeRoot(lockDir))
+    .filter((member) =>
+      shared
+        ? !(member.source.editable ?? member.source.virtual).startsWith('..')
+        : rootOf(member) === normalizeRoot(lockDir),
+    )
     .map((member) => ({
       root: rootOf(member),
       lockFile,

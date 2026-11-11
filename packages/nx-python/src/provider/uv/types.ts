@@ -51,6 +51,7 @@ export type UVPyprojectToml = {
       index?: UVPyprojectTomlIndex[];
       workspace?: {
         members: string[];
+        exclude?: string[];
       };
       'build-backend'?: {
         'module-name'?: string | string[];

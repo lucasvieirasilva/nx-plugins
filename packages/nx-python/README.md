@@ -139,6 +139,27 @@ for Nx 20.x or higher, use the following pattern:
 
 **NOTE**: The default package manager is `poetry`, but it's automatically detected if the repository is configured to use `uv` workspaces since the `uv.lock` filw will be present in the root directory.
 
+#### uv workspaces in a subdirectory
+
+The uv workspace root doesn't have to be the Nx workspace root. A project belongs to the nearest parent directory that has a `uv.lock` and a `pyproject.toml` whose `[tool.uv.workspace]` `members` (minus `exclude`) match it, and one Nx workspace can hold several uv workspaces:
+
+```text
+nx.json
+python/
+  pyproject.toml   # [tool.uv.workspace] members = ["apps/*", "libs/*"]
+  uv.lock
+  apps/api/pyproject.toml
+  libs/shared/pyproject.toml
+spark/
+  pyproject.toml   # [tool.uv.workspace] members = ["jobs/*"]
+  uv.lock
+  jobs/etl/pyproject.toml
+```
+
+The dependency graph reads the lock file of the workspace each project belongs to, so members are linked through their `{ workspace = true }` sources, and with `externalNodes` each member depends on the packages that lock installs for it. A project can also depend on a member of another uv workspace through a `path` source (`shared = { path = "../../../python/libs/shared" }`).
+
+Since there is no `uv.lock` in the root directory in this layout, set the `packageManager` option to `uv` as shown above. The executors, `nx release` and the generators still expect the uv workspace at the Nx root.
+
 ## Locked packages in the project graph
 
 By default the project graph knows nothing about the PyPI packages in a workspace, so the only way to make a Python project's task cache follow its dependencies is to list the whole lock file (`uv.lock` or `poetry.lock`) as an input, and any lock change invalidates every project.

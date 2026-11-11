@@ -99,6 +99,10 @@ export class PoetryProvider extends BaseProvider<PoetryPyprojectToml> {
     await checkPoetryExecutable();
   }
 
+  public getWorkspaceRoot(): string | null {
+    return this.isWorkspace ? '.' : null;
+  }
+
   public override getLockGraph(lockFiles: string[]): LockGraph | null {
     // A shared workspace locks once at the root; otherwise every project
     // locks on its own.

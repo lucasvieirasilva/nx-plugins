@@ -110,6 +110,15 @@ export abstract class BaseProvider<TPyprojectToml> {
   ) {}
 
   /**
+   * The root of the shared workspace a project is locked in, relative to the
+   * Nx workspace root (`.` when they are the same directory), or `null` when
+   * the project locks on its own.
+   *
+   * @param projectRoot - Project root, relative to the Nx workspace root.
+   */
+  abstract getWorkspaceRoot(projectRoot: string): string | null;
+
+  /**
    * Whether `nx release` should raise the lower bound of a local dependency's
    * version range to the version just released.
    *

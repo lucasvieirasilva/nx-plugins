@@ -2,7 +2,7 @@ import dedent from 'string-dedent';
 import { getUvLockGraph } from './lock-graph';
 
 const shared = (text: string, path = 'uv.lock') =>
-  getUvLockGraph([{ path, text }], true);
+  getUvLockGraph([{ path, text, shared: true }]);
 
 const lock = (uvloop = '0.19.0') => dedent`
   version = 1
@@ -268,30 +268,65 @@ describe('getUvLockGraph', () => {
       version = "1.16.0"
       source = { registry = "https://pypi.org/simple" }
     `;
-    const graph = getUvLockGraph(
-      [
-        { path: 'app/uv.lock', text: own('app', '{ name = "lib" }', lib) },
-        {
-          path: 'lib/uv.lock',
-          text: own(
-            'lib',
-            '{ name = "six" }',
-            dedent`
+    const graph = getUvLockGraph([
+      {
+        path: 'app/uv.lock',
+        text: own('app', '{ name = "lib" }', lib),
+        shared: false,
+      },
+      {
+        path: 'lib/uv.lock',
+        shared: false,
+        text: own(
+          'lib',
+          '{ name = "six" }',
+          dedent`
               [[package]]
               name = "six"
               version = "1.16.0"
               source = { registry = "https://pypi.org/simple" }
             `,
-          ),
-        },
-      ],
-      false,
-    );
+        ),
+      },
+    ]);
 
     expect(graph.members).toStrictEqual({
       app: { lockFile: 'app/uv.lock', dependencies: ['pypi:six'] },
       lib: { lockFile: 'lib/uv.lock', dependencies: ['pypi:six'] },
     });
     expect(Object.keys(graph.externalNodes)).toStrictEqual(['pypi:six']);
+  });
+
+  it('should leave a local project outside the workspace to its own lock', () => {
+    const graph = shared(
+      dedent`
+        version = 1
+
+        [[package]]
+        name = "job"
+        version = "0.1.0"
+        source = { editable = "jobs/job" }
+        dependencies = [{ name = "lib" }]
+
+        [[package]]
+        name = "lib"
+        version = "0.1.0"
+        source = { editable = "../python/libs/lib" }
+        dependencies = [{ name = "six" }]
+
+        [[package]]
+        name = "six"
+        version = "1.16.0"
+        source = { registry = "https://pypi.org/simple" }
+      `,
+      'spark/uv.lock',
+    );
+
+    expect(graph.members).toStrictEqual({
+      'spark/jobs/job': {
+        lockFile: 'spark/uv.lock',
+        dependencies: ['pypi:six'],
+      },
+    });
   });
 });
