@@ -19,7 +19,7 @@ const LOCK_FILE_NAME = 'uv.lock';
 export class LockedDependencyResolver {
   constructor(
     private readonly logger: Logger,
-    private readonly isWorkspace: boolean,
+    private readonly uvWorkspaceRoot: string | null,
   ) {}
 
   public apply(
@@ -47,8 +47,8 @@ export class LockedDependencyResolver {
 
       if (line.startsWith('-e') || line.startsWith('.')) {
         const location = line.replace('-e', '').trim();
-        const dependencyPath = this.isWorkspace
-          ? location
+        const dependencyPath = this.uvWorkspaceRoot
+          ? path.join(this.uvWorkspaceRoot, location)
           : path.relative(process.cwd(), path.resolve(projectRoot, location));
 
         const dependencyPyprojectPath = path.join(
@@ -111,8 +111,8 @@ export class LockedDependencyResolver {
       }
 
       const lockData = getUvLockfile(
-        this.isWorkspace
-          ? path.join(workspaceRoot, LOCK_FILE_NAME)
+        this.uvWorkspaceRoot
+          ? path.join(workspaceRoot, this.uvWorkspaceRoot, LOCK_FILE_NAME)
           : path.join(projectRoot, LOCK_FILE_NAME),
       );
 
@@ -217,8 +217,10 @@ export class LockedDependencyResolver {
   }
 
   private lockFileExists(projectRoot: string, workspaceRoot: string): boolean {
-    if (this.isWorkspace) {
-      return existsSync(path.join(workspaceRoot, LOCK_FILE_NAME));
+    if (this.uvWorkspaceRoot) {
+      return existsSync(
+        path.join(workspaceRoot, this.uvWorkspaceRoot, LOCK_FILE_NAME),
+      );
     } else {
       return existsSync(path.join(projectRoot, LOCK_FILE_NAME));
     }
@@ -242,8 +244,8 @@ export class LockedDependencyResolver {
       );
 
       if (dep.source.editable) {
-        const dependencyPath = this.isWorkspace
-          ? dep.source.editable
+        const dependencyPath = this.uvWorkspaceRoot
+          ? path.join(this.uvWorkspaceRoot, dep.source.editable)
           : path.relative(
               process.cwd(),
               path.resolve(projectRoot, dep.source.editable),

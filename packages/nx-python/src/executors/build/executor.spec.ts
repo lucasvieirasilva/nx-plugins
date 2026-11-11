@@ -7901,6 +7901,191 @@ describe('Build Executor', () => {
         });
       });
 
+      describe('workspaces in a subdirectory', () => {
+        beforeEach(() => {
+          vol.rmSync('uv.lock');
+        });
+
+        describe('build system: hatch', () => {
+          describe('module at the project root folder', () => {
+            it('should build python project with local dependencies', async () => {
+              vol.fromJSON({
+                'python/apps/app/app1/index.py': 'print("Hello from app")',
+                'python/apps/app/pyproject.toml': dedent`
+                [project]
+                name = "app1"
+                version = "0.1.0"
+                readme = "README.md"
+                requires-python = ">=3.12"
+                dependencies = [
+                    "django>=5.1.4",
+                    "dep1",
+                ]
+
+                [tool.hatch.build.targets.wheel]
+                packages = ["app1"]
+
+                [tool.uv.sources]
+                dep1 = { workspace = true }
+
+                [build-system]
+                requires = ["hatchling"]
+                build-backend = "hatchling.build"
+                `,
+
+                'python/libs/dep1/dep1/index.py': 'print("Hello from dep1")',
+                'python/libs/dep1/pyproject.toml': dedent`
+                [project]
+                name = "dep1"
+                version = "0.1.0"
+                readme = "README.md"
+                requires-python = ">=3.12"
+                dependencies = []
+
+                [tool.hatch.build.targets.wheel]
+                packages = ["dep1"]
+
+                [build-system]
+                requires = ["hatchling"]
+                build-backend = "hatchling.build"
+                `,
+
+                'python/pyproject.toml': dedent`
+                [tool.uv.workspace]
+                members = ["apps/*", "libs/*"]
+                `,
+                'python/uv.lock': dedent`
+                version = 1
+                requires-python = ">=3.12"
+
+                [[package]]
+                name = "app1"
+                version = "0.1.0"
+                source = { editable = "apps/app" }
+                dependencies = [
+                    { name = "dep1" },
+                    { name = "django" },
+                ]
+
+                [package.metadata]
+                requires-dist = [
+                    { name = "dep1", editable = "libs/dep1" },
+                ]
+
+                [[package]]
+                name = "dep1"
+                version = "0.1.0"
+                source = { editable = "libs/dep1" }
+                `,
+              });
+
+              vi.mocked(spawn.sync)
+                .mockReturnValueOnce({
+                  status: 0,
+                  output: [''],
+                  pid: 0,
+                  signal: null,
+                  stderr: null,
+                  stdout: Buffer.from(dedent`
+                -e 0.6.10
+                `),
+                })
+                .mockReturnValueOnce({
+                  status: 0,
+                  output: [''],
+                  pid: 0,
+                  signal: null,
+                  stderr: null,
+                  stdout: Buffer.from(dedent`
+                -e ./libs/dep1
+                django==5.1.4
+                `),
+                })
+                .mockImplementationOnce((_, args, opts) => {
+                  spawnBuildMockImpl(opts);
+                  return {
+                    status: 0,
+                    output: [''],
+                    pid: 0,
+                    signal: null,
+                    stderr: null,
+                    stdout: null,
+                  };
+                });
+
+              const options: BuildExecutorSchema = {
+                ignorePaths: ['.venv', '.tox', 'tests/'],
+                silent: false,
+                outputPath: 'dist/apps/app',
+                keepBuildFolder: true,
+                devDependencies: false,
+                lockedVersions: true,
+                bundleLocalDependencies: true,
+              };
+
+              const output = await executor(options, {
+                cwd: '',
+                root: '.',
+                isVerbose: false,
+                projectName: 'app',
+                projectsConfigurations: {
+                  version: 2,
+                  projects: {
+                    app: {
+                      root: 'python/apps/app',
+                      targets: {},
+                    },
+                    dep1: {
+                      root: 'python/libs/dep1',
+                      targets: {},
+                    },
+                  },
+                },
+                nxJsonConfiguration: {},
+                projectGraph: {
+                  dependencies: {},
+                  nodes: {},
+                },
+              });
+
+              expect(checkPrerequisites).toHaveBeenCalled();
+              expect(existsSync(`${buildPath}/app1`)).toBeTruthy();
+              expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
+              expect(spawn.sync).toHaveBeenNthCalledWith(
+                2,
+                'uv',
+                [
+                  'export',
+                  '--format',
+                  'requirements-txt',
+                  '--no-hashes',
+                  '--no-header',
+                  '--frozen',
+                  '--no-emit-project',
+                  '--project',
+                  'python/apps/app',
+                  '--no-dev',
+                ],
+                {
+                  cwd: '.',
+                  shell: true,
+                  stdio: 'pipe',
+                },
+              );
+
+              const projectTomlData = getPyprojectData<UVPyprojectToml>(
+                `${buildPath}/pyproject.toml`,
+              );
+
+              expect(
+                projectTomlData.tool.hatch.build.targets.wheel.packages,
+              ).toStrictEqual(['app1', 'dep1']);
+              expect(output.success).toBe(true);
+            });
+          });
+        });
+      });
+
       describe('project', () => {
         beforeEach(() => {
           vol.rmSync('uv.lock');
@@ -12771,6 +12956,148 @@ describe('Build Executor', () => {
               ]);
               expect(projectTomlData['dependency-groups']).toStrictEqual({});
               expect(projectTomlData.tool.uv.sources).toStrictEqual({});
+            });
+          });
+        });
+      });
+
+      describe('workspaces in a subdirectory', () => {
+        beforeEach(() => {
+          vol.rmSync('uv.lock');
+        });
+
+        describe('build system: hatch', () => {
+          describe('module at the project root folder', () => {
+            it('should build python project with local dependencies', async () => {
+              vol.fromJSON({
+                'python/apps/app/app1/index.py': 'print("Hello from app")',
+                'python/apps/app/pyproject.toml': dedent`
+                [project]
+                name = "app1"
+                version = "0.1.0"
+                readme = "README.md"
+                requires-python = ">=3.12"
+                dependencies = [
+                    "django>=5.1.4",
+                    "dep1",
+                ]
+
+                [tool.hatch.build.targets.wheel]
+                packages = ["app1"]
+
+                [tool.uv.sources]
+                dep1 = { workspace = true }
+
+                [build-system]
+                requires = ["hatchling"]
+                build-backend = "hatchling.build"
+                `,
+
+                'python/libs/dep1/dep1/index.py': 'print("Hello from dep1")',
+                'python/libs/dep1/pyproject.toml': dedent`
+                [project]
+                name = "dep1"
+                version = "0.1.0"
+                readme = "README.md"
+                requires-python = ">=3.12"
+                dependencies = []
+
+                [tool.hatch.build.targets.wheel]
+                packages = ["dep1"]
+
+                [build-system]
+                requires = ["hatchling"]
+                build-backend = "hatchling.build"
+                `,
+
+                'python/pyproject.toml': dedent`
+                [tool.uv.workspace]
+                members = ["apps/*", "libs/*"]
+                `,
+                'python/uv.lock': dedent`
+                version = 1
+                requires-python = ">=3.12"
+
+                [[package]]
+                name = "app1"
+                version = "0.1.0"
+                source = { editable = "apps/app" }
+                dependencies = [
+                    { name = "dep1" },
+                    { name = "django" },
+                ]
+
+                [package.metadata]
+                requires-dist = [
+                    { name = "dep1", editable = "libs/dep1" },
+                ]
+
+                [[package]]
+                name = "dep1"
+                version = "0.1.0"
+                source = { editable = "libs/dep1" }
+                `,
+              });
+
+              vi.mocked(spawn.sync).mockImplementation((_, args, opts) => {
+                spawnBuildMockImpl(opts);
+                return {
+                  status: 0,
+                  output: [''],
+                  pid: 0,
+                  signal: null,
+                  stderr: null,
+                  stdout: null,
+                };
+              });
+
+              const options: BuildExecutorSchema = {
+                ignorePaths: ['.venv', '.tox', 'tests/'],
+                silent: false,
+                outputPath: 'dist/apps/app',
+                keepBuildFolder: true,
+                devDependencies: false,
+                lockedVersions: false,
+                bundleLocalDependencies: true,
+              };
+
+              const output = await executor(options, {
+                cwd: '',
+                root: '.',
+                isVerbose: false,
+                projectName: 'app',
+                projectsConfigurations: {
+                  version: 2,
+                  projects: {
+                    app: {
+                      root: 'python/apps/app',
+                      targets: {},
+                    },
+                    dep1: {
+                      root: 'python/libs/dep1',
+                      targets: {},
+                    },
+                  },
+                },
+                nxJsonConfiguration: {},
+                projectGraph: {
+                  dependencies: {},
+                  nodes: {},
+                },
+              });
+
+              expect(checkPrerequisites).toHaveBeenCalled();
+              expect(existsSync(`${buildPath}/app1`)).toBeTruthy();
+              expect(existsSync(`${buildPath}/dep1`)).toBeTruthy();
+
+              const projectTomlData = getPyprojectData<UVPyprojectToml>(
+                `${buildPath}/pyproject.toml`,
+              );
+
+              expect(
+                projectTomlData.tool.hatch.build.targets.wheel.packages,
+              ).toStrictEqual(['app1', 'dep1']);
+              expect(output.success).toBe(true);
             });
           });
         });
