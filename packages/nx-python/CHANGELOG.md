@@ -1,3 +1,14 @@
+## 23.3.4 (2026-11-11)
+
+### 🩹 Fixes
+
+- **nx-python:** stop leaving unhandled promises flagged by SonarCloud S9383 ([#376](https://github.com/lucasvieirasilva/nx-plugins/pull/376))
+
+### ❤️ Thank You
+
+- Claude Opus 5.5
+- Lucas Vieira @lucasvieirasilva
+
 ## 23.3.3 (2026-11-11)
 
 ### 🩹 Fixes
