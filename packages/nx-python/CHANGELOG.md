@@ -1,3 +1,13 @@
+## 23.4.0 (2026-11-12)
+
+### 🚀 Features
+
+- **nx-python:** link members of a uv workspace whose root is not the Nx workspace root ([#378](https://github.com/lucasvieirasilva/nx-plugins/pull/378))
+
+### ❤️ Thank You
+
+- Mor Maman @mormamn
+
 ## 23.3.5 (2026-11-11)
 
 ### 🩹 Fixes
