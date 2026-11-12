@@ -1216,6 +1216,384 @@ describe('nx-python dependency graph', () => {
         ]);
       });
 
+      it('should link a path dependency of a workspace member on a project outside the workspace', async () => {
+        vol.fromJSON({
+          'apps/app1/pyproject.toml': dedent`
+          [project]
+          name = "app1"
+          version = "0.1.0"
+          requires-python = ">=3.12"
+          dependencies = [
+              "dep1",
+          ]
+
+          [tool.uv.sources]
+          dep1 = { path = "../../tools/dep1" }
+          `,
+
+          'tools/dep1/pyproject.toml': dedent`
+          [project]
+          name = "dep1"
+          version = "0.1.0"
+          requires-python = ">=3.12"
+          dependencies = []
+          `,
+
+          'pyproject.toml': dedent`
+          [tool.uv.workspace]
+          members = ["apps/*"]
+          `,
+
+          'uv.lock': dedent`
+          version = 1
+          requires-python = ">=3.12"
+
+          [[package]]
+          name = "app1"
+          version = "0.1.0"
+          source = { editable = "apps/app1" }
+          dependencies = [
+              { name = "dep1" },
+          ]
+
+          [package.metadata]
+          requires-dist = [
+              { name = "dep1", directory = "tools/dep1" },
+          ]
+
+          [[package]]
+          name = "dep1"
+          version = "0.1.0"
+          source = { directory = "tools/dep1" }
+          `,
+        });
+
+        const projects = {
+          app1: {
+            root: 'apps/app1',
+            targets: {},
+          },
+          dep1: {
+            root: 'tools/dep1',
+            targets: {},
+          },
+        };
+
+        const result = await createDependencies(null, {
+          externalNodes: {},
+          workspaceRoot: '.',
+          projects,
+          nxJsonConfiguration: {},
+          fileMap: {
+            nonProjectFiles: [],
+            projectFileMap: {},
+          },
+          filesToProcess: {
+            nonProjectFiles: [],
+            projectFileMap: {},
+          },
+        });
+
+        expect(result).toStrictEqual([
+          {
+            source: 'app1',
+            target: 'dep1',
+            type: 'implicit',
+          },
+        ]);
+      });
+
+      it('should progress the dependency graph when the uv workspace root is in a subdirectory', async () => {
+        vol.fromJSON({
+          'python/apps/app1/pyproject.toml': dedent`
+          [project]
+          name = "app1"
+          version = "0.1.0"
+          readme = "README.md"
+          requires-python = ">=3.12"
+          dependencies = [
+              "dep1",
+          ]
+
+          [tool.hatch.build.targets.wheel]
+          packages = ["app1"]
+
+          [tool.uv.sources]
+          dep1 = { workspace = true }
+          `,
+
+          'python/libs/dep1/pyproject.toml': dedent`
+          [project]
+          name = "dep1"
+          version = "0.1.0"
+          readme = "README.md"
+          requires-python = ">=3.12"
+          dependencies = []
+          `,
+
+          'python/pyproject.toml': dedent`
+          [tool.uv.workspace]
+          members = ["apps/*", "libs/*"]
+          `,
+
+          'python/uv.lock': dedent`
+          version = 1
+          requires-python = ">=3.12"
+
+          [[package]]
+          name = "app1"
+          version = "0.1.0"
+          source = { editable = "apps/app1" }
+          dependencies = [
+              { name = "dep1" },
+          ]
+
+          [package.metadata]
+          requires-dist = [
+              { name = "dep1", editable = "libs/dep1" },
+          ]
+
+          [[package]]
+          name = "dep1"
+          version = "0.1.0"
+          source = { editable = "libs/dep1" }
+          `,
+        });
+
+        const projects = {
+          app1: {
+            root: 'python/apps/app1',
+            targets: {},
+          },
+          dep1: {
+            root: 'python/libs/dep1',
+            targets: {},
+          },
+        };
+
+        const result = await createDependencies(
+          { packageManager: 'uv' },
+          {
+            externalNodes: {},
+            workspaceRoot: '.',
+            projects,
+            nxJsonConfiguration: {},
+            fileMap: {
+              nonProjectFiles: [],
+              projectFileMap: {},
+            },
+            filesToProcess: {
+              nonProjectFiles: [],
+              projectFileMap: {},
+            },
+          },
+        );
+
+        expect(result).toStrictEqual([
+          {
+            source: 'app1',
+            target: 'dep1',
+            type: 'implicit',
+          },
+        ]);
+      });
+
+      it('should link a path dependency on a member of another uv workspace', async () => {
+        vol.fromJSON({
+          'python/libs/dep1/pyproject.toml': dedent`
+          [project]
+          name = "dep1"
+          version = "0.1.0"
+          requires-python = ">=3.12"
+          dependencies = []
+          `,
+
+          'python/pyproject.toml': dedent`
+          [tool.uv.workspace]
+          members = ["libs/*"]
+          `,
+
+          'python/uv.lock': dedent`
+          version = 1
+          requires-python = ">=3.12"
+
+          [[package]]
+          name = "dep1"
+          version = "0.1.0"
+          source = { editable = "libs/dep1" }
+          `,
+
+          'spark/jobs/job1/pyproject.toml': dedent`
+          [project]
+          name = "job1"
+          version = "0.1.0"
+          requires-python = ">=3.9"
+          dependencies = [
+              "dep1",
+              "dep2",
+          ]
+
+          [tool.uv.sources]
+          dep1 = { path = "../../../python/libs/dep1", editable = true }
+          dep2 = { workspace = true }
+          `,
+
+          'spark/libs/dep2/pyproject.toml': dedent`
+          [project]
+          name = "dep2"
+          version = "0.1.0"
+          requires-python = ">=3.9"
+          dependencies = []
+          `,
+
+          'spark/pyproject.toml': dedent`
+          [tool.uv.workspace]
+          members = ["jobs/*", "libs/*"]
+          `,
+
+          'spark/uv.lock': dedent`
+          version = 1
+          requires-python = ">=3.9"
+
+          [[package]]
+          name = "dep1"
+          version = "0.1.0"
+          source = { editable = "../python/libs/dep1" }
+
+          [[package]]
+          name = "dep2"
+          version = "0.1.0"
+          source = { editable = "libs/dep2" }
+
+          [[package]]
+          name = "job1"
+          version = "0.1.0"
+          source = { editable = "jobs/job1" }
+          dependencies = [
+              { name = "dep1" },
+              { name = "dep2" },
+          ]
+
+          [package.metadata]
+          requires-dist = [
+              { name = "dep1", editable = "../python/libs/dep1" },
+              { name = "dep2", editable = "libs/dep2" },
+          ]
+          `,
+        });
+
+        const projects = {
+          dep1: {
+            root: 'python/libs/dep1',
+            targets: {},
+          },
+          dep2: {
+            root: 'spark/libs/dep2',
+            targets: {},
+          },
+          job1: {
+            root: 'spark/jobs/job1',
+            targets: {},
+          },
+        };
+
+        const result = await createDependencies(
+          { packageManager: 'uv' },
+          {
+            externalNodes: {},
+            workspaceRoot: '.',
+            projects,
+            nxJsonConfiguration: {},
+            fileMap: {
+              nonProjectFiles: [],
+              projectFileMap: {},
+            },
+            filesToProcess: {
+              nonProjectFiles: [],
+              projectFileMap: {},
+            },
+          },
+        );
+
+        expect(result).toStrictEqual([
+          {
+            source: 'job1',
+            target: 'dep1',
+            type: 'implicit',
+          },
+          {
+            source: 'job1',
+            target: 'dep2',
+            type: 'implicit',
+          },
+        ]);
+      });
+
+      it('should not read the lock of a uv workspace the project is not a member of', async () => {
+        vol.fromJSON({
+          'python/apps/app1/pyproject.toml': dedent`
+          [project]
+          name = "app1"
+          version = "0.1.0"
+          requires-python = ">=3.12"
+          dependencies = [
+              "dep1",
+          ]
+
+          [tool.uv.sources]
+          dep1 = { path = "../../libs/dep1" }
+          `,
+
+          'python/libs/dep1/pyproject.toml': dedent`
+          [project]
+          name = "dep1"
+          version = "0.1.0"
+          requires-python = ">=3.12"
+          dependencies = []
+          `,
+
+          'python/pyproject.toml': dedent`
+          [tool.uv.workspace]
+          members = ["libs/*"]
+          exclude = ["libs/legacy"]
+          `,
+
+          'python/uv.lock': dedent`
+          version = 1
+          requires-python = ">=3.12"
+
+          [[package]]
+          name = "dep1"
+          version = "0.1.0"
+          source = { editable = "libs/dep1" }
+          `,
+        });
+
+        const provider = await getProvider(
+          '.',
+          undefined,
+          undefined,
+          undefined,
+          {
+            packageManager: 'uv',
+          },
+        );
+
+        expect(provider.getWorkspaceRoot('python/libs/dep1')).toBe('python');
+        expect(provider.getWorkspaceRoot('python/libs/legacy')).toBeNull();
+        expect(provider.getWorkspaceRoot('python/apps/app1')).toBeNull();
+        expect(
+          provider.getDependencies(
+            'app1',
+            {
+              app1: { root: 'python/apps/app1', targets: {} },
+              dep1: { root: 'python/libs/dep1', targets: {} },
+            },
+            '.',
+          ),
+        ).toStrictEqual([{ name: 'dep1', category: 'main', version: '0.1.0' }]);
+      });
+
       it('should progress the dependency graph for an empty project', async () => {
         const result = await createDependencies(null, {
           externalNodes: {},
@@ -1607,6 +1985,77 @@ describe('nx-python dependency graph', () => {
         };
 
         const provider = await getProvider('.');
+        const result = provider.getDependents('dep1', projects, '.');
+
+        expect(result).toStrictEqual(['app1']);
+      });
+
+      it('should return the dependent projects when the uv workspace root is in a subdirectory', async () => {
+        vol.fromJSON({
+          'python/apps/app1/pyproject.toml': dedent`
+          [project]
+          name = "app1"
+          version = "0.1.0"
+          requires-python = ">=3.12"
+          dependencies = [
+              "dep1",
+          ]
+          `,
+          'python/libs/dep1/pyproject.toml': dedent`
+          [project]
+          name = "dep1"
+          version = "0.1.0"
+          requires-python = ">=3.12"
+          dependencies = []
+          `,
+
+          'python/pyproject.toml': dedent`
+          [tool.uv.workspace]
+          members = ["apps/*", "libs/*"]
+
+          [tool.uv.sources]
+          dep1 = { workspace = true }
+          `,
+
+          'python/uv.lock': dedent`
+          version = 1
+          requires-python = ">=3.12"
+
+          [[package]]
+          name = "app1"
+          version = "0.1.0"
+          source = { editable = "apps/app1" }
+          dependencies = [
+              { name = "dep1" },
+          ]
+
+          [package.metadata]
+          requires-dist = [
+              { name = "dep1", editable = "libs/dep1" },
+          ]
+          `,
+        });
+
+        const projects = {
+          app1: {
+            root: 'python/apps/app1',
+            targets: {},
+          },
+          dep1: {
+            root: 'python/libs/dep1',
+            targets: {},
+          },
+        };
+
+        const provider = await getProvider(
+          '.',
+          undefined,
+          undefined,
+          undefined,
+          {
+            packageManager: 'uv',
+          },
+        );
         const result = provider.getDependents('dep1', projects, '.');
 
         expect(result).toStrictEqual(['app1']);
@@ -2385,6 +2834,71 @@ describe('nx-python dependency graph', () => {
           graph.dependencies[name].map(({ target }) => target),
         ).toStrictEqual(['pypi:httpx', 'pypi:idna']);
       }
+    });
+  });
+
+  describe('uv external nodes in a subdirectory workspace', () => {
+    it('should give every member of each uv workspace its edges', async () => {
+      const lock = (member: string, dependency: string) => dedent`
+        version = 1
+        requires-python = ">=3.12"
+
+        [[package]]
+        name = "${member}"
+        version = "0.1.0"
+        source = { editable = "apps/${member}" }
+        dependencies = [
+            { name = "${dependency}" },
+        ]
+
+        [[package]]
+        name = "${dependency}"
+        version = "1.0.0"
+        source = { registry = "https://pypi.org/simple" }
+      `;
+      const workspace = dedent`
+        [tool.uv.workspace]
+        members = ["apps/*"]
+      `;
+      vol.fromJSON({
+        'python/pyproject.toml': workspace,
+        'python/uv.lock': lock('app1', 'httpx'),
+        'spark/pyproject.toml': workspace,
+        'spark/uv.lock': lock('app2', 'six'),
+      });
+
+      const [, createNodes] = createNodesV2;
+      const [[, { externalNodes }]] = await createNodes(
+        ['python/uv.lock', 'spark/uv.lock'],
+        { externalNodes: true, packageManager: 'uv' },
+        { workspaceRoot: '.', nxJsonConfiguration: {} },
+      );
+
+      const result = await createDependencies(
+        { externalNodes: true, packageManager: 'uv' },
+        {
+          externalNodes,
+          workspaceRoot: '.',
+          projects: {
+            app1: { root: 'python/apps/app1', targets: {} },
+            app2: { root: 'spark/apps/app2', targets: {} },
+          },
+          nxJsonConfiguration: {},
+          fileMap: {
+            nonProjectFiles: [
+              { file: 'python/uv.lock', hash: 'a' },
+              { file: 'spark/uv.lock', hash: 'b' },
+            ],
+            projectFileMap: {},
+          },
+          filesToProcess: { nonProjectFiles: [], projectFileMap: {} },
+        },
+      );
+
+      expect(result).toStrictEqual([
+        { source: 'app1', target: 'pypi:httpx', type: 'implicit' },
+        { source: 'app2', target: 'pypi:six', type: 'implicit' },
+      ]);
     });
   });
 
