@@ -393,6 +393,49 @@ describe('Install Executor', () => {
       });
     });
 
+    describe('workspace in a subdirectory', () => {
+      it('should install the dependencies from the uv workspace root', async () => {
+        vol.fromJSON({
+          'python/pyproject.toml': dedent`
+          [tool.uv.workspace]
+          members = ["apps/*"]
+          `,
+          'python/uv.lock': '',
+          'python/apps/app/pyproject.toml': dedent`
+          [project]
+          name = "app"
+          version = "0.1.0"
+          `,
+        });
+
+        const options = {
+          silent: false,
+          debug: false,
+          verbose: false,
+        };
+
+        const output = await executor(options, {
+          ...context,
+          projectsConfigurations: {
+            version: 2,
+            projects: {
+              app: {
+                root: 'python/apps/app',
+                targets: {},
+              },
+            },
+          },
+        });
+        expect(checkPrerequisites).toHaveBeenCalled();
+        expect(spawn.sync).toHaveBeenCalledWith('uv', ['sync'], {
+          stdio: 'inherit',
+          shell: false,
+          cwd: 'python',
+        });
+        expect(output.success).toBe(true);
+      });
+    });
+
     describe('project', () => {
       beforeEach(() => {
         vol.fromJSON({

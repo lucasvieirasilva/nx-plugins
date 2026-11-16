@@ -158,7 +158,9 @@ spark/
 
 The dependency graph reads the lock file of the workspace each project belongs to, so members are linked through their `{ workspace = true }` sources, and with `externalNodes` each member depends on the packages that lock installs for it. A project can also depend on a member of another uv workspace through a `path` source (`shared = { path = "../../../python/libs/shared" }`).
 
-Since there is no `uv.lock` in the root directory in this layout, set the `packageManager` option to `uv` as shown above. The executors, `nx release` and the generators still expect the uv workspace at the Nx root.
+The executors work against that workspace too: `install`, `sync` and `lock` run from the uv workspace root, `add`, `update` and `remove` change the workspace lock file, the shared virtual environment is the `.venv` in the uv workspace root, and `build` bundles local dependencies from the same workspace or, through a `path` source, from another one. `nx release` locks every uv workspace a versioned project is locked in.
+
+Since there is no `uv.lock` in the root directory in this layout, set the `packageManager` option to `uv` as shown above. The generators don't write to a uv workspace in a subdirectory yet: add the `[tool.uv.workspace]` table and the `{ workspace = true }` sources by hand.
 
 ## Locked packages in the project graph
 
