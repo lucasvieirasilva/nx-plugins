@@ -1,3 +1,13 @@
+## 23.5.0 (2026-11-16)
+
+### 🚀 Features
+
+- **nx-python:** run the executors and nx release against a uv workspace in a subdirectory ([#379](https://github.com/lucasvieirasilva/nx-plugins/pull/379))
+
+### ❤️ Thank You
+
+- Mor Maman @mormamn
+
 ## 23.4.0 (2026-11-12)
 
 ### 🚀 Features
