@@ -162,6 +162,39 @@ The executors work against that workspace too: `install`, `sync` and `lock` run 
 
 Since there is no `uv.lock` in the root directory in this layout, set the `packageManager` option to `uv` as shown above. The generators don't write to a uv workspace in a subdirectory yet: add the `[tool.uv.workspace]` table and the `{ workspace = true }` sources by hand.
 
+## Projects without a `project.json`
+
+By default a Python project is an Nx project only when it has a `project.json`, which the project generators write. Set the `inferProjects` option to `true` to make every `pyproject.toml` that names a package (`[project]`, or `[tool.poetry]` with Poetry) an Nx project, named after the package, with a `test` target:
+
+```json
+{
+  "plugins": [
+    {
+      "plugin": "@nxlv/python",
+      "options": {
+        "inferProjects": true
+      }
+    }
+  ]
+}
+```
+
+- The `test` target is the one the project generators write: it runs `uv run pytest tests/` (or `poetry run pytest tests/`) from the project root. Its inputs are the project's own files and the `production` files of the projects it depends on.
+- The `production` named input of an inferred project leaves out its test files, so a change to a library's tests doesn't run the tests of the projects that depend on it.
+- A project in a shared workspace also reads the lock file, the `pyproject.toml` and the `.python-version` of the workspace root, so a change to any of them affects every member.
+- A `pyproject.toml` that names no package, such as a uv workspace root with no `[project]` table, is not a project.
+- A uv workspace member is found from the directories above it, so a member that lives outside its workspace root's directory doesn't read the root's files.
+
+| Option           | Default                                                            | Description                                                             |
+| ---------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| `inferProjects`  | `false`                                                            | Create a project for every `pyproject.toml`                             |
+| `testTargetName` | `test`                                                             | Name of the inferred test target                                        |
+| `testFiles`      | `["tests/**/*", "**/test_*.py", "**/*_test.py", "**/conftest.py"]` | Globs, relative to the project root, left out of the `production` input |
+
+A `project.json` next to a `pyproject.toml` still applies on top of what is inferred, so a project can change its name, replace the `test` target or add other targets there.
+
+**NOTE**: The `inferProjects` option is disabled by default.
+
 ## Locked packages in the project graph
 
 By default the project graph knows nothing about the PyPI packages in a workspace, so the only way to make a Python project's task cache follow its dependencies is to list the whole lock file (`uv.lock` or `poetry.lock`) as an input, and any lock change invalidates every project.

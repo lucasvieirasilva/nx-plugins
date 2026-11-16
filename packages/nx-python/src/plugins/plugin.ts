@@ -3,24 +3,38 @@ import {
   DependencyType,
   CreateDependencies,
   CreateDependenciesContext,
+  CreateNodesResult,
   CreateNodesV2,
+  createNodesFromFiles,
+  joinPathFragments,
   logger,
+  NxJsonConfiguration,
   StaticDependency,
   DynamicDependency,
 } from '@nx/devkit';
 import { getProvider } from '../provider';
 import { PluginOptions } from '../types';
 import { readFile } from 'node:fs/promises';
+import { posix } from 'node:path';
 import { extractImportedModules, getPythonParser } from './infer';
 
 const cachedScannedFiles: Record<string, [string, string][]> = {};
 
 const LOCK_FILES = new Set(['uv.lock', 'poetry.lock']);
 
+const DEFAULT_TEST_FILES = [
+  'tests/**/*',
+  '**/test_*.py',
+  '**/*_test.py',
+  '**/conftest.py',
+];
+
+type Provider = Awaited<ReturnType<typeof getProvider>>;
+
 export const createNodesV2: CreateNodesV2<PluginOptions> = [
-  '**/{uv,poetry}.lock',
+  '**/{uv.lock,poetry.lock,pyproject.toml}',
   async (files, options, context) => {
-    if (!options?.externalNodes) {
+    if (!options?.externalNodes && !options?.inferProjects) {
       return [];
     }
     const provider = await getProvider(
@@ -30,17 +44,97 @@ export const createNodesV2: CreateNodesV2<PluginOptions> = [
       undefined,
       options,
     );
-    const lockGraph = provider.getLockGraph([...files]);
-    if (!lockGraph) {
-      return [];
+    const result: Array<[string, CreateNodesResult]> = [];
+    if (options.externalNodes) {
+      result.push(...lockGraphNodes(provider, files));
     }
-    // Every matched file reports the same nodes; Nx merges them by name.
-    return files.map((file) => [
-      file,
-      { externalNodes: lockGraph.externalNodes },
-    ]);
+    if (options.inferProjects) {
+      result.push(
+        ...(await createNodesFromFiles(
+          (file) =>
+            inferProject(provider, file, options, context.nxJsonConfiguration),
+          files.filter((file) => posix.basename(file) === 'pyproject.toml'),
+          options,
+          context,
+        )),
+      );
+    }
+    return result;
   },
 ];
+
+function lockGraphNodes(
+  provider: Provider,
+  files: readonly string[],
+): Array<[string, CreateNodesResult]> {
+  const lockFiles = files.filter((file) =>
+    LOCK_FILES.has(posix.basename(file)),
+  );
+  const lockGraph = provider.getLockGraph(lockFiles);
+  if (!lockGraph) {
+    return [];
+  }
+  // Every matched file reports the same nodes; Nx merges them by name.
+  return lockFiles.map((file) => [
+    file,
+    { externalNodes: lockGraph.externalNodes },
+  ]);
+}
+
+// A pyproject.toml that names no package is not a project: a virtual workspace
+// root, or a file that only holds tool configuration.
+async function inferProject(
+  provider: Provider,
+  file: string,
+  options: PluginOptions,
+  nxJson: NxJsonConfiguration,
+): Promise<CreateNodesResult | null> {
+  const projectRoot = posix.dirname(file);
+  const name = provider.getMetadata(projectRoot)?.name;
+  if (!name) {
+    return null;
+  }
+  // A member of a shared workspace is locked and configured at its root.
+  const workspaceRoot = provider.getWorkspaceRoot(projectRoot);
+  const workspaceFiles =
+    workspaceRoot === null || posix.normalize(workspaceRoot) === projectRoot
+      ? []
+      : [provider.lockFileName, 'pyproject.toml', '.python-version'].map(
+          (workspaceFile) =>
+            `{workspaceRoot}/${joinPathFragments(workspaceRoot, workspaceFile)}`,
+        );
+  return {
+    projects: {
+      [projectRoot]: {
+        name,
+        namedInputs: {
+          production: [
+            ...(nxJson.namedInputs?.production ?? ['default']),
+            ...(options.testFiles ?? DEFAULT_TEST_FILES).map(
+              (pattern) => `!{projectRoot}/${pattern}`,
+            ),
+            ...workspaceFiles,
+          ],
+        },
+        targets: {
+          [options.testTargetName ?? 'test']: {
+            executor: '@nxlv/python:run-commands',
+            outputs: [
+              '{workspaceRoot}/reports/{projectRoot}/unittests',
+              '{workspaceRoot}/coverage/{projectRoot}',
+            ],
+            options: {
+              command: await provider.getRunCommand(['pytest', 'tests/']),
+              cwd: '{projectRoot}',
+            },
+            cache: true,
+            inputs: ['default', '^production', ...workspaceFiles],
+          },
+        },
+      },
+    },
+  };
+}
 
 export const createDependencies: CreateDependencies<PluginOptions> = async (
   options,
@@ -166,7 +260,7 @@ export const createDependencies: CreateDependencies<PluginOptions> = async (
 // a workspace file whichever project added it, so there they go in as
 // implicit edges, which Nx recomputes on every build.
 function lockGraphDependencies(
-  provider: Awaited<ReturnType<typeof getProvider>>,
+  provider: Provider,
   context: CreateDependenciesContext,
 ): Array<ImplicitDependency | StaticDependency> {
   const { nonProjectFiles, projectFileMap } = context.fileMap;

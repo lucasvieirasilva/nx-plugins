@@ -2629,7 +2629,7 @@ describe('nx-python dependency graph', () => {
     });
 
     it('should add the locked packages as external nodes when enabled', async () => {
-      expect(pattern).toBe('**/{uv,poetry}.lock');
+      expect(pattern).toBe('**/{uv.lock,poetry.lock,pyproject.toml}');
 
       const [[file, result]] = await createNodes(
         ['uv.lock'],
@@ -2981,6 +2981,317 @@ describe('nx-python dependency graph', () => {
           sourceFile: 'apps/app1/poetry.lock',
         },
       ]);
+    });
+  });
+
+  describe('infer projects', () => {
+    const [, createNodes] = createNodesV2;
+    const nodesContext = { workspaceRoot: '.', nxJsonConfiguration: {} };
+
+    describe('uv', () => {
+      beforeEach(() => {
+        vol.fromJSON({
+          'python/pyproject.toml': dedent`
+          [tool.uv.workspace]
+          members = ["apps/*", "libs/*"]
+          `,
+          'python/uv.lock': '',
+          'python/apps/app1/pyproject.toml': dedent`
+          [project]
+          name = "app1"
+          version = "0.1.0"
+          dependencies = ["dep1"]
+
+          [tool.uv.sources]
+          dep1 = { workspace = true }
+          `,
+          'python/libs/dep1/pyproject.toml': dedent`
+          [project]
+          name = "dep1"
+          version = "0.1.0"
+          `,
+          'tools/cli/pyproject.toml': dedent`
+          [project]
+          name = "cli"
+          version = "0.1.0"
+          `,
+          'tools/cli/uv.lock': '',
+        });
+      });
+
+      const files = [
+        'python/pyproject.toml',
+        'python/uv.lock',
+        'python/apps/app1/pyproject.toml',
+        'python/libs/dep1/pyproject.toml',
+        'tools/cli/pyproject.toml',
+        'tools/cli/uv.lock',
+      ];
+
+      it('should add no projects by default', async () => {
+        expect(
+          await createNodes(files, { packageManager: 'uv' }, nodesContext),
+        ).toStrictEqual([]);
+      });
+
+      it('should add a project with a test target for each pyproject.toml', async () => {
+        const result = await createNodes(
+          files,
+          { packageManager: 'uv', inferProjects: true },
+          nodesContext,
+        );
+
+        expect(result).toStrictEqual([
+          [
+            'python/apps/app1/pyproject.toml',
+            {
+              projects: {
+                'python/apps/app1': {
+                  name: 'app1',
+                  namedInputs: {
+                    production: [
+                      'default',
+                      '!{projectRoot}/tests/**/*',
+                      '!{projectRoot}/**/test_*.py',
+                      '!{projectRoot}/**/*_test.py',
+                      '!{projectRoot}/**/conftest.py',
+                      '{workspaceRoot}/python/uv.lock',
+                      '{workspaceRoot}/python/pyproject.toml',
+                      '{workspaceRoot}/python/.python-version',
+                    ],
+                  },
+                  targets: {
+                    test: {
+                      executor: '@nxlv/python:run-commands',
+                      outputs: [
+                        '{workspaceRoot}/reports/{projectRoot}/unittests',
+                        '{workspaceRoot}/coverage/{projectRoot}',
+                      ],
+                      options: {
+                        command: 'uv run pytest tests/',
+                        cwd: '{projectRoot}',
+                      },
+                      cache: true,
+                      inputs: [
+                        'default',
+                        '^production',
+                        '{workspaceRoot}/python/uv.lock',
+                        '{workspaceRoot}/python/pyproject.toml',
+                        '{workspaceRoot}/python/.python-version',
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          ],
+          [
+            'python/libs/dep1/pyproject.toml',
+            {
+              projects: {
+                'python/libs/dep1': expect.objectContaining({ name: 'dep1' }),
+              },
+            },
+          ],
+          [
+            'tools/cli/pyproject.toml',
+            {
+              projects: {
+                'tools/cli': {
+                  name: 'cli',
+                  namedInputs: {
+                    production: [
+                      'default',
+                      '!{projectRoot}/tests/**/*',
+                      '!{projectRoot}/**/test_*.py',
+                      '!{projectRoot}/**/*_test.py',
+                      '!{projectRoot}/**/conftest.py',
+                    ],
+                  },
+                  targets: {
+                    test: expect.objectContaining({
+                      inputs: ['default', '^production'],
+                    }),
+                  },
+                },
+              },
+            },
+          ],
+        ]);
+      });
+
+      it('should add no project for a workspace root without a [project] table', async () => {
+        const result = await createNodes(
+          ['python/pyproject.toml'],
+          { packageManager: 'uv', inferProjects: true },
+          nodesContext,
+        );
+
+        expect(result).toStrictEqual([]);
+      });
+
+      it('should add a workspace root that names a package without the workspace files', async () => {
+        vol.fromJSON({
+          'python/pyproject.toml': dedent`
+          [project]
+          name = "root"
+          version = "0.1.0"
+
+          [tool.uv.workspace]
+          members = ["apps/*", "libs/*"]
+          `,
+        });
+
+        const [[, { projects }]] = await createNodes(
+          ['python/pyproject.toml'],
+          { packageManager: 'uv', inferProjects: true },
+          nodesContext,
+        );
+
+        expect(projects['python'].name).toBe('root');
+        expect(projects['python'].targets.test.inputs).toStrictEqual([
+          'default',
+          '^production',
+        ]);
+      });
+
+      it('should use the test target name and test files from the options', async () => {
+        const [[, { projects }]] = await createNodes(
+          ['python/libs/dep1/pyproject.toml'],
+          {
+            packageManager: 'uv',
+            inferProjects: true,
+            testTargetName: 'unit-test',
+            testFiles: ['spec/**/*'],
+          },
+          nodesContext,
+        );
+
+        expect(Object.keys(projects['python/libs/dep1'].targets)).toStrictEqual(
+          ['unit-test'],
+        );
+        expect(
+          projects['python/libs/dep1'].namedInputs.production,
+        ).toStrictEqual([
+          'default',
+          '!{projectRoot}/spec/**/*',
+          '{workspaceRoot}/python/uv.lock',
+          '{workspaceRoot}/python/pyproject.toml',
+          '{workspaceRoot}/python/.python-version',
+        ]);
+      });
+
+      it('should build production on the workspace production named input', async () => {
+        const [[, { projects }]] = await createNodes(
+          ['tools/cli/pyproject.toml'],
+          { packageManager: 'uv', inferProjects: true },
+          {
+            workspaceRoot: '.',
+            nxJsonConfiguration: {
+              namedInputs: {
+                production: ['default', '!{projectRoot}/docs/**/*'],
+              },
+            },
+          },
+        );
+
+        expect(projects['tools/cli'].namedInputs.production).toStrictEqual([
+          'default',
+          '!{projectRoot}/docs/**/*',
+          '!{projectRoot}/tests/**/*',
+          '!{projectRoot}/**/test_*.py',
+          '!{projectRoot}/**/*_test.py',
+          '!{projectRoot}/**/conftest.py',
+        ]);
+      });
+
+      it('should keep adding external nodes for the lock files', async () => {
+        const result = await createNodes(
+          ['tools/cli/pyproject.toml', 'tools/cli/uv.lock'],
+          { packageManager: 'uv', inferProjects: true, externalNodes: true },
+          nodesContext,
+        );
+
+        expect(result.map(([file]) => file)).toStrictEqual([
+          'tools/cli/uv.lock',
+          'tools/cli/pyproject.toml',
+        ]);
+      });
+    });
+
+    describe('poetry', () => {
+      beforeEach(() => {
+        vol.fromJSON({
+          'pyproject.toml': dedent`
+          [tool.poetry]
+          package-mode = false
+
+            [tool.poetry.dependencies]
+            python = "^3.9"
+            app1 = { path = "apps/app1", develop = true }
+          `,
+          'poetry.lock': '',
+          'apps/app1/pyproject.toml': dedent`
+          [tool.poetry]
+          name = "app1"
+          version = "1.0.0"
+          `,
+        });
+      });
+
+      it('should add a project with a test target for each pyproject.toml', async () => {
+        const result = await createNodes(
+          ['pyproject.toml', 'poetry.lock', 'apps/app1/pyproject.toml'],
+          { packageManager: 'poetry', inferProjects: true },
+          nodesContext,
+        );
+
+        expect(result).toStrictEqual([
+          [
+            'apps/app1/pyproject.toml',
+            {
+              projects: {
+                'apps/app1': {
+                  name: 'app1',
+                  namedInputs: {
+                    production: [
+                      'default',
+                      '!{projectRoot}/tests/**/*',
+                      '!{projectRoot}/**/test_*.py',
+                      '!{projectRoot}/**/*_test.py',
+                      '!{projectRoot}/**/conftest.py',
+                      '{workspaceRoot}/poetry.lock',
+                      '{workspaceRoot}/pyproject.toml',
+                      '{workspaceRoot}/.python-version',
+                    ],
+                  },
+                  targets: {
+                    test: {
+                      executor: '@nxlv/python:run-commands',
+                      outputs: [
+                        '{workspaceRoot}/reports/{projectRoot}/unittests',
+                        '{workspaceRoot}/coverage/{projectRoot}',
+                      ],
+                      options: {
+                        command: 'poetry run pytest tests/',
+                        cwd: '{projectRoot}',
+                      },
+                      cache: true,
+                      inputs: [
+                        'default',
+                        '^production',
+                        '{workspaceRoot}/poetry.lock',
+                        '{workspaceRoot}/pyproject.toml',
+                        '{workspaceRoot}/.python-version',
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          ],
+        ]);
+      });
     });
   });
 });
