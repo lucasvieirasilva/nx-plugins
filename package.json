@@ -45,7 +45,7 @@
     "memfs": "^4.51.1",
     "nx": "23.3.1",
     "nx-cloud": "19.1.5",
-    "prettier": "^3.2.5",
+    "prettier": "^3.10.1",
     "string-dedent": "^3.0.1",
     "ts-node": "10.9.2",
     "typescript": "6.0.3",
