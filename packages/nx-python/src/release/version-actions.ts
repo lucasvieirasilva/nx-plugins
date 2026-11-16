@@ -21,6 +21,41 @@ import { checkPathExists } from '../utils/path';
 
 let updatedProjects: string[] = [];
 
+/**
+ * Locks the uv workspaces in a subdirectory that the updated projects are
+ * members of, and returns their lock files.
+ */
+async function lockWorkspaceRoots(
+  cwd: string,
+  provider: BaseProvider<unknown>,
+  dryRun?: boolean,
+  lockArgs?: string,
+): Promise<string[]> {
+  const workspaceRoots = new Set<string>();
+  for (const project of updatedProjects) {
+    const workspaceRoot = provider.getWorkspaceRoot(project);
+    if (workspaceRoot && workspaceRoot !== '.' && workspaceRoot !== project) {
+      workspaceRoots.add(workspaceRoot);
+    }
+  }
+
+  if (dryRun) {
+    for (const workspaceRoot of workspaceRoots) {
+      console.log(`Would run lock for ${workspaceRoot}`);
+    }
+  } else {
+    await Promise.all(
+      Array.from(workspaceRoots, (workspaceRoot) =>
+        provider.lock(path.join(cwd, workspaceRoot), false, lockArgs),
+      ),
+    );
+  }
+
+  return Array.from(workspaceRoots, (workspaceRoot) =>
+    path.join(workspaceRoot, provider.lockFileName),
+  );
+}
+
 export const afterAllProjectsVersioned: AfterAllProjectsVersioned = async (
   cwd: string,
   {
@@ -61,13 +96,7 @@ export const afterAllProjectsVersioned: AfterAllProjectsVersioned = async (
   }
 
   const changedFiles: string[] = [];
-  const workspaceRoots = new Set<string>();
   for (const project of updatedProjects) {
-    const workspaceRoot = provider.getWorkspaceRoot(project);
-    if (workspaceRoot && workspaceRoot !== '.' && workspaceRoot !== project) {
-      workspaceRoots.add(workspaceRoot);
-    }
-
     const projectLockFile = path.join(project, provider.lockFileName);
 
     if (await checkPathExists(projectLockFile)) {
@@ -81,15 +110,9 @@ export const afterAllProjectsVersioned: AfterAllProjectsVersioned = async (
     }
   }
 
-  for (const workspaceRoot of workspaceRoots) {
-    changedFiles.push(path.join(workspaceRoot, provider.lockFileName));
-
-    if (!opts.dryRun) {
-      await provider.lock(path.join(cwd, workspaceRoot), false, lockArgs);
-    } else {
-      console.log(`Would run lock for ${workspaceRoot}`);
-    }
-  }
+  changedFiles.push(
+    ...(await lockWorkspaceRoots(cwd, provider, opts.dryRun, lockArgs)),
+  );
 
   if (provider.isWorkspace) {
     changedFiles.push(provider.lockFileName);

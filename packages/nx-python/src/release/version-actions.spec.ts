@@ -345,6 +345,35 @@ describe('afterAllProjectsVersioned', () => {
       });
     });
 
+    it('should not lock the uv workspace in a subdirectory on a dry run', async () => {
+      vol.fromJSON({
+        'nx.json': JSON.stringify({
+          plugins: [
+            { plugin: '@nxlv/python', options: { packageManager: 'uv' } },
+          ],
+        }),
+        'python/apps/app1/pyproject.toml': dedent`
+        [project]
+        name = "app1"
+        version = "0.1.0"
+        `,
+        'python/pyproject.toml': dedent`
+        [tool.uv.workspace]
+        members = ["apps/*"]
+        `,
+        'python/uv.lock': '',
+      });
+
+      await bumpVersion('python/apps/app1');
+      const result = await afterAllProjectsVersioned('.', { dryRun: true });
+
+      expect(spawn.sync).not.toHaveBeenCalled();
+      expect(result).toStrictEqual({
+        changedFiles: ['python/uv.lock'],
+        deletedFiles: [],
+      });
+    });
+
     it('should lock the root uv workspace once', async () => {
       vol.fromJSON({
         'nx.json': JSON.stringify({ plugins: ['@nxlv/python'] }),
