@@ -164,7 +164,7 @@ Since there is no `uv.lock` in the root directory in this layout, set the `packa
 
 ## Projects without a `project.json`
 
-By default a Python project is an Nx project only when it has a `project.json`, which the project generators write. Set the `inferProjects` option to `true` to make every `pyproject.toml` that names a package (`[project]`, or `[tool.poetry]` with Poetry) an Nx project, named after the package, with a `test` target:
+By default a Python project is an Nx project only when it has a `project.json`, which the project generators write. Set the `inferProjects` option to `true` to make every `pyproject.toml` that names a package (`[project]`, or `[tool.poetry]` with Poetry) an Nx project, named after the package, with the targets the project generators write:
 
 ```json
 {
@@ -179,7 +179,10 @@ By default a Python project is an Nx project only when it has a `project.json`, 
 }
 ```
 
-- The `test` target is the one the project generators write: it runs `uv run pytest tests/` (or `poetry run pytest tests/`) from the project root. Its inputs are the project's own files and the `production` files of the projects it depends on.
+- The targets are `lock`, `sync`, `add`, `update`, `remove`, `build`, `install` and `test`, with the options the project generators write by default (`build` is not publishable, uses locked versions and bundles local dependencies). The `install` target sets no `cacheDir`, so Poetry uses its own cache directory.
+- `lint` is added for a project with a `.flake8` file (`@nxlv/python:flake8`), `lint` and `format` for one with a `[tool.ruff]` table in its `pyproject.toml` (`@nxlv/python:ruff-check` and `@nxlv/python:ruff-format`, on the whole project).
+- The `test` target runs `uv run pytest tests/` (or `poetry run pytest tests/`) from the project root. Its inputs are the project's own files and the `production` files of the projects it depends on.
+- Each project gets the `release` configuration the generators write, so `nx release` versions it through `@nxlv/python/release/version-actions`.
 - The `production` named input of an inferred project leaves out its test files, so a change to a library's tests doesn't run the tests of the projects that depend on it.
 - A project in a shared workspace also reads the lock file, the `pyproject.toml` and the `.python-version` of the workspace root, so a change to any of them affects every member.
 - A `pyproject.toml` that names no package, such as a uv workspace root with no `[project]` table, is not a project.
@@ -188,10 +191,12 @@ By default a Python project is an Nx project only when it has a `project.json`, 
 | Option           | Default                                                            | Description                                                             |
 | ---------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------- |
 | `inferProjects`  | `false`                                                            | Create a project for every `pyproject.toml`                             |
-| `testTargetName` | `test`                                                             | Name of the inferred test target                                        |
+| `testTargetName` | `test`                                                             | Name of the inferred test target, the other targets keep their names    |
 | `testFiles`      | `["tests/**/*", "**/test_*.py", "**/*_test.py", "**/conftest.py"]` | Globs, relative to the project root, left out of the `production` input |
 
-A `project.json` next to a `pyproject.toml` still applies on top of what is inferred, so a project can change its name, replace the `test` target or add other targets there.
+A `project.json` next to a `pyproject.toml` still applies on top of what is inferred, so a project can change its name, change or replace any of the targets or add other targets there. A target of the same name with the same executor keeps the inferred options it doesn't set (a `build` target that sets no `publish` gets the inferred `false`), one with another executor replaces the inferred target. An inferred project has no `projectType`, `sourceRoot` or tags unless a `project.json` sets them.
+
+To generate a project with no `project.json`, pass `--skipProjectJson` to the `poetry-project` or `uv-project` generator. It also sets `inferProjects` in `nx.json`. The project is then named after its package (`--packageName`, or `--name`), and the options that only change the `project.json` (`--tags`, `--publishable`, `--buildLockedVersions`, `--buildBundleLocalDependencies`, and the `build` sync generator of `--useSyncGenerators`) have no effect. `migrate-to-shared-venv` and `--devDependenciesProject` find projects through their `project.json`, so they don't see a project generated this way.
 
 **NOTE**: The `inferProjects` option is disabled by default.
 
@@ -364,6 +369,7 @@ Nx documentation reference: <https://nx.dev/deprecated/as-provided-vs-derived#pr
 | `--codeCoverageXmlReport`        | `boolean` | Enable Code Coverage XML Reports                                                                                                                                                       | `false`  | `true`                                   |
 | `--codeCoverageThreshold`        | `number`  | Minimum Code Coverage Threshold                                                                                                                                                        | `false`  | N/A                                      |
 | `--projectNameAndRootFormat`     | `string`  | Whether to generate the project name and root directory as provided (`as-provided`) or generate them composing their values and taking the configured layout into account (`derived`). | `false`  | `as-provided`                            |
+| `--skipProjectJson`              | `boolean` | Do not create the `project.json` file, the project and its targets are inferred from the `pyproject.toml` (see [Projects without a `project.json`](#projects-without-a-projectjson))   | `false`  | `false`                                  |
 
 ##### rootPyprojectDependencyGroup
 
@@ -463,6 +469,7 @@ nx generate @nxlv/python:uv-project myproject
 | `--projectNameAndRootFormat`     | `string`  | Whether to generate the project name and root directory as provided (`as-provided`) or generate them composing their values and taking the configured layout into account (`derived`). | `false`  | `as-provided`                            |
 | `--srcDir`                       | `boolean` | Whether to generate the module source files inside a `src` directory (uv recommended) **NOTE**: To keep backward compatibility with previous versions, the default value is `false`    | `false`  | `false`                                  |
 | `--buildSystem`                  | `string`  | Build system to use (`hatch` or `uv`)                                                                                                                                                  | `false`  | `hatch`                                  |
+| `--skipProjectJson`              | `boolean` | Do not create the `project.json` file, the project and its targets are inferred from the `pyproject.toml` (see [Projects without a `project.json`](#projects-without-a-projectjson))   | `false`  | `false`                                  |
 
 ### UV Packaged Application/Library
 

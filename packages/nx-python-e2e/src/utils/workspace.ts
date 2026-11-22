@@ -51,7 +51,6 @@ export interface PluginRegistration {
   packageManager?: 'poetry' | 'uv';
   inferDependencies?: boolean;
   externalNodes?: boolean;
-  inferProjects?: boolean;
 }
 
 export interface TestWorkspace {
@@ -144,7 +143,6 @@ export function createTestWorkspace(
   if (plugin.packageManager) options.packageManager = plugin.packageManager;
   if (plugin.inferDependencies) options.inferDependencies = true;
   if (plugin.externalNodes) options.externalNodes = true;
-  if (plugin.inferProjects) options.inferProjects = true;
   nxJson.plugins.push(
     Object.keys(options).length > 0
       ? { plugin: '@nxlv/python', options }

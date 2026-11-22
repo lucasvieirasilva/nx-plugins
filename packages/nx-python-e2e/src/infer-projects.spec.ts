@@ -6,8 +6,9 @@ import {
 } from './utils/workspace';
 
 // With `inferProjects` enabled, a `pyproject.toml` is enough to make an Nx
-// project: the generated `project.json` files are removed, and the projects,
-// their test target and the edge between them still come out of the graph.
+// project: the generators write no `project.json` with `--skipProjectJson`, and
+// the projects, their targets and the edge between them still come out of the
+// graph.
 describe('nx-python (inferProjects)', () => {
   describe.each([
     {
@@ -33,22 +34,23 @@ describe('nx-python (inferProjects)', () => {
     beforeAll(() => {
       ws = createTestWorkspace(`infer-projects-${packageManager}`, {
         packageManager,
-        inferProjects: true,
       });
-      ws.generate(
-        generator,
-        `infapp --projectType application ${args} ${PY_VERSION_ARGS}`,
-      );
-      ws.generate(
-        generator,
-        `inflib --projectType library ${args} ${PY_VERSION_ARGS}`,
-      );
-      ws.nx('run infapp:add --name inflib --local');
+      // migrate-to-shared-venv finds the projects through their project.json,
+      // so the shared workspace comes first and the projects are generated
+      // into it.
       ws.generate(
         'migrate-to-shared-venv',
         `--packageManager=${packageManager} --moveDevDependencies=true ${PY_VERSION_ARGS}`,
       );
-      ws.run('rm infapp/project.json inflib/project.json');
+      ws.generate(
+        generator,
+        `infapp --projectType application --skipProjectJson ${args} ${PY_VERSION_ARGS}`,
+      );
+      ws.generate(
+        generator,
+        `inflib --projectType library --skipProjectJson ${args} ${PY_VERSION_ARGS}`,
+      );
+      ws.nx('run infapp:add --name inflib --local');
     });
 
     afterAll(() => {
@@ -58,8 +60,28 @@ describe('nx-python (inferProjects)', () => {
     it('creates a project for each pyproject.toml that names a package', () => {
       const projects = JSON.parse(ws.nx('show projects --json'));
 
+      expect(ws.exists('infapp/project.json')).toBe(false);
+      expect(ws.exists('inflib/project.json')).toBe(false);
       expect(projects).toContain('infapp');
       expect(projects).toContain('inflib');
+    });
+
+    it('infers the targets the generators write', () => {
+      const project = JSON.parse(ws.nx('show project inflib --json'));
+
+      expect(Object.keys(project.targets)).toEqual(
+        expect.arrayContaining([
+          'lock',
+          'sync',
+          'add',
+          'update',
+          'remove',
+          'build',
+          'lint',
+          'test',
+          'install',
+        ]),
+      );
     });
 
     it('keeps the edge to a local dependency', () => {

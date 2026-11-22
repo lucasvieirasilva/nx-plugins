@@ -13,6 +13,11 @@ import {
   DynamicDependency,
 } from '@nx/devkit';
 import { getProvider } from '../provider';
+import {
+  getDefaultPythonProjectTargets,
+  updateNxReleaseConfig,
+} from '../generators/utils';
+import { BasePythonProjectGeneratorSchema } from '../generators/types';
 import { PluginOptions } from '../types';
 import { readFile } from 'node:fs/promises';
 import { posix } from 'node:path';
@@ -103,9 +108,11 @@ async function inferProject(
           (workspaceFile) =>
             `{workspaceRoot}/${joinPathFragments(workspaceRoot, workspaceFile)}`,
         );
+  const { test, ...targets } = await inferTargets(provider, projectRoot);
   return {
     projects: {
-      [projectRoot]: {
+      [projectRoot]: updateNxReleaseConfig({
+        root: projectRoot,
         name,
         namedInputs: {
           production: [
@@ -117,23 +124,55 @@ async function inferProject(
           ],
         },
         targets: {
+          ...targets,
           [options.testTargetName ?? 'test']: {
-            executor: '@nxlv/python:run-commands',
-            outputs: [
-              '{workspaceRoot}/reports/{projectRoot}/unittests',
-              '{workspaceRoot}/coverage/{projectRoot}',
-            ],
-            options: {
-              command: await provider.getRunCommand(['pytest', 'tests/']),
-              cwd: '{projectRoot}',
-            },
-            cache: true,
+            ...test,
             inputs: ['default', '^production', ...workspaceFiles],
           },
         },
-      },
+      }),
     },
   };
+}
+
+// The targets the project generators write, with their default options. The
+// linter is the one the project configures: a `.flake8` file, or a
+// `[tool.ruff]` table in its pyproject.toml.
+async function inferTargets(provider: Provider, projectRoot: string) {
+  const pyproject = provider.getPyprojectToml(projectRoot) as {
+    tool?: { ruff?: unknown };
+  };
+  let linter: BasePythonProjectGeneratorSchema['linter'] = 'none';
+  if (provider.fileExists(joinPathFragments(projectRoot, '.flake8'))) {
+    linter = 'flake8';
+  } else if (pyproject.tool?.ruff) {
+    linter = 'ruff';
+  }
+  const targets = await getDefaultPythonProjectTargets(
+    {
+      publishable: false,
+      buildLockedVersions: true,
+      buildBundleLocalDependencies: true,
+      linter,
+      moduleName: '',
+      unitTestRunner: 'pytest',
+    },
+    provider,
+  );
+  if (linter === 'ruff') {
+    targets['format'].options.filePatterns = [];
+    targets['lint'].options.lintFilePatterns = [];
+  }
+  targets.install = {
+    executor: '@nxlv/python:install',
+    options: {
+      silent: false,
+      args: '',
+      verbose: false,
+      debug: false,
+    },
+  };
+  return targets;
 }
 
 export const createDependencies: CreateDependencies<PluginOptions> = async (

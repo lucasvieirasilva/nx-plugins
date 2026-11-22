@@ -11,9 +11,9 @@ export type PluginOptions = {
   externalNodes?: boolean;
   /**
    * Whether every `pyproject.toml` that names a package becomes an Nx project,
-   * named after the package, with a test target, so that no `project.json` is
-   * needed. A `project.json` in the same directory still applies on top.
-   * Defaults to `false`.
+   * named after the package, with the targets the project generators write, so
+   * that no `project.json` is needed. A `project.json` in the same directory
+   * still applies on top. Defaults to `false`.
    */
   inferProjects?: boolean;
   /**

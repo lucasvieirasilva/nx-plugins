@@ -140,6 +140,11 @@
       "type": "boolean",
       "description": "EXPERIMENTAL: Use sync generators to automatically sync local package dependencies when building the project (When enabled, the generator will also add the `inferDependencies` option to the `nx.json` file)",
       "default": false
+    },
+    "skipProjectJson": {
+      "type": "boolean",
+      "description": "Do not create the `project.json` file, the project and its targets are inferred from the `pyproject.toml` (When enabled, the generator will also add the `inferProjects` option to the `nx.json` file)",
+      "default": false
     }
   },
   "required": ["name", "projectType"]

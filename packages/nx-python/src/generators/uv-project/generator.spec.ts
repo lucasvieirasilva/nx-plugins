@@ -174,6 +174,24 @@ describe('application generator', () => {
 
       expect(appTree.read('nx.json', 'utf-8')).toMatchSnapshot();
     });
+
+    it('should run successfully with skipProjectJson option', async () => {
+      await generator(appTree, {
+        ...options,
+        name: 'my-app-test',
+        directory: 'src/app/test',
+        projectNameAndRootFormat: 'as-provided',
+        skipProjectJson: true,
+      });
+
+      const projectDirectory = 'src/app/test';
+      const moduleName = 'my_app_test';
+
+      assertGeneratedFilesBase(appTree, projectDirectory, moduleName);
+
+      expect(appTree.exists(`${projectDirectory}/project.json`)).toBeFalsy();
+      expect(appTree.read('nx.json', 'utf-8')).toMatchSnapshot();
+    });
   });
 
   it('should run successfully with minimal options', async () => {

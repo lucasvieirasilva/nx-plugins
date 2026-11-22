@@ -3034,7 +3034,7 @@ describe('nx-python dependency graph', () => {
         ).toStrictEqual([]);
       });
 
-      it('should add a project with a test target for each pyproject.toml', async () => {
+      it('should add a project with the generator targets for each pyproject.toml', async () => {
         const result = await createNodes(
           files,
           { packageManager: 'uv', inferProjects: true },
@@ -3047,7 +3047,13 @@ describe('nx-python dependency graph', () => {
             {
               projects: {
                 'python/apps/app1': {
+                  root: 'python/apps/app1',
                   name: 'app1',
+                  release: {
+                    version: {
+                      versionActions: '@nxlv/python/release/version-actions',
+                    },
+                  },
                   namedInputs: {
                     production: [
                       'default',
@@ -3061,6 +3067,25 @@ describe('nx-python dependency graph', () => {
                     ],
                   },
                   targets: {
+                    lock: {
+                      executor: '@nxlv/python:lock',
+                      options: { update: false },
+                    },
+                    sync: { executor: '@nxlv/python:sync', options: {} },
+                    add: { executor: '@nxlv/python:add', options: {} },
+                    update: { executor: '@nxlv/python:update', options: {} },
+                    remove: { executor: '@nxlv/python:remove', options: {} },
+                    build: {
+                      executor: '@nxlv/python:build',
+                      outputs: ['{projectRoot}/dist'],
+                      options: {
+                        outputPath: '{projectRoot}/dist',
+                        publish: false,
+                        lockedVersions: true,
+                        bundleLocalDependencies: true,
+                      },
+                      cache: true,
+                    },
                     test: {
                       executor: '@nxlv/python:run-commands',
                       outputs: [
@@ -3080,6 +3105,15 @@ describe('nx-python dependency graph', () => {
                         '{workspaceRoot}/python/.python-version',
                       ],
                     },
+                    install: {
+                      executor: '@nxlv/python:install',
+                      options: {
+                        silent: false,
+                        args: '',
+                        verbose: false,
+                        debug: false,
+                      },
+                    },
                   },
                 },
               },
@@ -3097,7 +3131,7 @@ describe('nx-python dependency graph', () => {
             'tools/cli/pyproject.toml',
             {
               projects: {
-                'tools/cli': {
+                'tools/cli': expect.objectContaining({
                   name: 'cli',
                   namedInputs: {
                     production: [
@@ -3108,16 +3142,59 @@ describe('nx-python dependency graph', () => {
                       '!{projectRoot}/**/conftest.py',
                     ],
                   },
-                  targets: {
+                  targets: expect.objectContaining({
                     test: expect.objectContaining({
                       inputs: ['default', '^production'],
                     }),
-                  },
-                },
+                  }),
+                }),
               },
             },
           ],
         ]);
+      });
+
+      it('should add the lint and format targets to a project that configures ruff', async () => {
+        vol.fromJSON({
+          'tools/cli/pyproject.toml': dedent`
+          [project]
+          name = "cli"
+          version = "0.1.0"
+
+          [tool.ruff]
+          line-length = 88
+          `,
+        });
+
+        const [[, { projects }]] = await createNodes(
+          ['tools/cli/pyproject.toml'],
+          { packageManager: 'uv', inferProjects: true },
+          nodesContext,
+        );
+
+        expect(projects['tools/cli'].targets.lint).toStrictEqual({
+          executor: '@nxlv/python:ruff-check',
+          outputs: [],
+          options: { lintFilePatterns: [] },
+          cache: true,
+        });
+        expect(projects['tools/cli'].targets.format).toStrictEqual({
+          executor: '@nxlv/python:ruff-format',
+          outputs: [],
+          options: { filePatterns: [] },
+          cache: true,
+        });
+      });
+
+      it('should add no lint target to a project that configures no linter', async () => {
+        const [[, { projects }]] = await createNodes(
+          ['tools/cli/pyproject.toml'],
+          { packageManager: 'uv', inferProjects: true },
+          nodesContext,
+        );
+
+        expect(projects['tools/cli'].targets.lint).toBeUndefined();
+        expect(projects['tools/cli'].targets.format).toBeUndefined();
       });
 
       it('should add no project for a workspace root without a [project] table', async () => {
@@ -3168,7 +3245,16 @@ describe('nx-python dependency graph', () => {
         );
 
         expect(Object.keys(projects['python/libs/dep1'].targets)).toStrictEqual(
-          ['unit-test'],
+          [
+            'lock',
+            'sync',
+            'add',
+            'update',
+            'remove',
+            'build',
+            'install',
+            'unit-test',
+          ],
         );
         expect(
           projects['python/libs/dep1'].namedInputs.production,
@@ -3239,7 +3325,9 @@ describe('nx-python dependency graph', () => {
         });
       });
 
-      it('should add a project with a test target for each pyproject.toml', async () => {
+      it('should add a project with the generator targets for each pyproject.toml', async () => {
+        vol.fromJSON({ 'apps/app1/.flake8': '' });
+
         const result = await createNodes(
           ['pyproject.toml', 'poetry.lock', 'apps/app1/pyproject.toml'],
           { packageManager: 'poetry', inferProjects: true },
@@ -3252,7 +3340,13 @@ describe('nx-python dependency graph', () => {
             {
               projects: {
                 'apps/app1': {
+                  root: 'apps/app1',
                   name: 'app1',
+                  release: {
+                    version: {
+                      versionActions: '@nxlv/python/release/version-actions',
+                    },
+                  },
                   namedInputs: {
                     production: [
                       'default',
@@ -3266,6 +3360,35 @@ describe('nx-python dependency graph', () => {
                     ],
                   },
                   targets: {
+                    lock: {
+                      executor: '@nxlv/python:lock',
+                      options: { update: false },
+                    },
+                    sync: { executor: '@nxlv/python:sync', options: {} },
+                    add: { executor: '@nxlv/python:add', options: {} },
+                    update: { executor: '@nxlv/python:update', options: {} },
+                    remove: { executor: '@nxlv/python:remove', options: {} },
+                    build: {
+                      executor: '@nxlv/python:build',
+                      outputs: ['{projectRoot}/dist'],
+                      options: {
+                        outputPath: '{projectRoot}/dist',
+                        publish: false,
+                        lockedVersions: true,
+                        bundleLocalDependencies: true,
+                      },
+                      cache: true,
+                    },
+                    lint: {
+                      executor: '@nxlv/python:flake8',
+                      outputs: [
+                        '{workspaceRoot}/reports/{projectRoot}/pylint.txt',
+                      ],
+                      options: {
+                        outputFile: 'reports/{projectRoot}/pylint.txt',
+                      },
+                      cache: true,
+                    },
                     test: {
                       executor: '@nxlv/python:run-commands',
                       outputs: [
@@ -3284,6 +3407,15 @@ describe('nx-python dependency graph', () => {
                         '{workspaceRoot}/pyproject.toml',
                         '{workspaceRoot}/.python-version',
                       ],
+                    },
+                    install: {
+                      executor: '@nxlv/python:install',
+                      options: {
+                        silent: false,
+                        args: '',
+                        verbose: false,
+                        debug: false,
+                      },
                     },
                   },
                 },

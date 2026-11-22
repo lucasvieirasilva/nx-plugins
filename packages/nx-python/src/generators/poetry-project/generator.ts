@@ -24,6 +24,7 @@ import {
   getDefaultPythonProjectTargets,
   getPyprojectTomlByProjectName,
   updateInferDependenciesOption,
+  updateInferProjectsOption,
   updateNxReleaseConfig,
 } from '../utils';
 import { DEV_DEPENDENCIES_VERSION_MAP } from '../consts';
@@ -251,12 +252,15 @@ export default async function (
 
   updateNxReleaseConfig(projectConfiguration);
   updateInferDependenciesOption(tree, normalizedOptions);
+  updateInferProjectsOption(tree, normalizedOptions);
 
-  addProjectConfiguration(
-    tree,
-    normalizedOptions.projectName,
-    projectConfiguration,
-  );
+  if (!normalizedOptions.skipProjectJson) {
+    addProjectConfiguration(
+      tree,
+      normalizedOptions.projectName,
+      projectConfiguration,
+    );
+  }
 
   addFiles(tree, normalizedOptions, __dirname);
   updateDevDependenciesProject(tree, normalizedOptions);

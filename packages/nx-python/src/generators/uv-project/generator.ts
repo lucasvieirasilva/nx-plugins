@@ -18,6 +18,7 @@ import {
   getDefaultPythonProjectTargets,
   getPyprojectTomlByProjectName,
   updateInferDependenciesOption,
+  updateInferProjectsOption,
   updateNxReleaseConfig,
 } from '../utils';
 import {
@@ -296,12 +297,15 @@ export default async function (tree: Tree, options: UVProjectGeneratorSchema) {
 
   updateNxReleaseConfig(projectConfiguration);
   updateInferDependenciesOption(tree, normalizedOptions);
+  updateInferProjectsOption(tree, normalizedOptions);
 
-  addProjectConfiguration(
-    tree,
-    normalizedOptions.projectName,
-    projectConfiguration,
-  );
+  if (!normalizedOptions.skipProjectJson) {
+    addProjectConfiguration(
+      tree,
+      normalizedOptions.projectName,
+      projectConfiguration,
+    );
+  }
 
   addFiles(tree, normalizedOptions, __dirname);
   generateFiles(

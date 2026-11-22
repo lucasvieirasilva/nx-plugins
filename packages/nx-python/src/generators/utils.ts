@@ -228,38 +228,60 @@ export function updateNxReleaseConfig(
   return projectConfiguration;
 }
 
+function enablePluginOption(tree: Tree, option: keyof PluginOptions) {
+  const nxJson = readNxJson(tree);
+  const pluginConfig = nxJson.plugins?.find(
+    (plugin): plugin is ExpandedPluginConfiguration =>
+      typeof plugin === 'object' && plugin.plugin === '@nxlv/python',
+  );
+  if (pluginConfig) {
+    pluginConfig.options = {
+      ...(pluginConfig.options as PluginOptions),
+      [option]: true,
+    };
+  } else {
+    nxJson.plugins = [
+      ...(nxJson.plugins || []),
+      {
+        plugin: '@nxlv/python',
+        options: {
+          [option]: true,
+        },
+      },
+    ];
+  }
+  updateNxJson(tree, nxJson);
+}
+
 export function updateInferDependenciesOption(
   tree: Tree,
   options: BaseNormalizedSchema,
 ) {
   if (options.useSyncGenerators) {
-    const nxJson = readNxJson(tree);
-    const pluginConfig = nxJson.plugins?.find(
-      (plugin): plugin is ExpandedPluginConfiguration =>
-        typeof plugin === 'object' && plugin.plugin === '@nxlv/python',
-    );
-    if (pluginConfig) {
-      pluginConfig.options = {
-        ...(pluginConfig.options as PluginOptions),
-        inferDependencies: true,
-      };
-    } else {
-      nxJson.plugins = [
-        ...(nxJson.plugins || []),
-        {
-          plugin: '@nxlv/python',
-          options: {
-            inferDependencies: true,
-          },
-        },
-      ];
-    }
-    updateNxJson(tree, nxJson);
+    enablePluginOption(tree, 'inferDependencies');
+  }
+}
+
+export function updateInferProjectsOption(
+  tree: Tree,
+  options: BaseNormalizedSchema,
+) {
+  if (options.skipProjectJson) {
+    enablePluginOption(tree, 'inferProjects');
   }
 }
 
 export async function getDefaultPythonProjectTargets(
-  options: BaseNormalizedSchema,
+  options: Pick<
+    BaseNormalizedSchema,
+    | 'publishable'
+    | 'buildLockedVersions'
+    | 'buildBundleLocalDependencies'
+    | 'useSyncGenerators'
+    | 'linter'
+    | 'moduleName'
+    | 'unitTestRunner'
+  >,
   provider: BaseProvider<unknown>,
 ): Promise<ProjectConfiguration['targets']> {
   const targets: ProjectConfiguration['targets'] = {
