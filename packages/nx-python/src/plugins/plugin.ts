@@ -3,24 +3,43 @@ import {
   DependencyType,
   CreateDependencies,
   CreateDependenciesContext,
+  CreateNodesResult,
   CreateNodesV2,
+  createNodesFromFiles,
+  joinPathFragments,
   logger,
+  NxJsonConfiguration,
   StaticDependency,
   DynamicDependency,
 } from '@nx/devkit';
 import { getProvider } from '../provider';
+import {
+  getDefaultPythonProjectTargets,
+  updateNxReleaseConfig,
+} from '../generators/utils';
+import { BasePythonProjectGeneratorSchema } from '../generators/types';
 import { PluginOptions } from '../types';
 import { readFile } from 'node:fs/promises';
+import { posix } from 'node:path';
 import { extractImportedModules, getPythonParser } from './infer';
 
 const cachedScannedFiles: Record<string, [string, string][]> = {};
 
 const LOCK_FILES = new Set(['uv.lock', 'poetry.lock']);
 
+const DEFAULT_TEST_FILES = [
+  'tests/**/*',
+  '**/test_*.py',
+  '**/*_test.py',
+  '**/conftest.py',
+];
+
+type Provider = Awaited<ReturnType<typeof getProvider>>;
+
 export const createNodesV2: CreateNodesV2<PluginOptions> = [
-  '**/{uv,poetry}.lock',
+  '**/{uv.lock,poetry.lock,pyproject.toml}',
   async (files, options, context) => {
-    if (!options?.externalNodes) {
+    if (!options?.externalNodes && !options?.inferProjects) {
       return [];
     }
     const provider = await getProvider(
@@ -30,17 +49,131 @@ export const createNodesV2: CreateNodesV2<PluginOptions> = [
       undefined,
       options,
     );
-    const lockGraph = provider.getLockGraph([...files]);
-    if (!lockGraph) {
-      return [];
+    const result: Array<[string, CreateNodesResult]> = [];
+    if (options.externalNodes) {
+      result.push(...lockGraphNodes(provider, files));
     }
-    // Every matched file reports the same nodes; Nx merges them by name.
-    return files.map((file) => [
-      file,
-      { externalNodes: lockGraph.externalNodes },
-    ]);
+    if (options.inferProjects) {
+      result.push(
+        ...(await createNodesFromFiles(
+          (file) =>
+            inferProject(provider, file, options, context.nxJsonConfiguration),
+          files.filter((file) => posix.basename(file) === 'pyproject.toml'),
+          options,
+          context,
+        )),
+      );
+    }
+    return result;
   },
 ];
+
+function lockGraphNodes(
+  provider: Provider,
+  files: readonly string[],
+): Array<[string, CreateNodesResult]> {
+  const lockFiles = files.filter((file) =>
+    LOCK_FILES.has(posix.basename(file)),
+  );
+  const lockGraph = provider.getLockGraph(lockFiles);
+  if (!lockGraph) {
+    return [];
+  }
+  // Every matched file reports the same nodes; Nx merges them by name.
+  return lockFiles.map((file) => [
+    file,
+    { externalNodes: lockGraph.externalNodes },
+  ]);
+}
+
+// A pyproject.toml that names no package is not a project: a virtual workspace
+// root, or a file that only holds tool configuration.
+async function inferProject(
+  provider: Provider,
+  file: string,
+  options: PluginOptions,
+  nxJson: NxJsonConfiguration,
+): Promise<CreateNodesResult | null> {
+  const projectRoot = posix.dirname(file);
+  const name = provider.getMetadata(projectRoot)?.name;
+  if (!name) {
+    return null;
+  }
+  // A member of a shared workspace is locked and configured at its root.
+  const workspaceRoot = provider.getWorkspaceRoot(projectRoot);
+  const workspaceFiles =
+    workspaceRoot === null || posix.normalize(workspaceRoot) === projectRoot
+      ? []
+      : [provider.lockFileName, 'pyproject.toml', '.python-version'].map(
+          (workspaceFile) =>
+            `{workspaceRoot}/${joinPathFragments(workspaceRoot, workspaceFile)}`,
+        );
+  const { test, ...targets } = await inferTargets(provider, projectRoot);
+  return {
+    projects: {
+      [projectRoot]: updateNxReleaseConfig({
+        root: projectRoot,
+        name,
+        namedInputs: {
+          production: [
+            ...(nxJson.namedInputs?.production ?? ['default']),
+            ...(options.testFiles ?? DEFAULT_TEST_FILES).map(
+              (pattern) => `!{projectRoot}/${pattern}`,
+            ),
+            ...workspaceFiles,
+          ],
+        },
+        targets: {
+          ...targets,
+          [options.testTargetName ?? 'test']: {
+            ...test,
+            inputs: ['default', '^production', ...workspaceFiles],
+          },
+        },
+      }),
+    },
+  };
+}
+
+// The targets the project generators write, with their default options. The
+// linter is the one the project configures: a `.flake8` file, or a
+// `[tool.ruff]` table in its pyproject.toml.
+async function inferTargets(provider: Provider, projectRoot: string) {
+  const pyproject = provider.getPyprojectToml(projectRoot) as {
+    tool?: { ruff?: unknown };
+  };
+  let linter: BasePythonProjectGeneratorSchema['linter'] = 'none';
+  if (provider.fileExists(joinPathFragments(projectRoot, '.flake8'))) {
+    linter = 'flake8';
+  } else if (pyproject.tool?.ruff) {
+    linter = 'ruff';
+  }
+  const targets = await getDefaultPythonProjectTargets(
+    {
+      publishable: false,
+      buildLockedVersions: true,
+      buildBundleLocalDependencies: true,
+      linter,
+      moduleName: '',
+      unitTestRunner: 'pytest',
+    },
+    provider,
+  );
+  if (linter === 'ruff') {
+    targets['format'].options.filePatterns = [];
+    targets['lint'].options.lintFilePatterns = [];
+  }
+  targets.install = {
+    executor: '@nxlv/python:install',
+    options: {
+      silent: false,
+      args: '',
+      verbose: false,
+      debug: false,
+    },
+  };
+  return targets;
+}
 
 export const createDependencies: CreateDependencies<PluginOptions> = async (
   options,
@@ -166,7 +299,7 @@ export const createDependencies: CreateDependencies<PluginOptions> = async (
 // a workspace file whichever project added it, so there they go in as
 // implicit edges, which Nx recomputes on every build.
 function lockGraphDependencies(
-  provider: Awaited<ReturnType<typeof getProvider>>,
+  provider: Provider,
   context: CreateDependenciesContext,
 ): Array<ImplicitDependency | StaticDependency> {
   const { nonProjectFiles, projectFileMap } = context.fileMap;

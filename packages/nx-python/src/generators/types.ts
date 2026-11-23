@@ -28,6 +28,7 @@ export interface BasePythonProjectGeneratorSchema
   tags?: string;
   directory?: string;
   useSyncGenerators?: boolean;
+  skipProjectJson?: boolean;
 }
 
 export interface BaseNormalizedSchema extends BasePythonProjectGeneratorSchema {
