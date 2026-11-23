@@ -1,3 +1,13 @@
+## 23.6.0 (2026-11-23)
+
+### 🚀 Features
+
+- **nx-python:** infer projects and their targets from pyproject.toml ([#382](https://github.com/lucasvieirasilva/nx-plugins/pull/382))
+
+### ❤️ Thank You
+
+- Mor Maman @mormamn
+
 ## 23.5.0 (2026-11-16)
 
 ### 🚀 Features
